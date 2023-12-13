@@ -1495,9 +1495,17 @@
             }
             else if (parseInt($('#Medical').val()) != 1)
                 medicalamt = 0;
-
+            //IsICSRStaff
             //Calculation part
-            ttlval = medicalamt + salary + hravalue;
+            var StaffCatecory1 = $('input[name="StaffCategory"]:checked').val();
+            if (parseInt($('#Medical').val()) == 1 && StaffCatecory1 == "ICSR Staff") {
+                ttlval = salary + hravalue;
+                $('#MedicalAmmount').val(0);
+            }
+            else {
+                ttlval = medicalamt + salary + hravalue;
+            }
+            //ttlval = medicalamt + salary + hravalue;
             var startperday = ttlval / objData.starttotaldays;
             var endperday = ttlval / objData.endtotaldays;
             var monthlyamt = ttlval;
@@ -1540,8 +1548,8 @@
             }
             else
             {
-                if(parseInt($('#Medical').val()) == 1 || parseInt($('#Medical').val()) == 2)
-                {
+                //if (parseInt($('#Medical').val()) == 1 || parseInt($('#Medical').val()) == 2)
+                if (parseInt($('#Medical').val()) == 2) {
                     $('#MedicalAmmount').val(MedicalAmount);
                 }
             }
@@ -1610,28 +1618,28 @@
                     if (LeapYear == 0) {
                         if (months == 2) {
                             if (days >= 28) {
-                                
+
                                 addedendyear = moment($(this).val().split('-').join('/')).add(+365, 'days').toDate();
                             }
                             else {
-                     
+
                                 addedendyear = moment($(this).val().split('-').join('/')).add(+364, 'days').toDate();
                             }
                         } else if (months >= 3) {
-                            
+
                             addedendyear = moment($(this).val().split('-').join('/')).add(+365, 'days').toDate();
                         } else {
-                            
+
                             addedendyear = moment($(this).val().split('-').join('/')).add(+364, 'days').toDate();
                         }
 
                     } else {
-                       
+
                         addedendyear = moment($(this).val().split('-').join('/')).add(+364, 'days').toDate();
                     }
-                    
-                }                                                            
-                                                 
+
+                }
+
                 if(addedendyear > closuredate)
                     enddate = closuredate;
                 else
@@ -1862,8 +1870,11 @@
     $('select[name="Medical"]').on('change', function () {
         $('#divMedicalAmount').removeClass('dis-none');
         UpdateMedical($(this).val());
-        if ($(this).val() == 3 || $(this).val() == 1) {
-            $('#divMedicalAmount').addClass('dis-none');
+        //if ($(this).val() == 3 || $(this).val() == 1) {
+        //    $('#divMedicalAmount').addClass('dis-none');
+        //}
+        if ($(this).val() == 3) {
+            //$('#divMedicalAmount').addClass('dis-none');
         }
         calculatetaxTotal();
     });
@@ -2840,11 +2851,34 @@
         UpdateAppointmentDatePicker();
     });
 
+
+
+
+    $('#IsICSRStaff').click(function () {
+        var value = parseInt($('#Medical').val()) || 0;
+        
+        ICSRStaffUpdateMedical(value);
+        calculatetaxTotal();
+    });
+    $('#IsProjectStaff').click(function () {
+        var value = parseInt($('#Medical').val()) || 0;
+        ICSRStaffUpdateMedical(value);
+        calculatetaxTotal();
+    });
+
+
     function UpdateMedical(value,isHaveMedical) {
         var checkmedical = getBoolean($('#isMedical').val());
         $('#Medical').val(value);
+        var StaffCatecory1 = $('input[name="StaffCategory"]:checked').val();
+        //if (parseInt($('#Medical').val()) == 1 && StaffCatecory1 == "Non ICSR Staff") {
         //if(value == 1 || value == 2) {
         if (value == 2) {
+            $('#Medical').removeClass('dis-none');
+            $('#MedicalText').addClass('dis-none');
+            $('#MedicalAmmount').val(MedicalAmount);
+        }
+        else if (value == 1 && StaffCatecory1 == "Non ICSR Staff") {
             $('#Medical').removeClass('dis-none');
             $('#MedicalText').addClass('dis-none');
             $('#MedicalAmmount').val(MedicalAmount);
@@ -2852,6 +2886,36 @@
         else if ((value == 3 || value == 1) && !checkmedical) {
             $('#Medical').addClass('dis-none');
             $('#MedicalText').removeClass('dis-none');
+            $('#MedicalAmmount').val(0);
+        }
+        else if (value == 3 || value == 1) {
+            $('#Medical').removeClass('dis-none');
+            $('#MedicalText').addClass('dis-none');
+            $('#MedicalAmmount').val(0);
+        }
+        $('#MedicalText').text($("#Medical option:selected").text());
+        $('#txtMedical1').text($("#Medical option:selected").text())
+        $('#txtMedicalAmount').text($('#MedicalAmmount').val());
+    }
+
+    function ICSRStaffUpdateMedical(value, isHaveMedical) {
+        var checkmedical = getBoolean($('#isMedical').val());
+        $('#Medical').val(value);
+        var StaffCatecory1 = $('input[name="StaffCategory"]:checked').val();
+        //if(value == 1 || value == 2) {
+        if (value == 2) {
+            $('#Medical').removeClass('dis-none');
+            $('#MedicalText').addClass('dis-none');
+            $('#MedicalAmmount').val(MedicalAmount);
+        }
+        else if (value == 1 && StaffCatecory1 == "Non ICSR Staff") {
+            $('#Medical').removeClass('dis-none');
+            $('#MedicalText').addClass('dis-none');
+            $('#MedicalAmmount').val(MedicalAmount);
+        }
+        else if ((value == 3 || value == 1) && !checkmedical) {
+            $('#Medical').addClass('dis-none');
+            $('#MedicalText').addClass('dis-none');
             $('#MedicalAmmount').val(0);
         }
         else if (value == 3 || value == 1) {
@@ -3757,4 +3821,3 @@
 <script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
 <script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
 <script src="@Url.Content("~/Scripts/FoolProof/mvcfoolproof.unobtrusive.min.js")" type="text/javascript"></script>
-
