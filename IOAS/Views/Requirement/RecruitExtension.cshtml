@@ -1463,7 +1463,7 @@
     var TypeOfAppointment = @Html.Raw(Json.Encode(Model.TypeofappointmentId)) || 0;
     var OrderID = @Html.Raw(Json.Encode(Model.OrderID)) || 0;
     var Medical = @Html.Raw(Json.Encode(Model.Medical)) || 0;
-
+    var staffcategory = @Html.Raw(Json.Encode(Model.staffcategory)) || '';
     var flowApp = @Html.Raw(Json.Encode(Model.FlowApprover)) || "";
     if(flowApp == "CMAdmin")
     {
@@ -1568,7 +1568,7 @@
     });
 
     var addyear = 0;
-
+                                                                                                                                                                                              
     //if ($("#ProjectId").val() > 0)
     //    ProjectSummary()
 
@@ -1849,8 +1849,14 @@
                 medicalamount = parseFloat($('#DesignationMedicalamount').val()) || 0;
             else //if Medical include
                 medicalamount = 0;
-
-            ttlVal = medicalamount + salary + hravalue;
+            if (parseInt($('#Medical').val()) == 1 && staffcategory == "ICSR Staff") {
+                ttlVal = salary + hravalue;
+                $('#MedicalAmmount').val(0);
+            }
+            else {
+                ttlVal = medicalamount + salary + hravalue;
+            }
+            //ttlVal = medicalamount + salary + hravalue;
             var startperday = ttlVal / starttotaldays;
             var endperday   = ttlVal / endtotaldays;
             var monthlyamt  = ttlVal;
@@ -1866,11 +1872,16 @@
                 return total;
 
             //UpdateValue
-            if($('#Medical').val() == 1 || $('#Medical').val() == 2)
-                $('#MedicalAmmount').val(parseFloat($('#DesignationMedicalamount').val()));
-            else
+            if (parseInt($('#Medical').val()) == 1 && staffcategory == "ICSR Staff") {
                 $('#MedicalAmmount').val(0);
-
+            }
+            else {
+                if ($('#Medical').val() == 1 || $('#Medical').val() == 2)
+                    $('#MedicalAmmount').val(parseFloat($('#DesignationMedicalamount').val()));
+                else
+                    $('#MedicalAmmount').val(0);
+            }
+            
             if (TypeOfAppointment == 2)
             {
                 $('#MedicalAmmount').val(0);
@@ -2571,11 +2582,40 @@
     function UpdateMedical(value) {
         var isHaveMedical = false;
         var checkmedical = getBoolean($('#isMedical').val());
-        if(value == 1 || value == 2) {
+        $('#MedicalAmmount').val($('#DesignationMedicalamount').val());
+        var MedicalAmount = parseInt($('#MedicalAmmount').val()) || 0;
+        //if(value == 1 || value == 2) {
+        //    $('#Medical').removeClass('dis-none');
+        //    $('#MedicalText').addClass('dis-none');
+        //    $('#Medical').val(value);
+        //    $('#MedicalAmmount').val(parseFloat($('#DesignationMedicalamount').val()))
+        //}
+        if (staffcategory == "Non ICSR Staff" && value == 1) {
             $('#Medical').removeClass('dis-none');
             $('#MedicalText').addClass('dis-none');
             $('#Medical').val(value);
-            $('#MedicalAmmount').val(parseFloat($('#DesignationMedicalamount').val()))
+            $('#MedicalAmmount').val(MedicalAmount);
+
+        }
+        else if (staffcategory == "Non ICSR Staff" && value == 2) {
+            $('#Medical').removeClass('dis-none');
+            $('#MedicalText').addClass('dis-none');
+            $('#Medical').val(value);
+            $('#MedicalAmmount').val(MedicalAmount);
+
+        }
+        else if (staffcategory == "ICSR Staff" && value == 2) {
+            $('#Medical').removeClass('dis-none');
+            $('#MedicalText').addClass('dis-none');
+            $('#Medical').val(value);
+            $('#MedicalAmmount').val(MedicalAmount);
+
+        }
+        else if (staffcategory == "ICSR Staff" && value == 1){
+            $('#Medical').removeClass('dis-none');
+            $('#MedicalText').addClass('dis-none');
+            $('#Medical').val(value);
+            $('#MedicalAmmount').val(0);
         }
         else if(value == 3 || value == 0) {
             if(!getBoolean($('#isMedical').val()))
