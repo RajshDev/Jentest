@@ -337,7 +337,7 @@ namespace IOAS.GenericServices
 
                     var qryProject = (from prj in context.tblProject
                                       from r in context.tblRCTSTE
-                                      where prj.ProjectId ==r.ProjectId && r.STEID == STEId 
+                                      where prj.ProjectId ==r.ProjectId && r.STEID == STEId
                                       select new { prj, r } ).FirstOrDefault();
                     if (qryProject.prj.SponsoringAgency > 0)
                     {
@@ -2557,11 +2557,11 @@ namespace IOAS.GenericServices
                         //                                     && c.Deleted_f != true
                         //                                     group c by c.Description into grp
                         //                                     select grp.Key).ToList();
-                        
+
                         viewmodel.PIJustificationCommands = (from c in context.tblRCTSTEPIJustificationDocs
                                                              where c.STEID == STEID && !string.IsNullOrEmpty(c.Description) && c.Deleted_f != true
-                                                         orderby c.DocsID descending
-                                                         select c.Description).Take(1).ToList();
+                                                             orderby c.DocsID descending
+                                                             select c.Description).Take(1).ToList();
 
 
                         viewmodel.Comments = query.A.Comments;
@@ -3404,7 +3404,7 @@ namespace IOAS.GenericServices
                                                                  where c.OSGID == appid && !string.IsNullOrEmpty(c.Description) && c.Deleted_f != true
                                                                  group c by c.Description into grp
                                                                  select grp.Key).ToList();
-                                                             model.CommiteeMember1 = Common.GetPIName(QrySTE.A.CommitteeMember ?? 0);
+                                model.CommiteeMember1 = Common.GetPIName(QrySTE.A.CommitteeMember ?? 0);
                                 model.CommiteeMember2 = Common.GetPIName(QrySTE.A.CommitteeMembers ?? 0);
                                 model.ChairpersonName = Common.GetPIName(QrySTE.A.Chairperson ?? 0);
                                 model.Qualification = Common.getQualificationWordings(appid, apptype); ;
@@ -3703,7 +3703,7 @@ namespace IOAS.GenericServices
                         model.PIJustificationCommands = (from c in context.tblRCTSTEPIJustificationDocs
                                                          where c.STEID == STEID && !string.IsNullOrEmpty(c.Description) && c.Deleted_f != true
                                                          group c by c.Description into grp
-                                                         select grp.Key).ToList();                      
+                                                         select grp.Key).Take(1).ToList();
                         model.BloodGroup = query.A.Bloodgroup;
                         model.BloodGroupRH = query.A.BloodgroupRH;
                         model.GateScore = query.A.GateScore;
@@ -7818,7 +7818,7 @@ namespace IOAS.GenericServices
         #region Change of project,Extension,Enhancement
 
         public OrderModel getOrderProjectDetails(int appid, string appType, int ordertype)
-         {
+        {
             OrderModel model = new OrderModel();
             try
             {
@@ -11851,9 +11851,9 @@ namespace IOAS.GenericServices
                                 }
 
                             }
-                            
+
                         }
-                        
+
                     }
                     else if (appTypeId == 1)
                     {
@@ -13651,8 +13651,8 @@ namespace IOAS.GenericServices
                     {
                         //yogesh
                         var query = (from o in context.vw_RCTOverAllApplicationEntry
-                                     from  prj in context.tblProject 
-                                     from  vwp in context.vwFacultyStaffDetails 
+                                     from  prj in context.tblProject
+                                     from  vwp in context.vwFacultyStaffDetails
                                      from rct in context.tblRCTSTE
                                      where o.OrderId == orderid  && rct.RequestedBy == vwp.UserId && rct.STEID == o.ApplicationId && o.ProjectId == prj.ProjectId
                                      select new { o, vwp }).FirstOrDefault();
@@ -13775,7 +13775,7 @@ namespace IOAS.GenericServices
                         model.EmployeeId = query.EmployeersID;
                         model.Name = query.ProfessionalType + " " + query.CandidateName.ToUpper();
                         model.ApplicationNo = getOfferDetails(query.ApplicationId ?? 0, query.Category, orderid);
-                    
+
                         model.Designation = query.PostRecommended;
                         model.Appointmentstartdate = string.Format("{0:dd-MMMM-yyyy}", query.AppointmentStartdate);
                         model.AppointmentEndDate = string.Format("{0:dd-MMMM-yyyy}", query.AppointmentEnddate);
@@ -14469,7 +14469,7 @@ namespace IOAS.GenericServices
                                            orderby c.DocsID descending
                                            group c by c.Description into grp
                                            select new { grp.Key }
-                                       ).ToArray();
+                                       ).Take(1).ToArray();                      
                             if (QryNote != null)
                             {
                                 for (int i = 0; i < QryNote.Count(); i++)
@@ -14482,7 +14482,7 @@ namespace IOAS.GenericServices
                             }
                             model.PIJustificationCommands = PICommands;
                             model.Comments = QrySTE.A.Comments;
-                            model.Notes = (from c in context.tblRCTSTENotes
+                                 model.Notes = (from c in context.tblRCTSTENotes
                                            where c.STEID == STEID
                                            orderby c.NotesID descending
                                            group c by c.PICommends into grp
@@ -14636,7 +14636,7 @@ namespace IOAS.GenericServices
                                            where c.OSGID == STEID && c.Deleted_f != true
                                            orderby c.DocsID descending
                                            select new { c.Description, }
-                                       ).ToArray();
+                                       ).Take(1).ToArray();
                             if (QryNote != null)
                             {
                                 for (int i = 0; i < QryNote.Count(); i++)
@@ -18928,7 +18928,7 @@ namespace IOAS.GenericServices
                                 OSG.ProjectId = model.ProjectId;
                                 OSG.DesignationId = model.DesignationId;
                                 OSG.SalaryLevelId = model.SalaryLevelId;
-                                OSG.EmployeeWorkplace = model.EmployeeWorkplace; 
+                                OSG.EmployeeWorkplace = model.EmployeeWorkplace;
                                 //if (model.MsPhd || model.TypeofappointmentId == 2)
                                 //{
                                 //    STE.Medical = 3;
@@ -20842,7 +20842,7 @@ namespace IOAS.GenericServices
                         var QryNote = (from c in context.tblRCTOSGPIJustificationDoc
                                        where c.OSGID == OSGID && !string.IsNullOrEmpty(c.Description) && c.Deleted_f != true
                                        group c by c.Description into grp
-                                       select new { grp.Key }).ToArray();
+                                       select new { grp.Key }).Take(1).ToArray();
                         if (QryNote != null)
                         {
                             for (int i = 0; i < QryNote.Count(); i++)
