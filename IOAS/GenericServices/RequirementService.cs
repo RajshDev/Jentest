@@ -2552,11 +2552,18 @@ namespace IOAS.GenericServices
                                                                   FileName = c.FileName,
                                                                   FilePath = c.DocsName,
                                                               }).ToList();
+                        //viewmodel.PIJustificationCommands = (from c in context.tblRCTSTEPIJustificationDocs
+                        //                                     where c.STEID == STEID && !string.IsNullOrEmpty(c.Description)
+                        //                                     && c.Deleted_f != true
+                        //                                     group c by c.Description into grp
+                        //                                     select grp.Key).ToList();
+                        
                         viewmodel.PIJustificationCommands = (from c in context.tblRCTSTEPIJustificationDocs
-                                                             where c.STEID == STEID && !string.IsNullOrEmpty(c.Description)
-                                                             && c.Deleted_f != true
-                                                             group c by c.Description into grp
-                                                             select grp.Key).ToList();
+                                                             where c.STEID == STEID && !string.IsNullOrEmpty(c.Description) && c.Deleted_f != true
+                                                         orderby c.DocsID descending
+                                                         select c.Description).Take(1).ToList();
+
+
                         viewmodel.Comments = query.A.Comments;
                         viewmodel.CommiteeMemberId1 = query.A.CommitteeMember ?? 0;
                         viewmodel.CommiteeMemberId2 = query.A.CommitteeMembers ?? 0;
@@ -3397,7 +3404,7 @@ namespace IOAS.GenericServices
                                                                  where c.OSGID == appid && !string.IsNullOrEmpty(c.Description) && c.Deleted_f != true
                                                                  group c by c.Description into grp
                                                                  select grp.Key).ToList();
-                                model.CommiteeMember1 = Common.GetPIName(QrySTE.A.CommitteeMember ?? 0);
+                                                             model.CommiteeMember1 = Common.GetPIName(QrySTE.A.CommitteeMember ?? 0);
                                 model.CommiteeMember2 = Common.GetPIName(QrySTE.A.CommitteeMembers ?? 0);
                                 model.ChairpersonName = Common.GetPIName(QrySTE.A.Chairperson ?? 0);
                                 model.Qualification = Common.getQualificationWordings(appid, apptype); ;
@@ -3696,7 +3703,7 @@ namespace IOAS.GenericServices
                         model.PIJustificationCommands = (from c in context.tblRCTSTEPIJustificationDocs
                                                          where c.STEID == STEID && !string.IsNullOrEmpty(c.Description) && c.Deleted_f != true
                                                          group c by c.Description into grp
-                                                         select grp.Key).ToList();
+                                                         select grp.Key).ToList();                      
                         model.BloodGroup = query.A.Bloodgroup;
                         model.BloodGroupRH = query.A.BloodgroupRH;
                         model.GateScore = query.A.GateScore;
@@ -19259,13 +19266,18 @@ namespace IOAS.GenericServices
                                     }
                                     else
                                     {
-                                        if (model.bcc != null)
+                                        if (model.ToMail != null)
                                         {
                                             qryOSG.bcc = model.ToMail;
                                         }
-                                        if (model.ToMail != null)
+                                        if(model.bcc != null)
+                                        {
+                                            qryOSG.bcc = model.bcc;
+                                        }
+                                        if (model.ReqTomail != null)
                                         {
                                             qryOSG.ToMail = model.ReqTomail;
+                                            //qryOSG.bcc = model.ToMail;
                                         }
                                     }
                                     NewStatus = qryOSG.Status;
@@ -21950,10 +21962,17 @@ namespace IOAS.GenericServices
                         //        }
                         //    }
                         //}
+                        //model.PIJustificationCommands = (from c in context.tblRCTOSGPIJustificationDoc
+                        //                                 where c.OSGID == OSGID && !string.IsNullOrEmpty(c.Description) && c.Deleted_f != true
+                        //                                 group c by c.Description into grp
+                        //                                 select grp.Key).ToList();
+
                         model.PIJustificationCommands = (from c in context.tblRCTOSGPIJustificationDoc
                                                          where c.OSGID == OSGID && !string.IsNullOrEmpty(c.Description) && c.Deleted_f != true
-                                                         group c by c.Description into grp
-                                                         select grp.Key).ToList();
+                                                         orderby c.DocsID descending
+                                                         select c.Description).Take(1).ToList();
+
+
                         var justificdocs = (from c in context.tblRCTOSGPIJustificationDoc
                                             where c.OSGID == OSGID && c.Deleted_f != true
                                             select c).ToList();
