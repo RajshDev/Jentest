@@ -3183,7 +3183,7 @@ namespace IOAS.GenericServices
                             model.PIJustificationCommands = (from c in context.tblRCTOrderPIJustificationDocs
                                                              where c.OrderId == orderid && !string.IsNullOrEmpty(c.Description)
                                                              group c by c.Description into grp
-                                                             select grp.Key).ToList();
+                                                             select grp.Key).Take(1).ToList();
                             model.CommiteeMember1 = Common.GetPIName(query.vw.CommitteeMember ?? 0);
                             model.CommiteeMember2 = Common.GetPIName(query.vw.CommitteeMembers ?? 0);
                             model.ChairpersonName = Common.GetPIName(query.vw.Chairperson ?? 0);
@@ -3262,7 +3262,7 @@ namespace IOAS.GenericServices
                                                                  where c.STEID == appid && !string.IsNullOrEmpty(c.Description)
                                                                  && c.Deleted_f != true
                                                                  group c by c.Description into grp
-                                                                 select grp.Key).ToList();
+                                                                 select grp.Key).Take(1).ToList();
                                 model.CommiteeMember1 = Common.GetPIName(QrySTE.A.CommitteeMember ?? 0);
                                 model.CommiteeMember2 = Common.GetPIName(QrySTE.A.CommitteeMembers ?? 0);
                                 model.ChairpersonName = Common.GetPIName(QrySTE.A.Chairperson ?? 0);
@@ -3403,7 +3403,7 @@ namespace IOAS.GenericServices
                                 model.PIJustificationCommands = (from c in context.tblRCTOSGPIJustificationDoc
                                                                  where c.OSGID == appid && !string.IsNullOrEmpty(c.Description) && c.Deleted_f != true
                                                                  group c by c.Description into grp
-                                                                 select grp.Key).ToList();
+                                                                 select grp.Key).Take(1).ToList();
                                 model.CommiteeMember1 = Common.GetPIName(QrySTE.A.CommitteeMember ?? 0);
                                 model.CommiteeMember2 = Common.GetPIName(QrySTE.A.CommitteeMembers ?? 0);
                                 model.ChairpersonName = Common.GetPIName(QrySTE.A.Chairperson ?? 0);
