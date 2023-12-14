@@ -5252,6 +5252,8 @@ namespace IOAS.Models
         public Nullable<decimal> EligibleTaxValue { get; set; }
         public string Remark { get; set; }
 
+        public Nullable<decimal> RoundOffAmt { get; set; }
+
         [Required]
         [Display(Name = "Bank Name")]
         public Nullable<Int32> BankId { get; set; }

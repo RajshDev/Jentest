@@ -1239,6 +1239,7 @@ namespace IOAS.GenericServices
                     model.AccNo = Qry.AccountNumber;
                     model.Remarks = Qry.Remarks;
                     model.IFSC = Qry.IFSC;
+                    model.RoundOffAdjustment = Qry.RoundOffAdjustment ?? 0;
                     if (Qry.PayeeType == 1)
                     {
                         int PayId = Convert.ToInt32(Qry.PayeeID);

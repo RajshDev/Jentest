@@ -787,21 +787,49 @@
                     $(rowEle).find('.tdAdvPct').html(advPct.toFixed(2));
                     $(rowEle).find('.tdAdvAmt').html(advAmt.toFixed(2));
                     $(rowEle).find('.tdTaxAmt').html(advTaxVal.toFixed(2));
-                    $(rowEle).find('.tdNetAmt').html(netAdvAmt.toFixed(2));
+                    //$(rowEle).find('.tdNetAmt').html(netAdvAmt.toFixed(2));
+                    $(rowEle).find('.tdNetAmt').html(round(netAdvAmt).toFixed(2));
                 }
+
             });
             $('#lblPOTtlAmt').text(ttlPOVal.toFixed(2));
             $('#lblPOTtlTaxAmt').text(ttlPOTaxVal.toFixed(2));
-            netPOVal = (ttlPOVal + ttlPOTaxVal).toFixed(2);
-            $('#lblPONetAmt').text(netPOVal);
-            $('#lblAdvTtlAmt').text(ttlAdvVal.toFixed(2));
+            netPOVal = (round(ttlPOVal) + ttlPOTaxVal).toFixed(2);
+            $('#lblPONetAmt').text(round(netPOVal));
+            //$('#lblAdvTtlAmt').text(ttlAdvVal.toFixed(2));
+            $('#lblAdvTtlAmt').text(round(ttlAdvVal).toFixed(2));
             $('#lblAdvTtlTaxAmt').text(ttlAdvTaxVal.toFixed(2));
             netAdvVal = (ttlAdvVal + ttlAdvTaxVal).toFixed(2);
-            $('#lblAdvNetAmt').text(netAdvVal);
+            $('#lblAdvNetAmt').text(round(netAdvVal));
            // $('#NeedUpdateTransDetail').val('true');
             UpdateGSTSplitUp()
         }
     }
+
+    //Round off calculation // 10616
+    function round(total) {
+
+        if (!isNaN(total)) {
+            console.log('Loaded..')
+            var valToBeRounded = parseFloat(total);
+            var decimalPart = valToBeRounded % 1;
+
+            console.log(valToBeRounded);
+            if (decimalPart > 0.5) {
+                // Round up the number
+                var roundUpNumber = Math.ceil(valToBeRounded);
+                value = roundUpNumber;
+            }
+            else {
+                // Round off the number
+                var roundOffNumber = Math.round(valToBeRounded);
+                value = roundOffNumber;
+            }
+            return value;
+        }
+    }
+
+
     function noEdit() {
         return false;
     }

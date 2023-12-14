@@ -295,8 +295,8 @@ namespace IOAS.Controllers
             {
                 decimal advAmt = (item.TotalAmount * model.AdvancePercentage / 100) ?? 0;
                 ttlAdvAmt += advAmt;
-                //ttlAdvAmt = Math.Round(ttlAdvAmt, 2, MidpointRounding.AwayFromZero);
-                ttlAdvAmt = (int)Math.Round(ttlAdvAmt);
+                ttlAdvAmt = (int)Math.Round(ttlAdvAmt, MidpointRounding.AwayFromZero);
+                //ttlAdvAmt = (int)Math.Round(ttlAdvAmt);
             }
 
             if (ttlAdvAmt != commitmentAmt)
@@ -561,13 +561,16 @@ namespace IOAS.Controllers
                 decimal advTax = (advAmt * item.TaxPct / 100) ?? 0;
                 ttlAdvAmt += advAmt;
                 //10616 - Round Off feature
-                advAmt = (int)Math.Round(advAmt);
                 netAdvAmt += advAmt + advTax;
+                netAdvAmt = (int)Math.Round(netAdvAmt, MidpointRounding.AwayFromZero);
+                //netAdvAmt = (int)Math.Round(netAdvAmt);
+                
                 if (item.IsTaxEligible)
                     ttlGSTElgAmt = ttlGSTElgAmt + advTax;
             }
             ttlGSTElgAmt = Math.Round(ttlGSTElgAmt, 2, MidpointRounding.AwayFromZero);
-            netAdvAmt = Math.Round(netAdvAmt, 2, MidpointRounding.AwayFromZero);
+            //netAdvAmt = Math.Round(netAdvAmt, 2, MidpointRounding.AwayFromZero);
+            
             netDrAmt = Math.Round(netDrAmt, 2, MidpointRounding.AwayFromZero);
             if ((netAdvAmt - ttlGSTElgAmt) != commitmentAmt)
                 msg = "There is a mismatch between the part payment total value and allocated commitment value. Please update the value to continue.";
@@ -834,12 +837,17 @@ namespace IOAS.Controllers
                 decimal advAmt = (item.TotalAmount * model.AdvancePercentage / 100) ?? 0;
                 decimal advTax = (advAmt * item.TaxPct / 100) ?? 0;
                 ttlAdvAmt += advAmt;
+                //10616 - Round Off feature
                 netAdvAmt += advAmt + advTax;
+                //netAdvAmt = (int)Math.Round(netAdvAmt);
+                netAdvAmt = (int)Math.Round(netAdvAmt, MidpointRounding.AwayFromZero);
+
+
                 if (item.IsTaxEligible)
                     ttlGSTElgAmt = ttlGSTElgAmt + advTax;
             }
             ttlGSTElgAmt = Math.Round(ttlGSTElgAmt, 2, MidpointRounding.AwayFromZero);
-            netAdvAmt = Math.Round(netAdvAmt, 2, MidpointRounding.AwayFromZero);
+            //netAdvAmt = Math.Round(netAdvAmt, 2, MidpointRounding.AwayFromZero);
             netDrAmt = Math.Round(netDrAmt, 2, MidpointRounding.AwayFromZero);
             if ((netAdvAmt - ttlGSTElgAmt) != commitmentAmt)
                 msg = "There is a mismatch between the part payment total value and allocated commitment value. Please update the value to continue.";
@@ -938,7 +946,7 @@ namespace IOAS.Controllers
                     ViewBag.TypeOfServiceList = Common.GetTypeOfServiceList(model.BillType ?? 0);
                     ViewBag.PONumberList = Common.GetBillPONumberList(model.VendorId, model.PONumber, "ADV");
                     ViewBag.VendorTDSList = Common.GetVendorTDSList(model.VendorId);
-                    ViewBag.RoundOfAdjustment = model.RoundOfAdjustment.ToString();
+                    ViewBag.RoundOfAdjustment = model.RoundOfAdjustment ?? 0;
                     ViewBag.totInvoiceAmt = model.totInvoiceAmt.ToString();
                     ViewBag.invoiceTaxAmt = model.InvoiceTaxAmount.ToString();
                 }
@@ -1005,7 +1013,7 @@ namespace IOAS.Controllers
                 ViewBag.DocmentTypeList = Common.GetDocTypeList(31);
                 ViewBag.ProjectNumberList = ProjectService.LoadProjecttitledetails(firstPType);
                 ViewBag.invoiceTaxAmt = model.InvoiceTaxAmount.ToString();
-                ViewBag.RoundOfAdjustment = model.RoundOfAdjustment.ToString();
+                ViewBag.RoundOfAdjustment = model.RoundOfAdjustment ?? 0;
                 ViewBag.totInvoiceAmt = model.totInvoiceAmt.ToString();
 
                 if (model.ExpenseDetail != null)
@@ -1147,7 +1155,7 @@ namespace IOAS.Controllers
                         ttlGSTElgAmt = ttlGSTElgAmt + advTax;
                 }
                 ttlAdvAmt = model.InvoiceAmount ?? 0;
-                ttlAdvAmt = (int)Math.Round(ttlAdvAmt);
+                ttlAdvAmt = (int)Math.Round(ttlAdvAmt, MidpointRounding.AwayFromZero);
                 netAdvAmt = ttlAdvAmt + (model.InvoiceTaxAmount ?? 0);
             }
             else
@@ -1166,8 +1174,8 @@ namespace IOAS.Controllers
                 netAdvAmt = ttlAdvAmt + (Convert.ToDecimal(model.InvoiceTaxAmount) - Convert.ToDecimal(model.hiddenSettTaxAmt));
             }
             ttlGSTElgAmt = Math.Round(ttlGSTElgAmt, 2, MidpointRounding.AwayFromZero);
-            //netAdvAmt = Math.Round(netAdvAmt, 2, MidpointRounding.AwayFromZero);
-            netAdvAmt = (int)Math.Round(netAdvAmt);
+            netAdvAmt = (int)Math.Round(netAdvAmt, MidpointRounding.AwayFromZero);
+            //netAdvAmt = (int)Math.Round(netAdvAmt);
             var invAmt = netAdvAmt;
             netAdvAmt = netAdvAmt - ttlGSTElgAmt;
             
@@ -22147,7 +22155,7 @@ TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
         #region backendprocess
         public ActionResult TestImprestEnhancement()
         {
-            getImprestEnhanceBOAmodeldetails(271);
+           
             return RedirectToAction("PaymentProcessInitList");
         }
 
