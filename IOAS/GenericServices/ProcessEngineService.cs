@@ -990,17 +990,17 @@ namespace IOAS.GenericServices
                         trans.FunctionId = model.FunctionId;
                         trans.RefNumber = model.RefNumber;
                         //rajesh duplication                       
-
-                        if (DuplicateEntryValidation(model.RefNumber.ToString(), model.ProcessGuidelineDetailId))
-                        {
-                            context.tblProcessTransaction.Add(trans);
-                            context.SaveChanges();
-                        }
+                        context.tblProcessTransaction.Add(trans);
+                        context.SaveChanges();
+                        //if (DuplicateEntryValidation(model.RefNumber.ToString(), model.ProcessGuidelineDetailId))
+                        //{
+                            
+                        //}
                     }
                     var GetProcessTransactionId = trans.ProcessTransactionId;
                     
-                    if (GetProcessTransactionId != 0 || GetProcessTransactionId != null)
-                    {
+                    //if (GetProcessTransactionId != 0 || GetProcessTransactionId != null)
+                    //{
                         transDetail.ProcessTransactionId = trans.ProcessTransactionId;
                         transDetail.ProcessGuidelineDetailId = model.ProcessGuidelineDetailId;
                         transDetail.ProcessSeqNumber = model.ProcessSeqNumber;
@@ -1039,11 +1039,11 @@ namespace IOAS.GenericServices
                         context.Dispose();
 
                         return model;
-                    }
-                    else
-                    {
-                        return null; 
-                    }
+                    //}
+                    //else
+                    //{
+                    //    return null; 
+                    //}
                 }  
             }
             catch (Exception ex)
