@@ -126,7 +126,7 @@
                                                                 var amount = "CrDetail[" + count + "].Amount";
                                                                 <tr>
                                                                     <td>
-                                                                        @Html.DropDownList(@head, new SelectList(ViewBag.BudgetHeadId, "id", "name", item.BudgetHeadId), "Select any", new { @class = "form-control required", @onchange = "BudgetHeadChange(this.value);" })
+                                                                        @Html.DropDownList(@head, new SelectList(ViewBag.BudgetHeadId, "id", "name", item.BudgetHeadId), "Select any", new { @class = "form-control required", @onchange = "BudgetHeadChange(this);" })
                                                                         @Html.ValidationMessage(@head)
                                                                         @Html.Hidden("CrDetail.Index", @count)
                                                                     </td>
@@ -146,7 +146,7 @@
                                                         {
                                                             <tr>
                                                                 <td>
-                                                                    @Html.DropDownList("CrDetail[0].BudgetHeadId", new SelectList(ViewBag.BudgetHeadId, "id", "name"), "Select any", new { @class = "form-control required" })
+                                                                    @Html.DropDownList("CrDetail[0].BudgetHeadId", new SelectList(ViewBag.BudgetHeadId, "id", "name"), "Select any", new { @class = "form-control required", @onchange = "BudgetHeadChange(this);" })
                                                                     @Html.ValidationMessage("CrDetail[0].BudgetHeadId")
                                                                     @Html.Hidden("CrDetail.Index", 0)
                                                                 </td>
@@ -543,6 +543,7 @@
         CalculateTxTotal();
         CalculateTotal();
 
+        
 
         var BankId = $('#BankId :selected').val();
 
@@ -814,6 +815,9 @@
         $(cln).find("input, select").each(function () {
             $(this).attr("name", $(this).attr("name").replace(/\d+/, index));
             $(this).attr("id", $(this).attr("id").replace(/\d+/, index));
+            $(this).attr("Amount",$(this).removeAttr('readonly'));
+            //$('input[name$="Amount"]').removeAttr('readonly');
+
         });
         $(cln).find("span[data-valmsg-for]").each(function () {
             $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, index));
@@ -999,13 +1003,15 @@
             messageBox('Allocation Head Freezed', "warning");
         }
     });*/
+    
+    function BudgetHeadChange(ele) {
 
-    function BudgetHeadChange(selvalue) {
-
-        var firstmessfreeze = GetFreezeValueData(selvalue);
+        var firstmessfreeze = GetFreezeValueData(ele.value);
         if (firstmessfreeze == 1) {
+            //var selectedText = ele.options[ele.selectedIndex].text;
             messageBox('Allocation Head Freezed', "warning");
-        }
+            ele.selectedIndex = -1;             
+        } 
     }
     
 </script>

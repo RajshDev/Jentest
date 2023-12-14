@@ -3018,7 +3018,7 @@ namespace IOAS.GenericServices
                 {
 
                     var Freezedata = (from FreezeLog in context.tblAllocationFreezeLog                               
-                               where FreezeLog.ProjectId== ProjectId && FreezeLog.AllocationHead== AllocationId
+                               where FreezeLog.ProjectId== ProjectId && FreezeLog.AllocationHead== AllocationId && FreezeLog.IsCurrentVersion==1
                                select FreezeLog.IsFreeze).FirstOrDefault();
 
                     if (Freezedata == null)
