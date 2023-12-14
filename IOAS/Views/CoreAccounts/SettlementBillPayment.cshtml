@@ -1181,155 +1181,151 @@ if (stateCode == '33') {
     }
 }
 }
-function CalculatePOValue() {
-if ($('#PaymentType').val() != '2') {
-    var advPct = 100;
-    var ttlPOVal = 0, ttlPOTaxVal = 0, netPOVal = 0, ttlAdvVal = 0, ttlAdvTaxVal = 0, netAdvVal = 0;
-    var elgF = false;
-    var ttlGSTElgAmt = 0;
-    //10616 - RoundOff Feature
-    var adjVal = parseFloat($("#txtRoundOfAdjustment").val()); console.log('PO adjVal' + adjVal);
-    $('#tbodyPO tr').not(':first').each(function (i, rowEle) {
-        var amt = parseFloat($(rowEle).find('input[name$=".TotalAmount"]').val());
-        var chckElg = $(rowEle).find('input[type="checkbox"][name$=".IsTaxEligible"]').prop('checked');
-        if (chckElg)
-            elgF = true;
-        if (!isNaN(amt))
-            ttlPOVal = round(ttlPOVal + amt + adjVal);
-        if (amt > 0) {
-            var taxPct = parseFloat($(rowEle).find('select[name$=".TaxPct"]').val());
-            if (isNaN(taxPct))
-                taxPct = 0;
-            var advTaxVal = 0, advAmt = 0, netAdvAmt = 0;
-            advAmt = amt * advPct / 100;
-           
-            ttlAdvVal = ttlAdvVal + advAmt;
-            if (taxPct > 0) {
-                var taxAmt = amt * taxPct / 100;
-                ttlPOTaxVal = ttlPOTaxVal + taxAmt;
-
-                advTaxVal = advAmt * taxPct / 100;
-                ttlAdvTaxVal = ttlAdvTaxVal + advTaxVal;
+    function CalculatePOValue() {
+        if ($('#PaymentType').val() != '2') {
+            var advPct = 100;
+            var ttlPOVal = 0, ttlPOTaxVal = 0, netPOVal = 0, ttlAdvVal = 0, ttlAdvTaxVal = 0, netAdvVal = 0;
+            var elgF = false;
+            var ttlGSTElgAmt = 0;
+            //10616 - RoundOff Feature
+            var adjVal = parseFloat($("#txtRoundOfAdjustment").val()); console.log('PO adjVal' + adjVal);
+            $('#tbodyPO tr').not(':first').each(function (i, rowEle) {
+                var amt = parseFloat($(rowEle).find('input[name$=".TotalAmount"]').val());
+                var chckElg = $(rowEle).find('input[type="checkbox"][name$=".IsTaxEligible"]').prop('checked');
                 if (chckElg)
-                    ttlGSTElgAmt = ttlGSTElgAmt + advTaxVal;
-            }
-            advAmt = advAmt + adjVal;
-            netAdvAmt = advAmt + advTaxVal;
-            //var poTaxVal = amt * taxPct / 100;
-            //ttlPOTaxVal = ttlPOTaxVal + poTaxVal;
-            $(rowEle).find('.tdAdvPct').html(advPct.toFixed(2));
-            //$(rowEle).find('.tdAdvAmt').html(advAmt.toFixed(2));
-            $(rowEle).find('.tdAdvAmt').html(round(advAmt));
-            //$(rowEle).find('.tdTaxAmt').html(advTaxVal.toFixed(2));
-            //$(rowEle).find('.tdNetAmt').html(netAdvAmt.toFixed(2));
-            $(rowEle).find('.tdTaxAmt').html(advTaxVal);
-            $(rowEle).find('.tdNetAmt').html(round(netAdvAmt));
-            
-        }
-    });
-    if (elgF)
-        $('#isHaveElgGST').val('true');
-    else
-        $('#isHaveElgGST').val('false');
-    
-    $('#lblPOTtlAmt').text(round(ttlPOVal));
-    //$('#lblPOTtlTaxAmt').text(round(ttlPOTaxVal));
-    $('#lblPOTtlTaxAmt').text(ttlPOTaxVal.toFixed(2));
-    netPOVal = (ttlPOVal + ttlPOTaxVal).toFixed(2);
-    console.log('Net PO value' + (netPOVal));
-    $('#lblPONetAmt').text(round(netPOVal));
+                    elgF = true;
+                if (!isNaN(amt))
+                    ttlPOVal = ttlPOVal + amt;
+                if (amt > 0) {
+                    var taxPct = parseFloat($(rowEle).find('select[name$=".TaxPct"]').val());
+                    if (isNaN(taxPct))
+                        taxPct = 0;
+                    var advTaxVal = 0, advAmt = 0, netAdvAmt = 0;
+                    advAmt = amt * advPct / 100;
 
-    var invAmt = parseFloat($('#InvoiceAmount').val()) || 0;
-    var invTaxAmt = parseFloat($('#InvoiceTaxAmount').val()) || 0;
-    //$('#lblAdvTtlAmt').text(invAmt.toFixed(2));
-    $('#lblAdvTtlAmt').text(round(invAmt));
-    $('#lblAdvTtlTaxAmt').text(invTaxAmt.toFixed(2));
-    //$('#lblAdvTtlTaxAmt').text(round(invTaxAmt));
-    $('#hiddenTaxEligibleAmt').val(ttlGSTElgAmt.toFixed(2));
-    $('#lblTaxEligibleAmt').text(ttlGSTElgAmt.toFixed(2));
-    //$('#lblTaxEligibleAmt').text(round(ttlGSTElgAmt));
-    netAdvVal = (invTaxAmt + round(invAmt));
-    //$('#lblAdvNetAmt').text(netAdvVal.toFixed(2));
-    $('#lblAdvNetAmt').text(round(netAdvVal));
-    UpdateGSTSplitUp();
-    var roundValItc = $('#hiddenTaxEligibleAmt').val() || 0; console.log('roundValItc' + roundValItc);
-    var validCmtAmt = (round(netAdvVal) - roundValItc).toFixed(2); console.log('netAdvVal' + netAdvVal);
-    $('#lblcommitamt').html(validCmtAmt);
-   
-    if ($('#TotalInvoiceValue').val() == 0 && $('#BillId').val() != "0") {
-        $('#TotalInvoiceValue').val(validCmtAmt);
-        var SettleAmt = $('#lblAdvNetAmt').text() || 0;
-        var vendorid = $('#VendorId').val() || 0;
-        var TotalInvoice = $("#TotalInvoiceValue").val() || 0;
-        validatetds(vendorid, SettleAmt, TotalInvoice);
-    }
-} else {
-    var ttlPOVal = 0, ttlPOTaxVal = 0, netPOVal = 0;
-    var elgF = false;
-    var ttlGSTElgAmt = 0;
-    $('#tbodyPO tr').not(':first').each(function (i, rowEle) {
-        var amt = parseFloat($(rowEle).find('input[name$=".TotalAmount"]').val());
-        var chckElg = $(rowEle).find('input[type="checkbox"][name$=".IsTaxEligible"]').prop('checked');
-        if (chckElg)
-            elgF = true;
-        if (!isNaN(amt))
-            ttlPOVal = ttlPOVal + amt + adjVal;
-        if (amt > 0) {
-            var taxPct = parseFloat($(rowEle).find('select[name$=".TaxPct"]').val());
-            if (isNaN(taxPct))
-                taxPct = 0;
-            if (taxPct > 0) {
-                var taxAmt = amt * taxPct / 100;
-                ttlPOTaxVal = ttlPOTaxVal + taxAmt;
+                    ttlAdvVal = ttlAdvVal + advAmt;
+                    if (taxPct > 0) {
+                        var taxAmt = amt * taxPct / 100;
+                        ttlPOTaxVal = ttlPOTaxVal + taxAmt;
+
+                        advTaxVal = advAmt * taxPct / 100;
+                        ttlAdvTaxVal = ttlAdvTaxVal + advTaxVal;
+                        if (chckElg)
+                            ttlGSTElgAmt = ttlGSTElgAmt + advTaxVal;
+                    }
+                    advAmt = advAmt;
+                    netAdvAmt = advAmt + advTaxVal;
+                    //var poTaxVal = amt * taxPct / 100;
+                    //ttlPOTaxVal = ttlPOTaxVal + poTaxVal;
+                    $(rowEle).find('.tdAdvPct').html(advPct.toFixed(2));
+                    //$(rowEle).find('.tdAdvAmt').html(advAmt.toFixed(2));
+                    $(rowEle).find('.tdAdvAmt').html(advAmt.toFixed(2));
+                    //$(rowEle).find('.tdTaxAmt').html(advTaxVal.toFixed(2));
+                    //$(rowEle).find('.tdNetAmt').html(netAdvAmt.toFixed(2));
+                    $(rowEle).find('.tdTaxAmt').html(advTaxVal);
+                    $(rowEle).find('.tdNetAmt').html(round(netAdvAmt).toFixed(2));
+
+                }
+            });
+            if (elgF)
+                $('#isHaveElgGST').val('true');
+            else
+                $('#isHaveElgGST').val('false');
+
+            $('#lblPOTtlAmt').text((ttlPOVal + adjVal).toFixed(2));
+            //$('#lblPOTtlTaxAmt').text(round(ttlPOTaxVal));
+            $('#lblPOTtlTaxAmt').text(ttlPOTaxVal.toFixed(2));
+            netPOVal = (round(ttlPOVal) + ttlPOTaxVal + adjVal).toFixed(2);
+            $('#lblPONetAmt').text(round(netPOVal).toFixed(2));
+
+            var invAmt = parseFloat($('#InvoiceAmount').val()) || 0;
+            var invTaxAmt = parseFloat($('#InvoiceTaxAmount').val()) || 0;
+            //$('#lblAdvTtlAmt').text(invAmt.toFixed(2));
+            $('#lblAdvTtlAmt').text(invAmt.toFixed(2));
+            $('#lblAdvTtlTaxAmt').text(invTaxAmt.toFixed(2));
+            //$('#lblAdvTtlTaxAmt').text(round(invTaxAmt));
+            $('#hiddenTaxEligibleAmt').val(ttlGSTElgAmt.toFixed(2));
+            $('#lblTaxEligibleAmt').text(ttlGSTElgAmt.toFixed(2));
+            //$('#lblTaxEligibleAmt').text(round(ttlGSTElgAmt));
+            netAdvVal = (invTaxAmt + round(invAmt));
+            //$('#lblAdvNetAmt').text(netAdvVal.toFixed(2));
+            $('#lblAdvNetAmt').text(round(netAdvVal));
+            UpdateGSTSplitUp();
+            var roundValItc = $('#hiddenTaxEligibleAmt').val() || 0; console.log('roundValItc' + roundValItc);
+            var validCmtAmt = (round(netAdvVal) - roundValItc).toFixed(2); console.log('netAdvVal' + netAdvVal);
+            $('#lblcommitamt').html(validCmtAmt);
+
+            if ($('#TotalInvoiceValue').val() == 0 && $('#BillId').val() != "0") {
+                $('#TotalInvoiceValue').val(validCmtAmt);
+                var SettleAmt = $('#lblAdvNetAmt').text() || 0;
+                var vendorid = $('#VendorId').val() || 0;
+                var TotalInvoice = $("#TotalInvoiceValue").val() || 0;
+                validatetds(vendorid, SettleAmt, TotalInvoice);
+            }
+        } else {
+            var ttlPOVal = 0, ttlPOTaxVal = 0, netPOVal = 0;
+            var elgF = false;
+            var ttlGSTElgAmt = 0;
+            $('#tbodyPO tr').not(':first').each(function (i, rowEle) {
+                var amt = parseFloat($(rowEle).find('input[name$=".TotalAmount"]').val());
+                var chckElg = $(rowEle).find('input[type="checkbox"][name$=".IsTaxEligible"]').prop('checked');
                 if (chckElg)
-                    ttlGSTElgAmt = ttlGSTElgAmt + taxAmt;
+                    elgF = true;
+                if (!isNaN(amt))
+                    ttlPOVal = ttlPOVal + amt;
+                if (amt > 0) {
+                    var taxPct = parseFloat($(rowEle).find('select[name$=".TaxPct"]').val());
+                    if (isNaN(taxPct))
+                        taxPct = 0;
+                    if (taxPct > 0) {
+                        var taxAmt = amt * taxPct / 100;
+                        ttlPOTaxVal = ttlPOTaxVal + taxAmt;
+                        if (chckElg)
+                            ttlGSTElgAmt = ttlGSTElgAmt + taxAmt;
+                    }
+                }
+            });
+            //$('#lblPOTtlAmt').text(ttlPOVal.toFixed(2));
+            $('#lblPOTtlTaxAmt').text(ttlPOTaxVal.toFixed(2));
+
+            $('#lblPOTtlAmt').text((ttlPOVal + adjVal).toFixed(2));
+            //$('#lblPOTtlTaxAmt').text(round(ttlPOTaxVal));
+            netPOVal = (round(ttlPOVal) + ttlPOTaxVal + adjVal).toFixed(2);
+            $('#lblPONetAmt').text(round(netPOVal));
+            //if ($('#TotalInvoiceValue').val() == 0) { $('#TotalInvoiceValue').val(netPOVal); }
+            if (elgF)
+                $('#isHaveElgGST').val('true');
+            else
+                $('#isHaveElgGST').val('false');
+            var ttlAdv = parseFloat($('#hiddenSettAmt').val()) || 0;
+            var ttlTax = parseFloat($('#hiddenSettTaxAmt').val()) || 0;
+            var invAmt = parseFloat($('#InvoiceAmount').val()) || 0;
+            var invTaxAmt = parseFloat($('#InvoiceTaxAmount').val()) || 0;
+            $('#hiddenTaxEligibleAmt').val(ttlGSTElgAmt.toFixed(2));
+            $('#lblTaxEligibleAmt').text(ttlGSTElgAmt.toFixed(2));
+            var setAmt = invAmt - ttlAdv;
+            var setTaxAmt = invTaxAmt - ttlTax;
+            //$('#lblAdvTtlAmt').text(setAmt.toFixed(2));
+
+            $('#lblAdvTtlAmt').text(setAmt);
+            $('#lblAdvTtlTaxAmt').text(setTaxAmt.toFixed(2));
+            netAdvVal = (setAmt + setTaxAmt).toFixed(2);
+            netAdvVal = netAdvVal;
+            $('#lblAdvNetAmt').text(round(netAdvVal));
+            UpdateGSTSplitUp();
+            var roundValItc = $('#hiddenTaxEligibleAmt').val() || 0;
+            var validCmtAmt = (netAdvVal - roundValItc).toFixed(2);
+            $('#lblcommitamt').html(validCmtAmt);
+
+            if ($('#TotalInvoiceValue').val() == 0 && $('#BillId').val() != "0") {
+                $('#TotalInvoiceValue').val(validCmtAmt);
+                var SettleAmt = $('#lblAdvNetAmt').text() || 0;
+                var vendorid = $('#VendorId').val() || 0;
+                var TotalInvoice = $("#TotalInvoiceValue").val() || 0;
+                validatetds(vendorid, SettleAmt, TotalInvoice);
             }
         }
-    });
-    //$('#lblPOTtlAmt').text(ttlPOVal.toFixed(2));
-    $('#lblPOTtlTaxAmt').text(ttlPOTaxVal.toFixed(2));
-
-    $('#lblPOTtlAmt').text(round(ttlPOVal));
-    //$('#lblPOTtlTaxAmt').text(round(ttlPOTaxVal));
-    netPOVal = (ttlPOVal + ttlPOTaxVal).toFixed(2);
-    //$('#lblPONetAmt').text(netPOVal);
-    
-    console.log('Net PO value' + (netPOVal));
-    $('#lblPONetAmt').text(round(netPOVal));
-    //if ($('#TotalInvoiceValue').val() == 0) { $('#TotalInvoiceValue').val(netPOVal); }
-    if (elgF)
-        $('#isHaveElgGST').val('true');
-    else
-        $('#isHaveElgGST').val('false');
-    var ttlAdv = parseFloat($('#hiddenSettAmt').val()) || 0;
-    var ttlTax = parseFloat($('#hiddenSettTaxAmt').val()) || 0;
-    var invAmt = parseFloat($('#InvoiceAmount').val()) || 0;
-    var invTaxAmt = parseFloat($('#InvoiceTaxAmount').val()) || 0;
-    $('#hiddenTaxEligibleAmt').val(ttlGSTElgAmt.toFixed(2));
-    $('#lblTaxEligibleAmt').text(ttlGSTElgAmt.toFixed(2));
-    var setAmt = round(invAmt) - ttlAdv;
-    var setTaxAmt = invTaxAmt - ttlTax;
-    //$('#lblAdvTtlAmt').text(setAmt.toFixed(2));
-   
-    $('#lblAdvTtlAmt').text(setAmt);
-    $('#lblAdvTtlTaxAmt').text(setTaxAmt.toFixed(2));
-    netAdvVal = (setAmt + setTaxAmt).toFixed(2);
-    netAdvVal = netAdvVal;
-    $('#lblAdvNetAmt').text(round(netAdvVal));
-    UpdateGSTSplitUp();
-    var roundValItc = $('#hiddenTaxEligibleAmt').val() || 0;
-    var validCmtAmt = (netAdvVal - roundValItc).toFixed(2);
-    $('#lblcommitamt').html(validCmtAmt);
-
-    if ($('#TotalInvoiceValue').val() == 0 && $('#BillId').val() != "0") {
-        $('#TotalInvoiceValue').val(validCmtAmt);
-        var SettleAmt = $('#lblAdvNetAmt').text() || 0;
-        var vendorid = $('#VendorId').val() || 0;
-        var TotalInvoice = $("#TotalInvoiceValue").val() || 0;
-        validatetds(vendorid, SettleAmt, TotalInvoice);
     }
-}
-}
 $('#CommitmentAmount, #CreditorAmount, #ExpenseAmount, #CreditorAmount, input[name $=".PaymentAmount"], input[name $=".Quantity"], input[name $=".TotalAmount"], input[name $=".Amount"], #ttlCr, #ttlDr').on("copy cut paste drop", function () {
 return false;
 });
