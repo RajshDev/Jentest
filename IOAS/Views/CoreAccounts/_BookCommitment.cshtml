@@ -341,7 +341,7 @@
                                                                 {
                                                                     <div name="primaryAllocateDiv" class="row m-b-sm">
                                                                         <div class="col-md-6 mb20">
-                                                                            @Html.DropDownListFor(m => m.selAllocationHead, new SelectList(ViewBag.BudgetHead, "id", "name"), "Select Allocation head", new { @class = "form-control", @required = "required" })
+                                                                            @Html.DropDownListFor(m => m.selAllocationHead, new SelectList(ViewBag.BudgetHead, "id", "name"), "Select Allocation head", new { @class = "form-control", @required = "required", @onchange = "BudgetHeadChange(this);" })
                                                                             <div class="txt-error txt-red"> @Html.ValidationMessageFor(M => M.selAllocationHead)</div>
                                                                         </div>
                                                                         @if (Model.selCommitmentType == 5)
@@ -426,7 +426,7 @@
                                                                 {
                                                                     <div name="primaryAllocateDiv" class="row m-b-sm">
                                                                         <div class="col-md-6 mb20">
-                                                                            @Html.DropDownListFor(m => m.selAllocationHead, new SelectList(ViewBag.BudgetHead, "id", "name"), "Select Allocation head", new { @class = "form-control", @required = "required" })
+                                                                            @Html.DropDownListFor(m => m.selAllocationHead, new SelectList(ViewBag.BudgetHead, "id", "name"), "Select Allocation head", new { @class = "form-control", @required = "required", @onchange = "BudgetHeadChange(this);" })
                                                                             <div class="txt-error txt-red"> @Html.ValidationMessageFor(M => M.selAllocationHead)</div>
                                                                         </div>
                                                                         <div class="col-md-6 mb20">
@@ -846,15 +846,15 @@
         var ProjectId = $("#SelProjectNumber").val();
         var AllocationId = $(this).val();
 
-        var firstmessfreeze = GetFreezeValueData();
-        if (firstmessfreeze == 1) {
-            var SelectHead = $("#selAllocationHead :selected").text();     
-            messageBox(SelectHead+ ' Allocation Head Freezed', "warning");
+        //var firstmessfreeze = GetFreezeValueData();
+        //if (firstmessfreeze == 1) {
+        //    var SelectHead = $("#selAllocationHead :selected").text();     
+        //    messageBox(SelectHead+ ' Allocation Head Freezed', "warning");
 
-            $('#AllocationValue').attr('readonly', true);
-        } else {
-            $('#AllocationValue').removeAttr('readonly');
-        }
+        //    $('#AllocationValue').attr('readonly', true);
+        //} else {
+        //    $('#AllocationValue').removeAttr('readonly');
+        //}
        
 
         if (AllocationId != 0) {
@@ -868,7 +868,7 @@
                                        $("#divSpanTSV").addClass('menu-hide');
                                        $("#divSpanTA").addClass('menu-hide');
                                        $("#divSpanAFCY").removeClass('menu-hide');
-                                       $("#spanAFCY").text(allocData.AllocationForCurrentYear);
+                                       $("#spanAFCY").text(allocData.AllocationForCurrentYear);9
                                    } else {
                                        $("#divSpanTSV").addClass('menu-hide');
                                        $("#divSpanAFCY").addClass('menu-hide');
@@ -1015,12 +1015,12 @@
 
         
 
-        var dataval = GetFreezeValueData();
-        if (dataval == 1) {
-            isValid = false;
-            messageBox('Allocation Head Freezed <br/> Unable To Save Allocation', "warning");
-            return false;
-        }
+        //var dataval = GetFreezeValueData();
+        //if (dataval == 1) {
+        //    isValid = false;
+        //    messageBox('Allocation Head Freezed <br/> Unable To Save Allocation', "warning");
+        //    return false;
+        //}
 
         if (CommitType == "") {
             isValid = false;
@@ -1456,7 +1456,15 @@
         }
         return isValid;
     }
+    function BudgetHeadChange(ele) {
 
+        var firstmessfreeze = GetFreezeValueData(ele.value);
+        if (firstmessfreeze == 1) {            
+            var SelectHead = $("#selAllocationHead :selected").text();     
+            messageBox(SelectHead+ ' Allocation Head Freezed', "warning");
+            ele.selectedIndex = -1;
+        }
+    }
 
     function fillproject()
     {
