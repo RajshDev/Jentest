@@ -542,6 +542,11 @@
 
         CalculateTxTotal();
         CalculateTotal();
+        $('#tbodyCr tr').each(function (idx, trval) {
+            FirAccHead = ($(this).find('select[name$=".BudgetHeadId"]').val());           
+            GetFreezeFirstValue(FirAccHead);
+        });
+        GetFreezeFirstValue();
 
         
 
@@ -899,6 +904,7 @@
                 AccHead = ($(this).find('select[name$=".BudgetHeadId"]').val());
                 console.log(AccHead);
                 GetFreezeValueData(AccHead)
+                GetFreezeFirstValue(AccHead);
             });
             removeCommitmentValidation();
         }
@@ -995,21 +1001,56 @@
         });
         return isFreezeDataValid;
     }
-    /*
-    $('select[name$=".BudgetHeadId"]').change(function () {
 
-        var firstmessfreeze = GetFreezeValueData(this.value);
-        if (firstmessfreeze == 1) {
-            messageBox('Allocation Head Freezed', "warning");
-        }
-    });*/
-    
+
+    function GetFreezeFirstValue(FirAccHead) {
+        var ProjectId = $("#ProjectId").val();        
+        var isFreezeFirstDataValid = 0;
+        $.ajax({
+            type: "GET",
+            async: false,
+            url: '@Url.Action("GetFreezeProjectData", "Project")',
+            data: {
+                "ProjectId": ProjectId},
+            dataType: "json",
+            success: function (result) {
+                isFreezeDataValid = result;
+
+        
+                $('#tbodyCr tr').each(function (idx, trval) {
+                    FirAccHead = ($(this).find('select[name$=".BudgetHeadId"]').val());
+                  //  GetFreezeFirstValue(FirAccHead);
+                
+                $.each(isFreezeDataValid, function (index, value) {
+
+                    $('#tbodyCr tr').each(function (idx, trval) {
+                        FirAccHead = ($(this).find('select[name$=".BudgetHeadId"]').val());
+                        ele = ($(this).find('select[name$=".BudgetHeadId"]'));
+                        if (FirAccHead == value.AllocationHead) {
+                            console.log(ele.name);
+                        }
+                       // GetFreezeFirstValue(FirAccHead);
+                    });
+                    
+                        //messageBox('Allocation Head Freezed', "warning");
+                        //var FirAccHead
+                        //$('#BudgetHeadId').attr('readonly', 'readonly');
+                        //$('#BudgetHeadId').attr('readonly', true);
+                        //$('#Amount').attr('readonly', 'readonly')
+                        //$('#AllocationValue').attr('readonly');
+                });
+                });
+            }
+        });
+        return isFreezeFirstDataValid;
+    }
+   
     function BudgetHeadChange(ele) {
 
         var firstmessfreeze = GetFreezeValueData(ele.value);
         if (firstmessfreeze == 1) {
             //var selectedText = ele.options[ele.selectedIndex].text;
-            messageBox('Allocation Head Freezed', "warning");
+            messageBox('Allocation Head Freezed', "warning");           
             ele.selectedIndex = -1;             
         } 
     }

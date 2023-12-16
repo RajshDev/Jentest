@@ -2953,6 +2953,44 @@ namespace IOAS.GenericServices
 
         }
 
+        //Edit page opening check
+        public static List<FreezeFirstLoadScreenModel> GetFreezeprojectDataValues (int ProjectId)
+        {
+            List<FreezeFirstLoadScreenModel> firstfreeze = new List<FreezeFirstLoadScreenModel>();
+            using (var context = new IOASDBEntities())
+            {
+                try
+                {
+                    var Freezedata = (from FreezeLog in context.tblAllocationFreezeLog
+                                      where FreezeLog.ProjectId == ProjectId && FreezeLog.IsCurrentVersion == 1
+                                      select new { FreezeLog.AllocationHead }).ToList();
+                                     
+                    for (int i = 0; i < Freezedata.Count; i++)
+                        {
+                            firstfreeze.Add(new FreezeFirstLoadScreenModel()
+                            {                               
+                                AllocationHead = Freezedata[i].AllocationHead                       
+                              
+                                
+                            });
+                        }
+                    return firstfreeze;
+                    
+                }
+                catch (Exception ex)
+                {
+                    Infrastructure.IOASException.Instance.HandleMe(
+                    (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                    throw ex;
+                }
+
+
+            }
+        }
+
+        
+
+
         public static bool PostMethodForFreezedata(FreezingUnFreezingModel model, int logged_in_user)
         {
             using (var context = new IOASDBEntities())
@@ -3036,6 +3074,8 @@ namespace IOAS.GenericServices
             }
 
         }
+
+
 
 
         public static CreateProjectModel EditProject(int ProjectId)

@@ -404,6 +404,20 @@ namespace IOAS.Controllers
             }
         }
 
+        [HttpGet]
+        public JsonResult GetFreezeProjectData(int ProjectId)
+        {
+            try
+            {
+                var data = ProjectService.GetFreezeprojectDataValues(ProjectId);
+                return Json(data, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
         [Authorize]
         [HttpPost]
         public ActionResult ProjectEnhancement(ProjectEnhancementModel model, HttpPostedFileBase file)
