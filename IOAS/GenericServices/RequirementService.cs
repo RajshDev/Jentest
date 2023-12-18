@@ -327,68 +327,68 @@ namespace IOAS.GenericServices
         }
 
 
-        public static ProjectDetails GetOfferLetterProjectDetails(int STEId)
-        {
-            try
-            {
-                ProjectDetails prjModel = new ProjectDetails();
-                using (var context = new IOASDBEntities())
-                {
+        //public static ProjectDetails GetOfferLetterProjectDetails(int STEId)
+        //{
+        //    try
+        //    {
+        //        ProjectDetails prjModel = new ProjectDetails();
+        //        using (var context = new IOASDBEntities())
+        //        {  
 
-                    var qryProject = (from prj in context.tblProject
-                                      from r in context.tblRCTSTE
-                                      where prj.ProjectId ==r.ProjectId && r.STEID == STEId 
-                                      select new { prj, r } ).FirstOrDefault();
-                    if (qryProject.prj.SponsoringAgency > 0)
-                    {
-                        var AgencyQry = context.tblAgencyMaster.Where(m => m.AgencyId == qryProject.prj.SponsoringAgency).FirstOrDefault();
-                        if (AgencyQry != null)
-                            prjModel.SponsoringAgency = AgencyQry.AgencyName;
-                    }
+        //            var qryProject = (from prj in context.tblProject
+        //                              from r in context.tblRCTSTE
+        //                              where prj.ProjectId ==r.ProjectId && r.STEID == STEId 
+        //                              select new { prj, r } ).FirstOrDefault();
+        //            if (qryProject.prj.SponsoringAgency > 0)
+        //            {
+        //                var AgencyQry = context.tblAgencyMaster.Where(m => m.AgencyId == qryProject.prj.SponsoringAgency).FirstOrDefault();
+        //                if (AgencyQry != null)
+        //                    prjModel.SponsoringAgency = AgencyQry.AgencyName;
+        //            }
 
-                    if (qryProject != null)
-                    {
-                        string pType = Common.getprojectTypeName(qryProject.prj.ProjectType ?? 0);
-                        if (qryProject.prj.ProjectType == 1 && qryProject.prj.ProjectSubType != 1)
-                            pType += qryProject.prj.SponProjectCategory == "1" ? "-PFMS" : qryProject.prj.SponProjectCategory == "2" ? "-NON-PFMS" : "";
-                        else if (qryProject.prj.ProjectType == 1 && qryProject.prj.ProjectSubType == 1)
-                            pType += " - Internal";
-                        prjModel.ProjectType = pType;
-                        prjModel.ProjectTitle = qryProject.prj.ProjectTitle;
-                        prjModel.PIId = qryProject.prj.PIName;
-                        prjModel.PIName = Common.GetPIName(qryProject.r.RequestedBy ?? 0, false);
-                        prjModel.ProjectStartDate = String.Format("{0:dd-MMM-yyyy}", qryProject.prj.TentativeStartDate);
-                        prjModel.ProjectClosureDate = string.Format("{0:dd-MMM-yyyy}", Common.GetProjectDueDate(qryProject.prj.ProjectId) ?? qryProject.prj.TentativeCloseDate);
-                        prjModel.ProjectNumber = qryProject.prj.ProjectNumber;
-                        prjModel.ProjectID = qryProject.prj.ProjectId;
-                        if (qryProject.prj.PIName > 0)
-                        {
-                            var qryPIDetails = (from prj in context.vwFacultyStaffDetails
-                                                where prj.UserId == qryProject.prj.PIName
-                                                select prj).FirstOrDefault();
-                            if (qryPIDetails != null)
-                            {
-                                prjModel.Email = qryPIDetails.Email;
-                                prjModel.Phone = qryPIDetails.ContactNumber;
-                                prjModel.PIDepartmentCode = qryPIDetails.DepartmentCode;
-                                prjModel.PIDepartmentName = qryPIDetails.DepartmentName;
-                                prjModel.PICode = qryPIDetails.EmployeeId;
-                                prjModel.PIDesignation = qryPIDetails.Designation;
-                            }
-                        }
-                    }
+        //            if (qryProject != null)
+        //            {
+        //                string pType = Common.getprojectTypeName(qryProject.prj.ProjectType ?? 0);
+        //                if (qryProject.prj.ProjectType == 1 && qryProject.prj.ProjectSubType != 1)
+        //                    pType += qryProject.prj.SponProjectCategory == "1" ? "-PFMS" : qryProject.prj.SponProjectCategory == "2" ? "-NON-PFMS" : "";
+        //                else if (qryProject.prj.ProjectType == 1 && qryProject.prj.ProjectSubType == 1)
+        //                    pType += " - Internal";
+        //                prjModel.ProjectType = pType;
+        //                prjModel.ProjectTitle = qryProject.prj.ProjectTitle;
+        //                prjModel.PIId = qryProject.prj.PIName;
+        //                prjModel.PIName = Common.GetPIName(qryProject.r.RequestedBy ?? 0, false);
+        //                prjModel.ProjectStartDate = String.Format("{0:dd-MMM-yyyy}", qryProject.prj.TentativeStartDate);
+        //                prjModel.ProjectClosureDate = string.Format("{0:dd-MMM-yyyy}", Common.GetProjectDueDate(qryProject.prj.ProjectId) ?? qryProject.prj.TentativeCloseDate);
+        //                prjModel.ProjectNumber = qryProject.prj.ProjectNumber;
+        //                prjModel.ProjectID = qryProject.prj.ProjectId;
+        //                if (qryProject.prj.PIName > 0)
+        //                {
+        //                    var qryPIDetails = (from prj in context.vwFacultyStaffDetails
+        //                                        where prj.UserId == qryProject.prj.PIName
+        //                                        select prj).FirstOrDefault();
+        //                    if (qryPIDetails != null)
+        //                    {
+        //                        prjModel.Email = qryPIDetails.Email;
+        //                        prjModel.Phone = qryPIDetails.ContactNumber;
+        //                        prjModel.PIDepartmentCode = qryPIDetails.DepartmentCode;
+        //                        prjModel.PIDepartmentName = qryPIDetails.DepartmentName;
+        //                        prjModel.PICode = qryPIDetails.EmployeeId;
+        //                        prjModel.PIDesignation = qryPIDetails.Designation;
+        //                    }
+        //                }
+        //            }
 
-                }
-                return prjModel;
-            }
-            catch (Exception ex)
-            {
-                ErrorHandler WriteLog = new ErrorHandler();
-                WriteLog.SendErrorToText(ex);
-                ProjectDetails prjModel = new ProjectDetails();
-                return prjModel;
-            }
-        }
+        //        }
+        //        return prjModel;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        ErrorHandler WriteLog = new ErrorHandler();
+        //        WriteLog.SendErrorToText(ex);
+        //        ProjectDetails prjModel = new ProjectDetails();
+        //        return prjModel;
+        //    }
+        //}
 
 
 
@@ -3472,8 +3472,8 @@ namespace IOAS.GenericServices
                             //    model.offerDate = query.o.FromDate ?? DateTime.Now;
                             model.offerDate = getOfferLetterDate(model.STEId, "STE", "OfferLetter", orderId);
                             model.EmployeeID = query.S.EmployeersID;
-                            model.ProjectDetailsModel = getProjectSummary(query.o.NewProjectId ?? 0);
-                            model.ProjectDetailsModel = GetOfferLetterProjectDetails(query.S.STEID);
+                            model.ProjectDetailsModel = getProjectSummary(query.o.NewProjectId ?? 0, query.S.RequestedBy ?? 0);
+                            //model.ProjectDetailsModel = GetOfferLetterProjectDetails(query.S.STEID);
                             model.ProjectNumber = model.ProjectDetailsModel.ProjectNumber;
                             model.SalaryLevelId = query.o.SalaryLevelId;
                             var querydes = (from sl in context.tblRCTSalaryLevel
