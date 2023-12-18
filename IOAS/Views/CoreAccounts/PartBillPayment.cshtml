@@ -351,6 +351,7 @@
                                                         <div class="form-group custom-form-group">
                                                             <label>Part Payment Total :</label>
                                                             <h4 id="lblAdvNetAmt"></h4>
+                                                            @Html.Hidden("hdnAdvNetAmt")
                                                         </div>
                                                     </div>
                                                 </div>
@@ -1038,7 +1039,7 @@
         var advPct = parseFloat($("#AdvancePercentage").val());
         if (isNaN(advPct))
             advPct = 0;
-        var ttlPOVal = 0, ttlPOTaxVal = 0, netPOVal = 0, ttlAdvVal = 0, ttlAdvTaxVal = 0, netAdvVal = 0;
+        var ttlPOVal = 0, ttlPOTaxVal = 0, netPOVal = 0, ttlAdvVal = 0, ttlAdvTaxVal = 0, netAdvVal = 0,netAdvPayVal = 0;;
         var elgF = false;
         var ttlGSTElgAmt = 0;
         if (advPct > 0) {
@@ -1066,12 +1067,14 @@
                             ttlGSTElgAmt = ttlGSTElgAmt + advTaxVal;
                     }
                     netAdvAmt = advAmt + advTaxVal;
+                    netAdvPayVal += (netAdvAmt);
                     //var poTaxVal = amt * taxPct / 100;
                     //ttlPOTaxVal = ttlPOTaxVal + poTaxVal;
                     $(rowEle).find('.tdAdvPct').html(advPct.toFixed(2));
                     $(rowEle).find('.tdAdvAmt').html(advAmt.toFixed(2));
                     $(rowEle).find('.tdTaxAmt').html(advTaxVal.toFixed(2));
-                    $(rowEle).find('.tdNetAmt').html(netAdvAmt.toFixed(2));
+                    //$(rowEle).find('.tdNetAmt').html(netAdvAmt.toFixed(2));
+                    $(rowEle).find('.tdNetAmt').html(round(netAdvAmt).toFixed(2));
                 }
             });
             if (elgF)
@@ -1081,18 +1084,20 @@
             $('#lblPOTtlAmt').text(ttlPOVal.toFixed(2));
             $('#lblPOTtlTaxAmt').text(ttlPOTaxVal.toFixed(2));
             netPOVal = (ttlPOVal + ttlPOTaxVal).toFixed(2);
-            $('#lblPONetAmt').text(netPOVal);
-           
+            $('#lblPONetAmt').text(round(netPOVal).toFixed(2));
+
             $('#lblAdvTtlAmt').text(ttlAdvVal.toFixed(2));
             $('#lblAdvTtlTaxAmt').text(ttlAdvTaxVal.toFixed(2));
             $('#hiddenTaxEligibleAmt').val(ttlGSTElgAmt.toFixed(2)).trigger('change');
             $('#lblTaxEligibleAmt').text(ttlGSTElgAmt.toFixed(2));
             netAdvVal = (ttlAdvVal + ttlAdvTaxVal).toFixed(2);
-            $('#lblAdvNetAmt').text(netAdvVal);
+            $('#hdnAdvNetAmt').val(netAdvVal);
+            
+            $('#lblAdvNetAmt').text(round(netAdvPayVal));
             if ($('#TotalInvoiceValue').val() == 0 && $('#BillId').val() != "0") { $('#TotalInvoiceValue').val(netAdvVal); }
             UpdateGSTSplitUp();
             var roundValItc = $('#hiddenTaxEligibleAmt').val() || 0;
-            var validCmtAmt = (netAdvVal - roundValItc).toFixed(2);
+            var validCmtAmt = (round(netAdvVal) - roundValItc).toFixed(2);
             $('#lblcommitamt').html(validCmtAmt);
         } else
             $('#lblcommitamt').html(0);
@@ -1166,11 +1171,14 @@
     function ValidateCommitment() {
         var msg = 'valid';
         var commitmentAmt = parseFloat($('#CommitmentAmount').val());
-        var netAdvAmt = parseFloat($('#lblAdvNetAmt').html());
+        //var netAdvAmt = parseFloat($('#lblAdvNetAmt').html());
+        var netAdvAmt = $('#hdnAdvNetAmt').val();
+
         var ttlAdvAmt = parseFloat($('#lblAdvTtlAmt').html());
         var advPct = parseFloat($("#AdvancePercentage").val());
         var ttlGSTElgAmt = parseFloat($('#hiddenTaxEligibleAmt').val()) || 0;
-        var validCmtAmt = (netAdvAmt - ttlGSTElgAmt).toFixed(2);
+        //var validCmtAmt = (netAdvAmt - ttlGSTElgAmt).toFixed(2);
+        var validCmtAmt = (round(netAdvAmt) - ttlGSTElgAmt).toFixed(2);
         commitmentAmt = commitmentAmt.toFixed(2);
         $("#tbodyCommitmentSelList tr").each(function(){
             var elePayment = $(this).find("input[name$='.PaymentAmount']");
@@ -1199,6 +1207,7 @@
         var ttlJVDrVal = parseFloat($('#ttlJVCr').val()) || 0;
         var netDrAmt = parseFloat($('#ttlDr').val()) || 0; //ttlExpAmt + ttldeductAmt;
         var TransAmt = (ttlExpAmt - ttlJVExpVal).toFixed(2);
+        var tranAmt = parseFloat(TransAmt);
         var ttlGSTElgAmt = parseFloat($('#hiddenTaxEligibleAmt').val()) || 0;
         var offsetValue = $("input[name='GST']:checked").val();
         if (isNaN(netCrAmt)) {
@@ -1212,7 +1221,7 @@
         }
         if (isNaN(TransAmt) || isNaN(commitmentAmt)) {
             msg = 'The expense value / allocated commitment value is not a valid entry.';
-        } else if (TransAmt != commitmentAmt) {
+        } else if (tranAmt != commitmentAmt) {
             msg = 'There is a mismatch between the expense value and allocated commitment value. Please update the value to continue.';
         }
 
@@ -1243,9 +1252,9 @@
     // Next Button Alert Popup
     function validatetds(vendorId, settlementamt, TotalInvoice) {
     retval = true;
-        $.ajax({    
-            type: "GET",   
-            url: "@Url.Action("GetVendorDetails", "CoreAccounts")",   
+        $.ajax({
+            type: "GET",
+            url: "@Url.Action("GetVendorDetails", "CoreAccounts")",
             data: { "vendorId": vendorId, "poNumberRequired": true, "transTypeCode": 'ADV', "TDSRequired": true },
             dataType: "json",
             success: function (result) {
