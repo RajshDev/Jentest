@@ -1061,7 +1061,7 @@ new { @class = "form-control" })
                             ttlGSTElgAmt = ttlGSTElgAmt + advTaxVal;
                     }
                      netAdvAmt = advAmt + advTaxVal;
-                     netAdvPayVal += (netAdvAmt);
+                     netAdvPayVal += round(netAdvAmt);
                     //var poTaxVal = amt * taxPct / 100;
                     //ttlPOTaxVal = ttlPOTaxVal + poTaxVal;
                     $(rowEle).find('.tdAdvPct').html(advPct.toFixed(2));
@@ -1087,9 +1087,6 @@ new { @class = "form-control" })
             $('#lblPONetAmt').text(round(netPOVal).toFixed(2));
             //if ($('#TotalInvoiceValue').val() == 0 && $('#BillId').val() != "0") { $('#TotalInvoiceValue').val(netPOVal); }
 
-
-            //$('#lblAdvTtlAmt').text(ttlAdvVal.toFixed(2));
-            //$('#lblAdvTtlAmt').text(ttlAdvVal.toFixed(2));
             $('#lblAdvTtlAmt').text(ttlAdvVal.toFixed(2));
             $('#lblAdvTtlTaxAmt').text(ttlAdvTaxVal.toFixed(2));
             //$('#lblAdvTtlTaxAmt').text(round(ttlAdvTaxVal));
@@ -1099,12 +1096,13 @@ new { @class = "form-control" })
             netAdvVal = (ttlAdvVal + ttlAdvTaxVal).toFixed(2);
 
 
-            $('#hdnAdvNetAmt').val(netAdvVal);
+            $('#hdnAdvNetAmt').val(netAdvPayVal);
             $('#lblAdvNetAmt').text(round(netAdvPayVal));
             if ($('#TotalInvoiceValue').val() == 0 && $('#BillId').val() != "0") { $('#TotalInvoiceValue').val(netAdvVal); }
             UpdateGSTSplitUp();
             var roundValItc = $('#hiddenTaxEligibleAmt').val() || 0;
-            var validCmtAmt = (round(netAdvVal) - roundValItc).toFixed(2);
+            //var validCmtAmt = (round(netAdvVal) - roundValItc).toFixed(2);
+            var validCmtAmt = (netAdvPayVal - roundValItc).toFixed(2);
             $('#lblcommitamt').html(validCmtAmt);
         } else
             $('#lblcommitamt').html(0);
@@ -1182,7 +1180,7 @@ new { @class = "form-control" })
         commitmentAmt = commitmentAmt.toFixed(2);
         //var netAdvAmt = parseFloat($('#lblAdvNetAmt').html());
         var netAdvAmt = $('#hdnAdvNetAmt').val();
-
+    console.log('netAdvAmt' + netAdvAmt);
         var advPct = parseFloat($("#AdvancePercentage").val());
         var ttlGSTElgAmt = parseFloat($('#hiddenTaxEligibleAmt').val()) || 0;
         var validCmtAmt = (round(netAdvAmt) - ttlGSTElgAmt).toFixed(2);

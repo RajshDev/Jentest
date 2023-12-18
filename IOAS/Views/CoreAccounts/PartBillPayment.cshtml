@@ -1067,7 +1067,7 @@
                             ttlGSTElgAmt = ttlGSTElgAmt + advTaxVal;
                     }
                     netAdvAmt = advAmt + advTaxVal;
-                    netAdvPayVal += (netAdvAmt);
+                    netAdvPayVal += round(netAdvAmt);
                     //var poTaxVal = amt * taxPct / 100;
                     //ttlPOTaxVal = ttlPOTaxVal + poTaxVal;
                     $(rowEle).find('.tdAdvPct').html(advPct.toFixed(2));
@@ -1091,13 +1091,13 @@
             $('#hiddenTaxEligibleAmt').val(ttlGSTElgAmt.toFixed(2)).trigger('change');
             $('#lblTaxEligibleAmt').text(ttlGSTElgAmt.toFixed(2));
             netAdvVal = (ttlAdvVal + ttlAdvTaxVal).toFixed(2);
-            $('#hdnAdvNetAmt').val(netAdvVal);
+            $('#hdnAdvNetAmt').val(netAdvPayVal);
             
             $('#lblAdvNetAmt').text(round(netAdvPayVal));
             if ($('#TotalInvoiceValue').val() == 0 && $('#BillId').val() != "0") { $('#TotalInvoiceValue').val(netAdvVal); }
             UpdateGSTSplitUp();
             var roundValItc = $('#hiddenTaxEligibleAmt').val() || 0;
-            var validCmtAmt = (round(netAdvVal) - roundValItc).toFixed(2);
+            var validCmtAmt = (netAdvPayVal - roundValItc).toFixed(2);
             $('#lblcommitamt').html(validCmtAmt);
         } else
             $('#lblcommitamt').html(0);
