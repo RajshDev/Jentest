@@ -548,7 +548,7 @@ new { @class = "form-control" })
                     $('#lblVendorAddr').text(result.Address);
                     $('#lblStateCode').text(result.StateCode);
                     $('#lblBankDetails').text(result.BankName + "-" + result.AccountNumber);
-                    
+
                     console.log(result.TDSLimit);
                     // 1st Open Alert Popup
                     if (result.TDSLimit === '' || result.TDSLimit === null)
@@ -562,7 +562,7 @@ new { @class = "form-control" })
                         $('#FailedAlert').html("The Total paid / payable is" + " Rs: " + result.TDSLimit.toFixed(2) + " hence 194Q is applicable for goods. ");
                         $('#Failed').modal('show');
                     }
-                 
+
                     UpdateGSTSplitUp()
                 },
                 error: function (err) {
@@ -741,7 +741,7 @@ new { @class = "form-control" })
                         TotalInvoice = 0;
                     if (CurrentValue === '' || CurrentValue === null)
                         CurrentValue = 0;
-                    
+
                     console.log(result.TDSLimit);
                     // Edit Vendor InputBox Alert Popup
                     if (parseFloat((result.TDSLimit - TotalInvoice) + CurrentValue) > 5000000) {
@@ -1033,7 +1033,7 @@ new { @class = "form-control" })
         var advPct = parseFloat($("#AdvancePercentage").val());
         if (isNaN(advPct))
             advPct = 0;
-        var ttlPOVal = 0, ttlPOTaxVal = 0, netPOVal = 0, ttlAdvVal = 0, ttlAdvTaxVal = 0, netAdvVal = 0;
+        var ttlPOVal = 0, ttlPOTaxVal = 0, netPOVal = 0, ttlAdvVal = 0, ttlAdvTaxVal = 0, netAdvVal = 0, netAdvPayVal = 0;
         var elgF = false;
         var ttlGSTElgAmt = 0;
         if (advPct > 0) {
@@ -1060,7 +1060,8 @@ new { @class = "form-control" })
                         if (chckElg)
                             ttlGSTElgAmt = ttlGSTElgAmt + advTaxVal;
                     }
-                    netAdvAmt = advAmt + advTaxVal;
+                     netAdvAmt = advAmt + advTaxVal;
+                     netAdvPayVal += (netAdvAmt);
                     //var poTaxVal = amt * taxPct / 100;
                     //ttlPOTaxVal = ttlPOTaxVal + poTaxVal;
                     $(rowEle).find('.tdAdvPct').html(advPct.toFixed(2));
@@ -1071,7 +1072,7 @@ new { @class = "form-control" })
                     $(rowEle).find('.tdNetAmt').html(round(netAdvAmt).toFixed(2));
                 }
             });
-            
+
             if (elgF)
                 $('#isHaveElgGST').val('true');
             else
@@ -1080,13 +1081,14 @@ new { @class = "form-control" })
             $('#lblPOTtlAmt').text(ttlPOVal.toFixed(2));
             $('#lblPOTtlTaxAmt').text(ttlPOTaxVal.toFixed(2));
             //$('#lblPOTtlTaxAmt').text(round(ttlPOTaxVal));
-            
+
             netPOVal = (ttlPOVal + ttlPOTaxVal).toFixed(2);
             //$('#lblPONetAmt').text(netPOVal);
             $('#lblPONetAmt').text(round(netPOVal).toFixed(2));
             //if ($('#TotalInvoiceValue').val() == 0 && $('#BillId').val() != "0") { $('#TotalInvoiceValue').val(netPOVal); }
-            
 
+
+            //$('#lblAdvTtlAmt').text(ttlAdvVal.toFixed(2));
             //$('#lblAdvTtlAmt').text(ttlAdvVal.toFixed(2));
             $('#lblAdvTtlAmt').text(ttlAdvVal.toFixed(2));
             $('#lblAdvTtlTaxAmt').text(ttlAdvTaxVal.toFixed(2));
@@ -1095,8 +1097,8 @@ new { @class = "form-control" })
             //$('#lblTaxEligibleAmt').text(ttlGSTElgAmt.toFixed(2));
             $('#lblTaxEligibleAmt').text(ttlGSTElgAmt.toFixed(2));
             netAdvVal = (ttlAdvVal + ttlAdvTaxVal).toFixed(2);
-            netAdvPayVal = (round(ttlAdvVal) + ttlAdvTaxVal).toFixed(2);
-            
+
+
             $('#hdnAdvNetAmt').val(netAdvVal);
             $('#lblAdvNetAmt').text(round(netAdvPayVal));
             if ($('#TotalInvoiceValue').val() == 0 && $('#BillId').val() != "0") { $('#TotalInvoiceValue').val(netAdvVal); }
@@ -1180,11 +1182,11 @@ new { @class = "form-control" })
         commitmentAmt = commitmentAmt.toFixed(2);
         //var netAdvAmt = parseFloat($('#lblAdvNetAmt').html());
         var netAdvAmt = $('#hdnAdvNetAmt').val();
-        
+
         var advPct = parseFloat($("#AdvancePercentage").val());
         var ttlGSTElgAmt = parseFloat($('#hiddenTaxEligibleAmt').val()) || 0;
         var validCmtAmt = (round(netAdvAmt) - ttlGSTElgAmt).toFixed(2);
-       
+
         $("#tbodyCommitmentSelList tr").each(function () {
             var elePayment = $(this).find("input[name$='.PaymentAmount']");
             var eleAvlBal = $(this).find('input[name$=".AvailableAmount"]');
@@ -1263,9 +1265,9 @@ new { @class = "form-control" })
     // Next Button Alert Popup
     function validatetds(vendorId, settlementamt, TotalInvoice) {
     retval = true;
-        $.ajax({    
-            type: "GET",   
-            url: "@Url.Action("GetVendorDetails", "CoreAccounts")",   
+        $.ajax({
+            type: "GET",
+            url: "@Url.Action("GetVendorDetails", "CoreAccounts")",
             data: { "vendorId": vendorId, "poNumberRequired": true, "transTypeCode": 'ADV', "TDSRequired": true },
             dataType: "json",
             success: function (result) {
@@ -1279,7 +1281,7 @@ new { @class = "form-control" })
                 if (settlementamt === '' || settlementamt === null)
                     settlementamt = 0;
                 var tdsCal = ((parseFloat(result.TDSLimit) - parseFloat(TotalInvoice)) + parseFloat(settlementamt))
-                
+
                 if (tdsCal > 5000000) {
                     retval = false;
                     $('#FailedAlert').html("The Total paid / payable is" + " Rs: " + tdsCal.toFixed(2) + " hence 194Q is applicable for goods.");
@@ -1307,7 +1309,7 @@ new { @class = "form-control" })
             var vendorid = $('#VendorId').val() || 0;
             var TotalInvoice = $("#TotalInvoiceValue").val() || 0;
             validatetds(vendorid, SettleAmt, TotalInvoice);
-            
+
 
             if (content == '') {
                 searchCommitment()
