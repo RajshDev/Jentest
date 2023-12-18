@@ -1155,7 +1155,7 @@ namespace IOAS.Controllers
                         ttlGSTElgAmt = ttlGSTElgAmt + advTax;
                 }
                 ttlAdvAmt = model.InvoiceAmount ?? 0;
-                ttlAdvAmt = (int)Math.Round(ttlAdvAmt, MidpointRounding.AwayFromZero);
+                //ttlAdvAmt = (int)Math.Round(ttlAdvAmt, MidpointRounding.AwayFromZero);
                 netAdvAmt = ttlAdvAmt + (model.InvoiceTaxAmount ?? 0);
             }
             else

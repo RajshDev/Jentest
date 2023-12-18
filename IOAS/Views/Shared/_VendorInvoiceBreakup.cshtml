@@ -160,12 +160,7 @@
         //if (currentRefId == 0) {
         //    calculateAmount();
         //} else {
-        var round = $('#RoundOfAdjustment').val();
-
-        console.log('round :' + round);
-        if ($('#RoundOfAdjustment').val() == 'undefined') {
-            $('#RoundOfAdjustment').val(0); 
-        }
+        
         calculateAmountViewMode();
         
         //}
@@ -197,7 +192,7 @@
         $("#InvoiceAmount").val(parseFloat(totalamount + adjVal).toFixed(2));
         $("#InvoiceTaxEligibleAmount").val(eligibletaxtotal.toFixed(2));
         //$("#totInvoiceAmt").val(totInvoiceAmount + adjVal);
-        totInvoiceAmount = round(round(totalamount) + totaltax + adjVal);
+        totInvoiceAmount = round(totalamount + totaltax + adjVal);
         $("#totInvoiceAmt").val(totInvoiceAmount);
         if ($('#InvoiceAmount').val() == "") {
             $('#txtRoundOfAdjustment').val(0);
@@ -270,14 +265,17 @@
             }  
            
         });
+        
         //$("#InvoiceAmount").val(totalamount.toFixed(2));//10616
+        var taxInvAmt = parseFloat(totalamount + Number(adjVal));
 
-        $("#InvoiceAmount").val((totalamount + adjVal).toFixed());
+        if (!isNaN(taxInvAmt))
+            $("#InvoiceAmount").val(taxInvAmt);
         $("#InvoiceTaxAmount").val(totaltax.toFixed(2));
         $("#InvoiceTaxEligibleAmount").val(eligibletaxtotal.toFixed(2));
         
         //$("#totInvoiceAmt").val(totInvoiceAmount + adjVal);
-        totInvoiceAmount = round(round(totalamount) + totaltax + adjVal);
+        totInvoiceAmount = round(totalamount + totaltax + Number(adjVal));
         $("#totInvoiceAmt").val(totInvoiceAmount);
         CalculatePOValue();
     }
@@ -286,11 +284,11 @@
     function round(total) {
 
         if (!isNaN(total)) {
-            console.log('Loaded..')
+           
             var valToBeRounded = parseFloat(total);
             var decimalPart = valToBeRounded % 1;
 
-            console.log(valToBeRounded);
+            
             if (decimalPart > 0.5) {
                 // Round up the number
                 var roundUpNumber = Math.ceil(valToBeRounded);
