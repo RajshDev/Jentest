@@ -1169,8 +1169,8 @@ namespace IOAS.Controllers
                         ttlGSTElgAmt = ttlGSTElgAmt + advTax;
                     }
                 }
-                //ttlAdvAmt = (model.InvoiceAmount ?? 0) - (model.hiddenSettAmt ?? 0);
-                ttlAdvAmt = ttlAdvAmt  - (model.hiddenSettAmt ?? 0);
+                ttlAdvAmt = (model.InvoiceAmount ?? 0) - (model.hiddenSettAmt ?? 0);
+                //ttlAdvAmt = ttlAdvAmt  - (model.hiddenSettAmt ?? 0);
                 netAdvAmt = ttlAdvAmt + (Convert.ToDecimal(model.InvoiceTaxAmount) - Convert.ToDecimal(model.hiddenSettTaxAmt));
             }
             ttlGSTElgAmt = Math.Round(ttlGSTElgAmt, 2, MidpointRounding.AwayFromZero);
@@ -1178,16 +1178,21 @@ namespace IOAS.Controllers
             //netAdvAmt = (int)Math.Round(netAdvAmt);
             var invAmt = netAdvAmt;
             netAdvAmt = netAdvAmt - ttlGSTElgAmt;
-            
+
+            var totpayval = (model.InvoiceAmount + model.InvoiceTaxAmount);
+               totpayval = (int)Math.Round((totpayval ?? 0), MidpointRounding.AwayFromZero);
+
+
             if (netAdvAmt != commitmentAmt)
                 msg = "There is a mismatch between the settlement value and allocated commitment value. Please update the value to continue.";
             if (netDrAmt != crAmt || (netCrAmt + ttlJVExpVal) != crAmt)
                 msg = msg == "Valid" ? "Not a valid entry. Credit and Debit value are not equal" : msg + "<br />Not a valid entry. Credit and Debit value are not equal";
             if (ttlJVExpVal != ttlJVDrVal)
                 msg = msg == "Valid" ? "Not a valid entry. Credit and Debit value of JV are not equal" : msg + "<br />Not a valid entry. Credit and Debit value of JV are not equal";
-            //if (TransAmt !=  (model.InvoiceAmount + model.InvoiceTaxAmount) && !model.RCM_f)
-            if (TransAmt != invAmt && !model.RCM_f)
+            if (TransAmt != totpayval && !model.RCM_f)
                 msg = msg == "Valid" ? "There is a mismatch between the credit value and invoice value. Please update the value to continue." : msg + "<br />There is a mismatch between the credit value and invoice value. Please update the value to continue.";
+            // if (TransAmt != invAmt && !model.RCM_f)
+
             //if (ttlExpAmt != commitmentAmt)
             //    msg = msg == "Valid" ? "There is a mismatch between the expense value and allocated commitment value. Please update the value to continue." : msg + "<br />There is a mismatch between the expense value and allocated commitment value. Please update the value to continue.";
             //if (gst == "NotEligible" && netCrAmt != commitmentAmt)

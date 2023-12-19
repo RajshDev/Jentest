@@ -427,6 +427,7 @@ new { @class = "form-control required" })
                                                         <div class="form-group custom-form-group">
                                                             <label>Net Bill Total:</label>
                                                             <h4 id="lblAdvNetAmt"></h4>
+                                                           
                                                         </div>
                                                     </div>
                                                 </div>
@@ -1183,12 +1184,13 @@ if (stateCode == '33') {
 }
     function CalculatePOValue() {
         if ($('#PaymentType').val() != '2') {
+            console.log('sett');
             var advPct = 100;
             var ttlPOVal = 0, ttlPOTaxVal = 0, netPOVal = 0, ttlAdvVal = 0, ttlAdvTaxVal = 0, netAdvVal = 0;
             var elgF = false;
             var ttlGSTElgAmt = 0;
             //10616 - RoundOff Feature
-            var adjVal = parseFloat($("#txtRoundOfAdjustment").val()); 
+            var adjVal = parseFloat($("#txtRoundOfAdjustment").val()) || 0; console.log('adjVal :' + adjVal);
             $('#tbodyPO tr').not(':first').each(function (i, rowEle) {
                 var amt = parseFloat($(rowEle).find('input[name$=".TotalAmount"]').val());
                 var chckElg = $(rowEle).find('input[type="checkbox"][name$=".IsTaxEligible"]').prop('checked');
@@ -1232,7 +1234,17 @@ if (stateCode == '33') {
             else
                 $('#isHaveElgGST').val('false');
 
-            $('#lblPOTtlAmt').text((ttlPOVal + adjVal).toFixed(2));
+
+
+            if (typeof adjVal === 'undefined') {
+                adjVal = 0;
+            } else
+                adjVal;
+            var poVal = ttlPOVal + Number(adjVal);
+
+           
+
+            $('#lblPOTtlAmt').text((poVal).toFixed(2));
             //$('#lblPOTtlTaxAmt').text(round(ttlPOTaxVal));
             $('#lblPOTtlTaxAmt').text(ttlPOTaxVal.toFixed(2));
             netPOVal = (ttlPOVal + ttlPOTaxVal + adjVal).toFixed(2);
@@ -1250,9 +1262,11 @@ if (stateCode == '33') {
             netAdvVal = (invTaxAmt + invAmt);
             //$('#lblAdvNetAmt').text(netAdvVal.toFixed(2));
             $('#lblAdvNetAmt').text(round(netAdvVal));
+           
+
             UpdateGSTSplitUp();
             var roundValItc = $('#hiddenTaxEligibleAmt').val() || 0; 
-            var validCmtAmt = (round(netAdvVal) - roundValItc).toFixed(2); 
+            var validCmtAmt = (netAdvVal - roundValItc).toFixed(2); 
             $('#lblcommitamt').html(validCmtAmt);
 
             if ($('#TotalInvoiceValue').val() == 0 && $('#BillId').val() != "0") {
@@ -1262,7 +1276,9 @@ if (stateCode == '33') {
                 var TotalInvoice = $("#TotalInvoiceValue").val() || 0;
                 validatetds(vendorid, SettleAmt, TotalInvoice);
             }
-        } else {
+        }
+        else {
+            console.log('adv against sett');
             var ttlPOVal = 0, ttlPOTaxVal = 0, netPOVal = 0;
             var elgF = false;
             var ttlGSTElgAmt = 0;
@@ -1288,9 +1304,16 @@ if (stateCode == '33') {
             //$('#lblPOTtlAmt').text(ttlPOVal.toFixed(2));
             $('#lblPOTtlTaxAmt').text(ttlPOTaxVal.toFixed(2));
 
-            $('#lblPOTtlAmt').text((ttlPOVal + adjVal).toFixed(2));
+
+            if (typeof adjVal === 'undefined') {
+                adjVal = 0;
+            } else
+                adjVal;
+            var poVal = ttlPOVal + Number(adjVal); 
+            
+            $('#lblPOTtlAmt').text((poVal).toFixed(2));
             //$('#lblPOTtlTaxAmt').text(round(ttlPOTaxVal));
-            netPOVal = (round(ttlPOVal) + ttlPOTaxVal + adjVal).toFixed(2);
+            netPOVal = (ttlPOVal + ttlPOTaxVal + adjVal).toFixed(2);
             $('#lblPONetAmt').text(round(netPOVal));
             //if ($('#TotalInvoiceValue').val() == 0) { $('#TotalInvoiceValue').val(netPOVal); }
             if (elgF)
@@ -1312,9 +1335,11 @@ if (stateCode == '33') {
             netAdvVal = (setAmt + setTaxAmt).toFixed(2);
             netAdvVal = netAdvVal;
             $('#lblAdvNetAmt').text(round(netAdvVal));
+            
             UpdateGSTSplitUp();
             var roundValItc = $('#hiddenTaxEligibleAmt').val() || 0;
-            var validCmtAmt = (netAdvVal - roundValItc).toFixed(2);
+            console.log('roundValItc : ' + roundValItc);
+            var validCmtAmt = (round(netAdvVal) - roundValItc).toFixed(2);
             $('#lblcommitamt').html(validCmtAmt);
 
             if ($('#TotalInvoiceValue').val() == 0 && $('#BillId').val() != "0") {
@@ -1392,11 +1417,12 @@ for (var k = 1; k < doctypevalues.length; ++k) {
 if (isValid)
     $('#formADV').submit();
 }
-function ValidateCommitment() {
-var msg = 'valid';
-var commitmentAmt = parseFloat($('#CommitmentAmount').val());
-var netAdvAmt = parseFloat($('#lblAdvNetAmt').html()) || 0;
-var ttlGSTElgAmt = parseFloat($('#hiddenTaxEligibleAmt').val()) || 0;
+    function ValidateCommitment() {
+    var msg = 'valid';
+    var commitmentAmt = parseFloat($('#CommitmentAmount').val());
+    var netAdvAmt = parseFloat($('#lblAdvNetAmt').html()) || 0;
+    var ttlGSTElgAmt = parseFloat($('#hiddenTaxEligibleAmt').val()) || 0;
+    
 var validCmtAmt = (netAdvAmt - ttlGSTElgAmt).toFixed(2);
 commitmentAmt = commitmentAmt.toFixed(2);
 $("#tbodyCommitmentSelList tr").each(function () {
