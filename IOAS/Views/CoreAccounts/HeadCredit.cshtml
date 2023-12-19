@@ -529,7 +529,7 @@
         //  applyAutoComplete($('#Project'), $('#ProjectId'), "@Url.Action("LoadProjectList", "CoreAccounts")");
         applyAutoComplete($('#Project'), $('#ProjectId'), '@Url.Action("LoadProjectNumber","CoreAccounts")');
         applyAutoComplete($('#BillRefNoAC'), $('#BillRefNo'), '@Url.Action("LoadRefernceNumber", "CoreAccounts")', 'loadInvNumber', true, true);
-
+        GetFreezeFirstValue();
         if (succMsg != '') {
             $('#alertSuccess').html(succMsg);
             $('#Success').modal('toggle');
@@ -544,9 +544,9 @@
         CalculateTotal();
         $('#tbodyCr tr').each(function (idx, trval) {
             FirAccHead = ($(this).find('select[name$=".BudgetHeadId"]').val());           
-            GetFreezeFirstValue(FirAccHead);
+           // GetFreezeFirstValue(FirAccHead);
         });
-        GetFreezeFirstValue();
+      
 
         
 
@@ -646,8 +646,7 @@
         var ttlCrVal = 0;
         $('#tbodyCr input[name$=".Amount"]').each(function (i, rowEle) {
             var parseVal = parseFloat($(this).val()) || 0;
-            ttlCrVal = ttlCrVal + parseVal;
-            GetFreezeValueData();
+            ttlCrVal = ttlCrVal + parseVal;            
         });
         $('#ttlCr').val(ttlCrVal);
     }
@@ -814,15 +813,15 @@
     });
     $('#btnAddCrDetail').click(function () {
         var cln = $('#tbodyCr tr:first').clone().find("select,input").val("").end();
+        cln.find("select,input").removeAttr('disabled');
+        cln.find("select,input").prop('disabled', false);
         var index = $('#tbodyCr tr:last').find("input[name='CrDetail.Index']").val();
         index = parseInt(index) + 1;
-        $(cln).find("input[name='CrDetail.Index']").val(index);
+        $(cln).find("input[name='CrDetail.Index']").val(index);        
+        cln.find("a.disabled").removeClass("disabled");       
         $(cln).find("input, select").each(function () {
             $(this).attr("name", $(this).attr("name").replace(/\d+/, index));
             $(this).attr("id", $(this).attr("id").replace(/\d+/, index));
-            $(this).attr("Amount",$(this).removeAttr('readonly'));
-            //$('input[name$="Amount"]').removeAttr('readonly');
-
         });
         $(cln).find("span[data-valmsg-for]").each(function () {
             $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, index));
@@ -888,7 +887,8 @@
         } else if (currentTab == 0) {
             var validationMsg = ValidateTransaction()
 
-           
+            GetFreezeFirstValue();
+
             if (validationMsg != 'valid') {
                 hadError = true;
                 $("#alert").text(validationMsg);
@@ -902,9 +902,9 @@
 
             $('#tbodyCr tr').each(function (idx, trval) {
                 AccHead = ($(this).find('select[name$=".BudgetHeadId"]').val());
-                console.log(AccHead);
+                //console.log(AccHead);
                 GetFreezeValueData(AccHead)
-                GetFreezeFirstValue(AccHead);
+               
             });
             removeCommitmentValidation();
         }
@@ -1003,43 +1003,35 @@
     }
 
 
-    function GetFreezeFirstValue(FirAccHead) {
-        var ProjectId = $("#ProjectId").val();        
+    function GetFreezeFirstValue() {
+        var ProjectId = $("#ProjectId").val();
         var isFreezeFirstDataValid = 0;
         $.ajax({
             type: "GET",
             async: false,
             url: '@Url.Action("GetFreezeProjectData", "Project")',
-            data: {
-                "ProjectId": ProjectId},
+            data: { "ProjectId": ProjectId },
             dataType: "json",
             success: function (result) {
                 isFreezeDataValid = result;
-
-        
-                $('#tbodyCr tr').each(function (idx, trval) {
-                    FirAccHead = ($(this).find('select[name$=".BudgetHeadId"]').val());
-                  //  GetFreezeFirstValue(FirAccHead);
                 
-                $.each(isFreezeDataValid, function (index, value) {
+                    $.each(isFreezeDataValid, function (index, value) {
+                        $('#tbodyCr tr').each(function (idx, trval) {
+                            FirAccHead = ($(this).find('select[name$=".BudgetHeadId"]').val());
+                            ele = ($(this).find('select[name$=".BudgetHeadId"]'));
+                            ele1 = ($(this).find('input[name$=".Amount"]'));
+                            ele2 = $(this).find('a');
+                          
+                            if (FirAccHead == value.AllocationHead) {
+                                console.log(ele2);
+                                ele.prop('disabled', true);
+                                $(ele1).attr("disabled", "disabled"); 
+                                $(ele2).addClass('disabled');
+                            }
+                        });
 
-                    $('#tbodyCr tr').each(function (idx, trval) {
-                        FirAccHead = ($(this).find('select[name$=".BudgetHeadId"]').val());
-                        ele = ($(this).find('select[name$=".BudgetHeadId"]'));
-                        if (FirAccHead == value.AllocationHead) {
-                            console.log(ele.name);
-                        }
-                       // GetFreezeFirstValue(FirAccHead);
                     });
-                    
-                        //messageBox('Allocation Head Freezed', "warning");
-                        //var FirAccHead
-                        //$('#BudgetHeadId').attr('readonly', 'readonly');
-                        //$('#BudgetHeadId').attr('readonly', true);
-                        //$('#Amount').attr('readonly', 'readonly')
-                        //$('#AllocationValue').attr('readonly');
-                });
-                });
+               
             }
         });
         return isFreezeFirstDataValid;
@@ -1052,7 +1044,7 @@
             //var selectedText = ele.options[ele.selectedIndex].text;
             messageBox('Allocation Head Freezed', "warning");           
             ele.selectedIndex = -1;             
-        } 
+        }         
     }
     
 </script>

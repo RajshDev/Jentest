@@ -2963,7 +2963,7 @@ namespace IOAS.GenericServices
                 {
                     var Freezedata = (from FreezeLog in context.tblAllocationFreezeLog
                                       where FreezeLog.ProjectId == ProjectId && FreezeLog.IsCurrentVersion == 1
-                                      select new { FreezeLog.AllocationHead }).ToList();
+                                      select new { FreezeLog.AllocationHead }).Distinct().ToList();
                                      
                     for (int i = 0; i < Freezedata.Count; i++)
                         {
