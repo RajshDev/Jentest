@@ -35,6 +35,69 @@ Code changes:
 CoreAccountsController.cs
 Honororium.cshtml
 
+DB changes :
+
+INSERT INTO [dbo].[tblTDSMaster]
+([Section]
+,[NatureOfIncome]
+,[Percentage]
+,[AccountHeadId])
+VALUES
+('(92B) - 30.00%'
+,'TDS on Salary'
+,30.00
+,594)
+ 
+INSERT INTO [dbo].[tblCodeControl]
+([CodeName]
+,[CodeValAbbr]
+,[CodeValDetail]
+,[CodeDescription]
+,[UPDT_UserID]
+,[CRTE_TS]
+,[UPDT_TS])
+VALUES
+('TDS'
+,30
+,'30%'
+,593
+,null
+,null
+,null)
+ 
+ 
+INSERT INTO [dbo].[tblAccountHead]
+([AccountGroupId]
+,[AccountHead]
+,[AccountHeadCode]
+,[CrtdUserId]
+,[CrtdTS]
+,[SeqNbr]
+,[LastUpdatedUserId]
+,[Lastupdated_TS]
+,[Status]
+,[Bank_f]
+,[VariableName])
+VALUES
+(15
+,'TDS on Salary (92B) - 30%'
+,'L01-01-02-1684'
+,2
+,GETDATE()
+,1682
+,null
+,null
+,'Active'
+,0
+,null
+)
+ 
+insert into tblTransactionDefinition 
+select 'HON',1,a.AccountGroupId,AccountHeadId,'Credit',0,null from tblAccountHead A where AccountHeadId in (600)
+
+update tblTDSMaster set Section='(92A) - 30.00%' where TdsMasterId=44
+ 
+
 Bug:
 #11052 --Change Account Head in Institute Salary Payment
 Code changes:
