@@ -1251,6 +1251,8 @@ namespace IOAS.Models
         public decimal Total { get; set; }
         public decimal Available { get; set; }
         public bool Validate_f { get; set; }
+        public Nullable<int> IsFreeze { get; set; }
+
     }
 
     public class ProposalStatusUpdateModel

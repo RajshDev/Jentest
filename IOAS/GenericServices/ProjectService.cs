@@ -6902,7 +6902,9 @@ namespace IOAS.GenericServices
                                 Expenditure = SpentAmount + OB,
                                 Total = BalComm + SpentAmount + OB,
                                 Available = TotBudgetAmt - (BalComm + SpentAmount + OB),
-                                Validate_f = BudgetHeadQry == null ? false : BudgetHeadQry.IsNonValidate_f ?? false
+                                Validate_f = BudgetHeadQry == null ? false : BudgetHeadQry.IsNonValidate_f ?? false,
+                                IsFreeze=ProjectService.GetFreezeAndAllocationValues(ProjectId, headId)
+
                             });
                         }
                     }
