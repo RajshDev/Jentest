@@ -651,7 +651,7 @@
         var advPct = parseInt($("#AdvancePercentage").val());
         if (isNaN(advPct))
             advPct = 0;
-        var ttlPOVal = 0, ttlPOTaxVal = 0, netPOVal = 0, ttlAdvVal = 0, ttlAdvTaxVal = 0, netAdvVal = 0;
+        var ttlPOVal = 0, ttlPOTaxVal = 0, netPOVal = 0, ttlAdvVal = 0, ttlAdvTaxVal = 0, netAdvVal = 0, netAdvPayVal = 0;
         var elgF = false;
         var ttlGSTElgAmt = 0;
         if (advPct > 0) {
@@ -679,11 +679,13 @@
                             ttlGSTElgAmt = ttlGSTElgAmt + advTaxVal;
                     }
                     netAdvAmt = advAmt + advTaxVal;
+                    netAdvPayVal += round(netAdvAmt);
                     //var poTaxVal = amt * taxPct / 100;
                     //ttlPOTaxVal = ttlPOTaxVal + poTaxVal;
                     $(rowEle).find('.tdAdvPct').html(advPct.toFixed(2));
                     $(rowEle).find('.tdAdvAmt').html(advAmt.toFixed(2));
                     $(rowEle).find('.tdTaxAmt').html(advTaxVal.toFixed(2));
+                    //$(rowEle).find('.tdNetAmt').html(netAdvAmt.toFixed(2));
                     $(rowEle).find('.tdNetAmt').html(netAdvAmt.toFixed(2));
                 }
             });
@@ -694,19 +696,43 @@
             $('#lblPOTtlAmt').text(ttlPOVal.toFixed(2));
             $('#lblPOTtlTaxAmt').text(ttlPOTaxVal.toFixed(2));
             netPOVal = (ttlPOVal + ttlPOTaxVal).toFixed(2);
-            $('#lblPONetAmt').text(netPOVal);
+            $('#lblPONetAmt').text(round(netPOVal));
             $('#lblAdvTtlAmt').text(ttlAdvVal.toFixed(2));
             $('#lblAdvTtlTaxAmt').text(ttlAdvTaxVal.toFixed(2));
             $('#hiddenTaxEligibleAmt').val(ttlGSTElgAmt.toFixed(2)).trigger('change');
             $('#lblTaxEligibleAmt').text(ttlGSTElgAmt.toFixed(2));
             netAdvVal = (ttlAdvVal + ttlAdvTaxVal).toFixed(2);
-            $('#lblAdvNetAmt').text(netAdvVal);
+            //$('#lblAdvNetAmt').text(round(netAdvVal));
+            $('#lblAdvNetAmt').text(netAdvPayVal);
             UpdateGSTSplitUp();
             var roundValItc = $('#hiddenTaxEligibleAmt').val() || 0;
-            var validCmtAmt = (netAdvVal - roundValItc).toFixed(2);
+            var validCmtAmt = (netAdvPayVal - roundValItc).toFixed(2);
             $('#lblcommitamt').html(validCmtAmt);
         } else
             $('#lblcommitamt').html(0);
+    }
+
+    //Round off calculation // 10616
+    function round(total) {
+
+        if (!isNaN(total)) {
+           
+            var valToBeRounded = parseFloat(total);
+            var decimalPart = valToBeRounded % 1;
+
+            console.log(valToBeRounded);
+            if (decimalPart > 0.5) {
+                // Round up the number
+                var roundUpNumber = Math.ceil(valToBeRounded);
+                value = roundUpNumber;
+            }
+            else {
+                // Round off the number
+                var roundOffNumber = Math.round(valToBeRounded);
+                value = roundOffNumber;
+            }
+            return value;
+        }
     }
 
     $('#CommitmentAmount, #CreditorAmount, #ExpenseAmount, input[name $=".PaymentAmount"], input[name $=".Quantity"], input[name $=".TotalAmount"], input[name $=".Amount"], #ttlCr, #ttlDr').on("copy cut paste drop", function () {

@@ -7731,7 +7731,7 @@ namespace IOAS.Infrastructure
                 {//35690
                     list = (from P in context.tblProject
                             join U in context.vwFacultyStaffDetails on P.PIName equals U.UserId
-                            where  P.ProjectId == 35690
+                            where  P.ProjectId == 12345
                             orderby P.ProjectNumber
                             group new { P.ProjectId, P.ProjectNumber, U.FirstName } by P.ProjectId into g
                             select new

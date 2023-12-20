@@ -36,5 +36,7 @@ namespace IOAS.DataModel
         public Nullable<int> UPTD_By { get; set; }
         public Nullable<int> PayeeTypeId { get; set; }
         public Nullable<System.DateTime> PaymentDate { get; set; }
+        public Nullable<int> PayeeDetailID { get; set; }
+        public Nullable<bool> IsMailSend { get; set; }
     }
 }

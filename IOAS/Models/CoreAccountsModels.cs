@@ -292,7 +292,10 @@ namespace IOAS.Models
 
         public List<VendorInvoiceBreakUpDetailModel> InvoiceBreakDetail { get; set; } = new List<VendorInvoiceBreakUpDetailModel>();
         public bool BillProcessingStatus { get; set; }
-        
+
+        public Nullable<decimal> RoundOfAdjustment { get; set; }
+        public Nullable<decimal> totInvoiceAmt { get; set; }
+
     }
 
     public class BillPODetailModel
@@ -378,6 +381,7 @@ namespace IOAS.Models
         public bool ICSROverHead_f { get; set; }
         public Nullable<int> VendorId { get; set; }
         public Nullable<decimal> hiddenSettAmt { get; set; }
+        public Nullable<decimal> hiddenRoundOffAmt { get; set; }
         public Nullable<decimal> hiddenSettTaxAmt { get; set; }
         public Nullable<decimal> hiddenTaxEligibleAmt { get; set; }
         public string GST { get; set; }
@@ -4971,6 +4975,8 @@ namespace IOAS.Models
         public Nullable<DateTime> InvoiceDate { get; set; }
         public string InvoiceDateView { get; set; }
         public Nullable<decimal> Roundvalue { get; set; }
+        public Nullable<decimal> RoundOfAdjustment { get; set; }
+
     }
     public class BillHistoryModel
     {
@@ -5246,6 +5252,8 @@ namespace IOAS.Models
         public Nullable<decimal> EligibleTaxValue { get; set; }
         public string Remark { get; set; }
 
+        public Nullable<decimal> RoundOffAmt { get; set; }
+
         [Required]
         [Display(Name = "Bank Name")]
         public Nullable<Int32> BankId { get; set; }
@@ -5285,6 +5293,8 @@ namespace IOAS.Models
         public string SourceName { get; set; }
         public string SourceEmail { get; set; }
         public bool PFInit { get; set; }
+
+        public Nullable<decimal> RoundOfAdjustment { get; set; }
     }
     public class AdhocPaySearchResultModel
     {
@@ -6790,6 +6800,7 @@ namespace IOAS.Models
         public string GSTIN { get; set; }
         public string PAN { get; set; }
         public string BankGuaranteeRemarks { get; set; }
+        public Nullable<decimal> RoundOfAdjustment { get; set; }
         public List<PayableModel> Payable { get; set; }
         public List<CommListModel> Comm { get; set; }
         public List<TDSITListModel> TDSIT { get; set; }
