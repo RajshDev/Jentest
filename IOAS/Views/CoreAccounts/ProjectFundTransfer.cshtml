@@ -298,6 +298,7 @@
     var succMsg = '@TempData["succMsg"]';
     $('#SourceEmailDate').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy' }).attr('readonly', 'readonly');
     $(document).ready(function () {
+        GetFreezeFirstValue();
         if (succMsg != '') {
             $('#alertSuccess').html(succMsg);
             $('#Success').modal('toggle');
@@ -306,6 +307,9 @@
             $('#FailedAlert').html(errMsg);
             $('#Failed').modal('toggle');
         }
+        $('#tbodyCr tr').each(function (idx, trval) {
+            FirAccHead = ($(this).find('select[name$=".BudgetHeadId"]').val());           
+        });
         //var form = $('#formPFT');
         //form.removeData('validator');
         //form.removeData('unobtrusiveValidation');
@@ -436,9 +440,12 @@
     });
     $('#btnAddCrDetail').click(function () {
         var cln = $('#tbodyCr tr:first').clone().find("select,input").val("").end();
+        cln.find("select,input").removeAttr('disabled');
+        cln.find("select,input").prop('disabled', false);
         var index = $('#tbodyCr tr:last').find("input[name='CrDetail.Index']").val();
         index = parseInt(index) + 1;
         $(cln).find("input[name='CrDetail.Index']").val(index);
+        cln.find("a.disabled").removeClass("disabled");
         $(cln).find("input, select").each(function () {
             $(this).attr("name", $(this).attr("name").replace(/\d+/, index));
             $(this).attr("id", $(this).attr("id").replace(/\d+/, index));
@@ -508,14 +515,57 @@
         });
         return isFreezeDataValid;
     }
+
+    
+    function GetFreezeFirstValue() {
+        var ProjectId = $("#CreditProjectId").val();
+        var isFreezeFirstDataValid = 0;
+        $.ajax({
+            type: "GET",
+            async: false,
+            url: '@Url.Action("GetFreezeProjectData", "Project")',
+            data: { "ProjectId": ProjectId },
+            dataType: "json",
+            success: function (result) {
+                isFreezeDataValid = result;
+                
+                    $.each(isFreezeDataValid, function (index, value) {
+                        $('#tbodyCr tr').each(function (idx, trval) {
+                            FirAccHead = ($(this).find('select[name$=".BudgetHeadId"]').val());
+                            ele = ($(this).find('select[name$=".BudgetHeadId"]'));
+                            ele1 = ($(this).find('input[name$=".Amount"]'));
+                            ele2 = $(this).find('a');
+                          
+                            if (FirAccHead == value.AllocationHead) {
+                                console.log(ele2);
+                                ele.prop('disabled', true);
+                                $(ele1).attr("disabled", "disabled"); 
+                                $(ele2).addClass('disabled');
+                            }
+                        });
+
+                    });
+               
+            }
+        });
+        return isFreezeFirstDataValid;
+    }
+
+
+
+
+
+
+
+
     function BudgetHeadChangeForcr(ele) {
 
-        var firstmessfreezeforcr = GetFreezeValueDataForCr(ele.value);
-        if (firstmessfreezeforcr == 1) {
-            var selectedText = ele.options[ele.selectedIndex].text;
-            messageBox(selectedText + ' Allocation Head Freezed', "warning");
-            ele.selectedIndex = -1; 
-        }
+        var firstmessfreeze = GetFreezeValueData(ele.value);
+        if (firstmessfreeze == 1) {
+            //var selectedText = ele.options[ele.selectedIndex].text;
+            messageBox('Allocation Head Freezed', "warning");
+            ele.selectedIndex = -1;
+        }  
     }
     
 </script>
