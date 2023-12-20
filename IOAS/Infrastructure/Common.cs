@@ -12082,12 +12082,12 @@ namespace IOAS.Infrastructure
                                 {
                                     FreezeData.Add(new FreezingUnFreezingModel()
                                     {
-                                        ProjectId = query[i].ProjectId,
-                                        AllocationHead = query[i].AllocationHead ?? 0,
-                                        ProjectNumber = query[i].ProjectNumber,
-                                        HeadName = query[i].HeadName,
-                                        TotalValue = query[i].TotalValue ?? 0,
-                                        Freeze = Convert.ToInt32(query[i].IsFreeze)
+                                        ProjectId = queryone[i].ProjectId ?? 0,
+                                        AllocationHead = queryone[i].BudgetHeadId,
+                                        ProjectNumber = queryone[i].ProjectNumber,
+                                        HeadName = queryone[i].HeadName,
+                                        TotalValue = 0,
+                                        Freeze = Convert.ToInt32(queryone[i].IsFreeze)
                                     });
                                 }
                             }

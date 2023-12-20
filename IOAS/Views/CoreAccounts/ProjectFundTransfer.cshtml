@@ -299,6 +299,7 @@
     $('#SourceEmailDate').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy' }).attr('readonly', 'readonly');
     $(document).ready(function () {
         GetFreezeFirstValue();
+        GetFreezeFirstDrValue();
         if (succMsg != '') {
             $('#alertSuccess').html(succMsg);
             $('#Success').modal('toggle');
@@ -309,6 +310,9 @@
         }
         $('#tbodyCr tr').each(function (idx, trval) {
             FirAccHead = ($(this).find('select[name$=".BudgetHeadId"]').val());           
+        });
+        $('#tbodyDr tr').each(function (idx, trval) {
+            FirAccHead = ($(this).find('select[name$=".BudgetHeadId"]').val());
         });
         //var form = $('#formPFT');
         //form.removeData('validator');
@@ -419,9 +423,12 @@
 
     $('#btnAddDrDetail').click(function () {
         var cln = $('#tbodyDr tr:first').clone().find("select,input").val("").end();
+        cln.find("select,input").removeAttr('disabled');
+        cln.find("select,input").prop('disabled', false);
         var index = $('#tbodyDr tr:last').find("input[name='DrDetail.Index']").val();
         index = parseInt(index) + 1;
         $(cln).find("input[name='DrDetail.Index']").val(index);
+        cln.find("a.disabled").removeClass("disabled");
         $(cln).find("input, select").each(function () {
             $(this).attr("name", $(this).attr("name").replace(/\d+/, index));
             $(this).attr("id", $(this).attr("id").replace(/\d+/, index));
@@ -553,6 +560,39 @@
 
 
 
+    function GetFreezeFirstDrValue() {
+        var ProjectId = $("#DebitProjectId").val();
+        var isFreezeFirstDataValid = 0;
+        $.ajax({
+            type: "GET",
+            async: false,
+            url: '@Url.Action("GetFreezeProjectData", "Project")',
+            data: { "ProjectId": ProjectId },
+            dataType: "json",
+            success: function (result) {
+                isFreezeDataValid = result;
+                
+                    $.each(isFreezeDataValid, function (index, value) {
+                        $('#tbodyDr tr').each(function (idx, trval) {
+                            FirAccHead = ($(this).find('select[name$=".BudgetHeadId"]').val());
+                            ele = ($(this).find('select[name$=".BudgetHeadId"]'));
+                            ele1 = ($(this).find('input[name$=".Amount"]'));
+                            ele2 = $(this).find('a');
+                          
+                            if (FirAccHead == value.AllocationHead) {
+                                console.log(ele2);
+                                ele.prop('disabled', true);
+                                $(ele1).attr("disabled", "disabled"); 
+                                $(ele2).addClass('disabled');
+                            }
+                        });
+
+                    });
+               
+            }
+        });
+        return isFreezeFirstDataValid;
+    }
 
 
 
