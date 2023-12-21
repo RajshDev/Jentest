@@ -4793,7 +4793,7 @@ namespace IOAS.GenericServices
                             {
                                 SlNo = i + 1,
                                 ComitmentId = query[i].com.CommitmentId,
-                                CommitmentType = Common.getCommitmentName(query[i].com.CommitmentType ?? 0),
+                                CommitmentType = Common.getCommitmentName(query[i].com.CommitmentType ?? 0),                              
                                 CommitmentNo = query[i].com.CommitmentNumber,
                                 projectNumber = Common.GetProjectNumber(query[i].com.ProjectId ?? 0),
                                 VendorName = "NA",
@@ -4802,7 +4802,8 @@ namespace IOAS.GenericServices
                                 CreatedDate = String.Format("{0:ddd dd-MMM-yyyy}", query[i].com.CRTD_TS),
                                 Status = query[i].com.Status,
                                 ProjectId = query[i].com.ProjectId ?? 0,
-                            });
+                                Freeze= ProjectService.GetFreezeAndAllocationValues(query[i].com.ProjectId ?? 0, query[i].ComDet.AllocationHeadId ?? 0),
+                        });
 
                         }
                     }

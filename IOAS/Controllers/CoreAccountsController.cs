@@ -1436,7 +1436,89 @@ namespace IOAS.Controllers
                 throw new Exception(ex.Message);
             }
         }
+        [HttpGet]
+        public ActionResult AllocationFreezingUnFreezing()
+        {
+            try
+            {
+                var allocatehead = Common.getallocationhead();
+                ViewBag.allocatehead = allocatehead;
+                return View();
+            }
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+                    (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                throw new Exception(ex.Message);
+            }
+        }
 
+        [HttpPost]
+        public ActionResult AllocationFreezingUnFreezing(FreezingUnFreezingModel model)
+        {
+            try
+            {
+                int userId = Common.GetUserid(User.Identity.Name);
+                bool Freeze =ProjectService.PostMethodForFreezedata(model, userId);
+                
+                if (Freeze == true)
+                {
+                    TempData["succMsg"] = "Project Allocation has been Freezed and Un-Freezed successfully, Project number - " + model.ProjectNumber + ".";
+                    return RedirectToAction("AllocationFreezingUnFreezing");
+
+                }
+                else
+                {
+                    TempData["errMsg"] = "Something went wrong please contact administrator.";
+                }
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+       (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                throw new Exception(ex.Message);
+            }
+        }
+
+
+        [HttpGet]
+        public JsonResult FreezeUnfreezeLoadProjectList(string ProjectId)
+        {
+            try
+            {
+                var projectData = Common.FreezeUnfreezeLoadProjectDetails(Convert.ToInt32(ProjectId));
+                var result = new { projectsData = projectData };
+                return Json(result, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+       (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                throw new Exception(ex.Message);
+            }
+        }
+
+
+
+        [HttpGet]
+        public JsonResult GetAllocationFreezeUnFreezeData(int projectId)
+        {
+            try
+            {
+                var allocatehead = Common.getallocationhead();
+                ViewBag.allocatehead = allocatehead;
+                object output = Common.GetFreezeAndUnFreezeData(projectId);
+                return Json(output, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+       (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                throw new Exception(ex.Message);
+            }
+        }
+                          
         [HttpPost]
         public ActionResult BillReversal(string transaction, string Billnumber)
         {
@@ -2965,6 +3047,8 @@ namespace IOAS.Controllers
 
             return Json(data, JsonRequestBehavior.AllowGet);
         }
+
+
         [HttpGet]
         public JsonResult LoadProjectList(string term, int? type = null, int? classification = null, int? BankHeadId =  null)
         {
