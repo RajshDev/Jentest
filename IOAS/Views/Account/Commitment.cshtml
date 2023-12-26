@@ -376,7 +376,7 @@ else
                                         {
                                             <div name="primaryAllocateDiv" class="row m-b-sm">
                                                 <div class="col-md-6 mb20">
-                                                    @Html.DropDownListFor(m => m.selAllocationHead, new SelectList(ViewBag.BudgetHead, "id", "name"), "Select Allocation head", new { @class = "form-control", @required = "required" })
+                                                    @Html.DropDownListFor(m => m.selAllocationHead, new SelectList(ViewBag.BudgetHead, "id", "name"), "Select Allocation head", new { @class = "form-control", @required = "required", @onchange = "BudgetHeadChange(this);" })
                                                     <div class="txt-error txt-red"> @Html.ValidationMessageFor(M => M.selAllocationHead)</div>
                                                 </div>
                                                 @if (Model.selCommitmentType == 5)
@@ -467,7 +467,7 @@ else
                                         {
                                             <div name="primaryAllocateDiv" class="row m-b-sm">
                                                 <div class="col-md-6 mb20">
-                                                    @Html.DropDownListFor(m => m.selAllocationHead, new SelectList(ViewBag.BudgetHead, "id", "name"), "Select Allocation head", new { @class = "form-control", @required = "required" })
+                                                    @Html.DropDownListFor(m => m.selAllocationHead, new SelectList(ViewBag.BudgetHead, "id", "name"), "Select Allocation head", new { @class = "form-control", @required = "required", @onchange = "BudgetHeadChange(this);" })
                                                     <div class="txt-error txt-red"> @Html.ValidationMessageFor(M => M.selAllocationHead)</div>
                                                 </div>
                                                 <div class="col-md-6 mb20">
@@ -868,10 +868,41 @@ else
         var p = s.split('-');
         return new Date(p[2], months[p[1].toLowerCase()], p[0]);
     }
+
+    function GetFreezeValueData() {
+
+        var ProjectId = $("#SelProjectNumber").val();
+        var AllocHdId = $("#selAllocationHead").val();
+        var isFreezeDataValid =0;
+        $.ajax({
+            type: "GET",
+            async: false,
+            url: '@Url.Action("GetFreezeAndAllocationData", "Project")',
+            data: {
+                "ProjectId": ProjectId, "AllocationId": AllocHdId},
+            dataType: "json",
+            success: function (result) {
+                isFreezeDataValid = result;                
+                }
+        });
+        return isFreezeDataValid;
+
+    }
+
+
     $('select[name^="selAllocationHead"]').change(function () {
 
         var ProjectId = $("#SelProjectNumber").val();
-        var AllocationId = $(this).val();
+        var AllocationId = $(this).val();        
+        //var firstmessfreeze = GetFreezeValueData();
+        //if (firstmessfreeze == 1) {
+        //    var SelectHead=$("#selAllocationHead :selected").text();            
+        //    messageBox(SelectHead + ' Allocation Head Freezed', "warning");
+        //    $('#AllocationValue').attr('readonly', true);
+        //} else {
+        //    $('#AllocationValue').removeAttr('readonly');
+        //}
+
         if (AllocationId != 0) {
             $.getJSON("@Url.Action("GetAllocationValue", "Account")", { ProjectID: ProjectId, AllocationID: AllocationId },
                            function (allocData) {
@@ -1021,6 +1052,14 @@ else
         var BankId = $("#BankId").val() || 0;
         var AllocatinHead = [];
         var Amount = [];
+
+        //var dataval = GetFreezeValueData();
+        //if (dataval == 1) {
+        //    isValid = false;
+        //    messageBox('Allocation Head Freezed <br/> Unable To Save Allocation', "warning");
+        //    return false;
+        //}
+
         if (CommitType == "") {
             isValid = false;
             $('#alert').html('Commitment type field is required');
@@ -1285,6 +1324,18 @@ else
         //alert('bank');
         Loadbankbyproject(ProjId);
     });
+
+
+    function BudgetHeadChange(ele) {
+
+        var firstmessfreeze = GetFreezeValueData(ele.value);
+        if (firstmessfreeze == 1) {
+            var SelectHead=$("#selAllocationHead :selected").text();            
+            messageBox(SelectHead + ' Allocation Head Freezed', "warning");
+            ele.selectedIndex = -1;
+        }
+    }
+
 
     function Loadbankbyproject(ProjId) {
 

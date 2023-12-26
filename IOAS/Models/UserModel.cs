@@ -57,6 +57,25 @@ namespace IOAS.Models
         public string desc { get; set; }
         public string icon { get; set; }
     }
+    public class FreezeUnfreezeLoadProjectListModel
+    {
+        public string value { get; set; }
+        public string label { get; set; }
+        public string desc { get; set; }
+        public string icon { get; set; }  
+        public int ProjectId { get; set; }
+        public string ProposalNumber { get; set; }
+        public int FinancialYear { get; set; }       
+        public string ProjectTitle { get; set; }        
+        public decimal SanctionValue { get; set; }        
+        public string GSTIN { get; set; }
+        public string PAN { get; set; }        
+        public int CrtdUserId { get; set; }
+        public DateTime CrtdTS { get; set; }        
+        public string Status { get; set; }
+       
+    }
+
     public class CodeControllistviewModel
     {
         public int codevalAbbr { get; set; }
