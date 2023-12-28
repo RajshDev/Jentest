@@ -348,6 +348,7 @@ namespace IOAS.Models
         public string BankHeadName { get; set; }
         public int BankHeadId { get; set; }
         public int Pre_BankID { get; set; }
+        public int Freeze { get; set; }
     }
 
     public class CommitAllocationHeadDetails
@@ -1050,6 +1051,7 @@ namespace IOAS.Models
         public tblCommitment com { get; set; }
         public tblProject prj { get; set; }
         public tblCommitmentDetails ComDet { get; set; }
+      
     }
 
 

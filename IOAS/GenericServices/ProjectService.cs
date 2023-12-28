@@ -2952,6 +2952,132 @@ namespace IOAS.GenericServices
             }
 
         }
+
+        //Edit page opening check
+        public static List<FreezeFirstLoadScreenModel> GetFreezeprojectDataValues (int ProjectId)
+        {
+            List<FreezeFirstLoadScreenModel> firstfreeze = new List<FreezeFirstLoadScreenModel>();
+            using (var context = new IOASDBEntities())
+            {
+                try
+                {
+                    var Freezedata = (from FreezeLog in context.tblAllocationFreezeLog
+                                      where FreezeLog.ProjectId == ProjectId && FreezeLog.IsCurrentVersion == 1
+                                      select new { FreezeLog.AllocationHead }).Distinct().ToList();
+                                     
+                    for (int i = 0; i < Freezedata.Count; i++)
+                        {
+                            firstfreeze.Add(new FreezeFirstLoadScreenModel()
+                            {                               
+                                AllocationHead = Freezedata[i].AllocationHead                       
+                              
+                                
+                            });
+                        }
+                    return firstfreeze;
+                    
+                }
+                catch (Exception ex)
+                {
+                    Infrastructure.IOASException.Instance.HandleMe(
+                    (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                    throw ex;
+                }
+
+
+            }
+        }
+
+        
+
+
+        public static bool PostMethodForFreezedata(FreezingUnFreezingModel model, int logged_in_user)
+        {
+            using (var context = new IOASDBEntities())
+            {
+                using (var transaction = context.Database.BeginTransaction())
+                {
+                    try
+                    {
+                        for (int i = 0; i < model.FreezeList.Length; i++)
+
+                        {
+
+                            int FreezeDataOnly = 0;
+                            int AllocHdId = model.AllocationHeadId[i];
+                            var FreezeAllocaionQuery = (from P in context.tblAllocationFreezeLog where P.ProjectId == model.ProjectId && P.AllocationHead == AllocHdId && P.IsCurrentVersion==1 select P).FirstOrDefault();
+                            if (FreezeAllocaionQuery != null)
+                            {
+                                FreezeDataOnly =Convert.ToInt16(FreezeAllocaionQuery.IsFreeze);                               
+                                FreezeAllocaionQuery.IsCurrentVersion = 0;
+                                FreezeAllocaionQuery.Status = "InActive";
+                                context.SaveChanges();
+                            }
+
+                           
+                            //var FreezeDataOnly = (from P in context.vw_ProjectAllocationHeadList where P.ProjectId == model.ProjectId && P.IsFreeze==1 select P).FirstOrDefault();
+                            int ArrFreeze = Convert.ToInt32(model.FreezeList[i]);                            
+                            if (FreezeDataOnly != ArrFreeze || ArrFreeze == 1)
+                            {
+                                tblAllocationFreezeLog Freezes = new tblAllocationFreezeLog();
+                                Freezes.ProjectId = model.ProjectId;                                
+                                Freezes.AllocationHead = AllocHdId;
+                                Freezes.CrtdUserId = logged_in_user;
+                                Freezes.CrtdTS = DateTime.Now;
+                                Freezes.Status = "Active";                                
+                                Freezes.IsFreeze = ArrFreeze;
+                                Freezes.IsCurrentVersion = 1;
+                                context.tblAllocationFreezeLog.Add(Freezes);
+                                context.SaveChanges();
+                            }
+                            
+                        }
+
+                        transaction.Commit();
+                        
+                        return true;
+
+                    }
+                    catch (Exception ex)
+                    {
+                        transaction.Rollback();
+                        //Infrastructure.IOASException.Instance.HandleMe(this, ex);
+                        return false;
+                    }
+                }
+            }
+        }
+
+        public static int GetFreezeAndAllocationValues(int ProjectId, int AllocationId)
+        {
+            try
+            {
+                using (var context = new IOASDBEntities())
+                {
+
+                    var Freezedata = (from FreezeLog in context.tblAllocationFreezeLog                               
+                               where FreezeLog.ProjectId== ProjectId && FreezeLog.AllocationHead== AllocationId && FreezeLog.IsCurrentVersion==1
+                               select FreezeLog.IsFreeze).FirstOrDefault();
+
+                    if (Freezedata == null)
+                        return 0;
+                    else
+                        return (int)Freezedata;
+
+                }
+            }
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+                (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                return -1;
+            }
+
+        }
+
+
+
+
         public static CreateProjectModel EditProject(int ProjectId)
         {
             try
@@ -4575,6 +4701,23 @@ namespace IOAS.GenericServices
                                         }
 
                                     }
+                                    for (int i = 0; i < model.Allochead.Length; i++)
+                                    {
+                                        if (model.Allochead[i] != 0)
+                                        {
+                                            tblProjectAllocation TestAll = new tblProjectAllocation();
+                                            TestAll.AllocationHead = model.Allochead[i];
+                                            TestAll.ProjectId = projectid;
+                                            TestAll.AllocationValue = Convert.ToDecimal(0.00);
+                                            TestAll.CrtdUserId = model.CrtdUserid;
+                                            TestAll.CrtdTS = DateTime.Now;                                                                                 
+                                            context.tblProjectAllocation.Add(TestAll);
+                                            context.SaveChanges();
+
+                                        }
+
+                                    }
+
                                 }
                                 context.SaveChanges();
                             }
@@ -6759,7 +6902,9 @@ namespace IOAS.GenericServices
                                 Expenditure = SpentAmount + OB,
                                 Total = BalComm + SpentAmount + OB,
                                 Available = TotBudgetAmt - (BalComm + SpentAmount + OB),
-                                Validate_f = BudgetHeadQry == null ? false : BudgetHeadQry.IsNonValidate_f ?? false
+                                Validate_f = BudgetHeadQry == null ? false : BudgetHeadQry.IsNonValidate_f ?? false,
+                                IsFreeze=ProjectService.GetFreezeAndAllocationValues(ProjectId, headId)
+
                             });
                         }
                     }

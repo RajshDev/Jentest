@@ -124,7 +124,7 @@
     <div class="col-md-3 col-md-offset-3">
         <div class="form-group custom-form-group ">
             <label>Round of Adjustment:</label>
-            @Html.TextBox("RoundOfAdjustment", (string)ViewBag.RoundOfAdjustment, new { @class = "form-control", @id = "txtRoundOfAdjustment" })
+            @Html.TextBox("RoundOfAdjustment", (decimal?)ViewBag.RoundOfAdjustment ?? 0, new { @class = "form-control", @id = "txtRoundOfAdjustment" })
             @Html.ValidationMessage("RoundOfAdjustment")
         </div>
     </div>
@@ -160,7 +160,7 @@
         //if (currentRefId == 0) {
         //    calculateAmount();
         //} else {
-       
+        
         calculateAmountViewMode();
         
         //}
@@ -182,14 +182,14 @@
                 eligibletaxtotal = eligibletaxtotal + taxamount;
             totaltax += taxamount;
             //totalamount += amount;            
-            totalamount += round(amount);
+            totalamount += amount;
             $(this).find('input[name$=".Roundvalue"]').val(round(taxamount + amount)) || 0;
             var roundoffamount = parseFloat($(this).find('input[name$=".Roundvalue"]').val()) || 0; 
             totInvoiceAmount += roundoffamount; 
 
         });
         //$("#InvoiceAmount").val(totalamount.toFixed(2));\\10616
-        $("#InvoiceAmount").val(round(totalamount + adjVal));
+        $("#InvoiceAmount").val(parseFloat(totalamount + adjVal).toFixed(2));
         $("#InvoiceTaxEligibleAmount").val(eligibletaxtotal.toFixed(2));
         //$("#totInvoiceAmt").val(totInvoiceAmount + adjVal);
         totInvoiceAmount = round(totalamount + totaltax + adjVal);
@@ -253,7 +253,7 @@
                 eligibletaxtotal = eligibletaxtotal + taxamount;
             totaltax += taxamount;
             //totalamount += amount;
-            totalamount += round(amount) ;
+            totalamount += amount ;
             //10616
             //var roundVal = round(totalamount);
             var roundVal = round(amount + taxamount);
@@ -265,14 +265,17 @@
             }  
            
         });
+        
         //$("#InvoiceAmount").val(totalamount.toFixed(2));//10616
+        var taxInvAmt = parseFloat(totalamount + Number(adjVal));
 
-        $("#InvoiceAmount").val(round(totalamount + adjVal));
+        if (!isNaN(taxInvAmt))
+            $("#InvoiceAmount").val(taxInvAmt);
         $("#InvoiceTaxAmount").val(totaltax.toFixed(2));
         $("#InvoiceTaxEligibleAmount").val(eligibletaxtotal.toFixed(2));
         
         //$("#totInvoiceAmt").val(totInvoiceAmount + adjVal);
-        totInvoiceAmount = round(totalamount + totaltax + adjVal);
+        totInvoiceAmount = round(totalamount + totaltax + Number(adjVal));
         $("#totInvoiceAmt").val(totInvoiceAmount);
         CalculatePOValue();
     }
@@ -281,11 +284,11 @@
     function round(total) {
 
         if (!isNaN(total)) {
-            console.log('Loaded..')
+           
             var valToBeRounded = parseFloat(total);
             var decimalPart = valToBeRounded % 1;
 
-            console.log(valToBeRounded);
+            
             if (decimalPart > 0.5) {
                 // Round up the number
                 var roundUpNumber = Math.ceil(valToBeRounded);

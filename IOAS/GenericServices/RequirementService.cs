@@ -327,68 +327,68 @@ namespace IOAS.GenericServices
         }
 
 
-        public static ProjectDetails GetOfferLetterProjectDetails(int STEId)
-        {
-            try
-            {
-                ProjectDetails prjModel = new ProjectDetails();
-                using (var context = new IOASDBEntities())
-                {
+        //public static ProjectDetails GetOfferLetterProjectDetails(int STEId)
+        //{
+        //    try
+        //    {
+        //        ProjectDetails prjModel = new ProjectDetails();
+        //        using (var context = new IOASDBEntities())
+        //        {
 
-                    var qryProject = (from prj in context.tblProject
-                                      from r in context.tblRCTSTE
-                                      where prj.ProjectId ==r.ProjectId && r.STEID == STEId 
-                                      select new { prj, r } ).FirstOrDefault();
-                    if (qryProject.prj.SponsoringAgency > 0)
-                    {
-                        var AgencyQry = context.tblAgencyMaster.Where(m => m.AgencyId == qryProject.prj.SponsoringAgency).FirstOrDefault();
-                        if (AgencyQry != null)
-                            prjModel.SponsoringAgency = AgencyQry.AgencyName;
-                    }
+        //            var qryProject = (from prj in context.tblProject
+        //                              from r in context.tblRCTSTE
+        //                              where prj.ProjectId ==r.ProjectId && r.STEID == STEId
+        //                              select new { prj, r } ).FirstOrDefault();
+        //            if (qryProject.prj.SponsoringAgency > 0)
+        //            {
+        //                var AgencyQry = context.tblAgencyMaster.Where(m => m.AgencyId == qryProject.prj.SponsoringAgency).FirstOrDefault();
+        //                if (AgencyQry != null)
+        //                    prjModel.SponsoringAgency = AgencyQry.AgencyName;
+        //            }
 
-                    if (qryProject != null)
-                    {
-                        string pType = Common.getprojectTypeName(qryProject.prj.ProjectType ?? 0);
-                        if (qryProject.prj.ProjectType == 1 && qryProject.prj.ProjectSubType != 1)
-                            pType += qryProject.prj.SponProjectCategory == "1" ? "-PFMS" : qryProject.prj.SponProjectCategory == "2" ? "-NON-PFMS" : "";
-                        else if (qryProject.prj.ProjectType == 1 && qryProject.prj.ProjectSubType == 1)
-                            pType += " - Internal";
-                        prjModel.ProjectType = pType;
-                        prjModel.ProjectTitle = qryProject.prj.ProjectTitle;
-                        prjModel.PIId = qryProject.prj.PIName;
-                        prjModel.PIName = Common.GetPIName(qryProject.r.RequestedBy ?? 0, false);
-                        prjModel.ProjectStartDate = String.Format("{0:dd-MMM-yyyy}", qryProject.prj.TentativeStartDate);
-                        prjModel.ProjectClosureDate = string.Format("{0:dd-MMM-yyyy}", Common.GetProjectDueDate(qryProject.prj.ProjectId) ?? qryProject.prj.TentativeCloseDate);
-                        prjModel.ProjectNumber = qryProject.prj.ProjectNumber;
-                        prjModel.ProjectID = qryProject.prj.ProjectId;
-                        if (qryProject.prj.PIName > 0)
-                        {
-                            var qryPIDetails = (from prj in context.vwFacultyStaffDetails
-                                                where prj.UserId == qryProject.prj.PIName
-                                                select prj).FirstOrDefault();
-                            if (qryPIDetails != null)
-                            {
-                                prjModel.Email = qryPIDetails.Email;
-                                prjModel.Phone = qryPIDetails.ContactNumber;
-                                prjModel.PIDepartmentCode = qryPIDetails.DepartmentCode;
-                                prjModel.PIDepartmentName = qryPIDetails.DepartmentName;
-                                prjModel.PICode = qryPIDetails.EmployeeId;
-                                prjModel.PIDesignation = qryPIDetails.Designation;
-                            }
-                        }
-                    }
+        //            if (qryProject != null)
+        //            {
+        //                string pType = Common.getprojectTypeName(qryProject.prj.ProjectType ?? 0);
+        //                if (qryProject.prj.ProjectType == 1 && qryProject.prj.ProjectSubType != 1)
+        //                    pType += qryProject.prj.SponProjectCategory == "1" ? "-PFMS" : qryProject.prj.SponProjectCategory == "2" ? "-NON-PFMS" : "";
+        //                else if (qryProject.prj.ProjectType == 1 && qryProject.prj.ProjectSubType == 1)
+        //                    pType += " - Internal";
+        //                prjModel.ProjectType = pType;
+        //                prjModel.ProjectTitle = qryProject.prj.ProjectTitle;
+        //                prjModel.PIId = qryProject.prj.PIName;
+        //                prjModel.PIName = Common.GetPIName(qryProject.r.RequestedBy ?? 0, false);
+        //                prjModel.ProjectStartDate = String.Format("{0:dd-MMM-yyyy}", qryProject.prj.TentativeStartDate);
+        //                prjModel.ProjectClosureDate = string.Format("{0:dd-MMM-yyyy}", Common.GetProjectDueDate(qryProject.prj.ProjectId) ?? qryProject.prj.TentativeCloseDate);
+        //                prjModel.ProjectNumber = qryProject.prj.ProjectNumber;
+        //                prjModel.ProjectID = qryProject.prj.ProjectId;
+        //                if (qryProject.prj.PIName > 0)
+        //                {
+        //                    var qryPIDetails = (from prj in context.vwFacultyStaffDetails
+        //                                        where prj.UserId == qryProject.prj.PIName
+        //                                        select prj).FirstOrDefault();
+        //                    if (qryPIDetails != null)
+        //                    {
+        //                        prjModel.Email = qryPIDetails.Email;
+        //                        prjModel.Phone = qryPIDetails.ContactNumber;
+        //                        prjModel.PIDepartmentCode = qryPIDetails.DepartmentCode;
+        //                        prjModel.PIDepartmentName = qryPIDetails.DepartmentName;
+        //                        prjModel.PICode = qryPIDetails.EmployeeId;
+        //                        prjModel.PIDesignation = qryPIDetails.Designation;
+        //                    }
+        //                }
+        //            }
 
-                }
-                return prjModel;
-            }
-            catch (Exception ex)
-            {
-                ErrorHandler WriteLog = new ErrorHandler();
-                WriteLog.SendErrorToText(ex);
-                ProjectDetails prjModel = new ProjectDetails();
-                return prjModel;
-            }
-        }
+        //        }
+        //        return prjModel;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        ErrorHandler WriteLog = new ErrorHandler();
+        //        WriteLog.SendErrorToText(ex);
+        //        ProjectDetails prjModel = new ProjectDetails();
+        //        return prjModel;
+        //    }
+        //}
 
 
 
@@ -2552,11 +2552,18 @@ namespace IOAS.GenericServices
                                                                   FileName = c.FileName,
                                                                   FilePath = c.DocsName,
                                                               }).ToList();
+                        //viewmodel.PIJustificationCommands = (from c in context.tblRCTSTEPIJustificationDocs
+                        //                                     where c.STEID == STEID && !string.IsNullOrEmpty(c.Description)
+                        //                                     && c.Deleted_f != true
+                        //                                     group c by c.Description into grp
+                        //                                     select grp.Key).ToList();
+
                         viewmodel.PIJustificationCommands = (from c in context.tblRCTSTEPIJustificationDocs
-                                                             where c.STEID == STEID && !string.IsNullOrEmpty(c.Description)
-                                                             && c.Deleted_f != true
-                                                             group c by c.Description into grp
-                                                             select grp.Key).ToList();
+                                                             where c.STEID == STEID && !string.IsNullOrEmpty(c.Description) && c.Deleted_f != true
+                                                             orderby c.DocsID descending
+                                                             select c.Description).Take(1).ToList();
+
+
                         viewmodel.Comments = query.A.Comments;
                         viewmodel.CommiteeMemberId1 = query.A.CommitteeMember ?? 0;
                         viewmodel.CommiteeMemberId2 = query.A.CommitteeMembers ?? 0;
@@ -3176,7 +3183,7 @@ namespace IOAS.GenericServices
                             model.PIJustificationCommands = (from c in context.tblRCTOrderPIJustificationDocs
                                                              where c.OrderId == orderid && !string.IsNullOrEmpty(c.Description)
                                                              group c by c.Description into grp
-                                                             select grp.Key).ToList();
+                                                             select grp.Key).Take(1).ToList();
                             model.CommiteeMember1 = Common.GetPIName(query.vw.CommitteeMember ?? 0);
                             model.CommiteeMember2 = Common.GetPIName(query.vw.CommitteeMembers ?? 0);
                             model.ChairpersonName = Common.GetPIName(query.vw.Chairperson ?? 0);
@@ -3255,7 +3262,7 @@ namespace IOAS.GenericServices
                                                                  where c.STEID == appid && !string.IsNullOrEmpty(c.Description)
                                                                  && c.Deleted_f != true
                                                                  group c by c.Description into grp
-                                                                 select grp.Key).ToList();
+                                                                 select grp.Key).Take(1).ToList();
                                 model.CommiteeMember1 = Common.GetPIName(QrySTE.A.CommitteeMember ?? 0);
                                 model.CommiteeMember2 = Common.GetPIName(QrySTE.A.CommitteeMembers ?? 0);
                                 model.ChairpersonName = Common.GetPIName(QrySTE.A.Chairperson ?? 0);
@@ -3396,7 +3403,7 @@ namespace IOAS.GenericServices
                                 model.PIJustificationCommands = (from c in context.tblRCTOSGPIJustificationDoc
                                                                  where c.OSGID == appid && !string.IsNullOrEmpty(c.Description) && c.Deleted_f != true
                                                                  group c by c.Description into grp
-                                                                 select grp.Key).ToList();
+                                                                 select grp.Key).Take(1).ToList();
                                 model.CommiteeMember1 = Common.GetPIName(QrySTE.A.CommitteeMember ?? 0);
                                 model.CommiteeMember2 = Common.GetPIName(QrySTE.A.CommitteeMembers ?? 0);
                                 model.ChairpersonName = Common.GetPIName(QrySTE.A.Chairperson ?? 0);
@@ -3472,8 +3479,8 @@ namespace IOAS.GenericServices
                             //    model.offerDate = query.o.FromDate ?? DateTime.Now;
                             model.offerDate = getOfferLetterDate(model.STEId, "STE", "OfferLetter", orderId);
                             model.EmployeeID = query.S.EmployeersID;
-                            model.ProjectDetailsModel = getProjectSummary(query.o.NewProjectId ?? 0);
-                            model.ProjectDetailsModel = GetOfferLetterProjectDetails(query.S.STEID);
+                            model.ProjectDetailsModel = getProjectSummary(query.o.NewProjectId ?? 0, query.S.RequestedBy ?? 0);
+                            //model.ProjectDetailsModel = GetOfferLetterProjectDetails(query.S.STEID);
                             model.ProjectNumber = model.ProjectDetailsModel.ProjectNumber;
                             model.SalaryLevelId = query.o.SalaryLevelId;
                             var querydes = (from sl in context.tblRCTSalaryLevel
@@ -3696,7 +3703,7 @@ namespace IOAS.GenericServices
                         model.PIJustificationCommands = (from c in context.tblRCTSTEPIJustificationDocs
                                                          where c.STEID == STEID && !string.IsNullOrEmpty(c.Description) && c.Deleted_f != true
                                                          group c by c.Description into grp
-                                                         select grp.Key).ToList();
+                                                         select grp.Key).Take(1).ToList();
                         model.BloodGroup = query.A.Bloodgroup;
                         model.BloodGroupRH = query.A.BloodgroupRH;
                         model.GateScore = query.A.GateScore;
@@ -7811,7 +7818,7 @@ namespace IOAS.GenericServices
         #region Change of project,Extension,Enhancement
 
         public OrderModel getOrderProjectDetails(int appid, string appType, int ordertype)
-         {
+        {
             OrderModel model = new OrderModel();
             try
             {
@@ -11844,9 +11851,9 @@ namespace IOAS.GenericServices
                                 }
 
                             }
-                            
+
                         }
-                        
+
                     }
                     else if (appTypeId == 1)
                     {
@@ -13644,8 +13651,8 @@ namespace IOAS.GenericServices
                     {
                         //yogesh
                         var query = (from o in context.vw_RCTOverAllApplicationEntry
-                                     from  prj in context.tblProject 
-                                     from  vwp in context.vwFacultyStaffDetails 
+                                     from  prj in context.tblProject
+                                     from  vwp in context.vwFacultyStaffDetails
                                      from rct in context.tblRCTSTE
                                      where o.OrderId == orderid  && rct.RequestedBy == vwp.UserId && rct.STEID == o.ApplicationId && o.ProjectId == prj.ProjectId
                                      select new { o, vwp }).FirstOrDefault();
@@ -13768,7 +13775,7 @@ namespace IOAS.GenericServices
                         model.EmployeeId = query.EmployeersID;
                         model.Name = query.ProfessionalType + " " + query.CandidateName.ToUpper();
                         model.ApplicationNo = getOfferDetails(query.ApplicationId ?? 0, query.Category, orderid);
-                    
+
                         model.Designation = query.PostRecommended;
                         model.Appointmentstartdate = string.Format("{0:dd-MMMM-yyyy}", query.AppointmentStartdate);
                         model.AppointmentEndDate = string.Format("{0:dd-MMMM-yyyy}", query.AppointmentEnddate);
@@ -14462,7 +14469,7 @@ namespace IOAS.GenericServices
                                            orderby c.DocsID descending
                                            group c by c.Description into grp
                                            select new { grp.Key }
-                                       ).ToArray();
+                                       ).Take(1).ToArray();                      
                             if (QryNote != null)
                             {
                                 for (int i = 0; i < QryNote.Count(); i++)
@@ -14475,7 +14482,7 @@ namespace IOAS.GenericServices
                             }
                             model.PIJustificationCommands = PICommands;
                             model.Comments = QrySTE.A.Comments;
-                            model.Notes = (from c in context.tblRCTSTENotes
+                                 model.Notes = (from c in context.tblRCTSTENotes
                                            where c.STEID == STEID
                                            orderby c.NotesID descending
                                            group c by c.PICommends into grp
@@ -14629,7 +14636,7 @@ namespace IOAS.GenericServices
                                            where c.OSGID == STEID && c.Deleted_f != true
                                            orderby c.DocsID descending
                                            select new { c.Description, }
-                                       ).ToArray();
+                                       ).Take(1).ToArray();
                             if (QryNote != null)
                             {
                                 for (int i = 0; i < QryNote.Count(); i++)
@@ -18921,7 +18928,7 @@ namespace IOAS.GenericServices
                                 OSG.ProjectId = model.ProjectId;
                                 OSG.DesignationId = model.DesignationId;
                                 OSG.SalaryLevelId = model.SalaryLevelId;
-                                OSG.EmployeeWorkplace = model.EmployeeWorkplace; 
+                                OSG.EmployeeWorkplace = model.EmployeeWorkplace;
                                 //if (model.MsPhd || model.TypeofappointmentId == 2)
                                 //{
                                 //    STE.Medical = 3;
@@ -20835,7 +20842,7 @@ namespace IOAS.GenericServices
                         var QryNote = (from c in context.tblRCTOSGPIJustificationDoc
                                        where c.OSGID == OSGID && !string.IsNullOrEmpty(c.Description) && c.Deleted_f != true
                                        group c by c.Description into grp
-                                       select new { grp.Key }).ToArray();
+                                       select new { grp.Key }).Take(1).ToArray();
                         if (QryNote != null)
                         {
                             for (int i = 0; i < QryNote.Count(); i++)
@@ -21955,10 +21962,17 @@ namespace IOAS.GenericServices
                         //        }
                         //    }
                         //}
+                        //model.PIJustificationCommands = (from c in context.tblRCTOSGPIJustificationDoc
+                        //                                 where c.OSGID == OSGID && !string.IsNullOrEmpty(c.Description) && c.Deleted_f != true
+                        //                                 group c by c.Description into grp
+                        //                                 select grp.Key).ToList();
+
                         model.PIJustificationCommands = (from c in context.tblRCTOSGPIJustificationDoc
                                                          where c.OSGID == OSGID && !string.IsNullOrEmpty(c.Description) && c.Deleted_f != true
-                                                         group c by c.Description into grp
-                                                         select grp.Key).ToList();
+                                                         orderby c.DocsID descending
+                                                         select c.Description).Take(1).ToList();
+
+
                         var justificdocs = (from c in context.tblRCTOSGPIJustificationDoc
                                             where c.OSGID == OSGID && c.Deleted_f != true
                                             select c).ToList();

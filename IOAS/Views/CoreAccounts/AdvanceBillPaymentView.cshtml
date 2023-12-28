@@ -759,7 +759,7 @@
 
         if (isNaN(advPct))
             advPct = 0;
-        var ttlPOVal = 0, ttlPOTaxVal = 0, netPOVal = 0, ttlAdvVal = 0, ttlAdvTaxVal = 0, netAdvVal = 0;
+        var ttlPOVal = 0, ttlPOTaxVal = 0, netPOVal = 0, ttlAdvVal = 0, ttlAdvTaxVal = 0, netAdvVal = 0, netttlAdvVal = 0;
         if (advPct > 0) {
             $('#tbodyPO tr').not(':first').each(function (i, rowEle) {
                 var amt = parseFloat($(rowEle).find('input[name$=".TotalAmount"]').val());
@@ -782,26 +782,56 @@
                         ttlAdvTaxVal = ttlAdvTaxVal + advTaxVal;
                     }
                     netAdvAmt = advAmt + advTaxVal;
+                    netttlAdvVal += round(advAmt); 
+
                     //var poTaxVal = amt * taxPct / 100;
                     //ttlPOTaxVal = ttlPOTaxVal + poTaxVal;
                     $(rowEle).find('.tdAdvPct').html(advPct.toFixed(2));
                     $(rowEle).find('.tdAdvAmt').html(advAmt.toFixed(2));
                     $(rowEle).find('.tdTaxAmt').html(advTaxVal.toFixed(2));
-                    $(rowEle).find('.tdNetAmt').html(netAdvAmt.toFixed(2));
+                    //$(rowEle).find('.tdNetAmt').html(netAdvAmt.toFixed(2));
+                    $(rowEle).find('.tdNetAmt').html(round(netAdvAmt).toFixed(2));
                 }
+
             });
             $('#lblPOTtlAmt').text(ttlPOVal.toFixed(2));
             $('#lblPOTtlTaxAmt').text(ttlPOTaxVal.toFixed(2));
-            netPOVal = (ttlPOVal + ttlPOTaxVal).toFixed(2);
-            $('#lblPONetAmt').text(netPOVal);
-            $('#lblAdvTtlAmt').text(ttlAdvVal.toFixed(2));
+            netPOVal = (netttlAdvVal + ttlPOTaxVal).toFixed(2);
+            $('#lblPONetAmt').text(round(netPOVal));
+            //$('#lblAdvTtlAmt').text(ttlAdvVal.toFixed(2));
+            $('#lblAdvTtlAmt').text(round(netttlAdvVal));
             $('#lblAdvTtlTaxAmt').text(ttlAdvTaxVal.toFixed(2));
             netAdvVal = (ttlAdvVal + ttlAdvTaxVal).toFixed(2);
-            $('#lblAdvNetAmt').text(netAdvVal);
+            $('#lblAdvNetAmt').text(round(netAdvVal));
            // $('#NeedUpdateTransDetail').val('true');
             UpdateGSTSplitUp()
         }
     }
+
+    //Round off calculation // 10616
+    function round(total) {
+
+        if (!isNaN(total)) {
+            console.log('Loaded..')
+            var valToBeRounded = parseFloat(total);
+            var decimalPart = valToBeRounded % 1;
+
+            console.log(valToBeRounded);
+            if (decimalPart > 0.5) {
+                // Round up the number
+                var roundUpNumber = Math.ceil(valToBeRounded);
+                value = roundUpNumber;
+            }
+            else {
+                // Round off the number
+                var roundOffNumber = Math.round(valToBeRounded);
+                value = roundOffNumber;
+            }
+            return value;
+        }
+    }
+
+
     function noEdit() {
         return false;
     }
