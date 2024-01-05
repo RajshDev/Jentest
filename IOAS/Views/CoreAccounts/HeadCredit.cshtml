@@ -126,7 +126,7 @@
                                                                 var amount = "CrDetail[" + count + "].Amount";
                                                                 <tr>
                                                                     <td>
-                                                                        @Html.DropDownList(@head, new SelectList(ViewBag.BudgetHeadId, "id", "name", item.BudgetHeadId), "Select any", new { @class = "form-control required" })
+                                                                        @Html.DropDownList(@head, new SelectList(ViewBag.BudgetHeadId, "id", "name", item.BudgetHeadId), "Select any", new { @class = "form-control required", @onchange = "BudgetHeadChange(this);" })
                                                                         @Html.ValidationMessage(@head)
                                                                         @Html.Hidden("CrDetail.Index", @count)
                                                                     </td>
@@ -146,7 +146,7 @@
                                                         {
                                                             <tr>
                                                                 <td>
-                                                                    @Html.DropDownList("CrDetail[0].BudgetHeadId", new SelectList(ViewBag.BudgetHeadId, "id", "name"), "Select any", new { @class = "form-control required" })
+                                                                    @Html.DropDownList("CrDetail[0].BudgetHeadId", new SelectList(ViewBag.BudgetHeadId, "id", "name"), "Select any", new { @class = "form-control required", @onchange = "BudgetHeadChange(this);" })
                                                                     @Html.ValidationMessage("CrDetail[0].BudgetHeadId")
                                                                     @Html.Hidden("CrDetail.Index", 0)
                                                                 </td>
@@ -529,7 +529,7 @@
         //  applyAutoComplete($('#Project'), $('#ProjectId'), "@Url.Action("LoadProjectList", "CoreAccounts")");
         applyAutoComplete($('#Project'), $('#ProjectId'), '@Url.Action("LoadProjectNumber","CoreAccounts")');
         applyAutoComplete($('#BillRefNoAC'), $('#BillRefNo'), '@Url.Action("LoadRefernceNumber", "CoreAccounts")', 'loadInvNumber', true, true);
-
+        GetFreezeFirstValue();
         if (succMsg != '') {
             $('#alertSuccess').html(succMsg);
             $('#Success').modal('toggle');
@@ -542,7 +542,12 @@
 
         CalculateTxTotal();
         CalculateTotal();
+        $('#tbodyCr tr').each(function (idx, trval) {
+            FirAccHead = ($(this).find('select[name$=".BudgetHeadId"]').val());        
+        });
+      
 
+        
 
         var BankId = $('#BankId :selected').val();
 
@@ -640,7 +645,7 @@
         var ttlCrVal = 0;
         $('#tbodyCr input[name$=".Amount"]').each(function (i, rowEle) {
             var parseVal = parseFloat($(this).val()) || 0;
-            ttlCrVal = ttlCrVal + parseVal;
+            ttlCrVal = ttlCrVal + parseVal;            
         });
         $('#ttlCr').val(ttlCrVal);
     }
@@ -788,6 +793,7 @@
         if ($('#tbodyCr tr').length != 1) {
             $(this).closest('tr').remove();
             CalculateTotal();
+            GetFreezeValueData();
         }
     });
     $('#btnAddInvDetail').click(function () {
@@ -806,9 +812,12 @@
     });
     $('#btnAddCrDetail').click(function () {
         var cln = $('#tbodyCr tr:first').clone().find("select,input").val("").end();
+        cln.find("select,input").removeAttr('disabled');
+        cln.find("select,input").prop('disabled', false);
         var index = $('#tbodyCr tr:last').find("input[name='CrDetail.Index']").val();
         index = parseInt(index) + 1;
-        $(cln).find("input[name='CrDetail.Index']").val(index);
+        $(cln).find("input[name='CrDetail.Index']").val(index);        
+        cln.find("a.disabled").removeClass("disabled");       
         $(cln).find("input, select").each(function () {
             $(this).attr("name", $(this).attr("name").replace(/\d+/, index));
             $(this).attr("id", $(this).attr("id").replace(/\d+/, index));
@@ -876,6 +885,9 @@
             return true;                 // this can be used to perform other action if there are no steps
         } else if (currentTab == 0) {
             var validationMsg = ValidateTransaction()
+
+            GetFreezeFirstValue();
+
             if (validationMsg != 'valid') {
                 hadError = true;
                 $("#alert").text(validationMsg);
@@ -886,6 +898,12 @@
             if (content == '') {
                 searchCommitment();
             }
+
+            $('#tbodyCr tr').each(function (idx, trval) {
+                AccHead = ($(this).find('select[name$=".BudgetHeadId"]').val());               
+                GetFreezeValueData(AccHead)
+               
+            });
             removeCommitmentValidation();
         }
         $(stepElements).each(function (idx, ele) {
@@ -951,9 +969,7 @@
         });
 
     });
-
-
-
+    
     function EmptyCommitmentSelList() {
         $('#tbodyCommitmentSelList tr').not(':first').remove();
         $('#tbodyCommitmentSelList tr td').not(':last').not(':nth-last-child(2)').html('');
@@ -965,8 +981,72 @@
         $('#tbodyCommitmentSrchList tr').not(':first').remove();
         $('#tbodyCommitmentSrchList tr td').not(':first').html('');
         $('#tbodyCommitmentSrchList tr td:first input').val('');
+    }    
+
+    function GetFreezeValueData(AccHead) {
+        var ProjectId = $("#ProjectId").val();        
+        var isFreezeDataValid = 0;
+        $.ajax({
+            type: "GET",
+            async: false,
+            url: '@Url.Action("GetFreezeAndAllocationData", "Project")',
+            data: {
+                "ProjectId": ProjectId, "AllocationId": AccHead},
+            dataType: "json",
+            success: function (result) {
+                isFreezeDataValid = result;                
+                }
+        });
+        return isFreezeDataValid;
     }
+
+
+    function GetFreezeFirstValue() {
+        var ProjectId = $("#ProjectId").val();
+        var isFreezeFirstDataValid = 0;
+        $.ajax({
+            type: "GET",
+            async: false,
+            url: '@Url.Action("GetFreezeProjectData", "Project")',
+            data: { "ProjectId": ProjectId },
+            dataType: "json",
+            success: function (result) {
+                isFreezeDataValid = result;
+                
+                    $.each(isFreezeDataValid, function (index, value) {
+                        $('#tbodyCr tr').each(function (idx, trval) {
+                            FirAccHead = ($(this).find('select[name$=".BudgetHeadId"]').val());
+                            ele = ($(this).find('select[name$=".BudgetHeadId"]'));
+                            ele1 = ($(this).find('input[name$=".Amount"]'));
+                            ele2 = $(this).find('a');
+                          
+                            if (FirAccHead == value.AllocationHead) {
+                                console.log(ele2);
+                                ele.prop('disabled', true);
+                                $(ele1).attr("disabled", "disabled"); 
+                                $(ele2).addClass('disabled');
+                            }
+                        });
+
+                    });
+               
+            }
+        });
+        return isFreezeFirstDataValid;
+    }
+   
+    function BudgetHeadChange(ele) {
+
+        var firstmessfreeze = GetFreezeValueData(ele.value);
+        if (firstmessfreeze == 1) {
+            //var selectedText = ele.options[ele.selectedIndex].text;
+            messageBox('Allocation Head Freezed', "warning");           
+            ele.selectedIndex = -1;             
+        }         
+    }
+    
 </script>
+
 <script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
 <script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
 <script src="@Url.Content("~/Scripts/FoolProof/mvcfoolproof.unobtrusive.min.js")" type="text/javascript"></script>

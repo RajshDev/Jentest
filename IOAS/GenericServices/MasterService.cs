@@ -10,205 +10,9 @@ namespace IOAS.GenericServices
 {
     public class MasterService
     {
-        public static VendorMasterViewModel EditVendor(int vendorId)
-        {
-            try
-            {
-                using (var context = new IOASDBEntities())
-                {
-                    VendorMasterViewModel editVendor = new VendorMasterViewModel();
-                    var query = (from V in context.tblVendorMaster
-                                 where (V.VendorId == vendorId && V.Status == "Open")
-                                 select V).FirstOrDefault();
-                    var Gstfile = (from G in context.tblGstDocument
-                                   where G.VendorId == vendorId && G.IsCurrentVersion != true
-                                   select G).ToList();
-                    var vendorfile = (from vf in context.tblReverseTaxDocument
-                                      where vf.VendorId == vendorId && vf.IsCurrentVersion != true
-                                      select vf).ToList();
-                    var tdsFile = (from TF in context.tblTDSDocument
-                                   where TF.VendorId == vendorId && TF.IsCurrentVersion != true
-                                   select TF).ToList();
-                    var tdsdetail = (from TD in context.tblVendorTDSDetail
-                                     where TD.VendorId == vendorId
-                                     select TD).ToList();
-
-                    if (query != null)
-                    {
-                        editVendor.VendorId = query.VendorId;
-                        editVendor.Nationality = Convert.ToInt32(query.Nationality);
-                        editVendor.PFMSVendorCode = query.PFMSVendorCode;
-                        editVendor.Name = query.Name;
-                        editVendor.Address = query.Address;
-                        editVendor.Email = query.Email;
-                        editVendor.ContactPerson = query.ContactPerson;
-                        editVendor.PhoneNumber = query.PhoneNumber;
-                        editVendor.MobileNumber = query.MobileNumber;
-                        editVendor.City = query.City;
-                        editVendor.PinCode = query.Pincode;
-                        editVendor.CountryId = Convert.ToInt32(query.Country);
-                        editVendor.StateId = Convert.ToInt32(query.StateId);
-                        editVendor.StateCode = Convert.ToInt32(query.StateCode);
-                        editVendor.RegisteredName = query.RegisteredName;
-                        editVendor.PAN = query.PAN;
-                        editVendor.TAN = query.TAN;
-                        editVendor.GSTExempted = Convert.ToBoolean(query.GSTExempted);
-                        editVendor.Reason = query.Reason;
-                        editVendor.GSTIN = query.GSTIN;
-                        editVendor.AccountHolderName = query.AccountHolderName;
-                        editVendor.BankName = query.BankName;
-                        editVendor.Branch = query.Branch;
-                        editVendor.IFSCCode = query.IFSC;
-                        editVendor.AccountNumber = query.AccountNumber;
-                        editVendor.BankAddress = query.BankAddress;
-                        editVendor.ABANumber = query.ABANumber;
-                        editVendor.SortCode = query.SortCode;
-                        editVendor.IBAN = query.IBAN;
-                        editVendor.SWIFTorBICCode = query.SWIFTorBICCode;
-                        editVendor.BankNature = query.BankNature;
-                        editVendor.BankEmailId = query.BankEmailId;
-                        editVendor.MICRCode = query.MICRCode;
-                        editVendor.ServiceCategory = Convert.ToInt32(query.Category);
-                        editVendor.ServiceType = Convert.ToInt32(query.ServiceType);
-                        editVendor.SupplierType = Convert.ToInt32(query.SupplyType);
-                        editVendor.ReverseTax = Convert.ToBoolean(query.ReverseTax);
-                        editVendor.TDSExcempted = Convert.ToBoolean(query.TDSExcempted);
-                        editVendor.ReverseTaxReason = query.ReasonForReservieTax;
-                        editVendor.CertificateNumber = query.CertificateNumber;
-                        editVendor.ValidityPeriod = Convert.ToInt32(query.ValidityPeriod);
-                        editVendor.BankCountry = query.BankCountry ?? 0;
-                        var ClrQry = context.tblClearanceAgentMaster.Where(m => m.ClearanceAgentCode == query.VendorCode && m.Status != "InActive").FirstOrDefault();
-                        if (ClrQry != null)
-                        {
-                            editVendor.ClearanceAgency_f = true;
-                            editVendor.TravelAgency_f = ClrQry.IsTravelAgency ?? false;
-
-                            ClrQry.Nationality = Convert.ToInt32(query.Nationality);
-                            ClrQry.Name = query.Name;
-                            ClrQry.Address = query.Address;
-                            ClrQry.Email = query.Email;
-                            ClrQry.ContactPerson = query.ContactPerson;
-                            ClrQry.PhoneNumber = query.PhoneNumber;
-                            ClrQry.MobileNumber = query.MobileNumber;
-                            ClrQry.Country = Convert.ToInt32(query.Country);
-                            ClrQry.StateId = Convert.ToInt32(query.StateId);
-                            ClrQry.StateCode = Convert.ToInt32(query.StateCode);
-                            ClrQry.RegisteredName = query.RegisteredName;
-                            ClrQry.PAN = query.PAN;
-                            ClrQry.TAN = query.TAN;
-                            ClrQry.GSTExempted = Convert.ToBoolean(query.GSTExempted);
-                            ClrQry.Reason = query.Reason;
-                            ClrQry.GSTIN = query.GSTIN;
-                            ClrQry.AccountHolderName = query.AccountHolderName;
-                            ClrQry.BankName = query.BankName;
-                            ClrQry.Branch = query.Branch;
-                            ClrQry.IFSC = query.IFSC;
-                            ClrQry.AccountNumber = query.AccountNumber;
-                            ClrQry.BankAddress = query.BankAddress;
-                            ClrQry.ABANumber = query.ABANumber;
-                            ClrQry.SortCode = query.SortCode;
-                            ClrQry.IBAN = query.IBAN;
-                            ClrQry.SWIFTorBICCode = query.SWIFTorBICCode;
-                            ClrQry.ReverseTax = Convert.ToBoolean(query.ReverseTax);
-                            ClrQry.TDSExcempted = Convert.ToBoolean(query.TDSExcempted);
-                            ClrQry.CertificateNumber = query.CertificateNumber;
-                            ClrQry.ValidityPeriod = Convert.ToInt32(query.ValidityPeriod);
-                            context.SaveChanges();
-
-                        }
-                        if (Gstfile.Count > 0)
-                        {
-                            int[] _docid = new int[Gstfile.Count];
-                            int[] _doctype = new int[Gstfile.Count];
-                            string[] _docname = new string[Gstfile.Count];
-                            string[] _attchname = new string[Gstfile.Count];
-                            string[] _docpath = new string[Gstfile.Count];
-                            for (int i = 0; i < Gstfile.Count; i++)
-                            {
-                                _docid[i] = Convert.ToInt32(Gstfile[i].GstVendorDocumentId);
-                                _doctype[i] = Convert.ToInt32(Gstfile[i].GstDocumentType);
-                                _docname[i] = Gstfile[i].GstVendorDocument;
-                                _attchname[i] = Gstfile[i].GstAttachmentName;
-                                _docpath[i] = Gstfile[i].GstAttachmentPath;
-                            }
-                            editVendor.GSTDocumentId = _docid;
-                            editVendor.GSTDocumentType = _doctype;
-                            editVendor.GSTDocumentName = _docname;
-                            editVendor.GSTAttachName = _attchname;
-                            editVendor.GSTDocPath = _docpath;
-                        }
-                        if (vendorfile.Count > 0)
-                        {
-                            int[] _docid = new int[vendorfile.Count];
-                            int[] _doctype = new int[vendorfile.Count];
-                            string[] _docname = new string[vendorfile.Count];
-                            string[] _attchname = new string[vendorfile.Count];
-                            string[] _docpath = new string[vendorfile.Count];
-                            for (int i = 0; i < vendorfile.Count; i++)
-                            {
-                                _docid[i] = Convert.ToInt32(vendorfile[i].RevereseTaxDocumentId);
-                                _doctype[i] = Convert.ToInt32(vendorfile[i].TaxDocumentType);
-                                _docname[i] = vendorfile[i].TaxDocument;
-                                _attchname[i] = vendorfile[i].TaxAttachmentName;
-                                _docpath[i] = vendorfile[i].TaxAttachmentPath;
-                            }
-                            editVendor.VendorDocumentId = _docid;
-                            editVendor.VendorDocumentType = _doctype;
-                            editVendor.VendorDocumentName = _docname;
-                            editVendor.VendorAttachName = _attchname;
-                            editVendor.VendorDocPath = _docpath;
-                        }
-                        if (tdsFile.Count > 0)
-                        {
-                            int[] _docid = new int[tdsFile.Count];
-                            int[] _doctype = new int[tdsFile.Count];
-                            string[] _docname = new string[tdsFile.Count];
-                            string[] _attchname = new string[tdsFile.Count];
-                            string[] _docpath = new string[tdsFile.Count];
-                            for (int i = 0; i < tdsFile.Count; i++)
-                            {
-                                _docid[i] = Convert.ToInt32(tdsFile[i].VendorIdentityDocumentId);
-                                _doctype[i] = Convert.ToInt32(tdsFile[i].IdentityVendorDocumentType);
-                                _docname[i] = tdsFile[i].IdentityVendorDocument;
-                                _attchname[i] = tdsFile[i].IdentityAttachmentName;
-                                _docpath[i] = tdsFile[i].IdentityVendorAttachmentPath;
-                            }
-                            editVendor.TDSDocumentId = _docid;
-                            editVendor.TDSDocumentType = _doctype;
-                            editVendor.TDSDocumentName = _docname;
-                            editVendor.TDSAttachName = _attchname;
-                            editVendor.TDSDocPath = _docpath;
-                        }
-                        if (tdsdetail.Count > 0)
-                        {
-                            int[] _tdsdetilid = new int[tdsdetail.Count];
-                            int[] _tdssection = new int[tdsdetail.Count];
-                            string[] _income = new string[tdsdetail.Count];
-                            decimal[] _percentage = new decimal[tdsdetail.Count];
-                            for (int i = 0; i < tdsdetail.Count; i++)
-                            {
-                                _tdsdetilid[i] = Convert.ToInt32(tdsdetail[i].VendorTDSDetailId);
-                                _tdssection[i] = Convert.ToInt32(tdsdetail[i].Section);
-                                _income[i] = tdsdetail[i].NatureOfIncome;
-                                _percentage[i] = Convert.ToDecimal(tdsdetail[i].TDSPercentage);
-                            }
-                            editVendor.VendorTDSDetailId = _tdsdetilid;
-                            editVendor.Section = _tdssection;
-                            editVendor.NatureOfIncome = _income;
-                            editVendor.TDSPercentage = _percentage;
-                        }
-                    }
-                    return editVendor;
-                }
-            }
-            catch (Exception ex)
-            {
-                Infrastructure.IOASException.Instance.HandleMe(
-(object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
-                VendorMasterViewModel editVendor = new VendorMasterViewModel();
-                return editVendor;
-            }
-        }
+        public static VendorMasterViewModel EditVendor(int vendorId)        {            try            {                using (var context = new IOASDBEntities())                {                    VendorMasterViewModel editVendor = new VendorMasterViewModel();                    var query = (from V in context.tblVendorMaster                                 where (V.VendorId == vendorId && V.Status == "Open")                                 select V).FirstOrDefault();                    var Gstfile = (from G in context.tblGstDocument                                   where G.VendorId == vendorId && G.IsCurrentVersion != true                                   select G).ToList();                    var vendorfile = (from vf in context.tblReverseTaxDocument                                      where vf.VendorId == vendorId && vf.IsCurrentVersion != true                                      select vf).ToList();                    var tdsFile = (from TF in context.tblTDSDocument                                   where TF.VendorId == vendorId && TF.IsCurrentVersion != true                                   select TF).ToList();                    var tdsdetail = (from TD in context.tblVendorTDSDetail                                     where TD.VendorId == vendorId                                     select TD).ToList();                    if (query != null)                    {                        editVendor.VendorId = query.VendorId;                        editVendor.Nationality = Convert.ToInt32(query.Nationality);                        editVendor.PFMSVendorCode = query.PFMSVendorCode;                        editVendor.Name = query.Name;                        editVendor.Address = query.Address;                        editVendor.Email = query.Email;                        editVendor.ContactPerson = query.ContactPerson;                        editVendor.PhoneNumber = query.PhoneNumber;                        editVendor.MobileNumber = query.MobileNumber;                        editVendor.City = query.City;                        editVendor.PinCode = query.Pincode;                        editVendor.CountryId = Convert.ToInt32(query.Country);                        editVendor.StateId = Convert.ToInt32(query.StateId);                        editVendor.StateCode = Convert.ToInt32(query.StateCode);                        editVendor.RegisteredName = query.RegisteredName;                        editVendor.PAN = query.PAN;                        editVendor.TAN = query.TAN;                        editVendor.GSTExempted = Convert.ToBoolean(query.GSTExempted);                        editVendor.Reason = query.Reason;                        editVendor.GSTIN = query.GSTIN;                        editVendor.AccountHolderName = query.AccountHolderName;                        editVendor.BankName = query.BankName;                        editVendor.Branch = query.Branch;                        editVendor.IFSCCode = query.IFSC;                        editVendor.AccountNumber = query.AccountNumber;                        editVendor.BankAddress = query.BankAddress;                        editVendor.ABANumber = query.ABANumber;                        editVendor.SortCode = query.SortCode;                        editVendor.IBAN = query.IBAN;                        editVendor.SWIFTorBICCode = query.SWIFTorBICCode;                        editVendor.BankNature = query.BankNature;                        editVendor.BankEmailId = query.BankEmailId;                        editVendor.MICRCode = query.MICRCode;                        editVendor.ServiceCategory = Convert.ToInt32(query.Category);                        editVendor.ServiceType = Convert.ToInt32(query.ServiceType);                        editVendor.SupplierType = Convert.ToInt32(query.SupplyType);                        editVendor.ReverseTax = Convert.ToBoolean(query.ReverseTax);                        editVendor.TDSExcempted = Convert.ToBoolean(query.TDSExcempted);                        editVendor.ReverseTaxReason = query.ReasonForReservieTax;                        editVendor.CertificateNumber = query.CertificateNumber;                        editVendor.ValidityPeriod = Convert.ToInt32(query.ValidityPeriod);                        editVendor.BankCountry = query.BankCountry ?? 0;                        var ClrQry = context.tblClearanceAgentMaster.Where(m => m.ClearanceAgentCode == query.VendorCode && m.Status != "InActive").FirstOrDefault();                        if (ClrQry != null)                        {                            editVendor.ClearanceAgency_f = true;                            editVendor.TravelAgency_f = ClrQry.IsTravelAgency ?? false;                            ClrQry.Nationality = Convert.ToInt32(query.Nationality);                            ClrQry.Name = query.Name;                            ClrQry.Address = query.Address;                            ClrQry.Email = query.Email;                            ClrQry.ContactPerson = query.ContactPerson;                            ClrQry.PhoneNumber = query.PhoneNumber;                            ClrQry.MobileNumber = query.MobileNumber;                            ClrQry.Country = Convert.ToInt32(query.Country);                            ClrQry.StateId = Convert.ToInt32(query.StateId);                            ClrQry.StateCode = Convert.ToInt32(query.StateCode);                            ClrQry.RegisteredName = query.RegisteredName;                            ClrQry.PAN = query.PAN;                            ClrQry.TAN = query.TAN;                            ClrQry.GSTExempted = Convert.ToBoolean(query.GSTExempted);                            ClrQry.Reason = query.Reason;                            ClrQry.GSTIN = query.GSTIN;                            ClrQry.AccountHolderName = query.AccountHolderName;                            ClrQry.BankName = query.BankName;                            ClrQry.Branch = query.Branch;                            ClrQry.IFSC = query.IFSC;                            ClrQry.AccountNumber = query.AccountNumber;                            ClrQry.BankAddress = query.BankAddress;                            ClrQry.ABANumber = query.ABANumber;                            ClrQry.SortCode = query.SortCode;                            ClrQry.IBAN = query.IBAN;                            ClrQry.SWIFTorBICCode = query.SWIFTorBICCode;
+                            ClrQry.ReverseTax = Convert.ToBoolean(query.ReverseTax);                            ClrQry.TDSExcempted = Convert.ToBoolean(query.TDSExcempted);
+                            ClrQry.CertificateNumber = query.CertificateNumber;                            ClrQry.ValidityPeriod = Convert.ToInt32(query.ValidityPeriod);                            context.SaveChanges();                        }                        if (Gstfile.Count > 0)                        {                            int[] _docid = new int[Gstfile.Count];                            int[] _doctype = new int[Gstfile.Count];                            string[] _docname = new string[Gstfile.Count];                            string[] _attchname = new string[Gstfile.Count];                            string[] _docpath = new string[Gstfile.Count];                            for (int i = 0; i < Gstfile.Count; i++)                            {                                _docid[i] = Convert.ToInt32(Gstfile[i].GstVendorDocumentId);                                _doctype[i] = Convert.ToInt32(Gstfile[i].GstDocumentType);                                _docname[i] = Gstfile[i].GstVendorDocument;                                _attchname[i] = Gstfile[i].GstAttachmentName;                                _docpath[i] = Gstfile[i].GstAttachmentPath;                            }                            editVendor.GSTDocumentId = _docid;                            editVendor.GSTDocumentType = _doctype;                            editVendor.GSTDocumentName = _docname;                            editVendor.GSTAttachName = _attchname;                            editVendor.GSTDocPath = _docpath;                        }                        if (vendorfile.Count > 0)                        {                            int[] _docid = new int[vendorfile.Count];                            int[] _doctype = new int[vendorfile.Count];                            string[] _docname = new string[vendorfile.Count];                            string[] _attchname = new string[vendorfile.Count];                            string[] _docpath = new string[vendorfile.Count];                            for (int i = 0; i < vendorfile.Count; i++)                            {                                _docid[i] = Convert.ToInt32(vendorfile[i].RevereseTaxDocumentId);                                _doctype[i] = Convert.ToInt32(vendorfile[i].TaxDocumentType);                                _docname[i] = vendorfile[i].TaxDocument;                                _attchname[i] = vendorfile[i].TaxAttachmentName;                                _docpath[i] = vendorfile[i].TaxAttachmentPath;                            }                            editVendor.VendorDocumentId = _docid;                            editVendor.VendorDocumentType = _doctype;                            editVendor.VendorDocumentName = _docname;                            editVendor.VendorAttachName = _attchname;                            editVendor.VendorDocPath = _docpath;                        }                        if (tdsFile.Count > 0)                        {                            int[] _docid = new int[tdsFile.Count];                            int[] _doctype = new int[tdsFile.Count];                            string[] _docname = new string[tdsFile.Count];                            string[] _attchname = new string[tdsFile.Count];                            string[] _docpath = new string[tdsFile.Count];                            for (int i = 0; i < tdsFile.Count; i++)                            {                                _docid[i] = Convert.ToInt32(tdsFile[i].VendorIdentityDocumentId);                                _doctype[i] = Convert.ToInt32(tdsFile[i].IdentityVendorDocumentType);                                _docname[i] = tdsFile[i].IdentityVendorDocument;                                _attchname[i] = tdsFile[i].IdentityAttachmentName;                                _docpath[i] = tdsFile[i].IdentityVendorAttachmentPath;                            }                            editVendor.TDSDocumentId = _docid;                            editVendor.TDSDocumentType = _doctype;                            editVendor.TDSDocumentName = _docname;                            editVendor.TDSAttachName = _attchname;                            editVendor.TDSDocPath = _docpath;                        }                        if (tdsdetail.Count > 0)                        {                            int[] _tdsdetilid = new int[tdsdetail.Count];                            int[] _tdssection = new int[tdsdetail.Count];                            string[] _income = new string[tdsdetail.Count];                            decimal[] _percentage = new decimal[tdsdetail.Count];                            for (int i = 0; i < tdsdetail.Count; i++)                            {                                _tdsdetilid[i] = Convert.ToInt32(tdsdetail[i].VendorTDSDetailId);                                _tdssection[i] = Convert.ToInt32(tdsdetail[i].Section);                                _income[i] = tdsdetail[i].NatureOfIncome;                                _percentage[i] = Convert.ToDecimal(tdsdetail[i].TDSPercentage);                            }                            editVendor.VendorTDSDetailId = _tdsdetilid;                            editVendor.Section = _tdssection;                            editVendor.NatureOfIncome = _income;                            editVendor.TDSPercentage = _percentage;                        }                    }                    return editVendor;                }            }            catch (Exception ex)            {                Infrastructure.IOASException.Instance.HandleMe((object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);                VendorMasterViewModel editVendor = new VendorMasterViewModel();                return editVendor;            }        }
         public static int VendorMaster(VendorMasterViewModel model)
         {
 
@@ -2081,7 +1885,7 @@ namespace IOAS.GenericServices
                                 if (model.Category == 1)
                                 {
                                     var id = Convert.ToInt32(model.Userid);
-                                    var exstinguser = context.tblStaffBankAccount.Where(e => e.UserId == id && e.Category == "Professor" && e.PayFor == model.PayFor).FirstOrDefault();
+                                    var exstinguser = context.tblStaffBankAccount.Where(e => e.UserId == id && e.Category == "Professor" &&e.PayFor == model.PayFor).FirstOrDefault();
                                     if (exstinguser != null)
                                         return 5;
                                     var vwCombine = (from Vw in context.tblFacultyDetail

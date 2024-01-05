@@ -7254,12 +7254,12 @@ namespace IOAS.Infrastructure
                         case "TravelBill":
                             refnums = (from boa in context.tblBOA
                                        from fy in context.tblFinYear
-                                       where boa.Status == "Posted" &&( boa.TransactionTypeCode == "DTV"|| boa.TransactionTypeCode == "TAD" || boa.TransactionTypeCode == "TST") && boa.RefNumber == Refnum
+                                       where boa.Status == "Posted" && (boa.TransactionTypeCode == "DTV" || boa.TransactionTypeCode == "TAD" || boa.TransactionTypeCode == "TST") && boa.RefNumber == Refnum
                                        && boa.PostedDate >= fy.StartDate && boa.PostedDate <= fy.EndDate && fy.CurrentYearFlag == true
                                        select boa.RefNumber).FirstOrDefault();
                             break;
                         case "BillDate":
-                            
+
                             refnums = (from boa in context.tblBOA
                                        from fy in context.tblFinYear
                                        where boa.Status == "Posted" && (boa.TransactionTypeCode == "STM" || boa.TransactionTypeCode == "ADV" || boa.TransactionTypeCode == "PTV") && boa.RefNumber == Refnum
@@ -7728,9 +7728,9 @@ namespace IOAS.Infrastructure
 
                 using (var context = new IOASDBEntities())
                 {//35690
-                    list = (from P in context.tblProject                           
+                    list = (from P in context.tblProject
                             join U in context.vwFacultyStaffDetails on P.PIName equals U.UserId
-                            where  P.ProjectId == 12345
+                            where  P.ProjectId == 35690
                             orderby P.ProjectNumber
                             group new { P.ProjectId, P.ProjectNumber, U.FirstName } by P.ProjectId into g
                             select new
@@ -8930,6 +8930,42 @@ namespace IOAS.Infrastructure
             }
 
         }
+        public static List<ProjectEnhancementModel> FreezeUnfreezeLoadProjectDetails(int ProjectId)
+        {
+            try
+            {
+                List<ProjectEnhancementModel> list = new List<ProjectEnhancementModel>();
+                
+                using (var context = new IOASDBEntities())
+                {
+                    list = (from P in context.tblProject
+                                where P.ProjectId == ProjectId && P.Status == "Active"
+                                
+                                  select new ProjectEnhancementModel()
+                                  {
+                                     ProjectNumber=P.ProjectNumber,
+                                     Projecttitle=P.ProjectTitle,
+                                     EnhancedSanctionValue=P.SanctionValue,
+                                     
+                                  }).ToList();
+
+
+                }
+                return list;
+            }
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+                (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                throw ex;
+            }
+            
+
+        }
+
+
+
+
         public static List<AutoCompleteModel> GetAutoCompleteProjectList(string term, int? type = null, int? classification = null)
         {
             try
@@ -11856,6 +11892,29 @@ namespace IOAS.Infrastructure
                 return false;
             }
         }
+
+        //public static int GetFreezeAndUnFreezeData(int projectId)
+        //{
+
+        //    try
+        //    {
+        //        using (var context = new IOASDBEntities())
+        //        {
+                    
+        //            var query = (from C in context.tblProjectEnhancementAllocation
+        //                         where C.ProjectId == projectId && C.Status == "Active" && C.IsCurrentVersion == true
+        //                         select C).FirstOrDefault();
+        //            return Convert.ToInt16(query);
+        //        }               
+        //    }
+           
+        //        catch (Exception ex)
+        //    {
+        //        Infrastructure.IOASException.Instance.HandleMe(
+        //        (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+        //        throw ex;
+        //    }
+        //}
         public static bool ValidateGeneralVoucherStatus(int id, string status)
         {
             try
@@ -11977,6 +12036,92 @@ namespace IOAS.Infrastructure
                 throw ex;
             }
         }
+
+       
+        public static List<FreezingUnFreezingModel> GetFreezeAndUnFreezeData(int projectId)
+        {
+            List<FreezingUnFreezingModel> FreezeData = new List<FreezingUnFreezingModel>();
+            try
+            {
+
+                using (var context = new IOASDBEntities())
+                {                  
+
+                    var query = (from C in context.vw_ProjectAllocationHeadList
+                                 where C.ProjectId == projectId
+                                 select new {
+                                     C.ProjectId,
+                                     C.AllocationHead,                                                                      
+                                     C.ProjectNumber,
+                                     C.HeadName,
+                                     C.TotalValue,
+                                     C.IsFreeze,                                                                    
+                                 }).ToList();
+                    if (query.Count > 0)
+                    {
+                        var headval = query.Where(HeadList => HeadList.AllocationHead==28 || HeadList.AllocationHead == 29);
+                        if (query.Count == 2 && headval.Count() == 2)
+                        {
+                            var queryone = (from C in context.vw_ProjectAllocationAllHeadList
+                                            where C.ProjectId == projectId
+                                            select new
+                                            {
+                                                C.ProjectId,
+                                                C.BudgetHeadId,
+                                                C.ProjectNumber,
+                                                C.HeadName,
+                                                C.TotalValue,
+                                                C.IsFreeze,
+                                            }).ToList();
+                            if (queryone.Count > 0)
+
+                            {
+
+                                for (int i = 0; i < queryone.Count; i++)
+                                {
+                                    FreezeData.Add(new FreezingUnFreezingModel()
+                                    {
+                                        ProjectId = queryone[i].ProjectId ?? 0,
+                                        AllocationHead = queryone[i].BudgetHeadId,
+                                        ProjectNumber = queryone[i].ProjectNumber,
+                                        HeadName = queryone[i].HeadName,
+                                        TotalValue = 0,
+                                        Freeze = Convert.ToInt32(queryone[i].IsFreeze)
+                                    });
+                                }
+                            }
+                        }
+                        else
+                        {
+                            for (int i = 0; i < query.Count; i++)
+                            {
+                                FreezeData.Add(new FreezingUnFreezingModel()
+                                {
+                                    ProjectId = query[i].ProjectId,
+                                    AllocationHead = query[i].AllocationHead ?? 0,
+                                    ProjectNumber = query[i].ProjectNumber,
+                                    HeadName = query[i].HeadName,
+                                    TotalValue = query[i].TotalValue ?? 0,
+                                    Freeze = Convert.ToInt32(query[i].IsFreeze)
+                                });
+                            }
+                        }
+                    }
+                   
+                }
+                return FreezeData;
+            }
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+                (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                return null;
+            }
+
+        }
+
+
+
         public static List<TransactionAndTaxesModel> GetSubCode()
         {
             List<TransactionAndTaxesModel> transtype = new List<TransactionAndTaxesModel>();
