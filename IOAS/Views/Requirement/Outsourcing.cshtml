@@ -4692,6 +4692,59 @@
     //    return !hadError;
     //});
 
+      $(document).on('click','#btnSave',function(e){
+        e.preventDefault();
+        var aadharnumber = ($('#aadharnumber').val() == '' || $('#aadharnumber').val() == undefined)
+                            ? $('#lblAadharnumber').text() : $('#aadharnumber').val();
+       
+        //data = { STEId: aadharnumber, pnno, AppicationNo, EmployeeNumber, Preval_f: $('#OldEmployeeNumber').val(), apptype: "OSG", appref: apprefNo };
+        data = { "STEId": $('#STEId').val(), "aadharnumber": aadharnumber, "PanNo": $('#PAN').val(), "AppicationNo": $('#ApplicationRefNo').val(), "EmployeeNumber": $('#OldEmployeeNumber').val()};
+                  $.ajax({
+                url: '@Url.Action("VerifyAadharPan", "Requirement")',
+                type: "Get",
+                dataType: "JSON",
+                data: data,
+              success: function (result) {
+                  console.log("btnsave");
+                    if(result!="")
+                    {
+                        var arr = Object.keys(result).map(function (key) { return result[key]; });
+                        //console.log(arr,"arr")
+                        if (arr.length == 2) {
+                            var msg = "";
+                            if (arr[0] != "Success")
+                                msg = msg + arr[0]
+
+                            if (arr[1] != "Success")
+                                msg = msg + arr[1]
+
+                            if (arr[0] == "Success" && arr[1] == "Success")
+                            {
+                                $('#isDraftbtn').val(true);
+                                //**enableDisableReqClass(false);
+                                $('#formOSG').submit();
+                                $(".loading-bg").removeClass('dis-none');
+                            }
+
+                            else {
+                                $('#alert').html(msg);
+                                $('#Validation').modal('toggle');
+                                $('#aadharnumber').val('');
+                                $('#aadharnumber').focus();
+                            }
+                        }
+                        console.log(result);
+                        
+                    }
+                }
+        });
+
+     
+    });
+
+
+
+
     var findtabs = $(".cust-tab");
     $(findtabs[0]).find('textarea,input[type="text"]').each(function(){
         var ID = $(this).attr('id');
