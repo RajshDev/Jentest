@@ -72,8 +72,21 @@
 }
 
 <script>
-    applyAutoComplete($('#ProjectNumber'), $('#ProjectId'), '@Url.Action("LoadProjectList","CoreAccounts")', 'ProjectSummary', true);
 
+    
+    var errMsg = '@TempData["errMsg"]';
+    var succMsg = '@TempData["succMsg"]';
+    $(document).ready(function () {
+        if (succMsg != '') {
+            $('#alertSuccess').html(succMsg);
+            $('#Success').modal('toggle');
+        }
+        else if (errMsg != '') {
+            $('#FailedAlert').html(errMsg);
+            $('#Failed').modal('toggle');
+        }
+    });
+    applyAutoComplete($('#ProjectNumber'), $('#ProjectId'), '@Url.Action("LoadProjectList","CoreAccounts")', 'ProjectSummary', true);
   $('#ProjectNumber').change(function() {
         var projectnumber = $('#ProjectNumber').val();
         projectnumber = projectnumber.trim();

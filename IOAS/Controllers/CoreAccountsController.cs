@@ -295,8 +295,8 @@ namespace IOAS.Controllers
             {
                 decimal advAmt = (item.TotalAmount * model.AdvancePercentage / 100) ?? 0;
                 ttlAdvAmt += advAmt;
-                //ttlAdvAmt = Math.Round(ttlAdvAmt, 2, MidpointRounding.AwayFromZero);
-                ttlAdvAmt = (int)Math.Round(ttlAdvAmt);
+                ttlAdvAmt = (int)Math.Round(ttlAdvAmt, MidpointRounding.AwayFromZero);
+                //ttlAdvAmt = (int)Math.Round(ttlAdvAmt);
             }
 
             if (ttlAdvAmt != commitmentAmt)
@@ -561,13 +561,16 @@ namespace IOAS.Controllers
                 decimal advTax = (advAmt * item.TaxPct / 100) ?? 0;
                 ttlAdvAmt += advAmt;
                 //10616 - Round Off feature
-                advAmt = (int)Math.Round(advAmt);
                 netAdvAmt += advAmt + advTax;
+                netAdvAmt = (int)Math.Round(netAdvAmt, MidpointRounding.AwayFromZero);
+                //netAdvAmt = (int)Math.Round(netAdvAmt);
+                
                 if (item.IsTaxEligible)
                     ttlGSTElgAmt = ttlGSTElgAmt + advTax;
             }
             ttlGSTElgAmt = Math.Round(ttlGSTElgAmt, 2, MidpointRounding.AwayFromZero);
-            netAdvAmt = Math.Round(netAdvAmt, 2, MidpointRounding.AwayFromZero);
+            //netAdvAmt = Math.Round(netAdvAmt, 2, MidpointRounding.AwayFromZero);
+            
             netDrAmt = Math.Round(netDrAmt, 2, MidpointRounding.AwayFromZero);
             if ((netAdvAmt - ttlGSTElgAmt) != commitmentAmt)
                 msg = "There is a mismatch between the part payment total value and allocated commitment value. Please update the value to continue.";
@@ -834,12 +837,17 @@ namespace IOAS.Controllers
                 decimal advAmt = (item.TotalAmount * model.AdvancePercentage / 100) ?? 0;
                 decimal advTax = (advAmt * item.TaxPct / 100) ?? 0;
                 ttlAdvAmt += advAmt;
+                //10616 - Round Off feature
                 netAdvAmt += advAmt + advTax;
+                //netAdvAmt = (int)Math.Round(netAdvAmt);
+                netAdvAmt = (int)Math.Round(netAdvAmt, MidpointRounding.AwayFromZero);
+
+
                 if (item.IsTaxEligible)
                     ttlGSTElgAmt = ttlGSTElgAmt + advTax;
             }
             ttlGSTElgAmt = Math.Round(ttlGSTElgAmt, 2, MidpointRounding.AwayFromZero);
-            netAdvAmt = Math.Round(netAdvAmt, 2, MidpointRounding.AwayFromZero);
+            //netAdvAmt = Math.Round(netAdvAmt, 2, MidpointRounding.AwayFromZero);
             netDrAmt = Math.Round(netDrAmt, 2, MidpointRounding.AwayFromZero);
             if ((netAdvAmt - ttlGSTElgAmt) != commitmentAmt)
                 msg = "There is a mismatch between the part payment total value and allocated commitment value. Please update the value to continue.";
@@ -938,6 +946,8 @@ namespace IOAS.Controllers
                     ViewBag.TypeOfServiceList = Common.GetTypeOfServiceList(model.BillType ?? 0);
                     ViewBag.PONumberList = Common.GetBillPONumberList(model.VendorId, model.PONumber, "ADV");
                     ViewBag.VendorTDSList = Common.GetVendorTDSList(model.VendorId);
+                    ViewBag.RoundOfAdjustment = model.RoundOfAdjustment ?? 0;
+                    ViewBag.totInvoiceAmt = model.totInvoiceAmt.ToString();
                     ViewBag.invoiceTaxAmt = model.InvoiceTaxAmount.ToString();
                 }
                 else
@@ -1003,6 +1013,9 @@ namespace IOAS.Controllers
                 ViewBag.DocmentTypeList = Common.GetDocTypeList(31);
                 ViewBag.ProjectNumberList = ProjectService.LoadProjecttitledetails(firstPType);
                 ViewBag.invoiceTaxAmt = model.InvoiceTaxAmount.ToString();
+                ViewBag.RoundOfAdjustment = model.RoundOfAdjustment ?? 0;
+                ViewBag.totInvoiceAmt = model.totInvoiceAmt.ToString();
+
                 if (model.ExpenseDetail != null)
                 {
                     foreach (var item in model.ExpenseDetail)
@@ -1142,7 +1155,7 @@ namespace IOAS.Controllers
                         ttlGSTElgAmt = ttlGSTElgAmt + advTax;
                 }
                 ttlAdvAmt = model.InvoiceAmount ?? 0;
-                ttlAdvAmt = (int)Math.Round(ttlAdvAmt);
+                //ttlAdvAmt = (int)Math.Round(ttlAdvAmt, MidpointRounding.AwayFromZero);
                 netAdvAmt = ttlAdvAmt + (model.InvoiceTaxAmount ?? 0);
             }
             else
@@ -1156,22 +1169,30 @@ namespace IOAS.Controllers
                         ttlGSTElgAmt = ttlGSTElgAmt + advTax;
                     }
                 }
-                //ttlAdvAmt = (model.InvoiceAmount ?? 0) - (model.hiddenSettAmt ?? 0);
-                ttlAdvAmt = ttlAdvAmt  - (model.hiddenSettAmt ?? 0);
+                ttlAdvAmt = (model.InvoiceAmount ?? 0) - (model.hiddenSettAmt ?? 0);
+                //ttlAdvAmt = ttlAdvAmt  - (model.hiddenSettAmt ?? 0);
                 netAdvAmt = ttlAdvAmt + (Convert.ToDecimal(model.InvoiceTaxAmount) - Convert.ToDecimal(model.hiddenSettTaxAmt));
             }
             ttlGSTElgAmt = Math.Round(ttlGSTElgAmt, 2, MidpointRounding.AwayFromZero);
-            //netAdvAmt = Math.Round(netAdvAmt, 2, MidpointRounding.AwayFromZero);
-            netAdvAmt = (int)Math.Round(netAdvAmt);
+            netAdvAmt = (int)Math.Round(netAdvAmt, MidpointRounding.AwayFromZero);
+            //netAdvAmt = (int)Math.Round(netAdvAmt);
+            var invAmt = netAdvAmt;
             netAdvAmt = netAdvAmt - ttlGSTElgAmt;
+
+            var totpayval = (model.InvoiceAmount + model.InvoiceTaxAmount);
+               totpayval = (int)Math.Round((totpayval ?? 0), MidpointRounding.AwayFromZero);
+
+
             if (netAdvAmt != commitmentAmt)
                 msg = "There is a mismatch between the settlement value and allocated commitment value. Please update the value to continue.";
             if (netDrAmt != crAmt || (netCrAmt + ttlJVExpVal) != crAmt)
                 msg = msg == "Valid" ? "Not a valid entry. Credit and Debit value are not equal" : msg + "<br />Not a valid entry. Credit and Debit value are not equal";
             if (ttlJVExpVal != ttlJVDrVal)
                 msg = msg == "Valid" ? "Not a valid entry. Credit and Debit value of JV are not equal" : msg + "<br />Not a valid entry. Credit and Debit value of JV are not equal";
-            if (TransAmt != (model.InvoiceAmount + model.InvoiceTaxAmount) && !model.RCM_f)
+            if (TransAmt != totpayval && !model.RCM_f)
                 msg = msg == "Valid" ? "There is a mismatch between the credit value and invoice value. Please update the value to continue." : msg + "<br />There is a mismatch between the credit value and invoice value. Please update the value to continue.";
+            // if (TransAmt != invAmt && !model.RCM_f)
+
             //if (ttlExpAmt != commitmentAmt)
             //    msg = msg == "Valid" ? "There is a mismatch between the expense value and allocated commitment value. Please update the value to continue." : msg + "<br />There is a mismatch between the expense value and allocated commitment value. Please update the value to continue.";
             //if (gst == "NotEligible" && netCrAmt != commitmentAmt)
@@ -1439,6 +1460,17 @@ namespace IOAS.Controllers
             {
                 int userId = Common.GetUserid(User.Identity.Name);
                 bool Freeze =ProjectService.PostMethodForFreezedata(model, userId);
+                
+                if (Freeze == true)
+                {
+                    TempData["succMsg"] = "Project Allocation has been Freezed and Un-Freezed successfully, Project number - " + model.ProjectNumber + ".";
+                    return RedirectToAction("AllocationFreezingUnFreezing");
+
+                }
+                else
+                {
+                    TempData["errMsg"] = "Something went wrong please contact administrator.";
+                }
                 return View(model);
             }
             catch (Exception ex)
@@ -1458,9 +1490,6 @@ namespace IOAS.Controllers
                 var projectData = Common.FreezeUnfreezeLoadProjectDetails(Convert.ToInt32(ProjectId));
                 var result = new { projectsData = projectData };
                 return Json(result, JsonRequestBehavior.AllowGet);
-
-
-
             }
             catch (Exception ex)
             {
@@ -9886,7 +9915,7 @@ namespace IOAS.Controllers
 
 
 
-                if (honorpay.TDS != 0 && honorpay.TDS != (decimal)0.10 && honorpay.TDS != (decimal)0.20 && honorpay.TDS != (decimal)0.2080 && honorpay.TDS != (decimal)0.3120 && honorpay.TDS != (decimal)0.3432 && honorpay.TDS != (decimal)0.3588 && honorpay.TDS != null && honorpay.TDS != (decimal)0.3900 && honorpay.TDS != null)
+                if (honorpay.TDS != 0 && honorpay.TDS != (decimal)0.10 && honorpay.TDS != (decimal)0.20 && honorpay.TDS != (decimal)0.2080 && honorpay.TDS != (decimal)0.3120 && honorpay.TDS != (decimal)0.3432 && honorpay.TDS != (decimal)0.3588 && honorpay.TDS != null && honorpay.TDS != (decimal)0.3900 && honorpay.TDS != (decimal)0.30 && honorpay.TDS != null)
                 { tds_status = "Invalid TDS"; }
 
                 //                honorpay.Status = (name_status == "" ? "" : name_status + " / ") + (tds_status == "" ? "" : tds_status + " / ") + (amt_status == "" ? "" : amt_status + " / ");
@@ -9915,7 +9944,8 @@ namespace IOAS.Controllers
                         "TDS on Salary (92B) - 31.2%",
                         "TDS on Salary (92B) - 34.32%",
                         "TDS on Salary (92B) - 35.88%",
-                        "TDS on Salary (92B) - 39%"
+                        "TDS on Salary (92B) - 39%",
+                        "TDS on Salary (92B) - 30%"
                     };
                     string[] arrTdsSectionId = {
                         "41",
@@ -9924,7 +9954,8 @@ namespace IOAS.Controllers
                         "589",
                         "590",
                         "591",
-                        "593"
+                        "593",
+                        "600"
                     };
 
                     honorpay.TDSAmt = honorpay.Amount * (honorpay.TDS);
@@ -10015,6 +10046,11 @@ namespace IOAS.Controllers
                     else if (honorpay.TDS * 100 == (Decimal)39)
                     {
                         honorpay.SelectedTdssection = "TDS on Salary (92B) - 39%";
+
+                    }
+                    else if (honorpay.TDS * 100 == (Decimal)30)
+                    {
+                        honorpay.SelectedTdssection = "TDS on Salary (92B) - 30%";
 
                     }
                     int tdsid=-1;
@@ -11177,6 +11213,13 @@ namespace IOAS.Controllers
                 ViewBag.ExpensesHead = Common.GetCodeControlList("ForgnRemitExpensesHead");
                 ViewBag.Currencyequalantstatus = Common.GetCodeControlList("Forncurrequalantstatus");
                 ViewBag.Currency = Common.getFRMcurrency();
+                ViewBag.RCMCommonTaxType = Common.GetCodeControlList("ConsultantCommonTaxType1");
+                ViewBag.RCMCommonTaxTypes = Common.GetCodeControlList("ConsultantCommonTaxType2");
+                ViewBag.TDSSectionList = Common.GetTdsList();
+                ViewBag.RCMTaxType = Common.GetCodeControlList("ConsultantRCMTaxType");
+                ViewBag.TaxPctList = Common.GetCodeControlList("TaxPercentage");
+                //ViewBag.TaxPctList = Common.GetCodeControlList("ConsultantGSTType");
+                
                 // ViewBag.PaymentBank = Common.GetCodeControlList("DistributionType");
                 ViewBag.SourceRefNumberList =
                 ViewBag.AccountGroupList =
@@ -13778,7 +13821,7 @@ namespace IOAS.Controllers
                 ViewBag.Student = Common.GetStudentList();
                 List<MasterlistviewModel> tds = new List<MasterlistviewModel>();
                 tds = Common.GetTDS();
-                var tdsfilter = tds.Where(t => t.code == "0" || t.code == "10" || t.code == "20" || t.code == "20.8" || t.code == "31.2" || t.code == "34.32" || t.code == "35.88" || t.code == "39");
+                var tdsfilter = tds.Where(t => t.code == "0" || t.code == "10" || t.code == "20" || t.code == "20.8" || t.code == "30" || t.code == "31.2" || t.code == "34.32" || t.code == "35.88" || t.code == "39" );
                 ViewBag.TDS = tdsfilter;
 
                 ViewBag.OH = Common.GetOH();
@@ -13794,7 +13837,7 @@ namespace IOAS.Controllers
                 List<MasterlistviewModel> tdssec = new List<MasterlistviewModel>();
 
                 tdssec = Common.GetHonororiumTdsSection();
-                var tdssecfilter = tdssec.Where(t => t.id == 41 || t.id == 356 || t.id == 460 || (t.id >= 588 && t.id <= 593));
+                var tdssecfilter = tdssec.Where(t => t.id == 41 || t.id == 356 || t.id == 460 || t.id == 600 || (t.id >= 588 && t.id <= 593));
                 ViewBag.HonTdsSection = tdssecfilter;
                 var ptypeList = Common.getprojecttype();
                 int firstPType = ptypeList != null ? ptypeList[0].codevalAbbr : 0;
@@ -21995,6 +22038,8 @@ TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             }
             model.BOADraftId = boaDraftId;
             model.txDetail = list;
+            //System.IO.File.WriteAllLines("SavedLists.txt");
+
             if (list.Count > 0 && msg == "Valid")
                 model = coreAccountService.VerifyUTR(model);
             return Json(new { status = msg, data = model }, JsonRequestBehavior.AllowGet);
@@ -22208,7 +22253,7 @@ TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
         #region backendprocess
         public ActionResult TestImprestEnhancement()
         {
-            getImprestEnhanceBOAmodeldetails(271);
+           
             return RedirectToAction("PaymentProcessInitList");
         }
 

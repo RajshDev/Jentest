@@ -169,7 +169,7 @@
                                                                     <td>Total Amount</td>
                                                                     <td>GSTIN</td>
                                                                     <td>Tax Eligible</td>
-                                                                    <td>Rounded Amount</td>
+                                                                    @*<td>Rounded Amount</td>*@
                                                                     <td>Interstate</td>
 
                                                                     @*<td class="bg-blue">Adv %</td>
@@ -196,7 +196,7 @@
                                                                         var totalvalue = "PaymentDetails[" + count + "].TotalValue";
                                                                         var gstin = "PaymentDetails[" + count + "].GSTIN";
                                                                         var taxEligible = "PaymentDetails[" + count + "].IsTaxEligible";
-                                                                        var roundvalue = "PaymentDetails[" + count + "].Roundvalue";
+                                                                        //var roundvalue = "PaymentDetails[" + count + "].Roundvalue";
                                                                         var interstate = "PaymentDetails[" + count + "].IsInterstate";
                                                                         count++;
                                                                 <tr id="trdetails" class="p-b-sm">
@@ -247,10 +247,10 @@
                                                                         @Html.CheckBox(@taxEligible, item.IsTaxEligible)
                                                                         @Html.ValidationMessage(@taxEligible)
                                                                     </td>
-                                                                    <td>
+                                                                    @*<td>
                                                                         @Html.TextBox(@roundvalue, item.Roundvalue, new { @class = "form-control", @readonly = true, @id = "Roundvalue", @autocomplete = "off" })
                                                                         @Html.ValidationMessage(@roundvalue)
-                                                                    </td>
+                                                                    </td>*@
                                                                     <td>
                                                                         @Html.CheckBox(@interstate, item.IsInterstate)
                                                                         @Html.ValidationMessage(@interstate)
@@ -310,10 +310,10 @@
                                                                         @Html.CheckBox("PaymentDetails[0].IsTaxEligible")
                                                                         @Html.ValidationMessage("PaymentDetails[0].IsTaxEligible")
                                                                     </td>
-                                                                    <td>
+                                                                    @*<td>
                                                                         @Html.TextBox("PaymentDetails[0].Roundvalue", "", new { @class = "form-control", @onkeypress = "return ValidateDecimalOnly(event)", @readonly = true })
                                                                         @Html.ValidationMessage("PaymentDetails[0].Roundvalue")
-                                                                    </td>
+                                                                    </td>*@
                                                                     <td>
                                                                         @Html.CheckBox("PaymentDetails[0].IsInterstate", new { @id = "PaymentDetails_0_IsInterstate" })
                                                                         @Html.ValidationMessage("PaymentDetails[0].IsInterstate")
@@ -332,9 +332,8 @@
                                                     <div class="form-group custom-form-group">
                                                         <label>Round of Adjustment:</label>
                                                         @*<input type="text" class="form-control" id="txtRoundOfAdjustment" oninput="validateRoundOfAdjustment(this)" />*@
-                                                        <input type="text" class="form-control" id="txtRoundOfAdjustment" value="0" />
-                                                        @Html.Hidden("RoundOfAdjustment")
-                                                        @*@Html.ValidationMessageFor(m => m.roundOfAdjustment)*@
+                                                        @Html.TextBoxFor(m => m.RoundOfAdjustment, new { @class = "form-control", @id = "txtRoundOfAdjustment" })
+                                                        @Html.ValidationMessageFor(m => m.RoundOfAdjustment)
                                                     </div>
                                                 </div>
                                             </div>  
@@ -538,6 +537,11 @@
             CalculateDeductionTotal();
             GetTransactionDetails();
         }
+        
+        if ($('#txtRoundOfAdjustment').val().trim() === "") {
+            $('#txtRoundOfAdjustment').val(0);
+        }
+        
         $('.selectpicker').selectpicker({
             liveSearch: true
         });
@@ -783,8 +787,9 @@
     $('#txtRoundOfAdjustment').change(function () {
         isCalPerformed = false;
         validateRoundOfAdjustment();
-        resetRoundoff($(this).val());
+        //resetRoundoff($(this).val());
         calculateamount();
+        calculateeligibletaxamount();
     });
 
     $('#formSI').submit(function () {
@@ -1107,11 +1112,11 @@
     function round(total) {
 
         if (!isNaN(total)) {
-            console.log('Loaded..')
+            
             var valToBeRounded = parseFloat(total);
             var decimalPart = valToBeRounded % 1;
 
-            console.log(valToBeRounded);
+            
             if (decimalPart > 0.5) {
                 // Round up the number
                 var roundUpNumber = Math.ceil(valToBeRounded);
@@ -1245,9 +1250,9 @@
         });
         if (!isNaN(eligibletaxtotal)) {
             $("#txtEligibleTaxValue").val(eligibletaxtotal.toFixed(2));
-            var netpayamt = parseFloat($('#txtNetPayableValue').val());
+            var netpayamt = parseFloat($('#txtNetPayableValue').val()); 
             var commitamt = (netpayamt - eligibletaxtotal).toFixed(2);            
-            $('#lblcommitamt').html(round(commitamt));
+            $('#lblcommitamt').html(commitamt);
         }
     }
 
@@ -1744,9 +1749,9 @@
             //if(parseInt($("#AdvancePercentage").val()) == 100){
             CalculateDeductionTotal();
             //11335
-            if (roundOffAdjustment != "") {
-                isCalPerformed = CalculateRoundingOffAdjustment(roundOffAdjustment, isCalPerformed);
-            }
+            //if (roundOffAdjustment != "") {
+            //    isCalPerformed = CalculateRoundingOffAdjustment(roundOffAdjustment, isCalPerformed);
+            //}
             //$("#CreditorAmount, #ttlCr").val($('#lblAdvTtlAmt').text());
             //}else{
             //    $("#CreditorAmount, #ttlCr").val($('#lblAdvNetAmt').text());

@@ -7731,7 +7731,7 @@ namespace IOAS.Infrastructure
                 {//35690
                     list = (from P in context.tblProject
                             join U in context.vwFacultyStaffDetails on P.PIName equals U.UserId
-                            where  P.ProjectId == 35690
+                            where  P.ProjectId == 12345
                             orderby P.ProjectNumber
                             group new { P.ProjectId, P.ProjectNumber, U.FirstName } by P.ProjectId into g
                             select new
@@ -12048,45 +12048,67 @@ namespace IOAS.Infrastructure
                 using (var context = new IOASDBEntities())
                 {                  
 
-                    var query = (from C in context.tblProjectEnhancementAllocation
-                                 join A in context.tblBudgetHead on C.AllocationHead equals A.BudgetHeadId
-                                 join PA in context.tblProjectAllocation on C.AllocationHead equals PA.AllocationHead 
-                                 where PA.ProjectId == C.ProjectId && C.ProjectId == projectId && C.Status == "Active" && C.IsCurrentVersion == true
+                    var query = (from C in context.vw_ProjectAllocationHeadList
+                                 where C.ProjectId == projectId
                                  select new {
                                      C.ProjectId,
-                                     C.AllocationHead,
-                                     C.OldValue,
-                                     C.EnhancedValue,
+                                     C.AllocationHead,                                                                      
+                                     C.ProjectNumber,
+                                     C.HeadName,
                                      C.TotalValue,
-                                     C.CrtdTS,
-                                     C.CrtdUserId,
-                                     C.Status,
-                                     A.HeadName,
-                                     PA.IsFreeze
-                                  
-
+                                     C.IsFreeze,                                                                    
                                  }).ToList();
                     if (query.Count > 0)
                     {
-                        for (int i = 0; i < query.Count; i++)
+                        var headval = query.Where(HeadList => HeadList.AllocationHead==28 || HeadList.AllocationHead == 29);
+                        if (query.Count == 2 && headval.Count() == 2)
                         {
-                            FreezeData.Add(new FreezingUnFreezingModel()
+                            var queryone = (from C in context.vw_ProjectAllocationAllHeadList
+                                            where C.ProjectId == projectId
+                                            select new
+                                            {
+                                                C.ProjectId,
+                                                C.BudgetHeadId,
+                                                C.ProjectNumber,
+                                                C.HeadName,
+                                                C.TotalValue,
+                                                C.IsFreeze,
+                                            }).ToList();
+                            if (queryone.Count > 0)
+
                             {
-                                ProjectId = query[i].ProjectId ?? 0,
-                                AllocationHead = query[i].AllocationHead ?? 0,                                
-                                OldValue = query[i].OldValue ?? 0,
-                                EnhancedValue = query[i].EnhancedValue ?? 0,
-                                TotalValue = query[i].TotalValue ?? 0,
-                                CrtdUserId = query[i].CrtdUserId ?? 0,
-                                CrtdTS = Convert.ToDateTime(query[i].CrtdTS),
-                                Status = Convert.ToString(query[i].Status),
-                                HeadName = query[i].HeadName,
-                                Freeze= Convert.ToString(query[i].IsFreeze)
 
-
-                            });
+                                for (int i = 0; i < queryone.Count; i++)
+                                {
+                                    FreezeData.Add(new FreezingUnFreezingModel()
+                                    {
+                                        ProjectId = queryone[i].ProjectId ?? 0,
+                                        AllocationHead = queryone[i].BudgetHeadId,
+                                        ProjectNumber = queryone[i].ProjectNumber,
+                                        HeadName = queryone[i].HeadName,
+                                        TotalValue = 0,
+                                        Freeze = Convert.ToInt32(queryone[i].IsFreeze)
+                                    });
+                                }
+                            }
+                        }
+                        else
+                        {
+                            for (int i = 0; i < query.Count; i++)
+                            {
+                                FreezeData.Add(new FreezingUnFreezingModel()
+                                {
+                                    ProjectId = query[i].ProjectId,
+                                    AllocationHead = query[i].AllocationHead ?? 0,
+                                    ProjectNumber = query[i].ProjectNumber,
+                                    HeadName = query[i].HeadName,
+                                    TotalValue = query[i].TotalValue ?? 0,
+                                    Freeze = Convert.ToInt32(query[i].IsFreeze)
+                                });
+                            }
                         }
                     }
+                   
                 }
                 return FreezeData;
             }
