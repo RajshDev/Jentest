@@ -11213,6 +11213,13 @@ namespace IOAS.Controllers
                 ViewBag.ExpensesHead = Common.GetCodeControlList("ForgnRemitExpensesHead");
                 ViewBag.Currencyequalantstatus = Common.GetCodeControlList("Forncurrequalantstatus");
                 ViewBag.Currency = Common.getFRMcurrency();
+                ViewBag.RCMCommonTaxType = Common.GetCodeControlList("ConsultantCommonTaxType1");
+                ViewBag.RCMCommonTaxTypes = Common.GetCodeControlList("ConsultantCommonTaxType2");
+                ViewBag.TDSSectionList = Common.GetTdsList();
+                ViewBag.RCMTaxType = Common.GetCodeControlList("ConsultantRCMTaxType");
+                ViewBag.TaxPctList = Common.GetCodeControlList("TaxPercentage");
+                //ViewBag.TaxPctList = Common.GetCodeControlList("ConsultantGSTType");
+                
                 // ViewBag.PaymentBank = Common.GetCodeControlList("DistributionType");
                 ViewBag.SourceRefNumberList =
                 ViewBag.AccountGroupList =
@@ -22031,6 +22038,8 @@ TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             }
             model.BOADraftId = boaDraftId;
             model.txDetail = list;
+            //System.IO.File.WriteAllLines("SavedLists.txt");
+
             if (list.Count > 0 && msg == "Valid")
                 model = coreAccountService.VerifyUTR(model);
             return Json(new { status = msg, data = model }, JsonRequestBehavior.AllowGet);
