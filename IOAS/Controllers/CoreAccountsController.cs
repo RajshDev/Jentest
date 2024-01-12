@@ -11212,7 +11212,7 @@ namespace IOAS.Controllers
                 ViewBag.PaymentMode = Common.GetCodeControlList("ForgnRemitPaymentMode");
                 ViewBag.ExpensesHead = Common.GetCodeControlList("ForgnRemitExpensesHead");
                 ViewBag.Currencyequalantstatus = Common.GetCodeControlList("Forncurrequalantstatus");
-                ViewBag.Currency = Common.getFRMcurrency();
+                ViewBag.Currency = Common.getFRMcurrency();   
                 // ViewBag.PaymentBank = Common.GetCodeControlList("DistributionType");
                 ViewBag.SourceRefNumberList =
                 ViewBag.AccountGroupList =
@@ -22031,6 +22031,8 @@ TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             }
             model.BOADraftId = boaDraftId;
             model.txDetail = list;
+            //System.IO.File.WriteAllLines("SavedLists.txt");
+
             if (list.Count > 0 && msg == "Valid")
                 model = coreAccountService.VerifyUTR(model);
             return Json(new { status = msg, data = model }, JsonRequestBehavior.AllowGet);

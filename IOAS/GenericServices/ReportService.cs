@@ -8861,6 +8861,9 @@ namespace IOAS.GenericServices
                         model.Email = Qry.AgencyContactPersonEmail;
                         model.ContactPerson = Qry.AgencyContactPersonName;
                         model.ContactNo = Qry.AgencyContactPersonNumber;
+                        model.CGSTstr = CreditnoteQry.CGST.ToString();
+                        model.SGSTstr = CreditnoteQry.SGST.ToString();
+                        model.IGSTstr = CreditnoteQry.IGST.ToString();
                         if (QryAgency != null)
                         {
                             model.District = Qry.AgencyDistrict;
