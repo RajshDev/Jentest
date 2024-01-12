@@ -15,6 +15,7 @@ using System.Configuration;
 
 namespace IOAS.GenericServices
 {
+
     public class ReportService
     {
         ProjectService ProjSer = new ProjectService();
