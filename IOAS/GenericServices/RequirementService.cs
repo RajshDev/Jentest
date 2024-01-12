@@ -10618,7 +10618,7 @@ namespace IOAS.GenericServices
                         model.OrderType = queryorder.O.OrderType ?? 0;
                         model.CommitmentAmount = queryorder.O.CommitmentAmmount ?? 0;
                         model.WithdrawalAmount = queryorder.O.WithdrawAmmount ?? 0;
-                        model.ArrearOrDeductionTillDate = queryorder.O.ArrearOrDeductionTillDate ?? DateTime.Now;
+                        model.ArrearOrDeductionTillDate = queryorder.O.ArrearOrDeductionTillDate;
                         model.ArrearOrDeductionAmount = queryorder.O.ArrearOrDeductionAmount ?? 0;
                         model.strArrearOrDeductionTillDate = string.Format("{0:dd-MMMM-yyyy}", queryorder.O.ArrearOrDeductionTillDate);
                         var query = (from A in context.tblRCTSTE
