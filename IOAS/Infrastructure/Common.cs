@@ -30085,6 +30085,8 @@ namespace IOAS.Infrastructure
             }
         }
 
+       
+
         #region TSA
         public static string GetAgencyByProjectId(int projId)
         {
@@ -30580,7 +30582,25 @@ namespace IOAS.Infrastructure
             }
 
         }
+        public static Tuple<string, string> GetVerifyAadharPan(int STEId, string aadharnumber, string PanNo, string AppicationNo, string EmployeeNumber)
+        {
+            var chkemployeeadhar = "";
+            var chkemployeepanno = "";
+            try
+            {
+                string application = (STEId < 0 && AppicationNo == null || STEId < 0 && string.IsNullOrEmpty(AppicationNo)) ? null : AppicationNo;
+                chkemployeeadhar = (aadharnumber!=null || aadharnumber !="") ? Common.CheckPreviousEmployeeAdharserver(Convert.ToString(aadharnumber), application, true, EmployeeNumber, "OSG") : "Success";
+                chkemployeepanno = (PanNo!= null || PanNo != "")? Common.CheckPreviousEmployeePanserver(PanNo, application, true, EmployeeNumber, "OSG") : "Success";
+                if (chkemployeeadhar=="") chkemployeeadhar= "Success";
+                if (chkemployeepanno == "") chkemployeepanno = "Success";
+                return Tuple.Create(chkemployeeadhar, chkemployeepanno);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
 
+        }
 
 
 
