@@ -2581,7 +2581,6 @@ namespace IOAS.Infrastructure
 
             }
         }
-
         public static string getprojectnumber(int projectid)
         {
             try
@@ -7731,7 +7730,7 @@ namespace IOAS.Infrastructure
                 {//35690
                     list = (from P in context.tblProject
                             join U in context.vwFacultyStaffDetails on P.PIName equals U.UserId
-                            where  P.ProjectId == 12345
+                            where  P.ProjectId == 35690
                             orderby P.ProjectNumber
                             group new { P.ProjectId, P.ProjectNumber, U.FirstName } by P.ProjectId into g
                             select new
@@ -30086,6 +30085,8 @@ namespace IOAS.Infrastructure
             }
         }
 
+       
+
         #region TSA
         public static string GetAgencyByProjectId(int projId)
         {
@@ -30581,7 +30582,25 @@ namespace IOAS.Infrastructure
             }
 
         }
+        public static Tuple<string, string> GetVerifyAadharPan(int STEId, string aadharnumber, string PanNo, string AppicationNo, string EmployeeNumber)
+        {
+            var chkemployeeadhar = "";
+            var chkemployeepanno = "";
+            try
+            {
+                string application = (STEId < 0 && AppicationNo == null || STEId < 0 && string.IsNullOrEmpty(AppicationNo)) ? null : AppicationNo;
+                chkemployeeadhar = (aadharnumber!=null || aadharnumber !="") ? Common.CheckPreviousEmployeeAdharserver(Convert.ToString(aadharnumber), application, true, EmployeeNumber, "OSG") : "Success";
+                chkemployeepanno = (PanNo!= null || PanNo != "")? Common.CheckPreviousEmployeePanserver(PanNo, application, true, EmployeeNumber, "OSG") : "Success";
+                if (chkemployeeadhar=="") chkemployeeadhar= "Success";
+                if (chkemployeepanno == "") chkemployeepanno = "Success";
+                return Tuple.Create(chkemployeeadhar, chkemployeepanno);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
 
+        }
 
 
 

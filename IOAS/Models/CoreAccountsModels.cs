@@ -6226,13 +6226,7 @@ namespace IOAS.Models
         [DisplayFormat(DataFormatString = "{0:n2}")]
         [Display(Name = "Foreign Remitance Amount")]
         [Range(0, 9999999999999999.99)]
-        public Nullable<decimal> ForeignRemittanceAmount { get; set; }
-        
-        public Nullable<int> ForeignRemittance_ITTDSType { get; set; }
-        public Nullable<decimal> ForeignRemittance_ITTDSPercentage { get; set; }
-        public Nullable<int> RCMType { get; set; }
-        public Nullable<int> RCMCategory { get; set; }
-        public Nullable<decimal> RCM_GSTINPercentage { get; set; }
+        public Nullable<decimal> ForeignRemittanceAmount { get; set; }       
 
         public string ForeignRemittanceAmt { get; set; }
         public Nullable<int> RemittanceCurrency { get; set; }

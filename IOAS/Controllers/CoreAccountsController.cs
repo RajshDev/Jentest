@@ -11212,14 +11212,7 @@ namespace IOAS.Controllers
                 ViewBag.PaymentMode = Common.GetCodeControlList("ForgnRemitPaymentMode");
                 ViewBag.ExpensesHead = Common.GetCodeControlList("ForgnRemitExpensesHead");
                 ViewBag.Currencyequalantstatus = Common.GetCodeControlList("Forncurrequalantstatus");
-                ViewBag.Currency = Common.getFRMcurrency();
-                ViewBag.RCMCommonTaxType = Common.GetCodeControlList("ConsultantCommonTaxType1");
-                ViewBag.RCMCommonTaxTypes = Common.GetCodeControlList("ConsultantCommonTaxType2");
-                ViewBag.TDSSectionList = Common.GetTdsList();
-                ViewBag.RCMTaxType = Common.GetCodeControlList("ConsultantRCMTaxType");
-                ViewBag.TaxPctList = Common.GetCodeControlList("TaxPercentage");
-                //ViewBag.TaxPctList = Common.GetCodeControlList("ConsultantGSTType");
-                
+                ViewBag.Currency = Common.getFRMcurrency();   
                 // ViewBag.PaymentBank = Common.GetCodeControlList("DistributionType");
                 ViewBag.SourceRefNumberList =
                 ViewBag.AccountGroupList =
