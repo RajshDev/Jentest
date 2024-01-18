@@ -6924,6 +6924,7 @@ namespace IOAS.Models
         public string Message { get; set; }
     }
 
+
     #endregion
     #region Fixed Deposit
     public class FixedDepositModel : CommonPaymentModel

@@ -19331,6 +19331,62 @@ namespace IOAS.Controllers
             }
         }
         #endregion
+
+
+
+        public ActionResult VendorStatusChanger()
+        {
+            List<MasterlistviewModel> list = new List<MasterlistviewModel>();
+            ViewBag.StatusChanger = list;
+            return View();
+        }
+
+        [HttpGet]
+        public JsonResult LoadAllVendorCode(string term, int? type = null)
+        {
+            try
+            {
+                var data = Common.LoadAutoAllVendorCodes(term);
+                return Json(data, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+       (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                throw new Exception(ex.Message);
+            }
+        }
+
+        [HttpGet]
+        public JsonResult GetVendorCodeStatus(string vendorCode)
+        {
+            try
+            {
+                var data = Common.GetCurrentVendorStatus(vendorCode);
+                return Json(data, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public JsonResult UpdateVendorCodeStatus(string VendorCode, string Status = "")
+        {
+            var empty = new ProjectStatusUpdateModel();
+            ProjectStatusUpdateModel data = new ProjectStatusUpdateModel();
+            ProjectSummaryModel psModel = new ProjectSummaryModel();
+            CoreAccountsService pro = new CoreAccountsService();
+            if (VendorCode != "")
+            {
+                int logged_in_user = Common.GetUserid(User.Identity.Name);
+               data.Message = pro.UpdateVendorStatus(VendorCode, Status, logged_in_user) == 0 ? "Success" : "Failed";
+            }
+            else
+                data = empty;
+            return Json(data, JsonRequestBehavior.AllowGet);
+        }
+
         #region PFT Date
         [HttpGet]
         public ActionResult PFTBillDateChange()
