@@ -10845,7 +10845,7 @@ namespace IOAS.Infrastructure
                 {
                     list = (from C in context.tblClearanceAgentMaster
                             where (C.Name.Contains(term) || C.ClearanceAgentCode.Contains(term))
-                            && C.IsTravelAgency == true
+                            && C.IsTravelAgency == true && C.Status == "Active"
                             orderby C.Name
                             select new AutoCompleteModel()
                             {
