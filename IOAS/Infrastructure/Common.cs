@@ -23450,6 +23450,67 @@ namespace IOAS.Infrastructure
             }
 
         }
+
+        public static List<AutoCompleteModel> LoadAutoAllVendorCodes(string term)
+        {
+            try
+            {
+                List<AutoCompleteModel> list = new List<AutoCompleteModel>();
+                using (var context = new IOASDBEntities())
+                {                    
+                    list = (from vm in context.tblVendorMaster
+                            where vm.Status != "Open"
+                            && (vm.Name.Contains(term) || vm.VendorCode.Contains(term))
+                            select new AutoCompleteModel()
+                            { value = vm.VendorCode + " - " + vm.Name })
+                        .Union
+                        (from cam in context.tblClearanceAgentMaster
+                         where cam.ClearanceAgentCode != "Open"
+                         && (cam.Name.Contains(term) || cam.ClearanceAgentCode.Contains(term))
+                         select new AutoCompleteModel()
+                         { value = cam.ClearanceAgentCode + " - " + cam.Name }).ToList();
+                }
+                return list;
+            }
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+    (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                return new List<AutoCompleteModel>();
+            }
+
+        }
+
+        public static string GetCurrentVendorStatus(string vendorCode)
+        {
+            try
+            {
+                string status="";
+                using (var context = new IOASDBEntities())
+                {
+                    var statusval  = 
+                        (from vm in context.tblVendorMaster
+                            where   vm.VendorCode == vendorCode
+                         select new { vm.Status })
+                        .Union
+                        (from cam in context.tblClearanceAgentMaster
+                         where cam.ClearanceAgentCode == vendorCode
+                         select new  { cam.Status }).FirstOrDefault();
+                    status = Convert.ToString(statusval.Status);
+                }
+               
+                return status;
+            }
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+    (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                return "Error";
+            }
+
+        }
+
+
         public static bool CheckIsSAIFProject(int ProjectId)
         {
             bool SAIF_f = false;

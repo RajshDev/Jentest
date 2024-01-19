@@ -87,11 +87,9 @@ namespace IOAS.GenericServices
                                where e.GeneralVoucherId == Id
                                select new
                                {
-                                   f.PaymentAmount,
-                                   //Name = (f.CategoryId == 4 ? g.RegisteredName : (f.CategoryId == 9 )  ? h.RegisteredName : f.Name),
+                                   f.PaymentAmount,        
                                    f.Name,
                                    f.IsHaveTDS,
-                                   //h.RegisteredName,
                                    f.CategoryId,              
                                    f.UserId
                                }).ToList();
@@ -129,7 +127,7 @@ namespace IOAS.GenericServices
                             var userId = Pay[i].UserId;
                             if (userId != 0)
                             {
-                                var clearanceName = context.tblClearanceAgentMaster.Where(m => m.ClearanceAgentId == userId && m.IsTravelAgency == true).Select(x => x.RegisteredName).FirstOrDefault();
+                                var clearanceName = context.tblClearanceAgentMaster.Where(m => m.ClearanceAgentId == userId && m.IsTravelAgency == true).Select(x => x.AccountHolderName).FirstOrDefault();
                                 nam = clearanceName + "-Travel Agency";
                                 Bank = Common.GetBankDetailsForTarvelAgency(catid).Bank;
                                 Ifsc = Common.GetBankDetailsForTarvelAgency(catid).IFSC;
@@ -140,7 +138,7 @@ namespace IOAS.GenericServices
                         else if (Pay[i].CategoryId == 9)
                         {
                             var userId = Pay[i].UserId;
-                            var vendorName = context.tblVendorMaster.Where(m=>m.VendorId== userId).Select(x => x.RegisteredName ).FirstOrDefault();
+                            var vendorName = context.tblVendorMaster.Where(m=>m.VendorId== userId).Select(x => x.AccountHolderName ).FirstOrDefault();
                             nam = vendorName + "-Vendor";
                             Bank = Common.GetBankDetailsForVendor(catid).Bank;
                             Ifsc = Common.GetBankDetailsForVendor(catid).IFSC;
@@ -409,14 +407,10 @@ namespace IOAS.GenericServices
                                where e.TravelBillId == Id //&& f.CategoryId == 4 && e.TransactionTypeCode == h.TransactionTypeCode
                                select new
                                {
-                                   f.PaymentAmount,
-                                   //j.RegisteredName,
-                                   //j.Name,
+                                   f.PaymentAmount, 
                                    f.CategoryId,
                                    f.UserId,
-                                   f.Name
-                                   // i.AccountNumber,
-                                   // i.IFSC
+                                   f.Name 
                                }).ToList();
 
                     
@@ -454,7 +448,7 @@ namespace IOAS.GenericServices
                                 var userId = Pay[i].UserId;
                                 if (userId != 0)
                                 {
-                                    var clearanceName = context.tblClearanceAgentMaster.Where(m => m.ClearanceAgentId == userId && m.IsTravelAgency == true).Select(x => x.RegisteredName).FirstOrDefault();
+                                    var clearanceName = context.tblClearanceAgentMaster.Where(m => m.ClearanceAgentId == userId && m.IsTravelAgency == true).Select(x => x.AccountHolderName).FirstOrDefault();
                                     nam = clearanceName + "-Travel Agency";
                                     Bank = Common.GetBankDetailsForTarvelAgency(catid).Bank;
                                     Ifsc = Common.GetBankDetailsForTarvelAgency(catid).IFSC;
@@ -1026,7 +1020,7 @@ namespace IOAS.GenericServices
                                      select new
                                      {
                                          e.PaymentAmount,
-                                         d.RegisteredName,
+                                         d.AccountHolderName,
                                          d.BankName,
                                          d.AccountNumber,
                                          d.IFSC,
@@ -1036,7 +1030,7 @@ namespace IOAS.GenericServices
                                      }).AsEnumerable()
                                           .Select((x) => new PayableListModel()
                                           {
-                                              Name = x.RegisteredName,
+                                              Name = x.AccountHolderName,
                                               Bank = x.BankName,
                                               PAN = x.PAN,
                                               Particulars = x.ModeOfPayment == 1 ? "Cheque" : "Bank Transfer",
