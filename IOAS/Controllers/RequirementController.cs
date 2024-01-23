@@ -6767,52 +6767,52 @@ namespace IOAS.Controllers
                     }
                 }
                 #endregion
-                //if (model.STEId > 0)
-                //{
-                //    if (model.aadharnumber != null)
-                //    {
-                //        var chkemployeeadhar = Common.CheckPreviousEmployeeAdharserver(Convert.ToString(model.aadharnumber), model.ApplicationNo, true, model.OldEmployeeNumber, "OSG");
-                //        if (chkemployeeadhar != "")
-                //        {
-                //            TempData["alertMsg"] = chkemployeeadhar;
-                //            model.Status = model.Status == null ? "" : model.Status;
-                //            return View(model);
-                //        }
-                //    }
-                //    if (!string.IsNullOrEmpty(model.PAN))
-                //    {
-                //        var chkemployeepanno = Common.CheckPreviousEmployeePanserver(model.PAN, model.ApplicationNo, true, model.OldEmployeeNumber, "OSG");
-                //        if (chkemployeepanno != "")
-                //        {
-                //            TempData["alertMsg"] = "This Pan Number is linked to  " + chkemployeepanno;
-                //            model.Status = model.Status == null ? "" : model.Status;
-                //            return View(model);
-                //        }
-                //    }
-                //}
-                //else
-                //{
-                //    if (model.aadharnumber != null)
-                //    {
-                //        var chkemployeeadhar = Common.CheckPreviousEmployeeAdharserver(Convert.ToString(model.aadharnumber), null, true, model.OldEmployeeNumber, "OSG");
-                //        if (chkemployeeadhar != "")
-                //        {
-                //            TempData["errMsg"] = chkemployeeadhar;
-                //            model.Status = model.Status == null ? "" : model.Status;
-                //            return View(model);
-                //        }
-                //    }
-                //    if (!string.IsNullOrEmpty(model.PAN))
-                //    {
-                //        var chkemployeepanno = Common.CheckPreviousEmployeePanserver(model.PAN, null, true, model.OldEmployeeNumber, "OSG");
-                //        if (chkemployeepanno != "")
-                //        {
-                //            TempData["errMsg"] = "This Pan Number is linked to  " + chkemployeepanno;
-                //            model.Status = model.Status == null ? "" : model.Status;
-                //            return View(model);
-                //        }
-                //    }
-                //}
+                if (model.STEId > 0)
+                {
+                    if (model.aadharnumber != null)
+                    {
+                        var chkemployeeadhar = Common.CheckPreviousEmployeeAdharserver(Convert.ToString(model.aadharnumber), model.ApplicationNo, true, model.OldEmployeeNumber, "OSG");
+                        if (chkemployeeadhar != "")
+                        {
+                            TempData["alertMsg"] = chkemployeeadhar;
+                            model.Status = model.Status == null ? "" : model.Status;
+                            return View(model);
+                        }
+                    }
+                    if (!string.IsNullOrEmpty(model.PAN))
+                    {
+                        var chkemployeepanno = Common.CheckPreviousEmployeePanserver(model.PAN, model.ApplicationNo, true, model.OldEmployeeNumber, "OSG");
+                        if (chkemployeepanno != "")
+                        {
+                            TempData["alertMsg"] = "This Pan Number is linked to  " + chkemployeepanno;
+                            model.Status = model.Status == null ? "" : model.Status;
+                            return View(model);
+                        }
+                    }
+                }
+                else
+                {
+                    if (model.aadharnumber != null)
+                    {
+                        var chkemployeeadhar = Common.CheckPreviousEmployeeAdharserver(Convert.ToString(model.aadharnumber), null, true, model.OldEmployeeNumber, "OSG");
+                        if (chkemployeeadhar != "")
+                        {
+                            TempData["errMsg"] = chkemployeeadhar;
+                            model.Status = model.Status == null ? "" : model.Status;
+                            return View(model);
+                        }
+                    }
+                    if (!string.IsNullOrEmpty(model.PAN))
+                    {
+                        var chkemployeepanno = Common.CheckPreviousEmployeePanserver(model.PAN, null, true, model.OldEmployeeNumber, "OSG");
+                        if (chkemployeepanno != "")
+                        {
+                            TempData["errMsg"] = "This Pan Number is linked to  " + chkemployeepanno;
+                            model.Status = model.Status == null ? "" : model.Status;
+                            return View(model);
+                        }
+                    }
+                }
                 if (!model.isDraftbtn)//..........Submit Button
                 {
                     ModelState.Remove("CSIRStaff");
