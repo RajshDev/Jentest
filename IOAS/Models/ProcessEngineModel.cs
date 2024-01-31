@@ -50,6 +50,9 @@ namespace IOAS.Models
         public string ApproverLastName { get; set; }
         public string ApproverFullName { get; set; }
         public string clarifyMethod { get; set; }
+        public string Validatestatus { get; set; }
+
+
     }
 
     public class ProcessTransactionModel
