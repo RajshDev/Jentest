@@ -25623,7 +25623,7 @@ namespace IOAS.Infrastructure
                 using (var context = new IOASDBEntities())
                 {
                     var checkquery = (from cc in context.vw_RCTOverAllApplicationEntry.AsNoTracking()
-                                      where cc.Status != "Cancel" && cc.Status != "Relieved" && cc.Status != "Rejected" && cc.ApplicationType == "New"
+                                      where cc.Status != "Cancel" && cc.Status != "Rejected" && cc.Status != "Relieved" && cc.ApplicationType == "New" && cc.ApplicationType != "Draft"
                                       && cc.AadhaarNo.Contains(adharno) && (string.IsNullOrEmpty(RefNo) || !cc.ApplicationNo.Contains(RefNo))
                                       select new { cc.EmployeeNo, cc.ApplicationNo }).ToArray();
 
@@ -25632,7 +25632,7 @@ namespace IOAS.Infrastructure
                         string[] record = new string[checkquery.Count()];
                         for (int i = 0; i < checkquery.Count(); i++)
                             record[i] = checkquery[i].EmployeeNo == null ? checkquery[i].ApplicationNo : checkquery[i].EmployeeNo;
-                        isalreadyEmp = string.Join(",", record);
+                        isalreadyEmp = string.Join(" , ", record);
                         return "This Aadhaar Number is linked to " + isalreadyEmp;
                     }
 
@@ -25683,7 +25683,7 @@ namespace IOAS.Infrastructure
                 using (var context = new IOASDBEntities())
                 {
                     var checkquery = (from cc in context.vw_RCTOverAllApplicationEntry.AsNoTracking()
-                                      where cc.Status != "Cancel" && cc.Status != "Relieved" && cc.Status != "Rejected" && cc.ApplicationType == "New"
+                                      where cc.Status != "Cancel"&& cc.Status != "Rejected" && cc.Status != "Relieved" && cc.ApplicationType == "New" && cc.ApplicationType != "Draft"
                                       && cc.PANNo.Contains(Panno) && (string.IsNullOrEmpty(RefNo) || !cc.ApplicationNo.Contains(RefNo))
                                       select new { cc.EmployeeNo, cc.ApplicationNo }).ToArray();
 
@@ -25692,7 +25692,7 @@ namespace IOAS.Infrastructure
                         string[] record = new string[checkquery.Count()];
                         for (int i = 0; i < checkquery.Count(); i++)
                             record[i] = checkquery[i].EmployeeNo == null ? checkquery[i].ApplicationNo : checkquery[i].EmployeeNo;
-                        isalreadyEmp = string.Join(",", record);
+                        isalreadyEmp = string.Join(" , ", record);
                         return "This Pan Number is linked to " + isalreadyEmp;
                     }
 
@@ -30643,18 +30643,19 @@ namespace IOAS.Infrastructure
             }
 
         }
-        public static Tuple<string, string> GetVerifyAadharPan(int STEId, string aadharnumber, string PanNo, string AppicationNo, string EmployeeNumber)
+      
+  public static Tuple<string, string> GetVerifyAadharPan(int STEId, string aadharnumber, string PanNo, string AppicationNo, string EmployeeNumber)
         {
             var chkemployeeadhar = "";
             var chkemployeepanno = "";
             try
             {
                 string application = (STEId < 0 && AppicationNo == null || STEId < 0 && string.IsNullOrEmpty(AppicationNo)) ? null : AppicationNo;
-                chkemployeeadhar = (aadharnumber!=null || aadharnumber !="") ? Common.CheckPreviousEmployeeAdharserver(Convert.ToString(aadharnumber), application, true, EmployeeNumber, "OSG") : "Success";
-                chkemployeepanno = (PanNo!= null || PanNo != "")? Common.CheckPreviousEmployeePanserver(PanNo, application, true, EmployeeNumber, "OSG") : "Success";
-                if (chkemployeeadhar=="") chkemployeeadhar= "Success";
-                if (chkemployeepanno == "") chkemployeepanno = "Success";
-                return Tuple.Create(chkemployeeadhar, chkemployeepanno);
+                chkemployeeadhar = (aadharnumber!= null || aadharnumber != "") ? Common.CheckPreviousEmployeeAdharserver(Convert.ToString(aadharnumber), application, true, EmployeeNumber, "OSG") : "Success";
+                chkemployeepanno = (PanNo != null || PanNo != "") ? Common.CheckPreviousEmployeePanserver(PanNo, application, true, EmployeeNumber, "OSG") : "Success";
+                if (chkemployeeadhar=="")chkemployeeadhar= "Success";
+                if (chkemployeepanno== "")chkemployeepanno="Success";
+                return Tuple.Create(chkemployeeadhar,chkemployeepanno);
             }
             catch (Exception ex)
             {
@@ -30665,8 +30666,25 @@ namespace IOAS.Infrastructure
 
 
 
+        public static Tuple<string, string> GetnextVerifyAadharPan(int STEId, string aadharnumber, string PanNo, string AppicationNo, string EmployeeNumber)
+        {
+            var chkemployeeadhar = "";
+            var chkemployeepanno = "";
+            try
+            {
+                string application = (STEId < 0 && AppicationNo == null || STEId < 0 && string.IsNullOrEmpty(AppicationNo)) ? null : AppicationNo;
+                chkemployeeadhar = (aadharnumber != null || aadharnumber != "") ? Common.CheckPreviousEmployeeAdharserver(Convert.ToString(aadharnumber), application, true, EmployeeNumber, "OSG") : "Success";
+                chkemployeepanno = (PanNo != null || PanNo != "") ? Common.CheckPreviousEmployeePanserver(PanNo, application, true, EmployeeNumber, "OSG") : "Success";
+                if (chkemployeeadhar == "") chkemployeeadhar = "Success";
+                if (chkemployeepanno == "") chkemployeepanno = "Success";
+                return Tuple.Create(chkemployeeadhar, chkemployeepanno);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
 
-
+        }
 
 
         #endregion
