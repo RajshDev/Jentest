@@ -103,6 +103,8 @@ namespace IOAS.Models
         //public HttpPostedFileBase[] file { get; set; }
         //public HttpPostedFileBase taxprooffile { get; set; }
         public string taxprooffilename { get; set; }
+        //public List<FreezeFirstLoadScreenModel> Freezelist { get; set; }
+        public List<int?> Freezelist = new List<int?>();
 
         [Required]
         public string Department { get; set; }

@@ -106,6 +106,7 @@ namespace IOAS.Controllers
                 ViewBag.SponPrjFunType = Common.GetSponsoredTypeCategory();
                 ViewBag.prjClassification = Common.GetProjectClassification();
                 ViewBag.rptClassification = Common.GetReportClassification();
+                ViewBag.freezedAllocation = Common.freezedAllocationHead(pId);
                 //model.Inputdate = DateTime.Now;
                 ViewBag.ProjectFundingCategory = Common.getprojectfunding();
                 ViewBag.BankID = Common.GetTSABankList();
@@ -396,6 +397,20 @@ namespace IOAS.Controllers
             try
             {
                 var data = ProjectService.GetFreezeAndAllocationValues(ProjectId, AllocationId);
+                return Json(data, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        [HttpGet]
+        public JsonResult GetFreezeOverHeads(int ProjectId)
+        {
+            try
+            {
+                var data = ProjectService.GetFreezeOverHeadsValues(ProjectId);
                 return Json(data, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
@@ -754,7 +769,10 @@ namespace IOAS.Controllers
         [HttpPost]
         public JsonResult EditProject(int ProjectId)
         {
+
+            
             object output = ProjectService.EditProject(ProjectId);
+            
             return Json(output, JsonRequestBehavior.AllowGet);
         }
 

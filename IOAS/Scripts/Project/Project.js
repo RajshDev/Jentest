@@ -7,7 +7,7 @@
         DeleteProject = 'DeleteProject',
         //Searchproject='SearchProjectList',
         getsrchProposalDetailsURL = 'GetSearchProposalList';
-
+    var FreezeList;
     // Get Proposal List for modal Popup
     //var dbProposal;
     //GetProposallist();
@@ -866,7 +866,8 @@
 
 });
 function fillData(result) {
-
+    FreezeList = result.Freezelist;
+    console.log(FreezeList);
     $('input[name="ProposalID"]').val(result.ProposalID);
     $('input[name="ProjectID"]').val(result.ProjectID);
     //if (result.ProjectID > 0) {

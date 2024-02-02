@@ -5990,7 +5990,9 @@ namespace IOAS.Models
         public Nullable<decimal> IGST { get; set; }
         public Nullable<decimal> SGST { get; set; }
         public Nullable<decimal> CGST { get; set; }
+        public Nullable<int> Freezeval { get; set; }
     }
+    
 
 
     #endregion

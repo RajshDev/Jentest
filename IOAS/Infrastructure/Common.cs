@@ -12736,7 +12736,6 @@ namespace IOAS.Infrastructure
                                     AccountNumber = bankDetail[i].AccountNumber,
                                     IFSCCode = bankDetail[i].IFSCCode,
                                     PAN = bankDetail[i].PAN
-
                                 });
                             }
                         }
@@ -22987,6 +22986,32 @@ namespace IOAS.Infrastructure
                 return list;
             }
         }
+
+
+
+        public static List<FreezeFirstLoadScreenModel> freezedAllocationHead(int ProjectId)
+        {
+            List<FreezeFirstLoadScreenModel> firstfreeze = new List<FreezeFirstLoadScreenModel>();
+            try
+            {
+                using (var context = new IOASDBEntities())
+                {
+                    var query = (from cc in context.tblAllocationFreezeLog
+                                 where cc.ProjectId == ProjectId && cc.IsFreeze==1
+                                 select new { cc.IsFreeze }).ToList();
+                   
+                }
+                return firstfreeze;
+            }
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+          (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+
+                return firstfreeze;
+            }
+        }
+
         public static List<MasterlistviewModel> GetCodeFacaltyList(string codeName)
         {
             try

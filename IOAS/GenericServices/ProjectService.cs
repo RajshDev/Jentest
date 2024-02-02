@@ -3075,6 +3075,33 @@ namespace IOAS.GenericServices
 
         }
 
+        public static int GetFreezeOverHeadsValues(int ProjectId)
+        {
+            try
+            {
+                using (var context = new IOASDBEntities())
+                {
+
+                    var Freezedata = (from FreezeLog in context.tblAllocationFreezeLog
+                                      where FreezeLog.ProjectId == ProjectId && FreezeLog.IsCurrentVersion == 1 && FreezeLog.AllocationHead==6
+                                      select FreezeLog.IsFreeze).FirstOrDefault();
+
+                    if (Freezedata == null)
+                        return 0;
+                    else
+                        return (int)Freezedata;
+
+                }
+            }
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+                (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                return -1;
+            }
+
+        }
+
 
 
 
@@ -3121,6 +3148,9 @@ namespace IOAS.GenericServices
                     var Companyquery = (from C in context.tblJointDevelopmentCompany
                                         where C.ProjectId == ProjectId
                                         select C).ToList();
+                    var Freezelist = (from cc in context.tblAllocationFreezeLog
+                                where cc.ProjectId == ProjectId && cc.IsFreeze == 1
+                                select new { cc.AllocationHead }).ToList();
                     bool isYearWiseAH = false;
 
                     int allocatedYear = 0;
@@ -3146,6 +3176,7 @@ namespace IOAS.GenericServices
                             }
 
                         }
+                        editProject.Freezelist= Freezelist.Select(item => (int?)item.GetType().GetProperty("AllocationHead").GetValue(item)).ToList();
                         //editProject.MainProjectList = Common.GetMainProjectNumberList(query.ProjectType ?? 0);
                         editProject.MainProjectList = new List<MasterlistviewModel>();
                         //int months = (query.DurationOfProjectMonths ?? 0) > 0 ? 1 : 0;
@@ -4003,6 +4034,8 @@ namespace IOAS.GenericServices
                         editProject.JointDevelopmentRemarks = _remarks;
 
                     }
+
+                   
                     return editProject;
                 }
             }
