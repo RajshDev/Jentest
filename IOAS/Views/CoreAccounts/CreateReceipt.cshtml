@@ -2090,13 +2090,21 @@
         var inputs = $(":input, textarea, select"); // get all the form inputs and selects
         var stepElements = $(currentTabEle).find(inputs); // get inputs for current step
         var count = stepElements.length; // check that there are inputs
+        $('input[name^="ReceivablesAmount"]').each(function () {
+            //Set the value to zero
+            var RcvbAmt = this.value    ;
+            const parsed = Number.parseInt(RcvbAmt,0);
+            if (Number.isNaN(parsed)) {
+                RcvbAmt= 0;
+            }
+            if (RcvbAmt == 0 )
+            $(this).val(0);
+        });
         if (count <= 0) {                // if there are not no reason to loop them
             return true;                 // this can be used to perform other action if there are no steps
-            $('input[name^="ReceivablesAmount"]').each(function () {
-                // Set the value to zero
-                $(this).val(0.00);
-            });
-        } else if (currentTab == 1) {                        
+            
+        } else if (currentTab == 1) {        
+            
             var validationMsg = validateCrandDrtotal()
             if (validationMsg != 'valid') {
                 hadError = true;
