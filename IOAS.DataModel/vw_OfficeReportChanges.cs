@@ -57,5 +57,6 @@ namespace IOAS.DataModel
         public Nullable<decimal> ForeignCurrencyValue { get; set; }
         public Nullable<decimal> Convertionvalue { get; set; }
         public string SchemeName { get; set; }
+        public string DomainName { get; set; }
     }
 }

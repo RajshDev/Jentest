@@ -19,12 +19,13 @@ namespace IOAS.DataModel
         public string DESIGNATION { get; set; }
         public Nullable<int> NO_OF_DAYS_LOP { get; set; }
         public Nullable<decimal> WITHDRAWN_COMMITMENT_AMOUNT { get; set; }
-        public Nullable<System.DateTime> LOG_TIME { get; set; }
-        public string CREATED_BY { get; set; }
         public string Requested_by { get; set; }
-        public Nullable<System.DateTime> COMMITMENT_BOOKING___WITHDRAWAL_DATE { get; set; }
         public Nullable<System.DateTime> REQUEST_RECEIVED_DATE { get; set; }
-        public Nullable<System.DateTime> COMPLETED__DATE { get; set; }
-        public string COMPLETED_BY { get; set; }
+        public string INITIATED_BY { get; set; }
+        public Nullable<System.DateTime> INITIATED_DATE { get; set; }
+        public string APPROVED_BY { get; set; }
+        public Nullable<System.DateTime> APPROVED_DATE { get; set; }
+        public string COMMITMENT_BOOKING___WITHDRAWAL_BY { get; set; }
+        public Nullable<System.DateTime> COMMITMENT_BOOKING___WITHDRAWAL_DATE { get; set; }
     }
 }

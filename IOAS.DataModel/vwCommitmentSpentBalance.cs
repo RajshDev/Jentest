@@ -31,10 +31,10 @@ namespace IOAS.DataModel
         public int YearWise { get; set; }
         public Nullable<bool> Posted_f { get; set; }
         public string CommitmentNumber { get; set; }
-        public string PurchaseOrder { get; set; }
-        public string Subhead { get; set; }
         public string ProjectNumber { get; set; }
         public Nullable<int> ProjectType { get; set; }
         public Nullable<int> ProjectClassification { get; set; }
+        public string PurchaseOrder { get; set; }
+        public string Subhead { get; set; }
     }
 }

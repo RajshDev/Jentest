@@ -34,20 +34,23 @@ namespace IOAS.DataModel
         public string PF_Eligiblity { get; set; }
         public string ESIC_Eligiblity { get; set; }
         public Nullable<System.DateTime> ArrearWEF { get; set; }
-        public Nullable<System.DateTime> CREATED_TIME { get; set; }
-        public string CREATED_BY { get; set; }
         public Nullable<System.DateTime> LOG_TIME { get; set; }
-        public string LOG_CREATED_BY { get; set; }
         public Nullable<int> OrderType { get; set; }
         public string Requested_by { get; set; }
         public string Request_Reference { get; set; }
         public string Request_Reference_Number { get; set; }
         public Nullable<System.DateTime> REQUEST_RECEIVED_DATE { get; set; }
-        public string CREATED_BY1 { get; set; }
-        public Nullable<System.DateTime> COMPLETED__DATE { get; set; }
-        public string COMPLETED_BY { get; set; }
-        public Nullable<System.DateTime> COMMITMENT_BOOKING_DATE { get; set; }
-        public Nullable<System.DateTime> COMMMITEE_APPROVED_DATE { get; set; }
+        public string INITIATED_BY { get; set; }
+        public Nullable<System.DateTime> INITIATED_DATE { get; set; }
+        public string APPROVED_BY { get; set; }
+        public Nullable<System.DateTime> APPROVED_DATE { get; set; }
+        public string VERFIFICATION_INITIATED_BY { get; set; }
+        public Nullable<System.DateTime> VERFIFICATION_INITIATED_DATE { get; set; }
+        public string VERFIFICATION_APPROVED_BY { get; set; }
+        public Nullable<System.DateTime> VERFIFICATION_APPROVED_DATE { get; set; }
+        public string COMMITMENT_BOOKED_BY { get; set; }
+        public Nullable<System.DateTime> COMMITMENT_BOOKED_DATE { get; set; }
+        public Nullable<System.DateTime> COMMITEE_APPROVED_DATE { get; set; }
         public string MS_PHD_COURSE { get; set; }
     }
 }
