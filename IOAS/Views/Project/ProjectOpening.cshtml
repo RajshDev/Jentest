@@ -4727,6 +4727,7 @@ new { @class = "form-control", @id = "txtprocategory",@required = "required" })
             }
             
         } else if (currentTab == 4) {
+            freezelistcheck();
             if ($('#IsYearWiseAllocation').is(":checked")) {
                 var validationMsg = validateYWAllocation()
                 if (validationMsg != 'valid') {
@@ -4892,6 +4893,29 @@ new { @class = "form-control", @id = "txtprocategory",@required = "required" })
                 }
         });
         return isFreezeDataValid;
+    }
+
+    function freezelistcheck() {
+
+        var scrAccHead = [];
+        scrAccHead =  scrAccHead = [];
+        scrAccHead = $('select[name="Allocationhead"]').each(function (index) {
+            var id = $(this).attr('id');
+            var selectedValue = $(this).val();
+            
+            if (FreezeList.indexOf(parseInt(selectedValue))>=0) {
+                console.log("Freeze", selectedValue);
+                $(this).prop("disabled", true);
+                var parentElement = $(this).parent();
+                var parentElement1 = $(parentElement).parent();
+                var txtamt = parentElement1.find('input[name="Allocationvalue"]');
+                $(txtamt).prop("disabled", true);
+
+            }
+
+            console.log(selectedValue);
+        });
+
     }
 </script>
 <link href="@Url.Content("~/Content/IOASContent/assets/bootstrap-select/css/bootstrap-select.min.css")" rel="stylesheet" />
