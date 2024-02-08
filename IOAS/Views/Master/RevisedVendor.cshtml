@@ -824,6 +824,31 @@ new { @class = "form-control", @id = "tdsdoctype" })
         });
 
     });
+
+    function CheckIEmployeestate() {
+        var stateid = $('#ddlstate').val();
+        if (stateid != null && stateid != "" ) {
+            $.ajax({
+                type: "Post",
+                url: '@Url.Action("GetStateCode", "Account")',
+                data: { StateId: stateid },
+                dataType: "json",
+                success: function (result) {
+                    if (result != "") {
+                        $('#txtStateCode').val(result);                                              
+                    }
+                    else {
+                        $('#FailedAlert').html("Somthing went to worng please contact Admin!.");
+                        $('#Failed').modal('toggle');
+                    }
+                }
+            });
+        }
+        else {
+            $('#txtStateCode').val('');            
+        }
+    }
+
     $(document).ready(function () {
         $('input[type=radio][name=GSTExempted]').change(function () {
            

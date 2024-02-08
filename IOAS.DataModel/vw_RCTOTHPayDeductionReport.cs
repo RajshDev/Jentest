@@ -33,9 +33,11 @@ namespace IOAS.DataModel
         public string Head { get; set; }
         public Nullable<decimal> Amount { get; set; }
         public string Remarks { get; set; }
-        public string CreatedBy { get; set; }
-        public Nullable<System.DateTime> Created_TS { get; set; }
-        public string UpdatedBy { get; set; }
-        public Nullable<System.DateTime> Updated_TS { get; set; }
+        public string INITIATED_BY { get; set; }
+        public Nullable<System.DateTime> INITIATED_DATE { get; set; }
+        public Nullable<System.DateTime> APPROVED_DATE { get; set; }
+        public string APPROVED_BY { get; set; }
+        public Nullable<System.DateTime> COMMITMENT_BOOKED_WITHDRAWAL_DATE { get; set; }
+        public string COMMITMENT_BOOKED_WITHDRAWAL_BY { get; set; }
     }
 }

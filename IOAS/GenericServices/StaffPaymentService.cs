@@ -3668,25 +3668,68 @@ namespace IOAS.GenericServices
             }
             return monthYear;
         }
+        //public List<string> GetAllSalMonths()
+        //{
+        //    List<string> monthYear = new List<string>();
+
+        //    DateTime dtStart = SalFinStartDate(); // _FinSalStart; is changed by riyaz
+        //    int nxtStartYear = dtStart.Year + 1;
+        //    int currEndYear = dtStart.Year;
+        //    int currmonth = DateTime.Now.Month;
+        //    var ss = currmonth - 1;
+        //    for (int i = currmonth; i <= 12; i++)
+        //    {
+        //        var key = DateTimeFormatInfo.CurrentInfo.GetMonthName(i).Substring(0, 3) + " - " + currEndYear.ToString();
+        //        monthYear.Add(key);
+        //    }
+        //    for (int i = 1; i <= ss; i++)
+        //    {
+        //        var key = DateTimeFormatInfo.CurrentInfo.GetMonthName(i).Substring(0, 3) + " - " + nxtStartYear.ToString();
+        //        monthYear.Add(key);
+        //    }
+        //    return monthYear;
+        //}
         public List<string> GetAllSalMonths()
         {
             List<string> monthYear = new List<string>();
 
             DateTime dtStart = SalFinStartDate(); // _FinSalStart; is changed by riyaz
             int nxtStartYear = dtStart.Year + 1;
+            int preStartYear = dtStart.Year + 1;
             int currEndYear = dtStart.Year;
             int currmonth = DateTime.Now.Month;
             var ss = currmonth - 1;
-            for (int i = currmonth; i <= 12; i++)
+
+            if (currmonth > 3)
             {
-                var key = DateTimeFormatInfo.CurrentInfo.GetMonthName(i).Substring(0, 3) + " - " + currEndYear.ToString();
-                monthYear.Add(key);
+                for (int i = currmonth; i <= 12; i++)
+                {
+                    var key = DateTimeFormatInfo.CurrentInfo.GetMonthName(i).Substring(0, 3) + " - " + currEndYear.ToString();
+                    monthYear.Add(key);
+                }
+                for (int i = 1; i <= ss; i++)
+                {
+                    var key = DateTimeFormatInfo.CurrentInfo.GetMonthName(i).Substring(0, 3) + " - " + nxtStartYear.ToString();
+                    monthYear.Add(key);
+                }
+
             }
-            for (int i = 1; i <= ss; i++)
+            else
             {
-                var key = DateTimeFormatInfo.CurrentInfo.GetMonthName(i).Substring(0, 3) + " - " + nxtStartYear.ToString();
-                monthYear.Add(key);
+
+                for (int i = 4; i <= 12; i++)
+                {
+                    var key = DateTimeFormatInfo.CurrentInfo.GetMonthName(i).Substring(0, 3) + " - " + currEndYear.ToString();
+                    monthYear.Add(key);
+                }
+                for (int i = currmonth; i <= 3; i++)
+                {
+                    var key = DateTimeFormatInfo.CurrentInfo.GetMonthName(i).Substring(0, 3) + " - " + nxtStartYear.ToString();
+                    monthYear.Add(key);
+                }
             }
+
+
             return monthYear;
         }
         public List<string> GetAllSalaryMonths()

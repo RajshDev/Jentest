@@ -22161,10 +22161,18 @@ TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
 
 
         #endregion
-        // Partial Payment Process Posting - Created by Praveen 11-01-2023
+        // Test - Created by Praveen 11-01-2023
         public ActionResult PostMissedBatchItems(int draftId)
         {
                 coreAccountService.getPCFDOHReceiptBOAmodeldetails(96874, 6024, "Distribution");
+                return RedirectToAction("PaymentProcessInitList");
+        }
+        // Partial Payment Process Posting - Created by Praveen 25-01-2024
+        public ActionResult PostMissedBatchItemss(int draftId)
+        {
+            if (coreAccountService.PaymentTestBOATransaction(draftId, 1))
+                return RedirectToAction("PaymentProcessInitList");
+            else
                 return RedirectToAction("PaymentProcessInitList");
         }
 

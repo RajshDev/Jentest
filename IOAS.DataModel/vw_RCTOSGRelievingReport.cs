@@ -22,10 +22,13 @@ namespace IOAS.DataModel
         public string PROJECT_NO { get; set; }
         public Nullable<System.DateTime> RELIEVED_ON { get; set; }
         public string No_due___Remarks { get; set; }
-        public Nullable<System.DateTime> Crt_TS { get; set; }
-        public string CREATED_BY { get; set; }
-        public Nullable<System.DateTime> LOGCREATED_TIME { get; set; }
-        public string LOG_CREATED_BY { get; set; }
+        public Nullable<System.DateTime> REQUEST_RECEIVED_DATE { get; set; }
+        public string INITIATED_BY { get; set; }
+        public Nullable<System.DateTime> INITIATED_DATE { get; set; }
+        public Nullable<System.DateTime> APPROVED_DATE { get; set; }
+        public string APPROVED_BY { get; set; }
+        public string COMMITMENT_WITHDRAWAL_BY { get; set; }
+        public Nullable<System.DateTime> COMMITMENT_WITHDRAWAL_DATE { get; set; }
         public string MS_PHD_COURSE { get; set; }
         public string Requested_by { get; set; }
         public string Request_Reference { get; set; }

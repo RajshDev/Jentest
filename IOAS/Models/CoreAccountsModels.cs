@@ -285,6 +285,7 @@ namespace IOAS.Models
         public Nullable<decimal> hiddenSettTaxAmt { get; set; }
         public Nullable<decimal> hiddenTaxEligibleAmt { get; set; }
         public bool PartAdvance_f { get; set; }
+        public bool? isPartAdvance_f { get; set; }
         public bool InclusiveOfTax_f { get; set; } = true;
         public bool ICSROverHead_f { get; set; }
         public bool RCM_f { get; set; }

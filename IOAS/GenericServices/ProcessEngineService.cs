@@ -842,8 +842,13 @@ namespace IOAS.GenericServices
                 }
 
                 this.record = InsertProcessTransaction(model);
-
+                if (model.Validatestatus== "")
                 return this;
+                else
+                {
+                    this.errorMsg = "";
+                    return null;
+                }
             }
             catch (Exception ex)
             {
@@ -921,10 +926,22 @@ namespace IOAS.GenericServices
                 bool retunval = false;
                 using (var context = new IOASDBEntities())
                 {
-                    
-                    DuplicateEntry = (from Pt in context.tblProcessTransaction
-                                      where  Pt.RefNumber == refNumber && Pt.Closed_F == true && Pt.ProcessGuidelineDetailId==ProcessGuidelineDetailId
-                                      select Pt.RefNumber).FirstOrDefault();
+
+
+                    var valuesToCheck = new List<int> { 5, 7, 8, 10 };
+                    DuplicateEntry = (
+                        from pt in context.tblProcessTransaction
+                        join pgld in context.tblProcessGuidelineDetail on pt.ProcessGuidelineDetailId equals pgld.ProcessGuidelineDetailId
+                        join pglh in context.tblProcessGuidelineHeader on pgld.ProcessGuidelineId equals pglh.ProcessGuidelineId
+                        join tf in context.tblFunction on pglh.FunctionId equals tf.FunctionId
+                        join tm in context.tblModules on tf.ModuleID equals tm.ModuleID
+                        where pt.RefNumber == refNumber && pt.Closed_F == true && pt.ProcessGuidelineDetailId == ProcessGuidelineDetailId
+                        && valuesToCheck.Contains(tm.ModuleID)
+                        select pt.RefNumber).FirstOrDefault();
+
+                    //DuplicateEntry = (from Pt in context.tblProcessTransaction
+                    //                  where Pt.RefNumber == refNumber && Pt.Closed_F == true && Pt.ProcessGuidelineDetailId == ProcessGuidelineDetailId
+                    //                  select Pt.RefNumber).FirstOrDefault();
 
                     if (refNumber != DuplicateEntry)
                     {
@@ -989,18 +1006,23 @@ namespace IOAS.GenericServices
                         trans.RefFieldName = model.RefFieldName;
                         trans.FunctionId = model.FunctionId;
                         trans.RefNumber = model.RefNumber;
-                        //rajesh duplication                       
-                        context.tblProcessTransaction.Add(trans);
-                        context.SaveChanges();
-                        //if (DuplicateEntryValidation(model.RefNumber.ToString(), model.ProcessGuidelineDetailId))
-                        //{
-                            
-                        //}
+                       
+                        if (DuplicateEntryValidation(model.RefNumber.ToString(), model.ProcessGuidelineDetailId))
+                        {
+                            context.tblProcessTransaction.Add(trans);
+                            context.SaveChanges();
+                            model.Validatestatus = "";
+                        }
+                        else
+                        {
+                            model.Validatestatus = "WarningStatus";
+                            return model;
+                        }
                     }
                     var GetProcessTransactionId = trans.ProcessTransactionId;
-                    
-                    //if (GetProcessTransactionId != 0 || GetProcessTransactionId != null)
-                    //{
+
+                    if (GetProcessTransactionId != 0 || GetProcessTransactionId != null)
+                    {
                         transDetail.ProcessTransactionId = trans.ProcessTransactionId;
                         transDetail.ProcessGuidelineDetailId = model.ProcessGuidelineDetailId;
                         transDetail.ProcessSeqNumber = model.ProcessSeqNumber;
@@ -1035,15 +1057,15 @@ namespace IOAS.GenericServices
                             context.SaveChanges();
 
                         }
-
                         context.Dispose();
-
                         return model;
-                    //}
-                    //else
-                    //{
-                    //    return null; 
-                    //}
+                    }
+
+                    else
+                    {
+                        return null;
+                    }
+
                 }  
             }
             catch (Exception ex)
