@@ -20,8 +20,8 @@ namespace IOAS.DataModel
         public IOASDBEntities()
             : base("name=IOASDBEntities")
         {
-            this.Database.CommandTimeout = 360;
-            this.Database.ExecuteSqlCommand("SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;");
+            //this.Database.CommandTimeout = 360;
+            //this.Database.ExecuteSqlCommand("SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;");
         }
     
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
