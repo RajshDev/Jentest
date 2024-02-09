@@ -34,10 +34,14 @@ namespace IOAS.DataModel
         public string PF_Eligiblity { get; set; }
         public string ESIC_Eligiblity { get; set; }
         public Nullable<System.DateTime> ArrearWEF { get; set; }
-        public Nullable<System.DateTime> CREATED_TIME { get; set; }
-        public string CREATED_BY { get; set; }
         public Nullable<System.DateTime> LOG_TIME { get; set; }
-        public string LOG_CREATED_BY { get; set; }
         public Nullable<int> OrderType { get; set; }
+        public Nullable<System.DateTime> REQUEST_RECEIVED_DATE { get; set; }
+        public string INITIATED_BY { get; set; }
+        public Nullable<System.DateTime> INITIATED_DATE { get; set; }
+        public string APPROVED_BY { get; set; }
+        public Nullable<System.DateTime> APPROVED_DATE { get; set; }
+        public string COMMITMENT_WITHDRAWAL_BY { get; set; }
+        public Nullable<System.DateTime> COMMITMENT_WITHDRAWAL_DATE { get; set; }
     }
 }
