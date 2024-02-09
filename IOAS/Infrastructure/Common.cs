@@ -25648,7 +25648,7 @@ namespace IOAS.Infrastructure
                 using (var context = new IOASDBEntities())
                 {
                     var checkquery = (from cc in context.vw_RCTOverAllApplicationEntry.AsNoTracking()
-                                      where cc.Status != "Cancel" && cc.Status != "Rejected" && cc.Status != "Relieved" && cc.ApplicationType == "New" && cc.ApplicationType != "Draft"
+                                      where cc.Status != "Cancel" && cc.Status != "Rejected" && cc.Status != "Relieved" && cc.ApplicationType == "New" 
                                       && cc.AadhaarNo.Contains(adharno) && (string.IsNullOrEmpty(RefNo) || !cc.ApplicationNo.Contains(RefNo))
                                       select new { cc.EmployeeNo, cc.ApplicationNo }).ToArray();
 
@@ -25658,7 +25658,7 @@ namespace IOAS.Infrastructure
                         for (int i = 0; i < checkquery.Count(); i++)
                             record[i] = checkquery[i].EmployeeNo == null ? checkquery[i].ApplicationNo : checkquery[i].EmployeeNo;
                         isalreadyEmp = string.Join(" , ", record);
-                        return "This Aadhaar Number is linked to " + isalreadyEmp;
+                        return "This Aadhaar Number is linked to " + isalreadyEmp+"," ;
                     }
 
                     if (Preval_f == true)
@@ -25672,11 +25672,11 @@ namespace IOAS.Infrastructure
                         {
                             if (!string.IsNullOrEmpty(Oldemployeeno) && relQuery.EmployeeNo != Oldemployeeno)
                             {
-                                return "This Aadhaar Number is linked to old number " + relQuery.EmployeeNo;
+                                return "This Aadhaar Number is linked to old number " + relQuery.EmployeeNo + "&";
                             }
                             if (string.IsNullOrEmpty(Oldemployeeno))
                             {
-                                return "This Aadhaar Number is linked to old number " + relQuery.EmployeeNo;
+                                return "This Aadhaar Number is linked to old number " + relQuery.EmployeeNo + "&";
                             }
                         }
 
@@ -25688,7 +25688,7 @@ namespace IOAS.Infrastructure
                                          orderby cc.ApplicationId descending
                                          select new { cc.EmployeeNo, cc.AadhaarNo }).FirstOrDefault();
                             if (Query != null && Query.AadhaarNo != adharno)
-                                return "This Old employee number  is linked to aadhaar Number " + Query.AadhaarNo;
+                                return "This Old employee number  is linked to aadhaar Number " + Query.AadhaarNo + "&";
                         }
                     }
                 }
@@ -25708,7 +25708,7 @@ namespace IOAS.Infrastructure
                 using (var context = new IOASDBEntities())
                 {
                     var checkquery = (from cc in context.vw_RCTOverAllApplicationEntry.AsNoTracking()
-                                      where cc.Status != "Cancel"&& cc.Status != "Rejected" && cc.Status != "Relieved" && cc.ApplicationType == "New" && cc.ApplicationType != "Draft"
+                                      where cc.Status != "Cancel"&& cc.Status != "Rejected" && cc.Status != "Relieved" && cc.ApplicationType == "New"
                                       && cc.PANNo.Contains(Panno) && (string.IsNullOrEmpty(RefNo) || !cc.ApplicationNo.Contains(RefNo))
                                       select new { cc.EmployeeNo, cc.ApplicationNo }).ToArray();
 
@@ -30669,13 +30669,13 @@ namespace IOAS.Infrastructure
 
         }
       
-  public static Tuple<string, string> GetVerifyAadharPan(int STEId, string aadharnumber, string PanNo, string AppicationNo, string EmployeeNumber)
+  public static Tuple<string, string> GetVerifyAadharPan(int STEId, string aadharnumber, string PanNo, string ApplicationNo, string EmployeeNumber)
         {
             var chkemployeeadhar = "";
             var chkemployeepanno = "";
             try
             {
-                string application = (STEId < 0 && AppicationNo == null || STEId < 0 && string.IsNullOrEmpty(AppicationNo)) ? null : AppicationNo;
+                string application = (STEId < 0 && ApplicationNo == null || STEId < 0 && string.IsNullOrEmpty(ApplicationNo)) ? null : ApplicationNo;
                 chkemployeeadhar = (aadharnumber!= null || aadharnumber != "") ? Common.CheckPreviousEmployeeAdharserver(Convert.ToString(aadharnumber), application, true, EmployeeNumber, "OSG") : "Success";
                 chkemployeepanno = (PanNo != null || PanNo != "") ? Common.CheckPreviousEmployeePanserver(PanNo, application, true, EmployeeNumber, "OSG") : "Success";
                 if (chkemployeeadhar=="")chkemployeeadhar= "Success";

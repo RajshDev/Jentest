@@ -10801,11 +10801,11 @@ namespace IOAS.Controllers
         }
 
 
-        public JsonResult VerifyAadharPan(int STEId, string aadharnumber, string PanNo, string AppicationNo, string EmployeeNumber)
+        public JsonResult VerifyAadharPan(int STEId, string aadharnumber, string PanNo, string ApplicationNo, string EmployeeNumber)
         {
             try
             {
-                object output = Common.GetVerifyAadharPan(STEId, aadharnumber, PanNo, AppicationNo, EmployeeNumber);
+                object output = Common.GetVerifyAadharPan(STEId, aadharnumber, PanNo, ApplicationNo, EmployeeNumber);
                 //output.
                 return Json(output, JsonRequestBehavior.AllowGet);
             }
