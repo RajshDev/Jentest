@@ -10250,6 +10250,7 @@ namespace IOAS.Controllers
                 var user = User.Identity.Name;
                 var userId = AdminService.getUserByName(user);
                 int uploadId = 0;
+                int resultId = 0;
                 if (!Directory.Exists(path1))
                 {
                     Directory.CreateDirectory(Server.MapPath("~/Content/RCTOTHTemplate"));
@@ -10293,7 +10294,11 @@ namespace IOAS.Controllers
                         master.ToDate = model.ToDate;
                         master.Crtd_By = userId;
                         master.Crtd_Ts = DateTime.Now;
-                        uploadId = recruitmentService.ValidateOTHPDList(master, list);
+                        var uploadresult = recruitmentService.ValidateOTHPDList(master, list);
+
+
+                        uploadId = uploadresult.Item1;
+                        resultId = uploadresult.Item2;
                         if (uploadId == 0)
                             msg = "Something went wrong please contact administrator.";
                     }
@@ -10304,7 +10309,7 @@ namespace IOAS.Controllers
                 {
                     msg = "Please Upload Files in .xls or .xlsx format";
                 }
-                return Json(new { status = msg, guid = guid, uploadId = uploadId }, JsonRequestBehavior.AllowGet);
+                return Json(new { status = msg, guid = guid, uploadId = uploadId, resultId=resultId }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
