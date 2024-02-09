@@ -3149,7 +3149,7 @@ namespace IOAS.GenericServices
                                         where C.ProjectId == ProjectId
                                         select C).ToList();
                     var Freezelist = (from cc in context.tblAllocationFreezeLog
-                                where cc.ProjectId == ProjectId && cc.IsFreeze == 1
+                                where cc.ProjectId == ProjectId && cc.IsFreeze == 1 && cc.Status=="Active"
                                 select new { cc.AllocationHead }).ToList();
                     bool isYearWiseAH = false;
 
@@ -4962,6 +4962,10 @@ namespace IOAS.GenericServices
                     var projectallocquery = (from prjct in context.tblProjectAllocation
                                              where prjct.ProjectId == query.ProjectId
                                              select prjct).ToList();
+
+                    var Freezelist = (from cc in context.tblAllocationFreezeLog
+                                      where cc.ProjectId == query.ProjectId && cc.IsFreeze == 1 && cc.Status == "Active"
+                                      select new { cc.AllocationHead }).ToList();
                     ///********* Added by Benet Shibin 08-09-2010 (purpose:Get CoPI & PI details ) **********/
                     int ProjectId = Convert.ToInt32(query.ProjectId);
                     //var QryCo_PIDetails = (from C in context.tblProjectCoPI where C.ProjectId == ProjectId && C.Status == "Active" select new { C.Department, C.Name, C.Designation }).ToList();
@@ -5016,6 +5020,8 @@ namespace IOAS.GenericServices
                         //    editenhancement.CoPIDesignation = _CoPIDesig;
                         //}
                         /********* End **********/
+                        editenhancement.Freezelist = Freezelist.Select(item => (int?)item.GetType().GetProperty("AllocationHead").GetValue(item)).ToList();
+
                         var projectid = editenhancement.ProjectID;
                         var projectquery = (from P in context.tblProject
                                             where (P.ProjectId == projectid)

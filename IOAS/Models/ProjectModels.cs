@@ -868,6 +868,7 @@ namespace IOAS.Models
 
         public bool isCurrentVersion { get; set; }
         public string Status { get; set; }
+        public List<int?> Freezelist = new List<int?>();
     }
     public class ProjectEnchancementSearch
     {
