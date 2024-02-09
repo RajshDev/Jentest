@@ -5020,6 +5020,7 @@ namespace IOAS.GenericServices
                         //    editenhancement.CoPIDesignation = _CoPIDesig;
                         //}
                         /********* End **********/
+
                         editenhancement.Freezelist = Freezelist.Select(item => (int?)item.GetType().GetProperty("AllocationHead").GetValue(item)).ToList();
 
                         var projectid = editenhancement.ProjectID;
