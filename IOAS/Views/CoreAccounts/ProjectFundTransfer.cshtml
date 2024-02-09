@@ -365,7 +365,7 @@
         $('#tbodyDr input[name$=".Amount"]').each(function (i, rowEle) {
             var parseVal = parseFloat($(this).val()) || 0;
             ttlDrVal = ttlDrVal + parseVal;
-            GetFreezeValueData();
+
         });
         $('#tbodyCr input[name$=".Amount"]').each(function (i, rowEle) {
             var parseVal = parseFloat($(this).val()) || 0;
@@ -379,7 +379,15 @@
         var isValid = $('#formPFT').valid();
         var inputs = $("#DebitProjectId, #CreditProjectId");
         var stepElements = $('#formPFT').find(inputs);
-        var crcheck = GetFreezeValueDataForCr();
+
+       
+        $('#tbodyCr tr').each(function (idx, trval) {
+            AccHead = ($(this).find('select[name$=".BudgetHeadId"]').val());
+            console.log(AccHead);
+            GetFreezeValueDataForCr(AccHead)
+        });
+
+        var crcheck = GetFreezeValueDataForCr(AccHead);
         console.log(crcheck);
         if (crcheck != 0 && crcheck != null && crcheck && "") {
            
@@ -387,7 +395,14 @@
             $('#Validation').modal('show');
             return false;
         }
-        var Drcheck = GetFreezeValueData();
+
+        $('#tbodyDr tr').each(function (idx, trval) {
+            AccHead = ($(this).find('select[name$=".BudgetHeadId"]').val());
+            console.log(AccHead);
+            GetFreezeValueData(AccHead)
+        });
+
+        var Drcheck = GetFreezeValueData(AccHead);
         console.log(Drcheck);
         if (Drcheck != 0 && Drcheck != null && Drcheck != "") {
             $("#alert").text('Allocation Head Freezed.');
@@ -458,7 +473,7 @@
         if ($('#tbodyDr tr').length != 1) {
             $(this).closest('tr').remove();
             CalculateTotal();
-            GetFreezeValueData();
+            
         }
     });
     $('#btnAddCrDetail').click(function () {
@@ -482,7 +497,7 @@
         if ($('#tbodyCr tr').length != 1) {
             $(this).closest('tr').remove();
             CalculateTotal();
-            GetFreezeValueDataForCr();
+           
         }
     });
     $('#tbodyDr tr').each(function (idx, trval) {
@@ -609,9 +624,6 @@
         });
         return isFreezeFirstDataValid;
     }
-
-
-
 
 
     function BudgetHeadChangeForcr(ele) {
