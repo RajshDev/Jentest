@@ -4874,17 +4874,21 @@ namespace IOAS.Infrastructure
 
                 using (var context = new IOASDBEntities())
                 {
-                    stud = (from C in context.tblTapal
-                            join wf in context.tblTapalWorkflow on C.TapalId equals wf.TapalId
-                            orderby C.TapalId descending
-                            where wf.MarkTo == depId && C.IsClosed == true
-                            && C.TapalNo.Contains(term)
-                            group C by C.TapalId into g
-                            select new AutoCompleteModel
-                            {
-                                value = g.Key.ToString(),
-                                label = g.Select(m => m.TapalNo).FirstOrDefault()
-                            }).ToList();
+                    //stud = (from C in context.tblTapal
+                    //        join wf in context.tblTapalWorkflow on C.TapalId equals wf.TapalId
+                    //        orderby C.TapalId descending
+                    //        where wf.MarkTo == depId && C.IsClosed == true
+                    //        && C.TapalNo.Contains(term)
+                    //        group C by C.TapalId into g
+                    //        select new AutoCompleteModel
+                    //        {
+                    //            value = g.Key.ToString(),
+                    //            label = g.Select(m => m.TapalNo).FirstOrDefault()
+                    //        }).ToList();
+                    stud = context.Database.SqlQuery<AutoCompleteModel>("EXEC SP_GetTapalNo @term, @depId",
+                        new SqlParameter("@term", term),
+                        new SqlParameter("@depId", depId)
+                        ).ToList();
 
                 }
 
