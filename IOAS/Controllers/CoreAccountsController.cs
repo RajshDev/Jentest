@@ -1436,7 +1436,89 @@ namespace IOAS.Controllers
                 throw new Exception(ex.Message);
             }
         }
+        [HttpGet]
+        public ActionResult AllocationFreezingUnFreezing()
+        {
+            try
+            {
+                var allocatehead = Common.getallocationhead();
+                ViewBag.allocatehead = allocatehead;
+                return View();
+            }
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+                    (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                throw new Exception(ex.Message);
+            }
+        }
 
+        [HttpPost]
+        public ActionResult AllocationFreezingUnFreezing(FreezingUnFreezingModel model)
+        {
+            try
+            {
+                int userId = Common.GetUserid(User.Identity.Name);
+                bool Freeze =ProjectService.PostMethodForFreezedata(model, userId);
+                
+                if (Freeze == true)
+                {
+                    TempData["succMsg"] = "Project Allocation has been Freezed and Un-Freezed successfully, Project number - " + model.ProjectNumber + ".";
+                    return RedirectToAction("AllocationFreezingUnFreezing");
+
+                }
+                else
+                {
+                    TempData["errMsg"] = "Something went wrong please contact administrator.";
+                }
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+       (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                throw new Exception(ex.Message);
+            }
+        }
+
+
+        [HttpGet]
+        public JsonResult FreezeUnfreezeLoadProjectList(string ProjectId)
+        {
+            try
+            {
+                var projectData = Common.FreezeUnfreezeLoadProjectDetails(Convert.ToInt32(ProjectId));
+                var result = new { projectsData = projectData };
+                return Json(result, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+       (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                throw new Exception(ex.Message);
+            }
+        }
+
+
+
+        [HttpGet]
+        public JsonResult GetAllocationFreezeUnFreezeData(int projectId)
+        {
+            try
+            {
+                var allocatehead = Common.getallocationhead();
+                ViewBag.allocatehead = allocatehead;
+                object output = Common.GetFreezeAndUnFreezeData(projectId);
+                return Json(output, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+       (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                throw new Exception(ex.Message);
+            }
+        }
+                          
         [HttpPost]
         public ActionResult BillReversal(string transaction, string Billnumber)
         {
@@ -2965,6 +3047,8 @@ namespace IOAS.Controllers
 
             return Json(data, JsonRequestBehavior.AllowGet);
         }
+
+
         [HttpGet]
         public JsonResult LoadProjectList(string term, int? type = null, int? classification = null, int? BankHeadId =  null)
         {
@@ -11128,7 +11212,7 @@ namespace IOAS.Controllers
                 ViewBag.PaymentMode = Common.GetCodeControlList("ForgnRemitPaymentMode");
                 ViewBag.ExpensesHead = Common.GetCodeControlList("ForgnRemitExpensesHead");
                 ViewBag.Currencyequalantstatus = Common.GetCodeControlList("Forncurrequalantstatus");
-                ViewBag.Currency = Common.getFRMcurrency();
+                ViewBag.Currency = Common.getFRMcurrency();   
                 // ViewBag.PaymentBank = Common.GetCodeControlList("DistributionType");
                 ViewBag.SourceRefNumberList =
                 ViewBag.AccountGroupList =
@@ -19247,6 +19331,62 @@ namespace IOAS.Controllers
             }
         }
         #endregion
+
+
+
+        public ActionResult VendorStatusChanger()
+        {
+            List<MasterlistviewModel> list = new List<MasterlistviewModel>();
+            ViewBag.StatusChanger = list;
+            return View();
+        }
+
+        [HttpGet]
+        public JsonResult LoadAllVendorCode(string term, int? type = null)
+        {
+            try
+            {
+                var data = Common.LoadAutoAllVendorCodes(term);
+                return Json(data, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+       (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                throw new Exception(ex.Message);
+            }
+        }
+
+        [HttpGet]
+        public JsonResult GetVendorCodeStatus(string vendorCode)
+        {
+            try
+            {
+                var data = Common.GetCurrentVendorStatus(vendorCode);
+                return Json(data, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public JsonResult UpdateVendorCodeStatus(string VendorCode, string Status = "")
+        {
+            var empty = new ProjectStatusUpdateModel();
+            ProjectStatusUpdateModel data = new ProjectStatusUpdateModel();
+            ProjectSummaryModel psModel = new ProjectSummaryModel();
+            CoreAccountsService pro = new CoreAccountsService();
+            if (VendorCode != "")
+            {
+                int logged_in_user = Common.GetUserid(User.Identity.Name);
+               data.Message = pro.UpdateVendorStatus(VendorCode, Status, logged_in_user) == 0 ? "Success" : "Failed";
+            }
+            else
+                data = empty;
+            return Json(data, JsonRequestBehavior.AllowGet);
+        }
+
         #region PFT Date
         [HttpGet]
         public ActionResult PFTBillDateChange()
@@ -21947,6 +22087,8 @@ TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             }
             model.BOADraftId = boaDraftId;
             model.txDetail = list;
+            //System.IO.File.WriteAllLines("SavedLists.txt");
+
             if (list.Count > 0 && msg == "Valid")
                 model = coreAccountService.VerifyUTR(model);
             return Json(new { status = msg, data = model }, JsonRequestBehavior.AllowGet);
@@ -22019,10 +22161,18 @@ TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
 
 
         #endregion
-        // Partial Payment Process Posting - Created by Praveen 11-01-2023
+        // Test - Created by Praveen 11-01-2023
         public ActionResult PostMissedBatchItems(int draftId)
         {
                 coreAccountService.getPCFDOHReceiptBOAmodeldetails(96874, 6024, "Distribution");
+                return RedirectToAction("PaymentProcessInitList");
+        }
+        // Partial Payment Process Posting - Created by Praveen 25-01-2024
+        public ActionResult PostMissedBatchItemss(int draftId)
+        {
+            if (coreAccountService.PaymentTestBOATransaction(draftId, 1))
+                return RedirectToAction("PaymentProcessInitList");
+            else
                 return RedirectToAction("PaymentProcessInitList");
         }
 

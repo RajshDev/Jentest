@@ -360,7 +360,7 @@ new { @class = "form-control", @id = "txtprocategory",@required = "required" })
                                         Bank Details:
                                     </label>
                                     @Html.TextBoxFor(m => m.bankname, new { @class = "form-control", @id = "BankName", @autocomplete = "off" })
-                                    @Html.HiddenFor(m => m.BankID, new { @id = "BankId" })
+                                    @Html.HiddenFor(m => m.BankID, new { @id = "BankID" })
                                     <div> @Html.ValidationMessageFor(m => m.bankname)</div>
                                     @*@Html.TextBoxFor(m => m.BankID.code, new { @class = "form-control", @id = "Bankcode", @autocomplete = "off" })*@
 
@@ -2135,9 +2135,12 @@ new { @class = "form-control", @id = "txtprocategory",@required = "required" })
         </div>
     </div>
 
+    
+
     <script>
         $(document).ready(function () {
             $('#myModal').modal('show');
+            console.log(FreezeHeadList);
         });
 
     </script>
@@ -2261,6 +2264,7 @@ new { @class = "form-control", @id = "txtprocategory",@required = "required" })
     var piList = '@Html.Raw(Json.Encode(ViewBag.PI))';
     var allocationHeads = '@Html.Raw(Json.Encode(ViewBag.allocatehead))'
     var modelData = '@Html.Raw(Json.Encode(Model))'
+    var FreezeHeadList = @Html.Raw(Json.Encode(ViewBag.Data));
     $(document).ready(function () {
         //get the relevant form
         //  var form = $('#frmSRB');
@@ -2315,13 +2319,13 @@ new { @class = "form-control", @id = "txtprocategory",@required = "required" })
         if (categorytype == 1) {
             $('#BankDetails').addClass("dis-none");
             $('#BankDetails').hide();
-            $('#BankId').removeAttr('required');
+            $('#BankID').removeAttr('required');
             $('#BankName').val('');
         }
         else if (categorytype == 2 || categorytype == 3 || categorytype == 4) {
             $('#BankName').val('');
             $('#BankDetails').removeClass("dis-none");
-            $('#BankId').attr('required', 'true');           
+            $('#BankID').attr('required', 'true');           
             $('#BankDetails').show();
             //$("#formPO").validate(); //sets up the validator
 
@@ -2924,7 +2928,7 @@ new { @class = "form-control", @id = "txtprocategory",@required = "required" })
     $(document).on('click', '#divStaffContent button[name="removeButton"]', function () {
         $(this).parent().parent("Div").remove();
     });
-    applyAutoComplete($('#BankName'), $('#BankId'), "../project/GetAutoCompleteBankdetails");
+    applyAutoComplete($('#BankName'), $('#BankID'), "../project/GetAutoCompleteBankdetails");
     $('#btnSearch').on('click', function () {
         // var token = $("input[name=__RequestVerificationToken]").val();
         //var Bankname = $('#BankName').val();
@@ -3213,6 +3217,21 @@ new { @class = "form-control", @id = "txtprocategory",@required = "required" })
             isValid = true;
         }
 
+         //  allocation head freeze 
+
+        var allocateheads = [];
+        $('select[name="Allocationhead"]').each(function (idx, val) { allocateheads.push($(val).val()); });
+        
+        for (var k = 1; k < allocateheads.length; ++k) {
+        
+            if (allocateheads[k] == allocateheads[k - 1]) {
+                $('#MsgValidation').html("Allocation head already exist. Please select a different allocation.");
+                $('#ValidationModal').modal('toggle');
+                return false;
+            }
+            
+            isValid = true;
+        }
         if (totalstaffs != sumofstaffs) {
             $('#MsgValidation').html("The project staffs total is not equal to the categorywise total.");
             $('#ValidationModal').modal('toggle');
@@ -4237,7 +4256,6 @@ new { @class = "form-control", @id = "txtprocategory",@required = "required" })
                 if (!isNaN(totalstaff)) {
                     //$("#sumstaffs").val(totalstaff.toFixed(0));
                     $("#sumstaffs").val(totalstaff);
-
                     // document.getElementsByName('TotalEnhancedAllocationvalue')[0].value = result;
                 }
                 if (!isNaN(totalsalary)) {
@@ -4253,7 +4271,7 @@ new { @class = "form-control", @id = "txtprocategory",@required = "required" })
                 totalsalary += parseFloat(txtsalaryValue) || 0;
 
                 if (!isNaN(totalstaff)) {
-                    //$("#sumstaffs").val(totalstaff.toFixed(0));
+                   // $("#sumstaffs").val(totalstaff.toFixed(0));
                     $("#sumstaffs").val(totalstaff);
                     // document.getElementsByName('TotalEnhancedAllocationvalue')[0].value = result;
                 }
@@ -4709,6 +4727,7 @@ new { @class = "form-control", @id = "txtprocategory",@required = "required" })
             }
             
         } else if (currentTab == 4) {
+            freezelistcheck();
             if ($('#IsYearWiseAllocation').is(":checked")) {
                 var validationMsg = validateYWAllocation()
                 if (validationMsg != 'valid') {
@@ -4857,6 +4876,47 @@ new { @class = "form-control", @id = "txtprocategory",@required = "required" })
             $('#divDDInfav').addClass("dis-none");
         }
     });
+
+
+     function GetFreezeValueData(AccHead) {
+        var ProjectId = $("#ProjectId").val();        
+        var isFreezeDataValid = 0;
+        $.ajax({
+            type: "GET",
+            async: false,
+            url: '@Url.Action("GetFreezeAndAllocationData", "Project")',
+            data: {
+                "ProjectId": ProjectId, "AllocationId": AccHead},
+            dataType: "json",
+            success: function (result) {
+                isFreezeDataValid = result;                
+                }
+        });
+        return isFreezeDataValid;
+    }
+
+    function freezelistcheck() {
+
+        var scrAccHead = [];
+        scrAccHead =  scrAccHead = [];
+        scrAccHead = $('select[name="Allocationhead"]').each(function (index) {
+            var id = $(this).attr('id');
+            var selectedValue = $(this).val();
+            
+            if (FreezeList.indexOf(parseInt(selectedValue))>=0) {
+                console.log("Freeze", selectedValue);
+                $(this).prop("disabled", true);
+                var parentElement = $(this).parent();
+                var parentElement1 = $(parentElement).parent();
+                var txtamt = parentElement1.find('input[name="Allocationvalue"]');
+                $(txtamt).prop("disabled", true);
+
+            }
+
+            console.log(selectedValue);
+        });
+
+    }
 </script>
 <link href="@Url.Content("~/Content/IOASContent/assets/bootstrap-select/css/bootstrap-select.min.css")" rel="stylesheet" />
 <script src="@Url.Content("~/Content/IOASContent/assets/bootstrap-select/js/bootstrap-select.min.js")"></script>

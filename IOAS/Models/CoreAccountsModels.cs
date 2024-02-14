@@ -284,7 +284,11 @@ namespace IOAS.Models
 
         public Nullable<decimal> hiddenSettTaxAmt { get; set; }
         public Nullable<decimal> hiddenTaxEligibleAmt { get; set; }
-        public bool PartAdvance_f { get; set; }
+        //TULA Optimization work
+        //public bool PartAdvance_f { get; set; }
+
+        public bool? isPartAdvance_f { get; set; }
+        public int totalRecords { get; set; }
         public bool InclusiveOfTax_f { get; set; } = true;
         public bool ICSROverHead_f { get; set; }
         public bool RCM_f { get; set; }
@@ -5990,7 +5994,9 @@ namespace IOAS.Models
         public Nullable<decimal> IGST { get; set; }
         public Nullable<decimal> SGST { get; set; }
         public Nullable<decimal> CGST { get; set; }
+        public Nullable<int> Freezeval { get; set; }
     }
+    
 
 
     #endregion
@@ -6226,7 +6232,8 @@ namespace IOAS.Models
         [DisplayFormat(DataFormatString = "{0:n2}")]
         [Display(Name = "Foreign Remitance Amount")]
         [Range(0, 9999999999999999.99)]
-        public Nullable<decimal> ForeignRemittanceAmount { get; set; }
+        public Nullable<decimal> ForeignRemittanceAmount { get; set; }       
+
         public string ForeignRemittanceAmt { get; set; }
         public Nullable<int> RemittanceCurrency { get; set; }
         public string RemittanceCurrencyCode { get; set; }
@@ -6922,6 +6929,7 @@ namespace IOAS.Models
         public string Status { get; set; }
         public string Message { get; set; }
     }
+
 
     #endregion
     #region Fixed Deposit

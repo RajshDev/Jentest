@@ -21,7 +21,10 @@ namespace IOAS.DataModel
         public string EmployeeID { get; set; }
         public Nullable<int> UserId { get; set; }
         public string PayeeName { get; set; }
-        public Nullable<decimal> Amount { get; set; }
+        public Nullable<decimal> ToatlAmount { get; set; }
+        public Nullable<decimal> NetPaidAmount { get; set; }
+        public Nullable<decimal> TDS { get; set; }
+        public string TDSSection { get; set; }
         public string PaymentMode { get; set; }
         public string BankName { get; set; }
         public string Branch { get; set; }

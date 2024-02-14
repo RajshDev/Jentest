@@ -1461,7 +1461,7 @@
                 event.preventDefault();
                 return false;
             }
-        });
+        });       
     });
     $('#Source').change(function () {
         var selSource = $(this).val();
@@ -1764,10 +1764,10 @@
             return false;
         }
         // to validate if copi department or copiname is left unselected when either one of them is selected
-        var receivablesvalues = [];
+        var receivablesvalues = [];        
 
         $('select[name="ReceivablesHeadId"]').each(function (idx, val) { receivablesvalues.push($(val).val()); });
-
+        
         //// Sort it
         receivablesvalues.sort();
 
@@ -1795,7 +1795,7 @@
         var prevreceiptigst = parseFloat($('input[name="PrevrcvIGST"]').val()) || 0;
         var invoicecgst = parseFloat($("#txtcgstamount").val()) || 0;
         var invoicesgst = parseFloat($("#txtsgstamount").val()) || 0;
-        var invoiceigst = parseFloat($("#txtigstamount").val()) || 0;
+        var invoiceigst = parseFloat($("#txtigstamount").val()) || 0;               
         var thisreceiptcgst = parseFloat($("#txtreceiptCGST").val()) || 0;
         var thisreceiptsgst = parseFloat($("#txtreceiptSGST").val()) || 0;
         var thisreceiptigst = parseFloat($("#txtreceiptIGST").val()) || 0;
@@ -1835,7 +1835,7 @@
             thisreceiptcgst = parseFloat($("#txtreceiptCGST").val()) || 0;
             thisreceiptsgst = parseFloat($("#txtreceiptSGST").val()) || 0;
             thisreceiptigst = parseFloat($("#txtreceiptIGST").val()) || 0;
-
+            
             thisreceiptdbcgst = parseFloat($('input[name="CurrrcvCGST"]').val()) || 0;
             thisreceiptdbsgst = parseFloat($('input[name="CurrrcvSGST"]').val()) || 0;
             thisreceiptdbigst = parseFloat($('input[name="CurrrcvIGST"]').val()) || 0;
@@ -1969,10 +1969,10 @@
         var receivablesvalues = [];
 
         $('select[name="ReceivablesHeadId"]').each(function (idx, val) { receivablesvalues.push($(val).val()); });
-
+        
         //// Sort it
         receivablesvalues.sort();
-
+       
         // duplicate check
         for (var k = 1; k < receivablesvalues.length; ++k) {
             if (receivablesvalues[k] == receivablesvalues[k - 1]) {
@@ -2090,15 +2090,40 @@
         var inputs = $(":input, textarea, select"); // get all the form inputs and selects
         var stepElements = $(currentTabEle).find(inputs); // get inputs for current step
         var count = stepElements.length; // check that there are inputs
+        $('input[name^="ReceivablesAmount"]').each(function () {
+            //Set the value to zero
+            var RcvbAmt = this.value    ;
+            const parsed = Number.parseInt(RcvbAmt,0);
+            if (Number.isNaN(parsed)) {
+                RcvbAmt= 0;
+            }
+            if (RcvbAmt == 0 )
+            $(this).val(0);
+        });
         if (count <= 0) {                // if there are not no reason to loop them
             return true;                 // this can be used to perform other action if there are no steps
-        } else if (currentTab == 1) {
+            
+        } else if (currentTab == 1) {        
+            
             var validationMsg = validateCrandDrtotal()
             if (validationMsg != 'valid') {
                 hadError = true;
                 $('#MsgValidation').html(validationMsg);
                 $('#ValidationModal').modal('toggle');
             }
+            //GetFreezeValueData();
+            var FreezeValidation = GetFreezeValueData();
+            if (FreezeValidation == 1) {
+                var Overheadval = $("#txtcurrentreceiptoverheads").val();
+                if (Overheadval != 0) {
+                    validationMsg = "Allocation Head Freezed";
+                    hadError = true;
+                $('#FailedAlert').html(validationMsg);
+                    $('#Failed').modal('show');
+                }
+            }
+
+
             var pendingamtinthisinvoice = parseFloat($("#BalanceinCurrentInvoice").val()) || 0;
             if (pendingamtinthisinvoice < 0) {
                 $('#MsgValidation').html('Pending amount in this invoice cannot be negative.');
@@ -2218,7 +2243,7 @@
             var prevreceiptigst = parseFloat($('input[name="PrevrcvIGST"]').val()) || 0;
             var invoicecgst = parseFloat($("#txtcgstamount").val()) || 0;
             var invoicesgst = parseFloat($("#txtsgstamount").val()) || 0;
-            var invoiceigst = parseFloat($("#txtigstamount").val()) || 0;
+            var invoiceigst = parseFloat($("#txtigstamount").val()) || 0;            
             var thisreceiptcgst = parseFloat($("#txtreceiptCGST").val()) || 0;
             var thisreceiptsgst = parseFloat($("#txtreceiptSGST").val()) || 0;
             var thisreceiptigst = parseFloat($("#txtreceiptIGST").val()) || 0;
@@ -2228,6 +2253,7 @@
             var totalreceiptGST = totalprevrcvgst + thisreceipttotalgst;
             var bal = totalinvoicegst - totalreceiptGST;
             var gsttobededucted = totalinvoicegst - totalprevrcvgst;
+           
             gsttobededucted=gsttobededucted.toFixed(2);
             gsttobededucted = @Html.Raw(Json.Encode(Model.ToBeTaxDebited)) || 0;
             if(rcvopeningcount == 0)
@@ -2326,7 +2352,7 @@
         var item = document.getElementsByClassName("receivableamt");
         var itemcount = item.length;
         var totalreceivables = 0;
-
+       
         for (var i = 0; i < itemcount; i++) {
             if (item[i].value != 'NaN' && item[i].value != '') {
                 totalreceivables = totalreceivables + parseFloat(item[i].value);;
@@ -3148,8 +3174,7 @@
         var invamount = $('input[name="InvoiceValueWithoutTax"]').val();
         var receiptcount = $('input[name="ReceiptCount"]').val();
         var rcvopeningcount = $('input[name="OpeningBalReceiptCount"]').val();
-        var totalreceiptcount = $('input[name="TotalRCVCount"]').val();
-
+        var totalreceiptcount = $('input[name="TotalRCVCount"]').val();        
         if (receiptcount == 0)
         {
             var cgstamt = Math.round((invamount * cgstpercent) / 100).toFixed(0);
@@ -3164,10 +3189,27 @@
         {
             $("#txtreceiptCGST").val(0);
             $("#txtreceiptSGST").val(0);
-            $("#txtreceiptIGST").val(0);
+            $("#txtreceiptIGST").val(0);        
         }
 
     };
+
+    function GetFreezeValueData() {
+        var ProjectId = $("#ProjectID").val();
+        var isFreezeDataValid = 0;
+        $.ajax({
+            type: "GET",
+            async: false,
+            url: '@Url.Action("GetFreezeOverHeads", "Project")',
+            data: { "ProjectId": ProjectId },
+            dataType: "json",
+            success: function (result) {
+                isFreezeDataValid = result;
+                console.log(isFreezeDataValid);
+            }
+        });
+        return isFreezeDataValid;
+    }
 
 </script>
 <link href="@Url.Content("~/Content/IOASContent/assets/bootstrap-select/css/bootstrap-select.min.css")" rel="stylesheet" />

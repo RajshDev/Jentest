@@ -23,7 +23,7 @@ namespace IOAS.Models
         public Nullable<int> Industry { get; set; }
         public Nullable<int> Proposalstatus { get; set; }
     }
-   
+
     public class ProjectResultModels
     {
         public int proposalId { get; set; }
@@ -103,6 +103,8 @@ namespace IOAS.Models
         //public HttpPostedFileBase[] file { get; set; }
         //public HttpPostedFileBase taxprooffile { get; set; }
         public string taxprooffilename { get; set; }
+        //public List<FreezeFirstLoadScreenModel> Freezelist { get; set; }
+        public List<int?> Freezelist = new List<int?>();
 
         [Required]
         public string Department { get; set; }
@@ -640,7 +642,7 @@ namespace IOAS.Models
         public string bankname { get; set; }
         public Nullable<int> BankID { get; set; }
 
-       // public  Bankdetails bankdetails { get; set; }
+        // public  Bankdetails bankdetails { get; set; }
 
         public string CurrentFinYear { get; set; }
     }
@@ -652,7 +654,7 @@ namespace IOAS.Models
 
         // public Nullable<int> id { get; set; }
         [RequiredIfNot("ProjectFundingCategoryId", 1, ErrorMessage = "Please Select Bank Name")]
-        
+
         [Display(Name = "Bank Name")]
         public string bankname { get; set; }
         public Nullable<int> BankID { get; set; }
@@ -691,7 +693,7 @@ namespace IOAS.Models
         public Nullable<Decimal>[] EMIValue { get; set; }
     }
 
-   
+
     public class ProjectSearchFieldModel
     {
 
@@ -775,7 +777,7 @@ namespace IOAS.Models
         public string ProposalPhase { get; set; }
         public int ProposalupdtID { get; set; }
         public string ProjectNumber { get; set; }
-        public string ProposalNumber { get; set; }       
+        public string ProposalNumber { get; set; }
         [StringLength(25)]
         public string Mobile { get; set; }
         public string[] DocPath { get; set; }
@@ -822,7 +824,7 @@ namespace IOAS.Models
         public string SelectProject { get; set; }
         public Nullable<int> Projecttype { get; set; }
         public string PIname { get; set; }
-
+        //public int ProjectId { get; set; }
         [DataType(DataType.DateTime)]
         public Nullable<DateTime> PresentDueDate { get; set; }
         public string PrsntDueDate { get; set; }
@@ -866,6 +868,7 @@ namespace IOAS.Models
 
         public bool isCurrentVersion { get; set; }
         public string Status { get; set; }
+        public List<int?> Freezelist = new List<int?>();
     }
     public class ProjectEnchancementSearch
     {
@@ -1120,7 +1123,7 @@ namespace IOAS.Models
         public string CoPIname_fullname { get; set; }
     }
 
-public class projectFundingModel
+    public class projectFundingModel
     {
         public string IndProjectFundingGovtBodyName { get; set; }
         public string IndProjectFundingNonGovtBodyName { get; set; }
@@ -1181,7 +1184,7 @@ public class projectFundingModel
         public decimal OH { get; set; }
         public decimal Tax { get; set; }
         public string AgencyName { get; set; }
-        public string AgencyAddress { get; set; }       
+        public string AgencyAddress { get; set; }
     }
     public class ProjectEnhancementViewModel
     {
@@ -1235,7 +1238,7 @@ public class projectFundingModel
         public decimal TotalAllocationValue { get; set; }
     }
 
-    
+
     public class ProjectSummaryDetailModel
     {
         public List<HeadWiseDetailModel> HeadWise { get; set; }
@@ -1251,6 +1254,8 @@ public class projectFundingModel
         public decimal Total { get; set; }
         public decimal Available { get; set; }
         public bool Validate_f { get; set; }
+        public Nullable<int> IsFreeze { get; set; }
+
     }
 
     public class ProposalStatusUpdateModel
@@ -1331,8 +1336,8 @@ public class projectFundingModel
         public string[] DocName { get; set; }
         public string[] AttachName { get; set; }
         public List<DocumentDetailsModel> Doclist { get; set; }
-        public bool PFInit { get; set; }       
-        public string ProjectTitle { get; set; }        
+        public bool PFInit { get; set; }
+        public string ProjectTitle { get; set; }
         public List<CoInverstigators> CoPiList { get; set; }
         public int[] CoPIname { get; set; }
         public string[] CoPIEmail { get; set; }
@@ -1406,5 +1411,33 @@ public class projectFundingModel
 
     }
     #endregion
+
+    public class FreezingUnFreezingModel
+    {
+        public string ProjectNumber { get; set; }
+        public int ProjectId { get; set; }
+        public Nullable<decimal> OldSanctionValue { get; set; }
+        public int AllocationHead { get; set; }
+        public int AllocationId { get; set; }
+        public int[] AllocationHeadId { get; set; }
+        public decimal OldValue { get; set; }
+        public decimal EnhancedValue { get; set; }
+        public decimal TotalValue { get; set; }
+        public int CrtdUserId { get; set; }
+        public DateTime CrtdTS { get; set; }
+        public string Status { get; set; }
+        public string HeadName { get; set; }
+        public string[] HeadNameList { get; set; }
+        public string[] FreezeList { get; set; }
+        public int Freeze { get; set; }
+        public Nullable<int> IsCurrentVersion { get; set; }
+    }
+
+
+    public class FreezeFirstLoadScreenModel
+    {     
+        public Nullable<int> AllocationHead { get; set; }    
+    }
+
 
 }

@@ -2081,7 +2081,7 @@ namespace IOAS.GenericServices
                                 if (model.Category == 1)
                                 {
                                     var id = Convert.ToInt32(model.Userid);
-                                    var exstinguser = context.tblStaffBankAccount.Where(e => e.UserId == id && e.Category == "Professor" && e.PayFor == model.PayFor).FirstOrDefault();
+                                    var exstinguser = context.tblStaffBankAccount.Where(e => e.UserId == id && e.Category == "Professor" &&e.PayFor == model.PayFor).FirstOrDefault();
                                     if (exstinguser != null)
                                         return 5;
                                     var vwCombine = (from Vw in context.tblFacultyDetail

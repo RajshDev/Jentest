@@ -1,10 +1,12 @@
-﻿$(function () {
+﻿var FreezeHeadList;
+$(function () {
     //Declare Proposal List
     var getProjectDetailsURL = 'GetEnhancedProjectList',
         getExtendedProjectDetailsURL = 'GetExtendedProjectList';
     EditEnhancement = 'EditProjectenhancement';
     EditExtension = 'EditProjectextension';
     delEnhancement = 'DeleteEnhancement';
+    var FreezeList;
     var dbenhance;
     //Getenhancelist();
     var DateField = function (config) {
@@ -499,7 +501,11 @@
                 //dataType: "json",
 
                 success: function (result) {
+                    FreezeList = result.Freezelist;
+                    console.log(FreezeList);
+                    FreezeHeadList = FreezeList;
 
+                   
                     $('input[name="ProjectID"]').val(result.ProjectID);
                     $('input[name="ProjectEnhancementID"]').val(result.ProjectEnhancementID);
                     $('#projectnum').val(result.ProjectNumber);
@@ -597,6 +603,24 @@
                            document.getElementsByName('HeadwiseTotalAllocationvalue')[i].value = HeadwiseTotalvalue[i];
                            document.getElementsByName('Allochead')[i].value = AllocateHead[i];
                         }
+                    });
+
+                    $('select[name="Allocationhead"]').each(function (index) {
+                        var id = $(this).attr('id');
+                        var selectedValue = $(this).val();
+
+                        if (FreezeList.indexOf(parseInt(selectedValue)) >= 0) {
+                            console.log("Freeze", selectedValue);
+                            $(this).prop("disabled", true);
+                            var parentElement = $(this).parent();
+                            var parentElement1 = $(parentElement).parent();
+                            var parentElement2 = $(parentElement1).parent();
+                            var txtamt = parentElement2.find('input[name="EnhancedAllocationvalue"]');
+                            $(txtamt).prop("disabled", true);
+
+                        }
+
+                        console.log(selectedValue);
                     });
 
                     totalSum();

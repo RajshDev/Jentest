@@ -1981,7 +1981,7 @@ namespace IOAS.Controllers
                 converter.Options.MarginTop = 15;
                 converter.Options.MarginBottom = 15;
                 // page numbers can be added using a PdfTextSection object
-                PdfTextSection text = new PdfTextSection(0, 3, "Page: {page_number} of {total_pages}  ", new System.Drawing.Font("Arial", 8));
+                PdfTextSection text = new PdfTextSection(0, 2, "Page: {page_number} of {total_pages}  ", new System.Drawing.Font("Arial", 8));
                 text.HorizontalAlign = PdfTextHorizontalAlign.Right;
                 converter.Footer.Add(text);
                 // create a new pdf document converting an url
