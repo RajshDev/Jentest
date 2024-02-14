@@ -8979,26 +8979,32 @@ namespace IOAS.Infrastructure
 
                 using (var context = new IOASDBEntities())
                 {
-                    list = (from P in context.tblProject
-                            join U in context.vwFacultyStaffDetails on P.PIName equals U.UserId
-                            where (string.IsNullOrEmpty(term) || P.ProjectNumber.Contains(term) || U.FirstName.Contains(term))
-                            && (type == null || type == P.ProjectType)
-                            && (classification == null || classification == P.ProjectClassification)
-                            && P.Status == "Active"
-                            orderby P.ProjectNumber
-                            select new
-                            {
-                                P.ProjectId,
-                                P.ProjectNumber,
-                                U.FirstName
-                            })
-                            .AsEnumerable()
-                            .Select((x, index) => new AutoCompleteModel()
-                            {
-                                value = x.ProjectId.ToString(),
-                                label = x.ProjectNumber + "-" + x.FirstName
-                            }).ToList();
+                    //list = (from P in context.tblProject
+                    //        join U in context.vwFacultyStaffDetails on P.PIName equals U.UserId
+                    //        where (string.IsNullOrEmpty(term) || P.ProjectNumber.Contains(term) || U.FirstName.Contains(term))
+                    //        && (type == null || type == P.ProjectType)
+                    //        && (classification == null || classification == P.ProjectClassification)
+                    //        && P.Status == "Active"
+                    //        orderby P.ProjectNumber
+                    //        select new
+                    //        {
+                    //            P.ProjectId,
+                    //            P.ProjectNumber,
+                    //            U.FirstName
+                    //        })
+                    //        .AsEnumerable()
+                    //        .Select((x, index) => new AutoCompleteModel()
+                    //        {
+                    //            value = x.ProjectId.ToString(),
+                    //            label = x.ProjectNumber + "-" + x.FirstName
+                    //        }).ToList();
 
+                    list = context.Database.SqlQuery<AutoCompleteModel>(
+                        "GetProjectAutoCompleteList @term, @type, @classification",
+                        new SqlParameter("@term", term ?? (object)DBNull.Value),
+                        new SqlParameter("@type", type ?? (object)DBNull.Value),
+                        new SqlParameter("@classification", classification ?? (object)DBNull.Value)
+                        ).ToList();
                 }
 
                 return list;
@@ -9011,7 +9017,6 @@ namespace IOAS.Infrastructure
             }
 
         }
-
         public static List<AutoCompleteModel> GetAutoCompleteProjectByBankIDList(string term, int? type = null, int? BankHeadId = 0, int? classification = null)
         {
             try
@@ -9028,8 +9033,29 @@ namespace IOAS.Infrastructure
                                  && (C.ProjectFundingCategory == 2 || C.ProjectFundingCategory == 3 || C.ProjectFundingCategory == 4))
                                  orderby C.ProjectId
                                  select new { U.FirstName, C }).ToList();
-
                     if (query.Count > 0)
+                    {
+                        list = context.Database.SqlQuery<AutoCompleteModel>("EXEC Sp_GetProjectAutoCompleteList_BankHead @term, @type, @BankHeadId, @classification",
+                        new SqlParameter("@term", term),
+                        new SqlParameter("@type", type ?? (object)DBNull.Value),
+                        new SqlParameter("@BankHeadId", BankHeadId ?? (object)DBNull.Value),
+                        new SqlParameter("@classification", classification ?? (object)DBNull.Value)
+                        ).ToList();
+
+                        return list;
+                    }
+                    else
+                    {
+                        var genlist = context.Database.SqlQuery<AutoCompleteModel>("EXEC Sp_GetProjectAutoCompleteList_BankHeadTSA @term, @type, @classification",
+                        new SqlParameter("@term", term),
+                        new SqlParameter("@type", type ?? (object)DBNull.Value),
+                        new SqlParameter("@classification", classification ?? (object)DBNull.Value)
+                        ).ToList();
+
+                        return genlist;
+                    }
+
+                    /*if (query.Count > 0)
                     {
                         list = (from P in context.tblProject
                                 join U in context.vwFacultyStaffDetails on P.PIName equals U.UserId
@@ -9077,16 +9103,8 @@ namespace IOAS.Infrastructure
                              }).ToList();
 
                         return genlist;
-                    }
-
-
-
-
-
-
+                    }*/
                 }
-
-
             }
             catch (Exception ex)
             {
