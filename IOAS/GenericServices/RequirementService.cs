@@ -25782,6 +25782,8 @@ namespace IOAS.GenericServices
 
                         model.CommitmentNumber = empdetails.CommitmentNumber;
                         model.CommitmentAmount = empdetails.CommitmentAmount;
+
+
                     }             
                     model.MonthandYear = model.MonthandYear;
                     if (model.ProjectNumber != null && model.ProjectId != null)
@@ -25870,8 +25872,8 @@ namespace IOAS.GenericServices
                                  join bh in context.tblBudgetHead on cd.AllocationHeadId equals bh.BudgetHeadId
                                  join afl in context.tblAllocationFreezeLog
                                      on new { ProjectId = c.ProjectId, AllocationHead = cd.AllocationHeadId } equals new { afl.ProjectId, afl.AllocationHead }
-                                 where afl.IsFreeze == 1 && ros.EmployeersID == model.EmployeeNumber && afl.Status  == "Active" && ros.IsActiveNow == true
-                                 select new
+                                 where afl.IsFreeze == 1 && ros.EmployeersID == model.EmployeeNumber && afl.Status  == "Active" && ros.IsActiveNow == true && ros.Status=="Verification Completed"
+                                     select new
                                  {
                                      afl.IsFreeze
                                  }).FirstOrDefault();
@@ -25882,18 +25884,66 @@ namespace IOAS.GenericServices
                                  join bh in context.tblBudgetHead on cd.AllocationHeadId equals bh.BudgetHeadId
                                  join afl in context.tblAllocationFreezeLog
                                      on new { ProjectId = c.ProjectId, AllocationHead = cd.AllocationHeadId } equals new { afl.ProjectId, afl.AllocationHead }
-                                 where afl.IsFreeze == 1 && ros.EmployeersID == model.EmployeeNumber && afl.Status == "Active" && ros.IsActiveNow == true
+                                 where afl.IsFreeze == 1 && ros.EmployeersID == model.EmployeeNumber && afl.Status == "Active" && ros.IsActiveNow == true && ros.Status == "Verification Completed"
                                       select new
                                  {
                                     afl.IsFreeze
                                  }).FirstOrDefault();
-                    
 
-                   if (reqFreeze1 != null )
+
+                    if (reqFreeze1 == null && reqFreeze == null)
+                    {
+                      //unfreezed 
+                    }
+                    else
                     {
                         return Tuple.Create("Allocation Head Freezed", 0, model);
-                   }
+                    }
+
                    
+                    var findAllval = (from ros in context.tblRCTSTE
+                                      join c in context.tblCommitment on ros.CommitmentNo equals c.CommitmentNumber
+                                      join cd in context.tblCommitmentDetails on c.CommitmentId equals cd.CommitmentId
+                                      join bh in context.tblBudgetHead on cd.AllocationHeadId equals bh.BudgetHeadId
+                                      where ros.EmployeersID == model.EmployeeNumber && ros.IsActiveNow == true && ros.Status == "Verification Completed"
+                                      select new
+                                      {
+                                          bh.BudgetHeadId
+                                      }).FirstOrDefault();
+
+                    var findAllval1 = (from ros in context.tblRCTOutsourcing
+                                      join c in context.tblCommitment on ros.CommitmentNo equals c.CommitmentNumber
+                                      join cd in context.tblCommitmentDetails on c.CommitmentId equals cd.CommitmentId
+                                      join bh in context.tblBudgetHead on cd.AllocationHeadId equals bh.BudgetHeadId
+                                      where ros.EmployeersID == model.EmployeeNumber && ros.IsActiveNow == true && ros.Status == "Verification Completed"
+                                      select new
+                                      {
+                                          bh.BudgetHeadId
+                                      }).FirstOrDefault();
+
+                    //Project Fund Balance Check
+                    string FundTransferStatus = "Valid";
+                    ProjectFundTransferModel projFundTrans = new ProjectFundTransferModel();
+                    ProjectTransferDetailModel projTran = new ProjectTransferDetailModel();
+                    List<ProjectTransferDetailModel> TranDetail = new List<ProjectTransferDetailModel>();
+
+                    CoreAccountsService clsCoreService = new CoreAccountsService();
+                    projFundTrans.CreditProjectId = model.ProjectId;
+                    projFundTrans.DebitProjectId = model.ProjectId;
+                    if (findAllval != null) 
+                        { projTran.BudgetHeadId = findAllval.BudgetHeadId; }
+                   else if (findAllval1 != null)
+                    { projTran.BudgetHeadId = findAllval1.BudgetHeadId; }
+                    projTran.Amount = model.Amount;
+                    TranDetail.Add(projTran);
+                    projFundTrans.DrDetail = TranDetail;
+                    projFundTrans.CrDetail = TranDetail;
+
+
+                    FundTransferStatus = clsCoreService.ValidateProjectFundTransfer(projFundTrans);
+                    if (FundTransferStatus != "Valid")
+                    { return Tuple.Create(FundTransferStatus, maHead, model); }
+
                 }
 
                 return Tuple.Create(msg, maHead, model);
