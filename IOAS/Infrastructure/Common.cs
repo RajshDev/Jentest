@@ -30736,6 +30736,359 @@ namespace IOAS.Infrastructure
 
         #endregion
 
+        #region ConsultantMaster
+        public static List<MasterlistviewModel> GetConsultantCategory()
+        {
+            try
+            {
+                List<MasterlistviewModel> agencytype = new List<MasterlistviewModel>();
+                using (var context = new IOASDBEntities())
+                {
+                    var query = (from AT in context.tblCodeControl
+                                 where (AT.CodeName == "ConsultantCategory")
+                                 select new { AT.CodeValAbbr, AT.CodeValDetail }).ToList();
+                    if (query.Count > 0)
+                    {
+                        for (int i = 0; i < query.Count; i++)
+                        {
+                            agencytype.Add(new MasterlistviewModel()
+                            {
+                                id = query[i].CodeValAbbr,
+                                name = query[i].CodeValDetail
+                            });
+                        }
+                    }
+                }
+                return agencytype;
+            }
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+ (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                List<MasterlistviewModel> agencytype = new List<MasterlistviewModel>();
+                return agencytype;
+            }
+        }
+
+        public static List<MasterlistviewModel> GetConsultantNationality()
+        {
+            try
+            {
+                List<MasterlistviewModel> agencytype = new List<MasterlistviewModel>();
+                using (var context = new IOASDBEntities())
+                {
+                    var query = (from AT in context.tblCodeControl
+                                 where (AT.CodeName == "ConsultantNationality")
+                                 select new { AT.CodeValAbbr, AT.CodeValDetail }).ToList();
+                    if (query.Count > 0)
+                    {
+                        for (int i = 0; i < query.Count; i++)
+                        {
+                            agencytype.Add(new MasterlistviewModel()
+                            {
+                                id = query[i].CodeValAbbr,
+                                name = query[i].CodeValDetail
+                            });
+                        }
+                    }
+                }
+                return agencytype;
+            }
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+ (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                List<MasterlistviewModel> agencytype = new List<MasterlistviewModel>();
+                return agencytype;
+            }
+        }
+
+        public static List<ConsultantMaster> GetConsultantMasterList()
+        {
+            try
+            {
+
+                List<ConsultantMaster> list = new List<ConsultantMaster>();
+
+                using (var context = new IOASDBEntities())
+                {
+                    var query = (from C in context.tblRCTConsultantMaster
+                                 orderby C.Consultant_EmpId
+                                 where C.Status == "Open"
+                                 select new { C.Consultant_EmpId, C.Consultant_MasterId }).ToList();
+
+                    if (query.Count > 0)
+                    {
+                        for (int i = 0; i < query.Count; i++)
+                        {
+                            list.Add(new ConsultantMaster()
+                            {
+                                Consultant_EmpId = query[i].Consultant_EmpId,
+                                Consultant_MasterId = query[i].Consultant_MasterId,
+                            });
+                        }
+                    }
+                }
+
+                return list;
+            }
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+ (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                List<ConsultantMaster> list = new List<ConsultantMaster>();
+                return list;
+            }
+
+        }
+
+        public static string CheckPreviousMasterGSTNumber(string GSTno)
+        {
+            string isalreadyEmp = string.Empty;
+            try
+            {
+                using (var context = new IOASDBEntities())
+                {
+                    var checkquery = (from cc in context.tblRCTConsultantMaster
+                                      where cc.GSTIN.Contains(GSTno)
+
+                                      orderby cc.Consultant_MasterId descending
+                                      select new { cc.Status, cc.Consultant_EmpId, cc.Consultant_MasterId, cc.GSTIN }).FirstOrDefault();
+                    if (checkquery != null)
+                    {
+                        isalreadyEmp = checkquery.Consultant_EmpId;
+                    }
+                }
+                return isalreadyEmp;
+            }
+            catch (Exception ex)
+            {
+                return isalreadyEmp;
+            }
+        }
+
+        public static string CheckTINNumber(string Tinno)
+        {
+            string isalreadyEmp = string.Empty;
+            try
+            {
+                using (var context = new IOASDBEntities())
+                {
+                    var checkquery = (from cc in context.tblRCTConsultantMaster
+                                      where cc.Consultant_TIN.Contains(Tinno)
+
+                                      orderby cc.Consultant_MasterId descending
+                                      select new { cc.Status, cc.Consultant_EmpId, cc.Consultant_MasterId, cc.Consultant_TIN }).FirstOrDefault();
+                    if (checkquery != null)
+                    {
+                        isalreadyEmp = checkquery.Consultant_TIN;
+                    }
+                }
+                return isalreadyEmp;
+            }
+            catch (Exception ex)
+            {
+                return isalreadyEmp;
+            }
+        }
+
+        public static string CheckConsultantEmployeePan(string Panno, string GST, string EmpID)
+        {
+            string isalreadyEmp = string.Empty;
+
+            try
+            {
+                using (var context = new IOASDBEntities())
+                {
+                    if ((Panno != "" && Panno != null) && (GST == "" || GST == null))
+                    {
+                        var checkquery4 = (from cc in context.vwConsultantMasterPanNo
+                                           where cc.PANNo.Contains(Panno) && (cc.GSTIN != null || cc.GSTIN == null) //&& cc.Type != "Consultant"
+                                           select new { cc.PANNo, cc.GSTIN, cc.EmpId }).FirstOrDefault();
+                        if (checkquery4.PANNo != null)
+                        {
+                            return isalreadyEmp = checkquery4.EmpId;
+                        }
+                    }
+                    if ((Panno != "" && Panno != null) && (GST != "" && GST != null))
+                    {
+
+                        var checkquery = (from cc in context.vwConsultantMasterPanNo
+                                          where cc.PANNo.Contains(Panno) //&& cc.Type != "Consultant"
+                                          select new { cc.PANNo, cc.GSTIN, cc.EmpId }).FirstOrDefault();
+                        var checkquery2 = (from cc in context.vwConsultantMasterPanNo
+                                           where cc.GSTIN.Contains(GST) //&& cc.Type != "Consultant"
+                                           select new { cc.PANNo, cc.GSTIN, cc.EmpId }).FirstOrDefault();
+                        if (checkquery2 != null)
+                        {
+                            if (checkquery2.GSTIN != null && checkquery2.GSTIN != "")
+                            {
+                                return isalreadyEmp = checkquery2.EmpId;
+                            }
+                        }
+                        //else
+                        //{
+                        //    //return isalreadyEmp = checkquery2.EmpId;
+                        //    return isalreadyEmp = "GST";
+                        //}
+
+                        if (checkquery.PANNo != null)
+                        {
+                            var checkquery1 = (from cc in context.vwConsultantMasterPanNo
+                                               where cc.PANNo.Contains(Panno) && cc.GSTIN == null && cc.EmpId != EmpID//&& cc.Type != "Consultant"
+                                               select new { cc.PANNo, cc.GSTIN, cc.EmpId }).FirstOrDefault();
+                            if (checkquery1 != null)
+                            {
+                                return isalreadyEmp = checkquery1.EmpId;
+                            }
+                        }
+                    }
+
+                    //if(Panno != "" && Panno != null)
+                    //{
+                    //    var checkquery = (from cc in context.vwConsultantMasterPanNo
+                    //                      where cc.PANNo.Contains(Panno) //&& cc.GSTIN.Contains(GST) == null
+                    //                      select new { cc.PANNo,cc.GSTIN, cc.EmpId }).FirstOrDefault();
+                    //    if (checkquery != null)
+                    //    {
+                    //        //var checkquery = (from cc in context.vwConsultantMasterPanNo
+                    //        //                  where cc.PANNo.Contains(Panno) //&& cc.GSTIN.Contains(GST) == null
+                    //        //                  select new { cc.PANNo, cc.GSTIN }).FirstOrDefault();
+                    //        if(GST=="")
+                    //        {
+                    //            GST = null;
+                    //            var GStINcheck = (from cc in context.vwConsultantMasterPanNo
+                    //                              where cc.PANNo.Contains(Panno) && cc.GSTIN.Contains(GST) == null
+                    //                              select new { cc.PANNo, cc.GSTIN, cc.EmpId }).FirstOrDefault();
+                    //            if (GStINcheck.PANNo != null)
+                    //            {
+                    //                isalreadyEmp = checkquery.EmpId;
+                    //            }
+                    //            //if (GStINcheck.GSTIN != null)
+                    //            //{
+                    //            //    isalreadyEmp = checkquery.GSTIN;
+                    //            //}
+                    //        }
+                    //        else
+                    //        {
+                    //            var GStINcheck = (from cc in context.vwConsultantMasterPanNo
+                    //                              where cc.PANNo.Contains(Panno) && cc.GSTIN.Contains(GST)
+                    //                              select new { cc.PANNo, cc.GSTIN, cc.EmpId }).FirstOrDefault();
+                    //            if (GStINcheck != null)
+                    //            {
+                    //                if (GStINcheck.PANNo != null)
+                    //                {
+                    //                    isalreadyEmp = checkquery.EmpId;
+                    //                }
+                    //            }
+                    //            else
+                    //            {
+                    //                isalreadyEmp = "";
+                    //            }
+
+
+                    //        }
+
+
+                    //    }
+                    //    else
+                    //    {
+                    //        isalreadyEmp = "";
+                    //    }
+                    //}
+
+
+                }
+                return isalreadyEmp;
+            }
+            catch (Exception ex)
+            {
+                return isalreadyEmp;
+            }
+        }
+
+        public static string CheckUpdateConsultantEmployeePan(string Panno, string GST)
+        {
+            string isalreadyEmp = string.Empty;
+            try
+            {
+                using (var context = new IOASDBEntities())
+                {
+                    if (GST != "" && GST != null)
+                    {
+                        var checkquery = (from cc in context.vwConsultantMasterPanNo
+                                          where cc.PANNo.Contains(Panno) && cc.GSTIN.Contains(GST) && cc.Type != "Consultant"
+                                          select new { cc.PANNo }).FirstOrDefault();
+                        if (checkquery != null)
+                        {
+                            isalreadyEmp = checkquery.PANNo;
+                        }
+                    }
+                    //else
+                    //{
+                    //    var checkquery = (from cc in context.vwConsultantMasterPanNo
+                    //                      where cc.PANNo.Contains(Panno) && cc.Type != "Consultant"
+                    //                      select new { cc.PANNo }).FirstOrDefault();
+                    //    if (checkquery != null)
+                    //    {
+                    //        isalreadyEmp = checkquery.PANNo;
+                    //    }
+                    //}
+
+                }
+                return isalreadyEmp;
+            }
+            catch (Exception ex)
+            {
+                return isalreadyEmp;
+            }
+        }
+
+        public static List<AutoCompleteModel> GetAutoCompleteConsultantServiceList(string term, int? type = null)
+        {
+            try
+            {
+
+                List<AutoCompleteModel> list = new List<AutoCompleteModel>();
+
+                using (var context = new IOASDBEntities())
+                {
+                    list = (from P in context.tblRCTConsultantEntry
+                            where P.Consultant_ServiceNo.Contains(term) && P.Consultant_Status == "Active"
+
+
+                            orderby P.Consultant_ServiceNo
+                            select new AutoCompleteModel()
+                            {
+                                value = P.Consultant_AppointmentId.ToString(),
+                                label = P.Consultant_ServiceNo
+                            }).ToList();
+                    //select new
+                    //        {
+                    //            P.Consultant_MasterId,
+                    //            P.Consultant_ServiceNo
+
+                    //        })
+                    //        .AsEnumerable()
+                    //.Select((x, index) => new AutoCompleteModel()
+                    //{
+                    //    value = x.Consultant_MasterId.ToString(),
+                    //    label = x.Consultant_ServiceNo
+                    //}).ToList();
+
+                }
+
+                return list;
+            }
+            catch (Exception ex)
+            {
+                return new List<AutoCompleteModel>();
+            }
+
+        }
+
+        #endregion
+
         public static string CheckPreviousGSTNumber(string GSTno)
         {
             string isalreadyEmp = string.Empty;
@@ -30760,6 +31113,7 @@ namespace IOAS.Infrastructure
                 return isalreadyEmp;
             }
         }
+
         #region Consultant New Entry
         public static List<AutoCompleteModel> GetAutoCompleteRCTCONEmployee(string term, string apptype = null)
         {

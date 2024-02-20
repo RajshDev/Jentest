@@ -8248,9 +8248,9 @@ namespace IOAS.Controllers
             return Json(output, JsonRequestBehavior.AllowGet);
         }
         [HttpGet]
-        public JsonResult CheckConsultantEmployeePan(string Panno)
+        public JsonResult CheckConsultantEmployeePan(string Panno, string GST, string EmpID)
         {
-            object output = Common.CheckConsultantEmployeePan(Panno);
+            object output = Common.CheckConsultantEmployeePan(Panno, GST, EmpID);
             return Json(output, JsonRequestBehavior.AllowGet);
         }
         #endregion
@@ -10565,15 +10565,13 @@ namespace IOAS.Controllers
         public JsonResult GetConsultantMaster(ConsultantMasterSearchModel model, int pageIndex, int pageSize)
         {
 
-            
+
             object output = RequirementService.GetConsultantMasterList(model, pageIndex, pageSize);
-            
+
             //object output = MasterService.GetVendorList(model, pageIndex, pageSize);
             return Json(output, JsonRequestBehavior.AllowGet);
         }
 
-
-        
         [HttpPost]
         public ActionResult ConsultantMaster(ConsultantMaster model)
         {
@@ -10622,29 +10620,31 @@ namespace IOAS.Controllers
                     }
                 }
 
-                int vendorStatus = RequirementService.ConsultantEmpMaster(model);
-                if (vendorStatus == 1)
+
+                int consultantStatus = RequirementService.ConsultantEmpMaster(model);
+                if (consultantStatus == 1)
                 {
-                    ViewBag.success = "Saved successfully";
+                    //ViewBag.success = "Saved successfully";
+                    //return RedirectToAction("ConsultantMaster", "Requirement");
+                    TempData["succMsg"] = "Saved successfully";
+                    return RedirectToAction("ConsultantMaster", "Requirement");
                 }
-                else if (vendorStatus == 2)
+                //else if (vendorStatus == 2)
+                //{
+                //    ViewBag.Msg = "This Vendor Account Number and GSTIN Number Already Exits";
+                //    return View(model);
+                //}
+                else if (consultantStatus == 3)
                 {
-                    ViewBag.Msg = "This Vendor Account Number and GSTIN Number Already Exits";
-                    return View(model);
+                    TempData["succMsg"] = "Consultant Master Updated successfully";
+                    return RedirectToAction("ConsultantMaster", "Requirement");
                 }
-                else if (vendorStatus == 3)
-                {
-                    ViewBag.update = "ConsultantEmpMaster updated successfully";
-                }
-                else if (vendorStatus == 4)
-                {
-                    ViewBag.Msgs = "This PFMS Number Alredy Exits";
-                    return View(model);
-                }
+
                 else
                 {
-                    ViewBag.error = "Somthing went to worng please contact Admin!.";
-                    return View(model);
+                    TempData["errMsg"] = "Somthing went to worng please contact Admin!.";
+                    return RedirectToAction("ConsultantMaster", "Requirement");
+                    //return View(model);
                 }
                 return View();
             }
@@ -10654,7 +10654,7 @@ namespace IOAS.Controllers
                                     .SelectMany(x => x.Errors)
                                     .Select(x => x.ErrorMessage));
 
-                ViewBag.error = messages;
+                TempData["errMsg"] = messages;
 
 
                 return View();
@@ -10668,13 +10668,15 @@ namespace IOAS.Controllers
             object output = RequirementService.EditConsultantMaster(consultantMasterId);
             return Json(output, JsonRequestBehavior.AllowGet);
         }
-        public ActionResult ConsultantMasterView(int Vendorid = 0)
+
+
+        public ActionResult ConsultantMasterView(int MasterId = 0)
         {
             try
             {
                 ConsultantMasterView model = new ConsultantMasterView();
-                model = RequirementService.GetConsultantMasterView(Vendorid);
-                ViewBag.processGuideLineId = 160;
+                model = RequirementService.GetConsultantMasterView(MasterId);
+                //ViewBag.processGuideLineId = 160;
                 return View(model);
             }
             catch (Exception ex)
@@ -10682,6 +10684,24 @@ namespace IOAS.Controllers
                 throw ex;
             }
         }
+
+        [HttpPost]
+        public ActionResult ViewConsultantMaster(int ConsultantMasterId = 0)
+        {
+            try
+            {
+                ConsultantMasterView model = new ConsultantMasterView();
+                model = RequirementService.GetConsultantMasterView(ConsultantMasterId);
+                //ViewBag.processGuideLineId = 160;
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
         [HttpGet]
         public JsonResult CheckPreviousGSTNumber(string GSTno)
         {
@@ -10695,6 +10715,127 @@ namespace IOAS.Controllers
             return Json(output, JsonRequestBehavior.AllowGet);
         }
 
+        #region Release Payment
+        public ActionResult RCTConsultantPaymentRelease(int ConsultantMasterId)
+        {
+            ConsultantMasterId = 5;
+            ConsultantPaymentRelease model = new ConsultantPaymentRelease();
+            ViewBag.OtherType = Common.GetCodeControlList("OtherType");
+            ViewBag.List = new List<MasterlistviewModel>();
+            //model.BasicAmount = 0;
+            model = recruitmentService.GetConsultantPaymentRelease(ConsultantMasterId);
+            return View(model);
+        }
+
+
+        [HttpPost]
+        public ActionResult RCTConsultantPaymentRelease(ConsultantPaymentRelease model)
+        {
+            ViewBag.OtherType = Common.GetCodeControlList("OtherType");
+            //ViewBag.PaymentType = Common.GetCodeControlList("RCTPayment");
+            //ViewBag.Deduction = Common.GetCodeControlList("RCTDeduction");           
+            ViewBag.List = new List<MasterlistviewModel>();
+            model.TaxConversion_rate = 0;
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    if (model.CONOTHDetail.Count > 0)
+                    {
+                        foreach (var item in model.CONOTHDetail)
+                        {
+                            item.PaydecList = Common.GetCommonHeadList(1, item.OtherType ?? 0);
+                        }
+                    }
+                    model.PaymentRelease_CrtdUser = Common.GetUserid(User.Identity.Name);
+                    var result = recruitmentService.RCTConsultantPaymentRelease(model);
+                    if (result.Item1 == 1)
+                    {
+                        TempData["succMsg"] = "Add Sucessfully";
+                        return RedirectToAction("RCTConsultantPaymentRelease", "Requirement");
+                    }
+                    //else if (model.Consultant_MasterId > 0 && status.Item1 == 2)
+                    //{
+                    //    TempData["succMsg"] = "Update Sucessfully";
+                    //    return RedirectToAction("OtherPaymentDeductionList", "Requirement");
+                    //}
+                    //else if ((model.OTHPayDeductionId == null || model.OTHPayDeductionId != null) && status.Item1 == 3)
+                    //{
+                    //    TempData["alertMsg"] = status.Item3;
+                    //    return RedirectToAction("OtherPaymentDeductionList", "Requirement");
+                    //}
+                    //else if ((model.OTHPayDeductionId == null || model.OTHPayDeductionId != null) && status.Item1 == 4)
+                    //{
+                    //    TempData["alertMsg"] = status.Item3;
+                    //    return RedirectToAction("OtherPaymentDeductionList", "Requirement");
+                    //}
+                    else
+                    {
+                        TempData["errMsg"] = "Something went wrong please contact administrator";
+                        return RedirectToAction("RCTConsultantPaymentRelease", "Requirement");
+                    }
+                }
+                else
+                {
+                    string messages = string.Join("<br />", ModelState.Values
+                                        .SelectMany(x => x.Errors)
+                                        .Select(x => x.ErrorMessage));
+
+                    TempData["errMsg"] = messages;
+                }
+                #region Updatepaydeduction
+                if (model.CONOTHDetail.Count > 0)
+                {
+                    foreach (var item in model.CONOTHDetail)
+                    {
+
+                        item.PaydecList = Common.GetCommonHeadList(1, item.OtherType ?? 0);
+                    }
+                }
+                #endregion
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                return View(model);
+            }
+        }
+
+
+        [HttpGet]
+        public JsonResult LoadConsultantServiceList(string term, int? type = null)
+        {
+            try
+            {
+
+                var data = new List<AutoCompleteModel>();
+
+                data = Common.GetAutoCompleteConsultantServiceList(term, type);
+
+                return Json(data, JsonRequestBehavior.AllowGet);
+
+            }
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+       (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                throw new Exception(ex.Message);
+            }
+        }
+
+        [HttpGet]
+        public JsonResult ConsultantServicePayment(int ConsAppID)
+        {
+            ConsultantPaymentRelease model = new ConsultantPaymentRelease();
+            ViewBag.OtherType = Common.GetCodeControlList("OtherType");
+            ViewBag.List = new List<MasterlistviewModel>();
+            //var consultantData= RequirementService.ConsultantServicePayment(ConsAppID);
+            model = RequirementService.ConsultantServicePayment(ConsAppID);
+            //var result = new { consultantData = consultantData };
+            return Json(model, JsonRequestBehavior.AllowGet);
+        }
+
+        #endregion
 
         #region EmployeeMaster Separate
         public ActionResult CONEmployeeMaster()

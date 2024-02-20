@@ -31437,6 +31437,1482 @@ namespace IOAS.GenericServices
         }
         #endregion
 
+        public static ConsultantMasterSearchModel GetConsultantMasterList(ConsultantMasterSearchModel model, int page, int pageSize)
+        {
+            try
+            {
+                ConsultantMasterSearchModel list = new ConsultantMasterSearchModel();
+                List<ConsultantMaster> getConsultant = new List<ConsultantMaster>();
+                using (var context = new IOASDBEntities())
+                {
+                    int skiprec = 0;
+                    if (page == 1)
+                    {
+                        skiprec = 0;
+                    }
+                    else
+                    {
+                        skiprec = (page - 1) * pageSize;
+                    }
+                    var query = (from V in context.tblRCTConsultantMaster
+                                     //join C in context.tblCodeControl on new {V.Consultant_Nationality, V.Consultant_Category} equals new { C.CodeValAbbr,C.CodeValAbbr }
+                                     // join C in context.tblCodeControl on new { codeName = "ConsultantNationality", codeAbbr = V.Consultant_Nationality }
+                                     //equals new { codeName = C.CodeName, codeAbbr = C.CodeValAbbr } 
+                                     //join Y in context.tblCodeControl on V.Consultant_Category equals Y.CodeValAbbr into CY
+                                 join C in context.tblCodeControl on new { codeName = "ConsultantNationality", codeAbbr = V.Consultant_Nationality } equals new { codeName = C.CodeName, codeAbbr = C.CodeValAbbr } into g
+                                 from C in g.DefaultIfEmpty()
+                                 join D in context.tblCodeControl on new { codeName = "ConsultantCategory", codeAbbr = V.Consultant_Category } equals new { codeName = D.CodeName, codeAbbr = D.CodeValAbbr } into d
+                                 from D in d.DefaultIfEmpty()
+                                     //from cl in CO.DefaultIfEmpty()
+                                 orderby V.Consultant_MasterId descending
+                                 where V.Status == "Active"
+
+                                 && (V.Consultant_Name.Contains(model.INConsultantSearchname) || model.INConsultantSearchname == null)
+                                 && (V.Consultant_EmpId.Contains(model.INConsultantsearchID) || model.INConsultantsearchID == null)
+                                 && (V.Consultant_Nationality == model.EXCountryName || model.EXCountryName == 0)
+                                 && (V.Consultant_Name.Contains(model.EXConsultantSearchname) || model.EXConsultantSearchname == null)
+                                 //&& (V.Consultant_Category == model.EXINConsultantsearchCode || model.EXINConsultantsearchCode == 0)
+
+                                 && (V.Status.Contains(model.INStatus) || model.INStatus == null)
+                                 //&& (V.Consultant_Category == (model.INConsultantCategory) || model.INConsultantCategory == null)
+                                 && (D.CodeValDetail.Contains(model.INConsultantCategory) || model.INConsultantCategory == null)
+                                 //&& (V.Consultant_Nationality == (model.INCountry) || model.INCountry == null)
+                                 select new
+                                 {
+                                     V.Consultant_MasterId,
+                                     V.Consultant_EmpId,
+                                     V.Consultant_Category,
+                                     V.Consultant_Name,
+                                     V.Consultant_Nationality,
+                                     V.Status,
+                                     C,
+                                     D
+                                 }).Skip(skiprec).Take(pageSize).ToList();
+                    list.TotalRecords = (from V in context.tblRCTConsultantMaster
+                                         join C in context.tblCodeControl on new { codeName = "ConsultantNationality", codeAbbr = V.Consultant_Nationality } equals new { codeName = C.CodeName, codeAbbr = C.CodeValAbbr } into g
+                                         from C in g.DefaultIfEmpty()
+                                         join D in context.tblCodeControl on new { codeName = "ConsultantCategory", codeAbbr = V.Consultant_Category } equals new { codeName = D.CodeName, codeAbbr = D.CodeValAbbr } into d
+                                         from D in d.DefaultIfEmpty()
+                                             //join C in context.tblCodeControl on V.Consultant_Nationality equals C.CodeValAbbr into CO
+                                             //from cl in CO.DefaultIfEmpty()
+                                         orderby V.Consultant_MasterId descending
+                                         where V.Status == "Active" //&& (cl.CodeName == "ConsultantNationality" || cl.CodeName == "ConsultantCategory")
+                                                && (V.Consultant_Name.Contains(model.INConsultantSearchname) || model.INConsultantSearchname == null)
+                                         && (V.Consultant_EmpId.Contains(model.INConsultantsearchID) || model.INConsultantsearchID == null)
+                                          && (V.Consultant_Nationality == model.EXCountryName || model.EXCountryName == 0)
+                                         && (V.Consultant_Name.Contains(model.EXConsultantSearchname) || model.EXConsultantSearchname == null)
+                                         //  //&& (V.VendorCode.Contains(model.EXINVendorsearchCode) || model.EXINVendorsearchCode == null)
+                                         && (V.Status.Contains(model.INStatus) || model.INStatus == null)
+                                          && (D.CodeValDetail.Contains(model.INConsultantCategory) || model.INConsultantCategory == null)
+                                         //&& (V.Consultant_Nationality == (model.INCountry) || model.INCountry == null)
+                                         select new { V.Consultant_MasterId, V.Consultant_Category, V.Consultant_Name, V.Consultant_Nationality, V.Status }).Count();
+                    if (query.Count > 0)
+                    {
+
+                        for (int i = 0; i < query.Count; i++)
+                        {
+                            var countrylist = "";
+                            if (query[i].Consultant_Nationality == 128)
+                            {
+                                countrylist = "INDIA";
+                            }
+                            else
+                            {
+                                //    countrylist = query[i].CodeValDetail;
+                            }
+                            int sno = i + 1;
+                            getConsultant.Add(new ConsultantMaster()
+                            {
+                                sno = sno,
+                                Consultant_MasterId = query[i].Consultant_MasterId,
+                                ConsultantEmpId = query[i].Consultant_EmpId,
+                                Consultant_Name = query[i].Consultant_Name,
+                                ConsultantCategory = query[i].D.CodeValDetail,
+                                CountryName = query[i].C.CodeValDetail,
+                                Status = query[i].Status
+                                //BankName = query[i].BankName,
+                                //AccountNumber = query[i].AccountNumber
+                            });
+                        }
+                    }
+                    //list.TotalRecords = query.Where(predicate).Count();
+
+                }
+                list.ConsultantList = getConsultant;
+                return list;
+            }
+            catch (Exception ex)
+            {
+                ConsultantMasterSearchModel list = new ConsultantMasterSearchModel();
+                return list;
+            }
+        }
+
+        public static int ConsultantEmpMaster(ConsultantMaster model)
+        {
+
+            using (var context = new IOASDBEntities())
+            {
+                using (var transaction = context.Database.BeginTransaction())
+                {
+
+                    try
+                    {
+
+                        if (model.Consultant_MasterId == null || model.Consultant_MasterId == 0)
+                        {
+
+                            tblRCTConsultantMaster regvendor = new tblRCTConsultantMaster();
+
+                            if (model.Consultant_Nationality == 1 && model.Consultant_Category == 1)
+                            {
+                                var sqnbr = (from S in context.tblRCTConsultantMaster
+                                             select S.SeqNbr
+                                       ).Max();
+                                regvendor.Consultant_Nationality = model.Consultant_Nationality;
+                                regvendor.Consultant_Category = model.Consultant_Category;
+                                regvendor.Consultant_EmpId = "CID" + (Convert.ToInt32(sqnbr) + 1).ToString("00000").Trim().ToString();
+                                regvendor.SeqNbr = (Convert.ToInt32(sqnbr) + 1);
+                                regvendor.Consultant_EmpType = "CID";
+                                regvendor.Consultant_DOB = model.Consultant_DOB;
+
+                                if (model.PersonImage != null)
+                                {
+                                    var guid = Guid.NewGuid().ToString();
+                                    var docName = guid + "_" + model.PersonImage.FileName;
+                                    model.PersonImage.UploadFile("RCTEmployeeImages", docName);
+                                    regvendor.Consultant_Photo = docName;
+                                }
+                                else if (!string.IsNullOrEmpty(model.PersonImagePath))
+                                {
+                                    regvendor.Consultant_Photo = model.PersonImagePath;
+                                }
+
+                                regvendor.Consultant_Salutation = model.Consultant_Salutation;
+                                regvendor.Consultant_Name = model.Consultant_Name;
+                                regvendor.Consultant_Gender = model.Consultant_Gender;
+                                //regvendor.Consultant_DOB = model.Consultant_DOB;                           
+
+                                regvendor.Consultant_ContactNumber = model.Consultant_ContactNumber;
+                                regvendor.Consultant_Email = model.Consultant_Email;
+                                regvendor.Consultant_AadhaarNo = model.Consultant_AadhaarNo;
+                                regvendor.IsGST = Convert.ToBoolean(model.IsGST);
+                                regvendor.GSTIN = model.GSTIN;
+                                regvendor.Consultant_PanNo = model.Consultant_PanNo;
+                                regvendor.isSameAsAddress = model.isSameAsAddress;
+                                regvendor.Consultant_Address = model.Consultant_Address;
+                                regvendor.Consultant_Qualification = model.Consultant_Qualification;
+                                regvendor.Consultant_Experience = model.Consultant_Experience;
+                                regvendor.Consultant_City = model.Consultant_City;
+                                regvendor.Consultant_StateCode = model.Consultant_StateCode;
+                                regvendor.Consultant_Pincode = model.Consultant_Pincode.Trim().ToString();
+
+                                if (model.Consultant_Country != null)
+                                {
+                                    regvendor.Consultant_Country = model.Consultant_Country;
+
+                                }
+                                else
+                                {
+                                    regvendor.Consultant_Country = 128;
+                                }
+                                if (model.Consultant_StateId != 0)
+                                {
+                                    regvendor.Consultant_StateId = model.Consultant_StateId;
+                                }
+                                regvendor.Consultant_ServiceAddress = model.Consultant_ServiceAddress;
+                                regvendor.Consultant_BankName = model.Consultant_BankName;
+                                regvendor.Consultant_AccountNumber = model.Consultant_AccountNumber;
+                            }
+                            else if (model.Consultant_Nationality == 1 && model.Consultant_Category == 2)
+                            {
+                                var sqnbr = (from S in context.tblRCTConsultantMaster
+                                             select S.SeqNbr
+                                       ).Max();
+                                regvendor.Consultant_Nationality = model.Consultant_Nationality;
+                                regvendor.Consultant_Category = model.Consultant_Category;
+                                regvendor.Consultant_EmpId = "CFD" + (Convert.ToInt32(sqnbr) + 1).ToString("00000").Trim().ToString();
+                                regvendor.SeqNbr = (Convert.ToInt32(sqnbr) + 1);
+                                regvendor.Consultant_EmpType = "CFD";
+
+                                regvendor.Consultant_Nationality = model.Consultant_Nationality;
+                                //regvendor.Consultant_EmpId = 'V' + (Convert.ToInt32(sqnbr) + 1).ToString("00000");
+                                //regvendor.SeqNbr = (Convert.ToInt32(sqnbr) + 1);
+                                regvendor.Consultant_Category = model.Consultant_Category;
+
+                                regvendor.Consultant_Salutation = model.Consultant_IFSalutation;
+                                regvendor.Consultant_Name = model.Consultant_IFName;
+
+                                regvendor.Consultant_ContactNumber = model.Consultant_IFContactNumber;
+                                regvendor.Consultant_Email = model.Consultant_IFEmail;
+                                regvendor.Consultant_PanNo = model.Consultant_IFPanNo;
+                                regvendor.IsGST = Convert.ToBoolean(model.IsGSTIF);
+                                regvendor.GSTIN = model.GSTINIF;
+                                regvendor.isSameAsAddress = model.isSameAsIFAddress;
+                                regvendor.Consultant_Address = model.Consultant_IFAddress;
+
+                                regvendor.Consultant_City = model.Consultant_IFCity;
+                                regvendor.Consultant_StateCode = model.Consultant_IFStateCode;
+                                regvendor.Consultant_Pincode = model.Consultant_IFPincode.Trim().ToString();
+
+
+                                if (model.Consultant_IFStateId != 0)
+                                {
+                                    regvendor.Consultant_StateId = model.Consultant_IFStateId;
+                                }
+                                regvendor.Consultant_ServiceAddress = model.Consultant_IFServiceAddress;
+                                regvendor.isSameAsAddress = model.isSameAsIFAddress;
+                                regvendor.Consultant_BankName = model.Consultant_BankName;
+                                regvendor.Consultant_AccountNumber = model.Consultant_AccountNumber;
+                            }
+                            else if (model.Consultant_Nationality == 2 && model.Consultant_Category == 1)
+                            {
+                                var sqnbr = (from S in context.tblRCTConsultantMaster
+                                             select S.SeqNbr
+                                       ).Max();
+                                regvendor.Consultant_Nationality = model.Consultant_Nationality;
+                                regvendor.Consultant_Category = model.Consultant_Category;
+
+                                regvendor.Consultant_EmpId = "CIF" + (Convert.ToInt32(sqnbr) + 1).ToString("00000").Trim().ToString();
+                                regvendor.SeqNbr = (Convert.ToInt32(sqnbr) + 1);
+                                regvendor.Consultant_EmpType = "CIF";
+                                regvendor.Consultant_DOB = model.Consultant_fi_DOB;
+                                regvendor.Consultant_Salutation = model.Consultant_FISalutation;
+                                regvendor.Consultant_Name = model.Consultant_FIName;
+                                regvendor.Consultant_Gender = model.Consultant_FIGender;
+                                //regvendor.Consultant_DOB = model.Consultant_DOB;                           
+                                if (model.PersonFIImage != null)
+                                {
+                                    var guid = Guid.NewGuid().ToString();
+                                    var docName = guid + "_" + model.PersonFIImage.FileName;
+                                    model.PersonFIImage.UploadFile("RCTEmployeeImages", docName);
+                                    regvendor.Consultant_Photo = docName;
+                                }
+                                else if (!string.IsNullOrEmpty(model.PersonImageFIPath))
+                                {
+                                    regvendor.Consultant_Photo = model.PersonImageFIPath;
+                                }
+                                regvendor.Consultant_ContactNumber = model.Consultant_FIContactNumber;
+                                regvendor.Consultant_TIN = model.Consultant_FITIN;
+                                regvendor.Consultant_Email = model.Consultant_FIEmail;
+                                regvendor.isSameAsAddress = model.isSameAsFIAddress;
+                                regvendor.Consultant_Address = model.Consultant_FIAddress;
+                                //regvendor.Consultant_Details = model.Consultant_Details;
+                                regvendor.Consultant_Qualification = model.Consultant_FIQualification;
+                                regvendor.Consultant_Experience = model.Consultant_FIExperience;
+                                regvendor.Consultant_City = model.Consultant_FICity;
+
+                                regvendor.Consultant_Pincode = model.Consultant_FIPincode ?? "";
+
+                                if (model.Consultant_FICountry != null)
+                                {
+                                    regvendor.Consultant_Country = model.Consultant_FICountry;
+
+                                }
+                                else
+                                {
+                                    regvendor.Consultant_Country = 128;
+                                }
+
+                                regvendor.Consultant_ServiceAddress = model.Consultant_FIServiceAddress;
+                                regvendor.Consultant_BankName = model.Consultant_FBankName;
+                                regvendor.Consultant_AccountNumber = model.Consultant_FrAccountNumber;
+                            }
+                            else if (model.Consultant_Nationality == 2 && model.Consultant_Category == 2)
+                            {
+                                var sqnbr = (from S in context.tblRCTConsultantMaster
+                                             select S.SeqNbr
+                                       ).Max();
+                                regvendor.Consultant_Nationality = model.Consultant_Nationality;
+                                regvendor.Consultant_Category = model.Consultant_Category;
+                                regvendor.Consultant_EmpId = "CFF" + (Convert.ToInt32(sqnbr) + 1).ToString("00000").Trim().ToString();
+                                regvendor.SeqNbr = (Convert.ToInt32(sqnbr) + 1);
+                                regvendor.Consultant_EmpType = "CFF";
+
+                                regvendor.Consultant_Salutation = model.Consultant_FFSalutation;
+                                regvendor.Consultant_Name = model.Consultant_FFName;
+
+                                regvendor.Consultant_ContactNumber = model.Consultant_FFContactNumber;
+                                regvendor.Consultant_Email = model.Consultant_FFEmail;
+                                regvendor.isSameAsAddress = model.isSameAsFFAddress;
+                                regvendor.Consultant_Address = model.Consultant_FFAddress;
+                                regvendor.Consultant_TIN = model.Consultant_FFTIN;
+
+                                regvendor.Consultant_City = model.Consultant_FFCity;
+
+                                regvendor.Consultant_Pincode = model.Consultant_FFPincode.Trim().ToString();
+
+                                if (model.Consultant_FFCountry != null)
+                                {
+                                    regvendor.Consultant_Country = model.Consultant_FFCountry;
+
+                                }
+                                else
+                                {
+                                    regvendor.Consultant_Country = 128;
+                                }
+
+                                regvendor.Consultant_ServiceAddress = model.Consultant_FFServiceAddress;
+                                regvendor.Consultant_BankName = model.Consultant_FBankName;
+                                regvendor.Consultant_AccountNumber = model.Consultant_FrAccountNumber;
+                            }
+
+                            regvendor.Consultant_AccountHolderName = model.Consultant_AccountHolderName;
+                            regvendor.Consultant_Branch = model.Consultant_Branch;
+                            regvendor.Consultant_IFSC = model.Consultant_IFSC;
+                            regvendor.Consultant_BankAddress = model.Consultant_BankAddress;
+                            regvendor.Consultant_ABANumber = model.Consultant_ABANumber;
+                            regvendor.Consultant_SortCode = model.Consultant_SortCode;
+                            regvendor.Consultant_IBAN = model.Consultant_IBAN;
+                            regvendor.Consultant_SWIFTorBICCode = model.Consultant_SWIFTorBICCode;
+                            regvendor.Consultant_BankNature = model.Consultant_BankNature;
+                            regvendor.Consultant_MICRCode = model.Consultant_MICRCode;
+                            regvendor.Consultant_BankCountry = model.Consultant_BankCountry;
+                            regvendor.Consultant_BankEmailId = model.Consultant_BankEmailId;
+                            regvendor.Status = "Active";
+                            regvendor.IsActiveNow = true;
+                            //regvendor.isSameAsAddress = model.isSameAsAddress;
+
+                            regvendor.UptdUser = model.UserId;
+                            regvendor.UptdTs = DateTime.Now;
+                            //regvendor.Status = "Open";
+                            context.tblRCTConsultantMaster.Add(regvendor);
+                            context.SaveChanges();
+                            var vendoId = regvendor.Consultant_MasterId;
+
+
+                            if (model.AttachmentName != null)
+                            {
+                                if (model.AttachmentName != null)
+                                {
+                                    for (int i = 0; i < model.AttachmentName.Length; i++)
+                                    {
+                                        if (model.AttachmentName[i] != "" && model.ConsultantFile[i] != null)
+                                        {
+                                            //var docid = model.VendorDocumentId[i];
+
+                                            //if (query.Count == 0)
+                                            //{
+                                            string doctaxpath = "";
+                                            doctaxpath = System.IO.Path.GetFileName(model.ConsultantFile[i].FileName);
+                                            var doctaxfileId = Guid.NewGuid().ToString();
+                                            //var doctaxname = doctaxfileId + "_" + doctaxpath;
+                                            var doctaxname = doctaxpath;
+                                            /*Saving the file in server folder*/
+                                            //model.ConsultantFile[i].UploadFile("ConsultantDocumentMaster", doctaxname);
+                                            model.ConsultantFile[i].UploadFile("Requirement", doctaxname);
+                                            tblConsultantDocumentMaster document = new tblConsultantDocumentMaster();
+                                            document.Consultant_MasterId = vendoId;
+                                            if (model.ConsultantFile[i] != null)
+                                            {
+                                                document.AttachmentFileName = model.ConsultantFile[i].FileName;
+                                                //document.AttachmentName = model.ConsultantFile[i].FileName;
+                                                document.AttachmentPath = doctaxname;
+                                                //document.AttachmentFileName = model.AttachmentName[i];
+                                            }
+                                            document.AttachmentName = model.AttachmentName[i];
+                                            document.IsCurrentVersion = true;
+                                            document.DocumentUploadUserId = model.UserId;
+                                            document.DocumentUpload_Ts = DateTime.Now;
+                                            context.tblConsultantDocumentMaster.Add(document);
+                                            context.SaveChanges();
+
+                                        }
+                                    }
+
+                                }
+                            }
+
+
+                            transaction.Commit();
+                            return 1;
+
+                        }
+                        else
+                        {
+                            var chkConsultantMaster = context.tblRCTConsultantMaster.FirstOrDefault(M => M.Consultant_MasterId == model.Consultant_MasterId);
+                            var chkConsultantMasterlog = context.tblRCTConsultantMasterLog.FirstOrDefault(M => M.Consultant_MasterId == model.Consultant_MasterId);
+
+                            if (chkConsultantMaster != null)
+                            {
+                                tblRCTConsultantMasterLog consultantMasterLog = new tblRCTConsultantMasterLog();
+                                if (model.Consultant_Nationality == 1 && model.Consultant_Category == 1)
+                                {
+
+                                    chkConsultantMaster.Consultant_DOB = model.Consultant_DOB;
+
+                                    if (model.PersonImage != null)
+                                    {
+                                        var guid = Guid.NewGuid().ToString();
+                                        var docName = guid + "_" + model.PersonImage.FileName;
+                                        model.PersonImage.UploadFile("RCTEmployeeImages", docName);
+                                        chkConsultantMaster.Consultant_Photo = docName;
+                                    }
+                                    else if (!string.IsNullOrEmpty(model.PersonImagePath))
+                                    {
+                                        chkConsultantMaster.Consultant_Photo = model.PersonImagePath;
+                                    }
+
+                                    chkConsultantMaster.Consultant_Salutation = model.Consultant_Salutation;
+                                    chkConsultantMaster.Consultant_Name = model.Consultant_Name;
+                                    chkConsultantMaster.Consultant_Gender = model.Consultant_Gender;
+                                    //regvendor.Consultant_DOB = model.Consultant_DOB;                           
+
+                                    chkConsultantMaster.Consultant_ContactNumber = model.Consultant_ContactNumber;
+                                    chkConsultantMaster.Consultant_Email = model.Consultant_Email;
+                                    chkConsultantMaster.Consultant_AadhaarNo = model.Consultant_AadhaarNo;
+                                    chkConsultantMaster.IsGST = model.IsGST;
+                                    if (model.IsGST == false)
+                                    {
+                                        chkConsultantMaster.GSTIN = model.GSTIN;
+                                    }
+                                    else
+                                    {
+                                        chkConsultantMaster.GSTIN = model.GSTIN;
+                                    }
+
+                                    //chkConsultantMaster.Consultant_PanNo = model.Consultant_PanNo;
+                                    chkConsultantMaster.isSameAsAddress = model.isSameAsAddress;
+                                    chkConsultantMaster.Consultant_Address = model.Consultant_Address;
+                                    chkConsultantMaster.Consultant_Qualification = model.Consultant_Qualification;
+                                    chkConsultantMaster.Consultant_Experience = model.Consultant_Experience;
+                                    chkConsultantMaster.Consultant_City = model.Consultant_City;
+                                    chkConsultantMaster.Consultant_StateCode = model.Consultant_StateCode;
+                                    chkConsultantMaster.Consultant_Pincode = model.Consultant_Pincode.Trim().ToString();
+
+                                    if (model.Consultant_Country != null)
+                                    {
+                                        chkConsultantMaster.Consultant_Country = model.Consultant_Country;
+
+                                    }
+                                    else
+                                    {
+                                        chkConsultantMaster.Consultant_Country = 128;
+                                    }
+                                    if (model.Consultant_StateId != 0)
+                                    {
+                                        chkConsultantMaster.Consultant_StateId = model.Consultant_StateId;
+                                    }
+                                    chkConsultantMaster.Consultant_ServiceAddress = model.Consultant_ServiceAddress;
+                                    chkConsultantMaster.Consultant_BankName = model.Consultant_BankName;
+                                    chkConsultantMaster.Consultant_AccountNumber = model.Consultant_AccountNumber;
+                                    consultantMasterLog.Consultant_BankName = model.Consultant_BankName;
+                                    consultantMasterLog.Consultant_AccountNumber = model.Consultant_AccountNumber;
+
+                                    #region
+                                    consultantMasterLog.Consultant_MasterId = chkConsultantMaster.Consultant_MasterId;
+                                    consultantMasterLog.Consultant_Nationality = model.Consultant_Nationality;
+                                    consultantMasterLog.Consultant_Category = model.Consultant_Category;
+                                    consultantMasterLog.Consultant_EmpId = chkConsultantMaster.Consultant_EmpId;
+                                    consultantMasterLog.SeqNbr = chkConsultantMaster.SeqNbr;
+                                    consultantMasterLog.Consultant_EmpType = chkConsultantMaster.Consultant_EmpType;
+
+                                    consultantMasterLog.Consultant_DOB = model.Consultant_DOB;
+
+                                    if (model.PersonImage != null)
+                                    {
+                                        var guid = Guid.NewGuid().ToString();
+                                        var docName = guid + "_" + model.PersonImage.FileName;
+                                        model.PersonImage.UploadFile("RCTEmployeeImages", docName);
+                                        consultantMasterLog.Consultant_Photo = docName;
+                                    }
+                                    else if (!string.IsNullOrEmpty(model.PersonImagePath))
+                                    {
+                                        consultantMasterLog.Consultant_Photo = model.PersonImagePath;
+                                    }
+
+                                    consultantMasterLog.Consultant_Salutation = model.Consultant_Salutation;
+                                    consultantMasterLog.Consultant_Name = model.Consultant_Name;
+                                    consultantMasterLog.Consultant_Gender = model.Consultant_Gender;
+                                    //regvendor.Consultant_DOB = model.Consultant_DOB;                           
+
+                                    consultantMasterLog.Consultant_ContactNumber = model.Consultant_ContactNumber;
+                                    consultantMasterLog.Consultant_Email = model.Consultant_Email;
+                                    consultantMasterLog.Consultant_AadhaarNo = model.Consultant_AadhaarNo;
+                                    consultantMasterLog.IsGST = Convert.ToBoolean(model.IsGST);
+                                    consultantMasterLog.GSTIN = model.GSTIN;
+                                    consultantMasterLog.Consultant_PanNo = model.Consultant_PanNo;
+                                    consultantMasterLog.isSameAsAddress = model.isSameAsAddress;
+                                    consultantMasterLog.Consultant_Address = model.Consultant_Address;
+                                    consultantMasterLog.Consultant_Qualification = model.Consultant_Qualification;
+                                    consultantMasterLog.Consultant_Experience = model.Consultant_Experience;
+                                    consultantMasterLog.Consultant_City = model.Consultant_City;
+                                    consultantMasterLog.Consultant_StateCode = model.Consultant_StateCode;
+                                    consultantMasterLog.Consultant_Pincode = model.Consultant_Pincode.Trim().ToString();
+
+                                    if (model.Consultant_Country != null)
+                                    {
+                                        consultantMasterLog.Consultant_Country = model.Consultant_Country;
+
+                                    }
+                                    else
+                                    {
+                                        consultantMasterLog.Consultant_Country = 128;
+                                    }
+                                    if (model.Consultant_StateId != 0)
+                                    {
+                                        consultantMasterLog.Consultant_StateId = model.Consultant_StateId;
+                                    }
+                                    consultantMasterLog.Consultant_ServiceAddress = model.Consultant_ServiceAddress;
+                                    #endregion
+
+                                }
+                                else if (model.Consultant_Nationality == 1 && model.Consultant_Category == 2)
+                                {
+
+
+                                    chkConsultantMaster.Consultant_Salutation = model.Consultant_IFSalutation;
+                                    chkConsultantMaster.Consultant_Name = model.Consultant_IFName;
+
+                                    chkConsultantMaster.Consultant_ContactNumber = model.Consultant_IFContactNumber;
+                                    chkConsultantMaster.Consultant_Email = model.Consultant_IFEmail;
+                                    //chkConsultantMaster.Consultant_PanNo = model.Consultant_IFPanNo;
+                                    chkConsultantMaster.isSameAsAddress = model.isSameAsIFAddress;
+                                    chkConsultantMaster.Consultant_Address = model.Consultant_IFAddress;
+                                    chkConsultantMaster.IsGST = Convert.ToBoolean(model.IsGSTIF);
+                                    if (model.IsGSTIF == false)
+                                    {
+                                        chkConsultantMaster.GSTIN = model.GSTINIF;
+                                    }
+                                    else
+                                    {
+                                        chkConsultantMaster.GSTIN = model.GSTINIF;
+                                    }
+
+                                    chkConsultantMaster.Consultant_City = model.Consultant_IFCity;
+                                    chkConsultantMaster.Consultant_StateCode = model.Consultant_IFStateCode;
+                                    chkConsultantMaster.Consultant_Pincode = model.Consultant_IFPincode.Trim().ToString();
+
+
+                                    if (model.Consultant_IFStateId != 0)
+                                    {
+                                        chkConsultantMaster.Consultant_StateId = model.Consultant_IFStateId;
+                                    }
+                                    chkConsultantMaster.Consultant_ServiceAddress = model.Consultant_IFServiceAddress;
+                                    chkConsultantMaster.isSameAsAddress = model.isSameAsIFAddress;
+                                    chkConsultantMaster.Consultant_BankName = model.Consultant_BankName;
+                                    chkConsultantMaster.Consultant_AccountNumber = model.Consultant_AccountNumber;
+                                    consultantMasterLog.Consultant_BankName = model.Consultant_BankName;
+                                    consultantMasterLog.Consultant_AccountNumber = model.Consultant_AccountNumber;
+                                    #region
+                                    consultantMasterLog.Consultant_MasterId = chkConsultantMaster.Consultant_MasterId;
+                                    consultantMasterLog.Consultant_Nationality = model.Consultant_Nationality;
+                                    consultantMasterLog.Consultant_Category = model.Consultant_Category;
+                                    consultantMasterLog.Consultant_EmpId = chkConsultantMaster.Consultant_EmpId;
+                                    consultantMasterLog.SeqNbr = chkConsultantMaster.SeqNbr;
+                                    consultantMasterLog.Consultant_EmpType = chkConsultantMaster.Consultant_EmpType;
+
+                                    consultantMasterLog.Consultant_Salutation = model.Consultant_IFSalutation;
+                                    consultantMasterLog.Consultant_Name = model.Consultant_IFName;
+
+                                    consultantMasterLog.Consultant_ContactNumber = model.Consultant_IFContactNumber;
+                                    consultantMasterLog.Consultant_Email = model.Consultant_IFEmail;
+                                    consultantMasterLog.Consultant_PanNo = model.Consultant_IFPanNo;
+                                    consultantMasterLog.IsGST = Convert.ToBoolean(model.IsGSTIF);
+                                    consultantMasterLog.GSTIN = model.GSTINIF;
+                                    consultantMasterLog.isSameAsAddress = model.isSameAsIFAddress;
+                                    consultantMasterLog.Consultant_Address = model.Consultant_IFAddress;
+
+                                    consultantMasterLog.Consultant_City = model.Consultant_IFCity;
+                                    consultantMasterLog.Consultant_StateCode = model.Consultant_IFStateCode;
+                                    consultantMasterLog.Consultant_Pincode = model.Consultant_IFPincode.Trim().ToString();
+
+
+                                    if (model.Consultant_IFStateId != 0)
+                                    {
+                                        consultantMasterLog.Consultant_StateId = model.Consultant_IFStateId;
+                                    }
+                                    consultantMasterLog.Consultant_ServiceAddress = model.Consultant_IFServiceAddress;
+                                    consultantMasterLog.isSameAsAddress = model.isSameAsIFAddress;
+
+                                    #endregion
+
+
+                                }
+                                else if (model.Consultant_Nationality == 2 && model.Consultant_Category == 1)
+                                {
+
+                                    chkConsultantMaster.Consultant_DOB = model.Consultant_fi_DOB;
+                                    chkConsultantMaster.Consultant_Salutation = model.Consultant_FISalutation;
+                                    chkConsultantMaster.Consultant_Name = model.Consultant_FIName;
+                                    chkConsultantMaster.Consultant_Gender = model.Consultant_FIGender;
+                                    //regvendor.Consultant_DOB = model.Consultant_DOB;                           
+                                    if (model.PersonFIImage != null)
+                                    {
+                                        var guid = Guid.NewGuid().ToString();
+                                        var docName = guid + "_" + model.PersonFIImage.FileName;
+                                        model.PersonFIImage.UploadFile("RCTEmployeeImages", docName);
+                                        chkConsultantMaster.Consultant_Photo = docName;
+                                    }
+                                    else if (!string.IsNullOrEmpty(model.PersonImageFIPath))
+                                    {
+                                        chkConsultantMaster.Consultant_Photo = model.PersonImageFIPath;
+                                    }
+                                    chkConsultantMaster.Consultant_ContactNumber = model.Consultant_FIContactNumber;
+                                    chkConsultantMaster.Consultant_Email = model.Consultant_FIEmail;
+                                    chkConsultantMaster.Consultant_TIN = model.Consultant_FITIN;
+                                    chkConsultantMaster.isSameAsAddress = model.isSameAsFIAddress;
+                                    chkConsultantMaster.Consultant_Address = model.Consultant_FIAddress;
+                                    //regvendor.Consultant_Details = model.Consultant_Details;
+                                    chkConsultantMaster.Consultant_Qualification = model.Consultant_FIQualification;
+                                    chkConsultantMaster.Consultant_Experience = model.Consultant_FIExperience;
+                                    chkConsultantMaster.Consultant_City = model.Consultant_FICity;
+
+                                    chkConsultantMaster.Consultant_Pincode = model.Consultant_FIPincode.Trim().ToString();
+
+                                    if (model.Consultant_FICountry != null)
+                                    {
+                                        chkConsultantMaster.Consultant_Country = model.Consultant_FICountry;
+
+                                    }
+                                    else
+                                    {
+                                        chkConsultantMaster.Consultant_Country = 128;
+                                    }
+
+                                    chkConsultantMaster.Consultant_ServiceAddress = model.Consultant_FIServiceAddress;
+                                    chkConsultantMaster.Consultant_BankName = model.Consultant_FBankName;
+                                    chkConsultantMaster.Consultant_AccountNumber = model.Consultant_FrAccountNumber;
+                                    consultantMasterLog.Consultant_BankName = model.Consultant_FBankName;
+                                    consultantMasterLog.Consultant_AccountNumber = model.Consultant_FrAccountNumber;
+                                    #region 
+                                    consultantMasterLog.Consultant_MasterId = chkConsultantMaster.Consultant_MasterId;
+                                    consultantMasterLog.Consultant_Nationality = model.Consultant_Nationality;
+                                    consultantMasterLog.Consultant_Category = model.Consultant_Category;
+                                    consultantMasterLog.Consultant_EmpId = chkConsultantMaster.Consultant_EmpId;
+                                    consultantMasterLog.SeqNbr = chkConsultantMaster.SeqNbr;
+                                    consultantMasterLog.Consultant_EmpType = chkConsultantMaster.Consultant_EmpType;
+
+                                    consultantMasterLog.Consultant_DOB = model.Consultant_fi_DOB;
+                                    consultantMasterLog.Consultant_Salutation = model.Consultant_FISalutation;
+                                    consultantMasterLog.Consultant_Name = model.Consultant_FIName;
+                                    consultantMasterLog.Consultant_Gender = model.Consultant_Gender;
+                                    //regvendor.Consultant_DOB = model.Consultant_DOB;                           
+                                    if (model.PersonFIImage != null)
+                                    {
+                                        var guid = Guid.NewGuid().ToString();
+                                        var docName = guid + "_" + model.PersonFIImage.FileName;
+                                        model.PersonFIImage.UploadFile("RCTEmployeeImages", docName);
+                                        consultantMasterLog.Consultant_Photo = docName;
+                                    }
+                                    else if (!string.IsNullOrEmpty(model.PersonImageFIPath))
+                                    {
+                                        consultantMasterLog.Consultant_Photo = model.PersonImageFIPath;
+                                    }
+                                    consultantMasterLog.Consultant_ContactNumber = model.Consultant_FIContactNumber;
+                                    consultantMasterLog.Consultant_TIN = model.Consultant_FITIN;
+                                    consultantMasterLog.Consultant_Email = model.Consultant_FIEmail;
+                                    consultantMasterLog.isSameAsAddress = model.isSameAsFIAddress;
+                                    consultantMasterLog.Consultant_Address = model.Consultant_FIAddress;
+                                    //regvendor.Consultant_Details = model.Consultant_Details;
+                                    consultantMasterLog.Consultant_Qualification = model.Consultant_FIQualification;
+                                    consultantMasterLog.Consultant_Experience = model.Consultant_FIExperience;
+                                    consultantMasterLog.Consultant_City = model.Consultant_FICity;
+
+                                    consultantMasterLog.Consultant_Pincode = model.Consultant_FIPincode.Trim().ToString();
+
+                                    if (model.Consultant_FICountry != null)
+                                    {
+                                        consultantMasterLog.Consultant_Country = model.Consultant_FICountry;
+
+                                    }
+                                    else
+                                    {
+                                        consultantMasterLog.Consultant_Country = 128;
+                                    }
+
+                                    consultantMasterLog.Consultant_ServiceAddress = model.Consultant_FIServiceAddress;
+                                    #endregion
+                                }
+                                else if (model.Consultant_Nationality == 2 && model.Consultant_Category == 2)
+                                {
+
+
+                                    chkConsultantMaster.Consultant_Salutation = model.Consultant_FFSalutation;
+                                    chkConsultantMaster.Consultant_Name = model.Consultant_FFName;
+
+                                    chkConsultantMaster.Consultant_ContactNumber = model.Consultant_FFContactNumber;
+                                    chkConsultantMaster.Consultant_Email = model.Consultant_FFEmail;
+                                    chkConsultantMaster.Consultant_TIN = model.Consultant_FFTIN;
+                                    chkConsultantMaster.isSameAsAddress = model.isSameAsFFAddress;
+                                    chkConsultantMaster.Consultant_Address = model.Consultant_FFAddress;
+
+
+                                    chkConsultantMaster.Consultant_City = model.Consultant_FFCity;
+
+                                    chkConsultantMaster.Consultant_Pincode = model.Consultant_FFPincode.Trim().ToString();
+
+                                    if (model.Consultant_FFCountry != null)
+                                    {
+                                        chkConsultantMaster.Consultant_Country = model.Consultant_FFCountry;
+
+                                    }
+                                    else
+                                    {
+                                        chkConsultantMaster.Consultant_Country = 128;
+                                    }
+
+                                    chkConsultantMaster.Consultant_ServiceAddress = model.Consultant_FFServiceAddress;
+                                    chkConsultantMaster.Consultant_BankName = model.Consultant_FBankName;
+                                    chkConsultantMaster.Consultant_AccountNumber = model.Consultant_FrAccountNumber;
+
+
+                                    #region  
+
+                                    consultantMasterLog.Consultant_MasterId = chkConsultantMaster.Consultant_MasterId;
+                                    consultantMasterLog.Consultant_Nationality = model.Consultant_Nationality;
+                                    consultantMasterLog.Consultant_Category = model.Consultant_Category;
+                                    consultantMasterLog.Consultant_EmpId = chkConsultantMaster.Consultant_EmpId;
+                                    consultantMasterLog.SeqNbr = chkConsultantMaster.SeqNbr;
+                                    consultantMasterLog.Consultant_EmpType = chkConsultantMaster.Consultant_EmpType;
+
+                                    consultantMasterLog.Consultant_Salutation = model.Consultant_FFSalutation;
+                                    consultantMasterLog.Consultant_Name = model.Consultant_FFName;
+
+                                    consultantMasterLog.Consultant_ContactNumber = model.Consultant_FFContactNumber;
+                                    consultantMasterLog.Consultant_Email = model.Consultant_FFEmail;
+                                    consultantMasterLog.isSameAsAddress = model.isSameAsFFAddress;
+                                    consultantMasterLog.Consultant_Address = model.Consultant_FFAddress;
+                                    consultantMasterLog.Consultant_TIN = model.Consultant_FFTIN;
+
+                                    consultantMasterLog.Consultant_City = model.Consultant_FFCity;
+
+                                    consultantMasterLog.Consultant_Pincode = model.Consultant_FFPincode.Trim().ToString();
+
+                                    if (model.Consultant_FFCountry != null)
+                                    {
+                                        consultantMasterLog.Consultant_Country = model.Consultant_FFCountry;
+
+                                    }
+                                    else
+                                    {
+                                        consultantMasterLog.Consultant_Country = 128;
+                                    }
+
+                                    consultantMasterLog.Consultant_ServiceAddress = model.Consultant_FFServiceAddress;
+                                    consultantMasterLog.Consultant_BankName = model.Consultant_FBankName;
+                                    consultantMasterLog.Consultant_AccountNumber = model.Consultant_FrAccountNumber;
+                                    #endregion
+                                }
+
+                                chkConsultantMaster.Consultant_AccountHolderName = model.Consultant_AccountHolderName;
+                                //chkConsultantMaster.Consultant_BankName = model.Consultant_BankName;
+                                chkConsultantMaster.Consultant_Branch = model.Consultant_Branch;
+                                chkConsultantMaster.Consultant_IFSC = model.Consultant_IFSC;
+                                //chkConsultantMaster.Consultant_AccountNumber = model.Consultant_AccountNumber;
+                                chkConsultantMaster.Consultant_BankAddress = model.Consultant_BankAddress;
+                                chkConsultantMaster.Consultant_ABANumber = model.Consultant_ABANumber;
+                                chkConsultantMaster.Consultant_SortCode = model.Consultant_SortCode;
+                                chkConsultantMaster.Consultant_IBAN = model.Consultant_IBAN;
+                                chkConsultantMaster.Consultant_SWIFTorBICCode = model.Consultant_SWIFTorBICCode;
+                                chkConsultantMaster.Consultant_BankNature = model.Consultant_BankNature;
+                                chkConsultantMaster.Consultant_MICRCode = model.Consultant_MICRCode;
+                                chkConsultantMaster.Consultant_BankCountry = model.Consultant_BankCountry;
+                                chkConsultantMaster.Consultant_BankEmailId = model.Consultant_BankEmailId;
+                                chkConsultantMaster.Status = "Active";
+                                chkConsultantMaster.IsActiveNow = true;
+                                //regvendor.isSameAsAddress = model.isSameAsAddress;                                
+
+                                chkConsultantMaster.UptdUser = model.UserId;
+                                chkConsultantMaster.UptdTs = DateTime.Now;
+
+                                #region
+                                consultantMasterLog.Consultant_AccountHolderName = model.Consultant_AccountHolderName;
+
+                                consultantMasterLog.Consultant_Branch = model.Consultant_Branch;
+                                consultantMasterLog.Consultant_IFSC = model.Consultant_IFSC;
+
+                                consultantMasterLog.Consultant_BankAddress = model.Consultant_BankAddress;
+                                consultantMasterLog.Consultant_ABANumber = model.Consultant_ABANumber;
+                                consultantMasterLog.Consultant_SortCode = model.Consultant_SortCode;
+                                consultantMasterLog.Consultant_IBAN = model.Consultant_IBAN;
+                                consultantMasterLog.Consultant_SWIFTorBICCode = model.Consultant_SWIFTorBICCode;
+                                consultantMasterLog.Consultant_BankNature = model.Consultant_BankNature;
+                                consultantMasterLog.Consultant_MICRCode = model.Consultant_MICRCode;
+                                consultantMasterLog.Consultant_BankCountry = model.Consultant_BankCountry;
+                                consultantMasterLog.Consultant_BankEmailId = model.Consultant_BankEmailId;
+                                consultantMasterLog.Status = "Open";
+                                consultantMasterLog.IsActiveNow = true;
+                                //regvendor.isSameAsAddress = model.isSameAsAddress;
+
+                                consultantMasterLog.UptdUser = model.UserId;
+                                consultantMasterLog.UptdTs = DateTime.Now;
+                                if (chkConsultantMaster != null)
+                                {
+                                    consultantMasterLog.CurrentVersion = true;
+                                }
+                                else
+                                {
+                                    consultantMasterLog.CurrentVersion = false;
+                                }
+
+                                consultantMasterLog.Status = "Active";
+                                context.tblRCTConsultantMasterLog.Add(consultantMasterLog);
+                                //context.SaveChanges();
+                                #endregion
+                                //context.tblRCTConsultantMaster.Add(chkConsultantMaster);
+                                context.SaveChanges();
+                                var vendoId = chkConsultantMaster.Consultant_MasterId;
+                                //if (model.AttachmentName[0] != null && model.AttachmentName[0] != "")
+                                //{
+                                var deldocument = (from RD in context.tblConsultantDocumentMaster
+                                                   where RD.Consultant_MasterId == model.Consultant_MasterId &&
+                                                   !model.ConsultantDocumentID.Contains(RD.ConsultantDocumentID) && RD.IsCurrentVersion == true
+                                                   select RD).ToList();
+                                int delCount = deldocument.Count();
+                                if (delCount > 0)
+                                {
+                                    for (int i = 0; i < delCount; i++)
+                                    {
+                                        deldocument[i].IsCurrentVersion = false;
+                                        context.SaveChanges();
+                                    }
+                                }
+                                for (int i = 0; i < model.AttachmentName.Length; i++)
+                                {
+                                    if (model.AttachmentName[i] != "")
+                                    {
+                                        var docid = model.ConsultantDocumentID[i];
+                                        var query = (from T in context.tblConsultantDocumentMaster
+                                                     where (T.ConsultantDocumentID == docid && T.Consultant_MasterId == model.Consultant_MasterId && T.IsCurrentVersion == true)
+                                                     select T).ToList();
+                                        if (query.Count == 0)
+                                        {
+                                            string docpath = "";
+                                            docpath = System.IO.Path.GetFileName(model.ConsultantFile[i].FileName);
+                                            var docfileId = Guid.NewGuid().ToString();
+                                            //var docname = docfileId + "_" + docpath;
+                                            var docname = docpath;
+                                            /*Saving the file in server folder*/
+                                            model.ConsultantFile[i].UploadFile("Requirement", docname);
+                                            tblConsultantDocumentMaster document = new tblConsultantDocumentMaster();
+                                            document.Consultant_MasterId = vendoId;
+                                            if (model.ConsultantFile[i] != null)
+                                            {
+                                                document.AttachmentFileName = model.ConsultantFile[i].FileName;
+
+                                            }
+                                            document.AttachmentPath = docname;
+                                            document.AttachmentName = model.AttachmentName[i];
+                                            //document.DocumentType = model.DocumentType[i];
+                                            document.IsCurrentVersion = true;
+                                            document.DocumentUploadUserId = model.UserId;
+                                            document.DocumentUpload_Ts = DateTime.Now;
+                                            context.tblConsultantDocumentMaster.Add(document);
+                                            context.SaveChanges();
+                                        }
+                                        else
+                                        {
+                                            //query[0].DocumentType = model.DocumentType[i];
+                                            query[0].AttachmentName = model.AttachmentName[i];
+                                            query[0].DocumentUploadUserId = model.UserId;
+                                            query[0].DocumentUpload_Ts = DateTime.Now;
+                                            query[0].IsCurrentVersion = true;
+                                            context.SaveChanges();
+                                        }
+                                    }
+                                }
+
+                                //}
+
+
+                            }
+                            transaction.Commit();
+                            return 3;
+                        }
+
+
+                    }
+                    catch (Exception ex)
+                    {
+                        Infrastructure.IOASException.Instance.HandleMe(
+(object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                        transaction.Rollback();
+                        return -1;
+                    }
+
+
+                }
+            }
+
+        }
+
+        public static ConsultantMaster EditConsultantMaster(int consultantMasterId)        {            try            {                using (var context = new IOASDBEntities())                {                    ConsultantMaster editVendor = new ConsultantMaster();                    var query = (from V in context.tblRCTConsultantMaster                                 where (V.Consultant_MasterId == consultantMasterId && V.Status == "Active")                                 select V).FirstOrDefault();
+                    var vendorfile = (from vf in context.tblConsultantDocumentMaster                                      where vf.Consultant_MasterId == consultantMasterId && vf.IsCurrentVersion == true                                      select vf).ToList();
+
+                    if (query != null)                    {
+                        editVendor.Consultant_EmpId = query.Consultant_EmpId;                        if (query.Consultant_Nationality == 1 && query.Consultant_Category == 1)
+                        {
+                            editVendor.Consultant_MasterId = query.Consultant_MasterId;
+                            editVendor.Consultant_Nationality = Convert.ToInt32(query.Consultant_Nationality);
+                            editVendor.Consultant_Category = query.Consultant_Category;
+                            editVendor.Consultant_Salutation = query.Consultant_Salutation;
+                            editVendor.Consultant_Name = query.Consultant_Name;
+                            editVendor.Consultant_Gender = query.Consultant_Gender;
+                            //editVendor.Consultant_DOB = String.Format("{0:dd}", (DateTime)query.Consultant_DOB) + "-" + String.Format("{0:MMMM}", (DateTime)query.Consultant_DOB) + "-" + String.Format("{0:yyyy}", (DateTime)query.Consultant_DOB);
+                            editVendor.Consultant_DOB = query.Consultant_DOB;
+                            //editVendor.Consultant_DOB = query.Consultant_DOB;
+                            editVendor.PersonImagePath = query.Consultant_Photo;
+                            editVendor.Consultant_ContactNumber = query.Consultant_ContactNumber;
+                            editVendor.Consultant_Email = query.Consultant_Email;
+                            editVendor.IsGST = Convert.ToBoolean(query.IsGST);
+                            editVendor.GSTIN = query.GSTIN;
+                            editVendor.Consultant_AadhaarNo = query.Consultant_AadhaarNo;
+                            editVendor.Consultant_PanNo = query.Consultant_PanNo;
+                            editVendor.Consultant_Address = query.Consultant_Address;
+                            editVendor.Consultant_Qualification = query.Consultant_Qualification;
+                            editVendor.Consultant_Experience = query.Consultant_Experience;
+                            editVendor.Consultant_City = query.Consultant_City;
+                            editVendor.Consultant_Pincode = query.Consultant_Pincode.Trim().ToString();
+                            editVendor.Consultant_Country = Convert.ToInt32(query.Consultant_Country);
+                            editVendor.Consultant_StateId = Convert.ToInt32(query.Consultant_StateId);
+                            editVendor.Consultant_StateCode = Convert.ToInt32(query.Consultant_StateCode);
+                            editVendor.Consultant_ServiceAddress = query.Consultant_ServiceAddress;
+                            editVendor.isSameAsAddress = Convert.ToBoolean(query.isSameAsAddress);
+                            editVendor.Consultant_AccountNumber = query.Consultant_AccountNumber;
+                            editVendor.Consultant_BankName = query.Consultant_BankName;
+                        }                        else if (query.Consultant_Nationality == 1 && query.Consultant_Category == 2)
+                        {
+                            editVendor.Consultant_MasterId = query.Consultant_MasterId;
+                            editVendor.Consultant_Nationality = Convert.ToInt32(query.Consultant_Nationality);
+                            editVendor.Consultant_Category = query.Consultant_Category;
+                            editVendor.Consultant_IFSalutation = query.Consultant_Salutation;
+                            editVendor.Consultant_IFName = query.Consultant_Name;
+                            editVendor.Consultant_IFContactNumber = query.Consultant_ContactNumber;
+                            editVendor.Consultant_IFEmail = query.Consultant_Email;
+                            editVendor.IsGSTIF = Convert.ToBoolean(query.IsGST);
+                            editVendor.GSTINIF = query.GSTIN;
+                            editVendor.Consultant_IFPanNo = query.Consultant_PanNo;
+                            editVendor.Consultant_IFAddress = query.Consultant_Address;
+                            editVendor.Consultant_IFCity = query.Consultant_City;
+                            editVendor.Consultant_IFPincode = query.Consultant_Pincode;
+                            editVendor.Consultant_IFStateId = Convert.ToInt32(query.Consultant_StateId);
+                            editVendor.Consultant_IFStateCode = Convert.ToInt32(query.Consultant_StateCode);
+                            editVendor.Consultant_IFServiceAddress = query.Consultant_ServiceAddress;
+                            editVendor.isSameAsIFAddress = Convert.ToBoolean(query.isSameAsAddress);
+                            editVendor.Consultant_AccountNumber = query.Consultant_AccountNumber;
+                            editVendor.Consultant_BankName = query.Consultant_BankName;
+
+                        }
+                        else if (query.Consultant_Nationality == 2 && query.Consultant_Category == 1)
+                        {
+                            editVendor.Consultant_MasterId = query.Consultant_MasterId;
+                            editVendor.Consultant_Nationality = Convert.ToInt32(query.Consultant_Nationality);
+                            editVendor.Consultant_Category = query.Consultant_Category;
+                            editVendor.Consultant_FISalutation = query.Consultant_Salutation;
+                            editVendor.Consultant_FIName = query.Consultant_Name;
+                            editVendor.Consultant_FIGender = query.Consultant_Gender;
+                            editVendor.Consultant_fi_DOB = query.Consultant_DOB;
+                            editVendor.PersonImageFIPath = query.Consultant_Photo;
+                            editVendor.Consultant_FIContactNumber = query.Consultant_ContactNumber;
+                            editVendor.Consultant_FITIN = query.Consultant_TIN;
+                            editVendor.Consultant_FIEmail = query.Consultant_Email;
+                            editVendor.Consultant_FIAddress = query.Consultant_Address;
+                            editVendor.Consultant_FIQualification = query.Consultant_Qualification;
+                            editVendor.Consultant_FIExperience = query.Consultant_Experience;
+                            editVendor.Consultant_FICity = query.Consultant_City;
+                            editVendor.Consultant_FIPincode = query.Consultant_Pincode;
+                            editVendor.Consultant_FICountry = Convert.ToInt32(query.Consultant_Country);
+                            editVendor.Consultant_FIServiceAddress = query.Consultant_ServiceAddress;
+                            editVendor.isSameAsFIAddress = Convert.ToBoolean(query.isSameAsAddress);
+                            editVendor.Consultant_FrAccountNumber = query.Consultant_AccountNumber;
+                            editVendor.Consultant_FBankName = query.Consultant_BankName;
+                        }
+                        else if (query.Consultant_Nationality == 2 && query.Consultant_Category == 2)
+                        {
+                            editVendor.Consultant_MasterId = query.Consultant_MasterId;
+                            editVendor.Consultant_Nationality = Convert.ToInt32(query.Consultant_Nationality);
+                            editVendor.Consultant_Category = query.Consultant_Category;
+                            editVendor.Consultant_FFSalutation = query.Consultant_Salutation;
+                            editVendor.Consultant_FFName = query.Consultant_Name;
+                            editVendor.Consultant_FFContactNumber = query.Consultant_ContactNumber;
+                            editVendor.Consultant_FFTIN = query.Consultant_TIN;
+                            editVendor.Consultant_FFEmail = query.Consultant_Email;
+                            editVendor.Consultant_FFAddress = query.Consultant_Address;
+                            editVendor.Consultant_FFCity = query.Consultant_City;
+                            editVendor.Consultant_FFPincode = query.Consultant_Pincode;
+                            editVendor.Consultant_FFCountry = Convert.ToInt32(query.Consultant_Country);
+                            editVendor.Consultant_FFServiceAddress = query.Consultant_ServiceAddress;
+                            editVendor.isSameAsFFAddress = Convert.ToBoolean(query.isSameAsAddress);
+                            editVendor.Consultant_FrAccountNumber = query.Consultant_AccountNumber;
+                            editVendor.Consultant_FBankName = query.Consultant_BankName;
+                        }
+
+
+                        editVendor.Consultant_AccountHolderName = query.Consultant_AccountHolderName;
+
+                        editVendor.Consultant_Branch = query.Consultant_Branch;                        editVendor.Consultant_IFSC = query.Consultant_IFSC;                        editVendor.Consultant_BankAddress = query.Consultant_BankAddress;                        editVendor.Consultant_ABANumber = query.Consultant_ABANumber;                        editVendor.Consultant_SortCode = query.Consultant_SortCode;                        editVendor.Consultant_IBAN = query.Consultant_IBAN;                        editVendor.Consultant_SWIFTorBICCode = query.Consultant_SWIFTorBICCode;                        editVendor.Consultant_BankNature = query.Consultant_BankNature;                        editVendor.Consultant_MICRCode = query.Consultant_MICRCode;                        editVendor.Consultant_BankCountry = query.Consultant_BankCountry ?? 0;                        editVendor.Consultant_BankEmailId = query.Consultant_BankEmailId;
+
+                        if (vendorfile.Count > 0)                        {                            int[] _docid = new int[vendorfile.Count];                            int[] _doctype = new int[vendorfile.Count];                            string[] _docname = new string[vendorfile.Count];                            string[] _attchname = new string[vendorfile.Count];                            string[] _docpath = new string[vendorfile.Count];                            for (int i = 0; i < vendorfile.Count; i++)                            {
+                                //_docid[i] = Convert.ToInt32(vendorfile[i].RevereseTaxDocumentId);
+                                //_doctype[i] = Convert.ToInt32(vendorfile[i].TaxDocumentType);
+                                //_docname[i] = vendorfile[i].TaxDocument;
+                                _docid[i] = Convert.ToInt32(vendorfile[i].ConsultantDocumentID);
+                                //_attchname[i] = vendorfile[i].AttachmentName;
+                                //_attchname[i] = vendorfile[i].AttachmentFileName;
+                                _attchname[i] = vendorfile[i].AttachmentName;                                _docpath[i] = vendorfile[i].AttachmentPath;
+                                //_docpath[i] = vendorfile[i].AttachmentFileName;
+                            }                            editVendor.ConsultantDocumentID = _docid;
+                            //editVendor.VendorDocumentType = _doctype;
+                            //editVendor.VendorDocumentName = _docname;
+                            editVendor.AttachmentName = _attchname;                            editVendor.AttachmentPath = _docpath;
+
+                        }
+
+
+                    }                    return editVendor;                }            }            catch (Exception ex)            {                Infrastructure.IOASException.Instance.HandleMe((object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);                ConsultantMaster editVendor = new ConsultantMaster();                return editVendor;            }        }
+
+        public static ConsultantMasterView GetConsultantMasterView(int ConsultantMasterId)
+        {
+            ConsultantMasterView model = new ConsultantMasterView();
+            List<GSTDocumentModel> gstlist = new List<GSTDocumentModel>();
+            List<TDSDocumentModel> tdslist = new List<TDSDocumentModel>();
+            List<TaxDocumentModel> taxlist = new List<TaxDocumentModel>();
+            List<VendorTDSDetails> List = new List<VendorTDSDetails>();
+            try
+            {
+                using (var context = new IOASDBEntities())
+                {
+                    var Qry = context.tblRCTConsultantMaster.Where(m => m.Consultant_MasterId == ConsultantMasterId).FirstOrDefault();
+                    model.ConsultantName = Qry.Consultant_Name;
+                    //model.Consultant_MasterId = Qry.Consultant_MasterId;
+                    model.Nationality = Qry.Consultant_Nationality == 1 ? "India" : "Foreign";
+                    model.Category = Qry.Consultant_Category == 1 ? "Individual" : "Firm";
+                    //model.PFMSCode = Qry.PFMSVendorCode;
+                    model.Address = Qry.Consultant_Address;
+                    model.Email = Qry.Consultant_Email;
+                    //model.ContactPerson = Qry.ContactPerson;
+                    model.MobileNo = Qry.Consultant_ContactNumber;
+                    //model.PhoneNo = Qry.PhoneNumber;
+                    model.Country = context.tblCountries.Where(m => m.countryID == Qry.Consultant_Country).Select(m => m.countryName).FirstOrDefault();
+                    int? StateId = Qry.Consultant_StateId;
+                    model.State = context.tblStateMaster.Where(m => m.StateId == StateId).Select(m => m.StateName).FirstOrDefault();
+                    model.StateCode = context.tblStateMaster.Where(m => m.StateId == StateId).Select(m => m.StateCode).FirstOrDefault();
+                    model.City = Qry.Consultant_City;
+                    //model.City = "Chennai";
+                    model.PinCode = Convert.ToString(Qry.Consultant_Pincode);
+                    //model.RegName = Qry.RegisteredName;
+                    //model.TAN = Qry.TAN;
+                    model.PAN = Qry.Consultant_PanNo;
+                    //model.GSTIN = Qry.GSTIN;
+                    //model.TaxExpReason = Qry.Reason;
+
+                    model.AccHolderName = Qry.Consultant_AccountHolderName;
+                    model.AccNo = Qry.Consultant_AccountNumber;
+                    model.IFSC = Qry.Consultant_IFSC;
+                    model.BankName = Qry.Consultant_BankName;
+                    model.BankAddress = Qry.Consultant_BankAddress;
+                    model.Branch = Qry.Consultant_Branch;
+                    model.BankEmail = Qry.Consultant_BankEmailId;
+                    model.BankNature = Qry.Consultant_BankNature;
+                    model.MICRCode = Qry.Consultant_MICRCode;
+                    model.ABANumber = Qry.Consultant_ABANumber;
+                    model.SortCode = Qry.Consultant_SortCode;
+                    model.IBAN = Qry.Consultant_IBAN;
+                    model.MICRCode = Qry.Consultant_MICRCode;
+                    model.SWiftCode = Qry.Consultant_SWIFTorBICCode;
+                    model.BankCountry = Common.GetVendorbankCountry(Qry.Consultant_BankCountry ?? 0);
+                    //model.ServiceCategory = context.tblCodeControl.Where(m => m.CodeName == "DeductionCategory" && m.CodeValAbbr == Qry.Category).Select(m => m.CodeValDetail).FirstOrDefault();
+                    //int? TaxId = Qry.SupplyType == null ? Qry.ServiceType : Qry.SupplyType;
+                    //model.Type = context.tblTaxMaster.Where(m => m.TaxMasterId == TaxId).Select(m => m.ServiceType).FirstOrDefault();
+                    //model.ReverseTaxReson = Qry.ReasonForReservieTax;
+                    //model.CertificateNo = Qry.CertificateNumber;
+                    //model.ValidityReson = Convert.ToString(Qry.ValidityPeriod);
+
+                    model.TdsDocument = (from c in context.tblConsultantDocumentMaster
+                                         where c.Consultant_MasterId == ConsultantMasterId && c.IsCurrentVersion == true//&& c. == "Active" && c.AppointmentType == 2
+                                         orderby c.ConsultantDocumentID
+                                         select new OtherDocumentModel()//OtherDetail
+                                         {
+                                             TdsDocumentName = c.AttachmentName,
+                                             ConsultantDocumentID = c.ConsultantDocumentID,
+                                             //Description = c.Description,
+                                             TdsAttachementName = c.AttachmentName,
+                                             TdsDocumentPath = c.AttachmentPath,
+                                             //Remarks = c.Remarks,
+                                         }).ToList();
+                    model.TdsDocument = model.TdsDocument.Count > 0 ? model.TdsDocument : null;
+
+
+
+                    return model;
+                }
+            }
+            catch (Exception ex)
+            {
+                return model;
+            }
+        }
+
+
+        public static ConsultantMaster GetConsultantEmpNo(string Pno)
+        {
+            ConsultantMaster detail = new ConsultantMaster();
+            try
+            {
+                using (var context = new IOASDBEntities())
+                {
+                    var query = (from ste in context.tblRCTConsultantMaster
+                                 orderby ste.Consultant_MasterId descending
+                                 where ste.Consultant_EmpId == Pno
+                                 select ste).FirstOrDefault();
+                    if (query != null)
+                    {
+                        detail.Consultant_MasterId = query.Consultant_MasterId;
+                        detail.Consultant_Name = query.Consultant_Name;
+                    }
+                }
+                return detail;
+            }
+            catch (Exception ex)
+            {
+                return detail;
+            }
+
+        }
+
+        public ConsultantPaymentRelease GetConsultantPaymentRelease(int ConsultantMasterId)
+        {
+            ConsultantPaymentRelease model = new ConsultantPaymentRelease();
+            //List<GSTDocumentModel> gstlist = new List<GSTDocumentModel>();
+            //List<TDSDocumentModel> tdslist = new List<TDSDocumentModel>();
+            //List<TaxDocumentModel> taxlist = new List<TaxDocumentModel>();
+            //List<VendorTDSDetails> List = new List<VendorTDSDetails>();
+            try
+            {
+                using (var context = new IOASDBEntities())
+                {
+                    //var Qry = context.tblRCTConsultantEntry.Where(m => m.Consultant_MasterId == ConsultantMasterId).FirstOrDefault();
+
+                    var Qry = (from cm in context.tblRCTConsultantMaster
+                               from ce in context.tblRCTConsultantEntry
+                               where cm.Consultant_MasterId == ce.Consultant_MasterId //&& r.STEID == STEId
+                               select new { cm, ce }).FirstOrDefault();
+                    model.Consultant_AppointmentId = Qry.ce.Consultant_AppointmentId;
+                    model.Consultant_MasterId = Qry.ce.Consultant_MasterId;
+                    //model.ConsultantName = Qry.cm.Consultant_Name;
+                    //model.Consultant_Title = Qry.ce.Consultant_Title;
+                    //model.Email = Qry.cm.Consultant_Email;
+                    //model.Consultant_EmpType = Qry.cm.Consultant_EmpType;
+                    //model.Consultant_ContactNumber = Qry.cm.Consultant_ContactNumber;
+                    //model.Appointment_Start = string.Format("{0:dd-MMMM-yyyy}", Qry.ce.Consultant_AppStartDt);
+                    //model.Appointment_End = string.Format("{0:dd-MMMM-yyyy}", Qry.ce.Consultant_AppEndDt);
+                    //model.Payment_Type = Qry.ce.Consultant_PayType == 1 ? "Monthly" : "Installment";
+                    ////model.Payment_Type = Convert.ToString(Qry.ce.Consultant_PayType);
+                    //model.Consultant_RetainerFee = Qry.ce.Consultant_RetainerFee;
+                    //model.Booked_Commitment = Convert.ToString(Qry.ce.Consultant_Commitvalue);
+                    //model.Commitment_Balance = "10000";
+                    //model.Currency_Type = Qry.ce.Consultant_CurrType;
+                    //model.Currency_Value = Convert.ToString(Qry.ce.Consultant_CurrValue);
+                    //model.Conversion_rate = Convert.ToString(Qry.ce.Consultant_CurrConvertionRate);
+                    //model.GSTPercentage = (Qry.ce.Consultant_GSTINPercentage);
+                    ////model.GSTValue = (Qry.ce.Consultant_GSTvalue);
+                    //model.ITTDSPercentage = (Qry.ce.Consultant_ITTDSPercentage);
+                    //model.GSTTDSPercentage = (Qry.ce.Consultant_GSTTDSType);
+                    //model.Consultant_Nationality = Qry.cm.Consultant_Nationality;
+                    //model.ITTDSValue = (Qry.ce.Consultant_ITTDSPercentage);
+                    //model.GSTValue = (Qry.ce.consultant);
+                    //model.Branch = Qry.Consultant_Branch;
+                    //model.BankEmail = Qry.Consultant_BankEmailId;
+                    //model.BankNature = Qry.Consultant_BankNature;
+                    //model.MICRCode = Qry.Consultant_MICRCode;
+                    //model.ABANumber = Qry.Consultant_ABANumber;
+                    //model.SortCode = Qry.Consultant_SortCode;
+                    //model.IBAN = Qry.Consultant_IBAN;
+                    //model.MICRCode = Qry.Consultant_MICRCode;
+                    //model.SWiftCode = Qry.Consultant_SWIFTorBICCode;
+                    //model.BankCountry = Common.GetVendorbankCountry(Qry.Consultant_BankCountry ?? 0);
+
+
+                    //model.TdsDocument = (from c in context.tblConsultantDocumentMaster
+                    //                     where c.Consultant_MasterId == ConsultantMasterId && c.IsCurrentVersion == true//&& c. == "Active" && c.AppointmentType == 2
+                    //                     orderby c.ConsultantDocumentID
+                    //                     select new OtherDocumentModel()//OtherDetail
+                    //                     {
+                    //                         TdsDocumentName = c.AttachmentName,
+                    //                         ConsultantDocumentID = c.ConsultantDocumentID,
+                    //                         //Description = c.Description,
+                    //                         TdsAttachementName = c.AttachmentName,
+                    //                         TdsDocumentPath = c.AttachmentPath,
+                    //                         //Remarks = c.Remarks,
+                    //                     }).ToList();
+                    //model.TdsDocument = model.TdsDocument.Count > 0 ? model.TdsDocument : null;
+
+
+
+                    return model;
+                }
+            }
+            catch (Exception ex)
+            {
+                return model;
+            }
+        }
+
+        public Tuple<int> RCTConsultantPaymentRelease(ConsultantPaymentRelease model)
+        {
+
+            try
+            {
+                int res = 0;
+                int othid = 0;
+                int OSGID = 5;
+                int ConApp = 1;
+                //model.Consultant_MasterId = OSGID;
+                //string oldemail = "";
+                using (var context = new IOASDBEntities())
+                {
+                    using (var transaction = context.Database.BeginTransaction())
+                    {
+                        try
+                        {
+                            if (OSGID > 0)
+                            {
+                                //var editQuery = (from SM in context.tblRCTConsultantROP where SM.Consultant_MasterId == OSGID && SM.Consultant_AppointmentId == ConApp select SM).FirstOrDefault();
+
+                                tblRCTConsultantROP editQuery = new tblRCTConsultantROP();
+                                editQuery.Consultant_MasterId = model.Consultant_MasterId;
+                                editQuery.Consultant_AppointmentId = model.Consultant_AppointmentId;
+                                editQuery.Consultant_RetainerFee = Convert.ToDecimal(model.Consultant_RetainerFee);
+                                if (model.FeeType == "Old Employee")
+                                {
+                                    editQuery.FeeType = true;
+
+                                }
+                                else
+                                {
+                                    editQuery.FeeType = false;
+                                }
+                                //editQuery.FeeType = model.FeeType;
+
+
+                                editQuery.PaymentFromDate = model.Fromdate ?? DateTime.Now;
+                                editQuery.PaymentToDate = model.ToDate ?? DateTime.Now;
+                                editQuery.BasicAmount = Convert.ToDecimal(model.BasicAmount);
+                                editQuery.CurrencyValue = Convert.ToDecimal(model.Currency_Value);
+                                editQuery.ConversionRate = Convert.ToDecimal(model.Conversion_rate);
+                                editQuery.NewConversion_Rate = Convert.ToDecimal(model.TaxConversion_rate);
+                                editQuery.CurrentandArrear_Aount = Convert.ToDecimal(model.TaxAmount);
+
+                                editQuery.Deduction = model.Deduction;
+                                editQuery.GSTPercentage = model.GSTPercentage;
+                                editQuery.PaymentRelease_CrtdTs = System.DateTime.Now;
+                                editQuery.PaymentRelease_CrtdUser = model.PaymentRelease_CrtdUser;
+                                editQuery.GSTValue = model.GSTValue;
+                                editQuery.InvoiceValue = model.InvoiceValue;
+                                editQuery.OtherPayment = model.OtherPayment;
+                                editQuery.GrossPay = Convert.ToDecimal(model.GrossPay);
+                                //editQuery.PhysicallyChallenged = model.PhysicallyChallenged == 1 ? "Yes" : model.PhysicallyChallenged == 2 ? "No" : "";
+                                editQuery.ITTDSPercentage = model.ITTDSPercentage;
+                                editQuery.ITTDSValue = model.ITTDSValue;
+                                editQuery.GSTTDSPercentage = model.GSTTDSPercentage;
+                                editQuery.GSTTDSValue = model.GSTTDSValue;
+                                editQuery.NetAmount = Convert.ToDecimal(model.NetAmount);
+                                context.tblRCTConsultantROP.Add(editQuery);
+                                context.SaveChanges();
+                                othid = editQuery.PaymentReleaseId;
+
+                                if (model.OtherDetail != null)
+                                {
+                                    if (model.OtherDetail.Count > 0)
+                                    {
+                                        for (int i = 0; i < model.OtherDetail.Count; i++)
+                                        {
+                                            if (model.OtherDetail[i].OtherDetailId == null && model.OtherDetail[i].OtherNames != null)
+                                            {
+                                                tblRCTConsultantROP_Document OtherDetail = new tblRCTConsultantROP_Document();
+                                                OtherDetail.PaymentReleaseId = othid;
+                                                //OtherDetail.OtherDetailsId = model.OtherDetail[i].OtherDetailId;	
+                                                //OtherDetail.OthersName = model.OtherDetail[i].OtherNames;
+                                                //OtherDetail.Description = model.OtherDetail[i].Description;
+                                                //if (model.OtherDetail[i].OtherDetailFilePath != null)
+                                                //{
+                                                //    OtherDetail.AttachmentPath = model.OtherDetail[i].OtherDetailFilePath;
+                                                //    OtherDetail.AttachmentName = model.OtherDetail[i].OtherDetailFileName;
+                                                //}
+                                                if (model.OtherDetail[i].OtherDetailFile != null)
+                                                {
+                                                    string actName = System.IO.Path.GetFileName(model.OtherDetail[i].OtherDetailFile.FileName);
+                                                    var guid = Guid.NewGuid().ToString();
+                                                    var docName = guid + "_" + actName;
+                                                    //item.ExperienceFile.UploadFile("Requirement", docName);
+                                                    model.OtherDetail[i].OtherDetailFile.UploadFile("Requirement", docName);
+
+                                                    model.OtherDetail[i].OtherDetailFileName = actName;
+                                                    model.OtherDetail[i].OtherDetailFilePath = docName;
+                                                    OtherDetail.AttachmentPath = model.OtherDetail[i].OtherDetailFilePath;
+                                                    OtherDetail.AttachmentFileName = model.OtherDetail[i].OtherDetailFileName;
+                                                }
+
+                                                //OtherDetail.Remarks = model.OtherDetail[i].Remarks;
+                                                OtherDetail.DocumentUploadUserId = model.PaymentRelease_CrtdUser;
+                                                OtherDetail.DocumentUpload_Ts = DateTime.Now;
+                                                OtherDetail.Status = "Active";
+                                                context.tblRCTConsultantROP_Document.Add(OtherDetail);
+                                                context.SaveChanges();
+                                            }
+                                            //else
+                                            //{
+                                            //    int OtherDetailID = model.OtherDetail[i].OtherDetailId ?? 0;
+                                            //    var Qryothr = (from SM in context.tblRCTOSGOtherDetail where SM.OSGId == OSGID && SM.OtherDetailsId == OtherDetailID && SM.Status == "Active" select SM).ToList();
+                                            //    if (Qryothr.Count > 0)
+                                            //    {
+                                            //        for (int j = 0; j < Qryothr.Count; j++)
+                                            //        {
+                                            //            if (model.OtherDetail[j].OtherNames != null)
+                                            //            {
+                                            //                Qryothr[j].OSGId = OSGID;
+                                            //                Qryothr[j].OthersName = model.OtherDetail[i].OtherNames;
+                                            //                Qryothr[j].Description = model.OtherDetail[i].Description;
+                                            //                //if (model.OtherDetail[i].OtherDetailFilePath != null)
+                                            //                //{
+                                            //                //    Qryothr[j].AttachmentPath = model.OtherDetail[i].OtherDetailFilePath;
+                                            //                //    Qryothr[j].AttachmentName = model.OtherDetail[i].OtherDetailFileName;
+                                            //                //}
+                                            //                if (model.OtherDetail[i].OtherDetailFile != null)
+                                            //                {
+                                            //                    string actName = System.IO.Path.GetFileName(model.OtherDetail[i].OtherDetailFile.FileName);
+                                            //                    var guid = Guid.NewGuid().ToString();
+                                            //                    var docName = guid + "_" + actName;
+                                            //                    //item.ExperienceFile.UploadFile("Requirement", docName);
+                                            //                    model.OtherDetail[i].OtherDetailFile.UploadFile("Requirement", docName);
+                                            //                    model.OtherDetail[i].OtherDetailFileName = actName;
+                                            //                    model.OtherDetail[i].OtherDetailFilePath = docName;
+                                            //                    Qryothr[j].AttachmentPath = model.OtherDetail[i].OtherDetailFilePath;
+                                            //                    Qryothr[j].AttachmentName = model.OtherDetail[i].OtherDetailFileName;
+                                            //                }
+
+                                            //                Qryothr[j].Remarks = model.OtherDetail[i].Remarks;
+                                            //                Qryothr[j].UpdtUser = PaymentRelease_CrtdUser;
+                                            //                Qryothr[j].UpdtTS = DateTime.Now;
+                                            //                Qryothr[j].Status = "Active";
+                                            //                context.SaveChanges();
+                                            //            }
+                                            //        }
+                                            //    }
+                                            //}
+                                        }
+                                    }
+                                }
+
+                                if (model.CONOTHDetail.Count > 0)
+                                {
+                                    foreach (var item in model.CONOTHDetail)
+                                    {
+                                        tblRCTConsultantROP_OTHPay addothdetail = new tblRCTConsultantROP_OTHPay();
+                                        addothdetail.PaymentReleaseId = othid;
+                                        addothdetail.OtherType = item.OtherType;
+                                        if (item.OtherType == 1)
+                                            addothdetail.PaymentType = item.PaymentDeductionType;
+                                        else
+                                            addothdetail.DeductionType = item.PaymentDeductionType;
+                                        addothdetail.HeadId = item.PaymentDeductionType;
+                                        addothdetail.Amount = item.Amount;
+                                        addothdetail.Remarks = item.Remarks;
+                                        addothdetail.OtherPaymentsDeduction_CrtdUser = model.PaymentRelease_CrtdUser;
+                                        addothdetail.OtherPaymentsDeduction_CrtdTs = DateTime.Now;
+                                        addothdetail.Status = "Active";
+                                        context.tblRCTConsultantROP_OTHPay.Add(addothdetail);
+                                        context.SaveChanges();
+                                    }
+                                }
+
+                                transaction.Commit();
+                                res = 1;
+
+
+                            }
+                            else
+                                res = -1;
+                        }
+                        catch (Exception ex)
+                        {
+                            transaction.Rollback();
+                            WriteLog.SendErrorToText(ex);
+                            return Tuple.Create(res);
+                        }
+                    }
+                }
+                return Tuple.Create(res);
+            }
+            catch (Exception ex)
+            {
+                WriteLog.SendErrorToText(ex);
+                return Tuple.Create(0);
+            }
+
+        }
+
+        public static ConsultantPaymentRelease ConsultantServicePayment(int ConsAppID)
+        {
+            ConsultantPaymentRelease model = new ConsultantPaymentRelease();
+            try
+            {
+                using (var context = new IOASDBEntities())
+                {
+                    //var Qry = context.tblRCTConsultantEntry.Where(m => m.Consultant_MasterId == ConsultantMasterId).FirstOrDefault();
+
+                    var Qry = (from cm in context.tblRCTConsultantMaster
+                               from ce in context.tblRCTConsultantEntry
+                                   //where cm.Consultant_MasterId == ce.Consultant_MasterId //&& r.STEID == STEId
+                               where ce.Consultant_MasterId == ce.Consultant_MasterId && ce.Consultant_AppointmentId == ConsAppID
+                               select new { cm, ce }).FirstOrDefault();
+                    model.Consultant_AppointmentId = Qry.ce.Consultant_AppointmentId;
+                    model.Consultant_MasterId = Qry.ce.Consultant_MasterId;
+                    model.ConsultantName = Qry.cm.Consultant_Name;
+                    model.Consultant_Title = Qry.ce.Consultant_Title;
+                    model.Email = Qry.cm.Consultant_Email;
+                    model.Consultant_EmpType = Qry.cm.Consultant_EmpType;
+                    model.Consultant_ContactNumber = Qry.cm.Consultant_ContactNumber;
+                    model.Appointment_Start = string.Format("{0:dd-MMMM-yyyy}", Qry.ce.Consultant_AppStartDt);
+                    model.Appointment_End = string.Format("{0:dd-MMMM-yyyy}", Qry.ce.Consultant_AppEndDt);
+                    model.Payment_Type = Qry.ce.Consultant_PayType == 1 ? "Monthly" : "Installment";
+                    //model.Payment_Type = Convert.ToString(Qry.ce.Consultant_PayType);
+                    model.Consultant_RetainerFee = Qry.ce.Consultant_RetainerFee;
+                    model.Booked_Commitment = Convert.ToString(Qry.ce.Consultant_Commitvalue);
+                    model.Commitment_Balance = "10000";
+                    model.Currency_Type = Qry.ce.Consultant_CurrType;
+                    model.Currency_Value = Convert.ToString(Qry.ce.Consultant_CurrValue);
+                    model.Conversion_rate = Convert.ToString(Qry.ce.Consultant_CurrConvertionRate);
+                    model.GSTPercentage = (Qry.ce.Consultant_GSTINPercentage);
+                    //model.GSTValue = (Qry.ce.Consultant_GSTvalue);
+                    model.ITTDSPercentage = (Qry.ce.Consultant_ITTDSPercentage);
+                    model.GSTTDSPercentage = (Qry.ce.Consultant_GSTTDSType);
+                    model.Consultant_Nationality = Qry.cm.Consultant_Nationality;
+                    var Query = (from SM in context.tblRCTConsultantROP where SM.Consultant_MasterId == model.Consultant_MasterId && SM.Consultant_AppointmentId == model.Consultant_AppointmentId orderby SM.PaymentFromDate descending select SM).FirstOrDefault();
+                    if (Query != null)
+                    {
+                        //model.Fromdate =  Convert.ToDateTime(Query.PaymentToDate.ToString("dd-MMMM-yyyy"));
+                        //model.ToDate = Convert.ToDateTime(Query.PaymentToDate.ToString("dd-MMMM-yyyy"));
+                        model.Fromdate = Query.PaymentFromDate;
+                        model.ToDate = Query.PaymentToDate;
+                    }
+                    //model.ITTDSValue = (Qry.ce.Consultant_ITTDSPercentage);
+                    //model.GSTValue = (Qry.ce.consultant);
+                    //model.Branch = Qry.Consultant_Branch;
+                    //model.BankEmail = Qry.Consultant_BankEmailId;
+                    //model.BankNature = Qry.Consultant_BankNature;
+                    //model.MICRCode = Qry.Consultant_MICRCode;
+                    //model.ABANumber = Qry.Consultant_ABANumber;
+                    //model.SortCode = Qry.Consultant_SortCode;
+                    //model.IBAN = Qry.Consultant_IBAN;
+                    //model.MICRCode = Qry.Consultant_MICRCode;
+                    //model.SWiftCode = Qry.Consultant_SWIFTorBICCode;
+                    //model.BankCountry = Common.GetVendorbankCountry(Qry.Consultant_BankCountry ?? 0);
+
+
+
+
+
+                    return model;
+                }
+            }
+            catch (Exception ex)
+            {
+                return model;
+            }
+        }
+
         public static RCTConsultantSearchModel GetRCTConsultantList(RCTConsultantSearchModel model, int page, int pageSize)
         {
             RCTConsultantSearchModel RCTConsSearchModel = new RCTConsultantSearchModel();

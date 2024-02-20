@@ -3108,47 +3108,49 @@ namespace IOAS.Models
 
     }
 
-    //public class ConsultantSearchModel
-    //{
-    //    public string ConsultantAppNo { get; set; }
-    //    public string PIName { get; set; }
-    //    public string PIEmail { get; set; }
-    //    public string CondidateName { get; set; }
-    //    public string Category { get; set; }
-    //    public string ProjectNumber { get; set; }
-    //    public string Status { get; set; }
-    //    public List<ConsultantAppointmentModel> conList { get; set; }
-    //    public int TotalRecords { get; set; }
-    //}
+    public class ConsultantSearchModel
+    {
+        public string ConsultantAppNo { get; set; }
+        public string PIName { get; set; }
+        public string PIEmail { get; set; }
+        public string CondidateName { get; set; }
+        public string Category { get; set; }
+        public string ProjectNumber { get; set; }
+        public string Status { get; set; }
+        public List<ConsultantAppointmentModel> conList { get; set; }
+        public int TotalRecords { get; set; }
+    }
 
     public class ConsultantMaster
     {
 
         public Nullable<int> Consultant_MasterId { get; set; }
-        
+
         public string Consultant_EmpId { get; set; }
-        
+        [Display(Name = "Nationality")]
         public int Consultant_Nationality { get; set; }
-        
+        [Display(Name = "Category")]
         public int Consultant_Category { get; set; }
-        
+
         public string Consultant_EmpType { get; set; }
 
-        
+
         public Nullable<int> Consultant_Salutation { get; set; }
-        
+
         public string Consultant_Name { get; set; }
-        
+
         public Nullable<int> Consultant_Gender { get; set; }
-        
+
+        [Display(Name = "Date of Birth")]
         public Nullable<System.DateTime> Consultant_DOB { get; set; }
 
         [MaxLength(10)]
         [RegularExpression("[0-9]{10}", ErrorMessage = "Invalid Phone Number")]
         [Display(Name = "Contact Number")]
         public string Consultant_ContactNumber { get; set; }
-        [EmailAddress]
+        [EmailAddress(ErrorMessage = "Invalid EMail Address")]
         public string Consultant_Email { get; set; }
+        //[RequiredIf("Aadhaar Number", null, ErrorMessage = "Please enter aadhaar number")]
         [Range(100000000000, 999999999999, ErrorMessage = "Aadhaar number should not exceed 12 characters")]
         public string Consultant_AadhaarNo { get; set; }
         [MaxLength(10)]
@@ -3156,9 +3158,9 @@ namespace IOAS.Models
         [Display(Name = "PAN No")]
         public string Consultant_PanNo { get; set; }
         public string Consultant_Address { get; set; }
-               
+
         public string Consultant_Qualification { get; set; }
-        
+
         public string Consultant_Experience { get; set; }
 
         public HttpPostedFileBase PersonImage { get; set; }
@@ -3169,34 +3171,35 @@ namespace IOAS.Models
         public string PersonImageFIPath { get; set; }
 
         public string PersonDocPath { get; set; }
-        
+
         public Nullable<int> Consultant_Country { get; set; }
-        
+
         public string Consultant_City { get; set; }
-        
+
         public Nullable<int> Consultant_StateId { get; set; }
-        
+
         public Nullable<int> Consultant_StateCode { get; set; }
-        
+        [MaxLength(6)]
+        [RegularExpression(@"^\d{6}(-\d{4})?$", ErrorMessage = "Invalid Pincode")]
+        [Display(Name = "Pincode")]
         public string Consultant_Pincode { get; set; }
         public string Consultant_ServiceAddress { get; set; }
         public bool IsGST { get; set; }
-        
-        [RegularExpression ("^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$",ErrorMessage = "Invalid GST Number")]
         [MaxLength(15)]
+        [RegularExpression("^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$", ErrorMessage = "Invalid GST Number")]
         [Display(Name = "GST No")]
         public string GSTIN { get; set; }
 
         #region IF
 
         public Nullable<int> Consultant_IFSalutation { get; set; }
-        
+
         public string Consultant_IFName { get; set; }
         [MaxLength(10)]
         [RegularExpression("[0-9]{10}", ErrorMessage = "Invalid Phone Number")]
         [Display(Name = "Contact Number")]
         public string Consultant_IFContactNumber { get; set; }
-        [EmailAddress]
+        [EmailAddress(ErrorMessage = "Invalid EMail Address")]
         public string Consultant_IFEmail { get; set; }
         [MaxLength(10)]
         [RegularExpression("[A-Z]{5}[0-9]{4}[A-Z]{1}", ErrorMessage = "Invalid PAN Number")]
@@ -3206,6 +3209,9 @@ namespace IOAS.Models
         public Nullable<int> Consultant_IFStateId { get; set; }
         public Nullable<int> Consultant_IFStateCode { get; set; }
         public string Consultant_IFCity { get; set; }
+        [MaxLength(6)]
+        [RegularExpression(@"^\d{6}(-\d{4})?$", ErrorMessage = "Invalid Pincode")]
+        [Display(Name = "Pincode")]
         public string Consultant_IFPincode { get; set; }
         public string Consultant_IFServiceAddress { get; set; }
         public bool isSameAsIFAddress { get; set; }
@@ -3214,6 +3220,7 @@ namespace IOAS.Models
         #endregion
 
         public bool IsGSTIF { get; set; }
+        [RegularExpression("^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$", ErrorMessage = "Invalid GST Number")]
         [MaxLength(15)]
         [Display(Name = "GST No")]
         public string GSTINIF { get; set; }
@@ -3225,14 +3232,14 @@ namespace IOAS.Models
         public string Consultant_FIName { get; set; }
 
         public Nullable<int> Consultant_FIGender { get; set; }
-
+        [Display(Name = "Date of Birth")]
         public Nullable<System.DateTime> Consultant_fi_DOB { get; set; }
         [MaxLength(10)]
         [RegularExpression("[0-9]{10}", ErrorMessage = "Invalid Phone Number")]
         [Display(Name = "Contact Number")]
         public string Consultant_FIContactNumber { get; set; }
 
-        [EmailAddress]
+        [EmailAddress(ErrorMessage = "Invalid EMail Address")]
         public string Consultant_FIEmail { get; set; }
 
         public string Consultant_FIAddress { get; set; }
@@ -3247,10 +3254,14 @@ namespace IOAS.Models
 
         public Nullable<int> Consultant_FICountry { get; set; }
 
-        public string Consultant_FICity { get; set; }      
+        public string Consultant_FICity { get; set; }
+        //[MaxLength(6)]
+        //[RegularExpression(@"^\d{6}(-\d{4})?$", ErrorMessage = "Invalid Pincode")]
+        //[Display(Name = "Pincode")]
         public string Consultant_FIPincode { get; set; }
         public string Consultant_FIServiceAddress { get; set; }
         public bool isSameAsFIAddress { get; set; }
+        [MaxLength(11)]
         public string Consultant_FITIN { get; set; }
         #endregion
 
@@ -3265,36 +3276,43 @@ namespace IOAS.Models
         [Display(Name = "Contact Number")]
         public string Consultant_FFContactNumber { get; set; }
 
-        [EmailAddress]
+        [EmailAddress(ErrorMessage = "Invalid EMail Address")]
         public string Consultant_FFEmail { get; set; }
 
-        
-        public string Consultant_FFAddress { get; set; }       
+
+        public string Consultant_FFAddress { get; set; }
 
         public Nullable<int> Consultant_FFCountry { get; set; }
 
-        public string Consultant_FFCity { get; set; }       
-
+        public string Consultant_FFCity { get; set; }
+        [MaxLength(6)]
+        [RegularExpression(@"^\d{6}(-\d{4})?$", ErrorMessage = "Invalid Pincode")]
+        [Display(Name = "Pincode")]
         public string Consultant_FFPincode { get; set; }
         public string Consultant_FFServiceAddress { get; set; }
         public bool isSameAsFFAddress { get; set; }
+        [MaxLength(11)]
+        [Display(Name = "TIN Number")]
         public string Consultant_FFTIN { get; set; }
 
         #endregion
 
 
         public string Consultant_AccountHolderName { get; set; }
-      
+
         public string Consultant_BankName { get; set; }
-       
+        public string Consultant_FBankName { get; set; }
+
+
         public string Consultant_Branch { get; set; }
         [MaxLength(11)]
         [RegularExpression("[A-Z|a-z]{4}[0][a-zA-Z0-9]{6}", ErrorMessage = "Invalid IFSC Code")]
         [Display(Name = "IFSC")]
         public string Consultant_IFSC { get; set; }
-        
+
         public string Consultant_AccountNumber { get; set; }
-       
+        public string Consultant_FrAccountNumber { get; set; }
+
         public string Consultant_BankAddress { get; set; }
         public string Consultant_ABANumber { get; set; }
         public string Consultant_SortCode { get; set; }
@@ -3303,7 +3321,7 @@ namespace IOAS.Models
         public string Consultant_BankNature { get; set; }
         public string Consultant_MICRCode { get; set; }
         public Nullable<int> Consultant_BankCountry { get; set; }
-        [EmailAddress]
+        [EmailAddress(ErrorMessage = "Invalid EMail Address")]
         public string Consultant_BankEmailId { get; set; }
         public Nullable<int> CrtdUser { get; set; }
         public Nullable<System.DateTime> CrtdTs { get; set; }
@@ -3322,14 +3340,14 @@ namespace IOAS.Models
         public HttpPostedFileBase[] ConsultantFile { get; set; }
         public string[] AttachmentName { get; set; }
         public string[] AttachmentFileName { get; set; }
-        
+
         public string[] AttachmentPath { get; set; }
         public Nullable<bool> IsCurrentVersion { get; set; }
         public Nullable<int> DocumentUploadUserId { get; set; }
         public Nullable<System.DateTime> DocumentUpload_Ts { get; set; }
 
-        
-        
+
+
 
     }
 
@@ -3342,10 +3360,10 @@ namespace IOAS.Models
         public Nullable<int> INCountry { get; set; }
         public int EXCountryName { get; set; }
         public string EXConsultantSearchname { get; set; }
-        public int INConsultantCategory { get; set; }
+        public string INConsultantCategory { get; set; }
         public int EXINConsultantsearchCode { get; set; }
         public int TotalRecords { get; set; }
-       
+
         public List<ConsultantMaster> ConsultantList { get; set; }
     }
 
@@ -3356,7 +3374,7 @@ namespace IOAS.Models
         public string Nationality { get; set; }
         public string Category { get; set; }
         public string Address { get; set; }
-        public string Email { get; set; }        
+        public string Email { get; set; }
         public string PhoneNo { get; set; }
         public string MobileNo { get; set; }
         public string Country { get; set; }
@@ -3383,11 +3401,14 @@ namespace IOAS.Models
         public string IBAN { get; set; }
         public string SWiftCode { get; set; }
         public string BankCountry { get; set; }
-        
+
         public List<OtherDocumentModel> TdsDocument { get; set; }
         public List<TaxDocumentModel> TaxDocument { get; set; }
 
     }
+
+
+
 
     public class OtherDocumentModel
     {
@@ -3398,6 +3419,116 @@ namespace IOAS.Models
         public string TdsDocumentPath { get; set; }
 
     }
+
+
+
+    #region PaymentRelease
+    public class ConsultantPaymentRelease
+    {
+        public int Consultant_MasterId { get; set; }
+        public string Consultant_ServiceNo { get; set; }
+
+        public string Consultant_EmpNo { get; set; }
+
+        public int Consultant_AppointmentId { get; set; }
+        public Nullable<decimal> Consultant_RetainerFee { get; set; }
+        public string ConsultantName { get; set; }
+
+        public string Consultant_Title { get; set; }
+        public string Email { get; set; }
+        public string Consultant_ContactNumber { get; set; }
+
+        public string Consultant_EmpType { get; set; }
+        public string Appointment_Start { get; set; }
+        public string Appointment_End { get; set; }
+        public string Payment_Type { get; set; }
+
+        public string Booked_Commitment { get; set; }
+
+        public string Commitment_Balance { get; set; }
+        public string Currency_Type { get; set; }
+        public string Currency_Value { get; set; }
+        public string Conversion_rate { get; set; }
+
+        public string FeeType { get; set; }
+
+        public Nullable<DateTime> Fromdate { get; set; }
+
+        public Nullable<DateTime> ToDate { get; set; }
+
+        public string TaxAmount { get; set; }
+
+        public Nullable<Decimal> TaxConversion_rate { get; set; }
+
+        public Nullable<Decimal> BasicAmount { get; set; }
+        public Nullable<Decimal> GSTPercentage { get; set; }
+        public Nullable<Decimal> GSTValue { get; set; }
+        public Nullable<Decimal> InvoiceValue { get; set; }
+        public Nullable<Decimal> OtherPayment { get; set; }
+        public Nullable<Decimal> Deduction { get; set; }
+        public Nullable<Decimal> GrossPay { get; set; }
+
+        public Nullable<Decimal> ITTDSPercentage { get; set; }
+        public Nullable<Decimal> ITTDSValue { get; set; }
+        public Nullable<Decimal> GSTTDSPercentage { get; set; }
+        public Nullable<Decimal> GSTTDSValue { get; set; }
+        public Nullable<Decimal> NetAmount { get; set; }
+
+        public int Consultant_Nationality { get; set; }
+
+        public List<OtherDocModels> OtherDocList { get; set; }
+        public List<ConsultantPaymentDeductionDetailModel> CONOTHDetail { get; set; }
+        public List<ReOtherDetailModel> OtherDetail { get; set; }
+        public List<OtherDocumentModel> TdsDocument { get; set; }
+        public List<TaxDocumentModel> TaxDocument { get; set; }
+        public System.DateTime PaymentRelease_CrtdTs { get; set; }
+        public int PaymentRelease_CrtdUser { get; set; }
+
+
+    }
+
+    public class ConsultantPaymentDeductionDetailModel
+    {
+        public Nullable<int> OTHPayDeductionDetailId { get; set; }
+        public Nullable<int> OtherType { get; set; }
+        public Nullable<int> PaymentDeductionType { get; set; }
+        public string OtherTypeName { get; set; }
+        public string PaymentdecTypename { get; set; }
+        public Nullable<decimal> Amount { get; set; }
+        public string Remarks { get; set; }
+        public List<MasterlistviewModel> PaydecList { get; set; }
+    }
+
+    public class ReOtherDetailModel
+    {
+        public Nullable<int> OtherDetailId { get; set; }
+        public string OtherNames { get; set; }
+        public Nullable<DateTime> FromDate { get; set; }
+        public Nullable<DateTime> ToDate { get; set; }
+        public string strFromDate { get; set; }
+        public string strToDate { get; set; }
+        public HttpPostedFileBase OtherDetailFile { get; set; }
+        public string OtherDetailFilePath { get; set; }
+        public string OtherDetailFileName { get; set; }
+        public string Remarks { get; set; }
+        public string Description { get; set; }
+        public bool Verify { get; set; }
+
+    }
+
+    public class OtherDocModels
+    {
+        public string DocumentName { get; set; }
+        public string DocumentFileName { get; set; }
+        public string DocumentPath { get; set; }
+        public string FormDate { get; set; }
+        public string ToDate { get; set; }
+        public string DocumentCatecory { get; set; }
+        public List<RCTViewDocumentListModel> DocumentList { get; set; }
+        public HttpPostedFileBase Document { get; set; }
+    }
+
+    #endregion
 
     #endregion
 
