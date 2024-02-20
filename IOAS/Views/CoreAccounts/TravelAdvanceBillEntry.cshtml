@@ -43,6 +43,8 @@
                     @Html.Hidden("varCGSTInput")
                     @Html.Hidden("varSGSTInput")
                     @Html.Hidden("varIGSTInput")
+                    @Html.Hidden("tdsAmount")
+                    @Html.Hidden("tdsVendorIdFinder")
                 </div>
                 <div class="dis-none ds-tt" id="divRefEmailDate">
                     <span class="required">Email Date</span>
@@ -86,8 +88,8 @@
                                                 <div class="form-group custom-form-group">
                                                     <label class="required">PI</label>
                                                     @*@Html.DropDownListFor(m => m.ProjectId, new SelectList(ViewBag.ProjectList, "id", "name"), new { @class = "form-control selectpicker", @disabled = "disabled" })
-                    @Html.HiddenFor(m => m.ProjectId)
-                    @Html.ValidationMessageFor(m => m.ProjectId)*@
+                                                        @Html.HiddenFor(m => m.ProjectId)
+                                                        @Html.ValidationMessageFor(m => m.ProjectId)*@
                                                     @Html.TextBoxFor(m => m.PIName, new { @class = "form-control", @disabled = "disabled" })
                                                     @Html.TextBoxFor(m => m.PI, new { @class = "form-control dis-none" })
                                                     @Html.ValidationMessageFor(m => m.PI)
@@ -98,9 +100,9 @@
                                                     <label class="required">Country</label>
                                                     @Html.DropDownListFor(m => m.CountryId, new SelectList(ViewBag.CountryList, "CountryID", "CountryName"), new { @multiple = "multiple", @disabled = "disabled", @class = "form-control selectpicker", @title = "Select any" })
                                                     @for (int i = 0; i < Model.CountryId.Length; i++)
-                {
-                                    <input type="hidden" name="CountryId" value="@Model.CountryId[i]" />
-}
+                                                    {
+                                                        <input type="hidden" name="CountryId" value="@Model.CountryId[i]" />
+                                                    }
                                                     @Html.ValidationMessageFor(m => m.CountryId)
                                                 </div>
                                             </div>
@@ -232,14 +234,14 @@
                                                                 @Html.ValidationMessageFor(m => m.CategoryId)
                                                             </td>
                                                             @*<td class="tdDDLTraveler">
-                                                                @Html.DropDownListFor(m => m.TravellerId, new SelectList(ViewBag.TravellerList, "id", "name"), "Select any", new { @class = "form-control", @readonly = "readonly" })
-                                                               
-                                                                @Html.ValidationMessageFor(m => m.TravellerId)
-                                                            </td>
-                                                            <td class="tdTxtTraveler dis-none">
-                                                                @Html.TextBoxFor(m => m.TravellerName, new { @class = "form-control", @readonly = "readonly" })
-                                                                @Html.ValidationMessageFor(m => m.TravellerName)
-                                                            </td>*@
+                                                                    @Html.DropDownListFor(m => m.TravellerId, new SelectList(ViewBag.TravellerList, "id", "name"), "Select any", new { @class = "form-control", @readonly = "readonly" })
+
+                                                                    @Html.ValidationMessageFor(m => m.TravellerId)
+                                                                </td>
+                                                                <td class="tdTxtTraveler dis-none">
+                                                                    @Html.TextBoxFor(m => m.TravellerName, new { @class = "form-control", @readonly = "readonly" })
+                                                                    @Html.ValidationMessageFor(m => m.TravellerName)
+                                                                </td>*@
                                                             <td class="tdDDLTraveler">
                                                                 <input id="autoComplete" name="autoComplete" class="form-control" readonly />
                                                                 @Html.ValidationMessage("autoComplete")
@@ -269,7 +271,7 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         @*<div class="row">
                                 <div class="col-md-12 text-center mb-md mt-md">
                                     <input type="submit" class="btn btn-primary mr10" value="Submit" name="Button" id="btnSubmit" />
@@ -477,6 +479,7 @@
         CalculatePaymentValue();
         calcDateDiff();
         showCommitmentAmount();
+        updatevendorsName();
 
 
         var BankId = $('#BankId :selected').val();
@@ -1074,7 +1077,222 @@
         }
         return msg;
     }
-    function validateForm(n) {
+    //Fuction Created for vendor alert popup by Rajesh VS11764
+
+    //TDSLimit is previous amount
+    //TDSLimit return values from database stored procedure
+    //editCal is last payment amount
+    //editCal return values from Model
+    //curTableTol is the current value you edit
+    //curTableTol return from UI Screen
+    //vendorId is vendor id
+    //vendorId return from UI Screen
+    //vendorname is vendor name
+    //vendorname we see only the vendorid behind that vendor name will be there we fetch data from screeen
+     function getpan(vendorId, CategoryId) {
+         retval = true;
+        $.ajax({
+            type: "GET",
+            async: false,
+            url: "@Url.Action("GetPanNumberOnly", "CoreAccounts")",
+            data: { "vendorId": vendorId, "CategoryId": CategoryId},
+            dataType: "json",
+            success: function (result) {
+                retval = result;
+                return result;
+                }
+            });
+        return retval;
+    };
+
+    //vendor_id, vendor_name, vendor_oldValue, vendor_newValue, vendor_pan
+    function validatetds(vendorId, vendorName, editCal, curTableTol, vendorPan, category) {
+        retval = true;
+        $.ajax({
+            type: "GET",
+            async: false,
+            url: "@Url.Action("GetVendorDetails", "CoreAccounts")",
+            data: { "vendorId": vendorId, "poNumberRequired": true, "transTypeCode": 'ADV', "TDSRequired": true ,"category": category},
+            dataType: "json",
+            success: function (result) {
+
+                var holeAmt = (parseFloat(result.TDSLimit) - parseFloat(editCal)) + parseFloat(curTableTol)
+                //if (parseFloat((result.TDSLimit - TotalInvoice) + CurrentValue)
+                if (holeAmt>5000000){
+
+                    //store the hole value and set popup message
+                    console.log('start1');
+                    console.log(holeAmt);
+                    // hide value
+                    tmpVendor = $("#tdsVendorIdFinder").val();
+                    tmpVendor = tmpVendor + vendorName + "(" +vendorPan +") Total payment is Rs." + (parseFloat(holeAmt).toFixed(2)) + "<br>";
+
+                   $("#tdsVendorIdFinder").val(tmpVendor);
+                    return vendorId;
+                }
+                else {
+                    return 0;
+                }
+            }
+            });
+        return retval;
+    };
+    async function validatetds1(vendorId, vendorName, settleAmt) {
+        return new Promise(function (fullfilled, reject) {
+            $.ajax({
+                type: "GET",
+                url: "@Url.Action("GetVendorDetails", "CoreAccounts")",
+                data: { "vendorId": vendorId, "poNumberRequired": true, "transTypeCode": 'ADV', "TDSRequired": true },
+                dataType: "json",
+                success: function (result) {
+
+                    if (result.TDSLimit === '' || result.TDSLimit === null)
+                        result.TDSLimit = 0;
+                    if (settleAmt === '' || settleAmt === null)
+                        settleAmt = 0;
+
+                    if (result.TDSLimit + settleAmt > 5000000) {
+                        retval = false;
+
+                        console.log(vendorName);
+                        fullfilled(vendorName)
+                    }
+                    else {
+                        fullfilled("");
+                    }
+                },
+                error: function (result) {
+                    reject("");
+                }
+            });
+
+        });
+    }
+    async function updatevendorsName() {
+        var p = $.when();
+        var tdsres;
+        var vendors = [];
+        var vendorsfinal = [];
+
+        //clear hidden field
+        $("#tdsAmount").val("");
+        $("#tdsVendorIdFinder").val("");
+        console.log("Trigger Start");
+        $('#tbodyPaymentBU tr').each(function (idx, val) {
+            var isThatVendor = $(this).find('select[name$=".CategoryId"]').val()
+            console.log(isThatVendor);
+            if (isThatVendor == 4 || isThatVendor == 9) {
+
+                var Payment = $(this).find('input[name$="PaymentAmount"]').val();
+                var tdsPayment = $(this).find('input[name$="TDSPayable"]').val();
+                var vendorName = $(this).find('input[name$="autoComplete"]').val();
+                var vendorIds = $(this).find('input[name$="UserId"]').val();
+                var VendorCategory = $(this).find('select[name$=".CategoryId"]').val();
+                if (tdsPayment === '' || tdsPayment === null)
+                    tdsPayment = 0;
+                if (Payment === '' || Payment === null)
+                    Payment = 0;
+                var curTableTol = parseFloat(Payment) + parseFloat(tdsPayment);
+                //console.log(curTableTol);
+                //console.log(idx);
+                //console.log(vendorIds);
+                //console.log(vendorName);
+                //console.log(tdsPayment);
+                //console.log(Payment);
+
+                var jsdata = @Html.Raw(Json.Encode(Model.PaymentBreakDetail));
+                //var FinalTotval = $('#PaymentBUTotal').val()
+                console.log(jsdata);
+                vendorId = 0;
+                var editCal = 0;
+                TDSPayable = 0;
+                var panno = "";
+                for (let i = 0; i < jsdata.length; i++) {
+                    if (jsdata[i]["UserId"] == vendorIds) {
+                        editCal = jsdata[i]["PaymentAmount"];
+                        if (editCal === '' || editCal === null)
+                            editCal = 0;
+                        TDSPayable = jsdata[i]["TDSPayable"]
+                        console.log(TDSPayable);
+                        if (TDSPayable === '' || TDSPayable === null)
+                            TDSPayable = 0;
+
+                        editCal = parseFloat(TDSPayable) + parseFloat(editCal);
+                        console.log(editCal);
+                        break;
+                    }
+                };
+                panno = getpan(vendorIds, isThatVendor);
+                if (panno != '' && panno !=null) {
+                    vendors.push({ id: vendorIds, name: vendorName, oldValue: editCal, newValue: curTableTol, Panno: panno, tdsval: 0, category: VendorCategory });
+                }
+                console.log(panno );
+
+
+               // tdsres = validatetds(vendorIds, vendorName, editCal, curTableTol);
+                console.log(tdsres);
+            }
+        });
+
+        //Vendor Data Consolidated
+        for (let vendor in vendors) {
+            vendor_id = vendors[vendor].id;
+            vendor_name = ""; //vendors[vendor].name;
+            vendor_oldValue = 0;
+            vendor_newValue = 0;
+            vendor_pan = vendors[vendor].Panno;
+            vendor_category= vendors[vendor].category;
+            for (let chkvendor in vendors) {
+                if (vendors[chkvendor].Panno == vendor_pan) {
+                    if (vendor_name == "")
+                        vendor_name = vendor_name.concat(vendors[chkvendor].name);
+                    else
+                        if (vendor_name.includes(vendors[chkvendor].name) == false) {
+                            vendor_name = vendor_name.concat(", ", vendors[chkvendor].name);
+                        }
+                    vendor_oldValue = vendor_oldValue + vendors[chkvendor].oldValue;
+                    vendor_newValue = vendor_newValue + vendors[chkvendor].newValue;
+                }
+            }
+
+            // console.log(vendor_id,vendor_oldValue,vendor_newValue);
+            let vendorexist = false;
+            for (let chkvendor in vendorsfinal) {
+                //   console.log(vendorsfinal[chkvendor].id,vendor_id);
+                if (vendorsfinal[chkvendor].Panno == vendor_pan) {
+                    vendorexist = true; break;
+                }
+            }
+
+            if (vendorexist == false) {
+                vendorsfinal.push({ id: vendor_id, name: vendor_name, oldValue: vendor_oldValue, newValue: vendor_newValue, Panno: vendor_pan, tdsval: 0, category: vendor_category });
+            }
+        }
+        console.log(vendorsfinal);
+
+        for (let vendor in vendorsfinal) {
+            vendor_id = vendorsfinal[vendor].id;
+            vendor_name = vendorsfinal[vendor].name;
+            vendor_oldValue = vendorsfinal[vendor].oldValue;
+            vendor_newValue = vendorsfinal[vendor].newValue;
+            vendor_pan = vendorsfinal[vendor].Panno;
+            vendor_category = vendorsfinal[vendor].category;
+            tdsres = validatetds(vendor_id, vendor_name, vendor_oldValue, vendor_newValue, vendor_pan, vendor_category);
+            console.log(tdsres);
+        }
+
+
+        var alertmsg = $("#tdsVendorIdFinder").val();
+
+        if ($("#tdsVendorIdFinder").val() != '') {
+            alertmsg = alertmsg + " <br> hence 194Q is applicable for goods.";
+            $('#FailedAlert').html(alertmsg);
+            $('#Failed').modal('show');
+        }
+
+
+    }
+    async function validateForm(n) {
         // This function deals with validation of the form fields
         var isValid = false;
         var hadError = false;
@@ -1105,7 +1323,11 @@
                 $('#Validation').modal('toggle');
                 return false;
             }
-        }else if (currentTab == 1) {
+        } else if (currentTab == 1) {
+            var SettleAmt = $('#lblAdvTtlAmt').text() || 0;
+            var vendorid = $('#VendorId').val() || 0;
+
+            await updatevendorsName();
             var advTtl = parseFloat($('#AdvanceValue').val()) || 0;
             var payBUTtl = parseFloat($('#PaymentBUTotal').val()) || 0;
             //var invAmt = parseFloat($('#InvoiceBUTotal').val()) || 0;

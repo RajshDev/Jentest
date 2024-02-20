@@ -18,18 +18,20 @@ namespace IOAS.DataModel
         public string NAME { get; set; }
         public string DESIGNATION { get; set; }
         public string PROJECT_NO { get; set; }
+        public string APPOINTMENT_TYPE { get; set; }
         public Nullable<System.DateTime> RELIEVING_ON { get; set; }
         public string NO_DUES_IF_ANY { get; set; }
-        public Nullable<System.DateTime> LOG_TIME { get; set; }
-        public string CREATED_BY { get; set; }
-        public string Requested_by { get; set; }
         public string MS_PHD_COURSE { get; set; }
+        public string Requested_by { get; set; }
         public string Request_Reference { get; set; }
         public string Request_Reference_Number { get; set; }
         public string MODE_OF_RELIEVING { get; set; }
         public Nullable<System.DateTime> REQUEST_RECEIVED_DATE { get; set; }
-        public Nullable<System.DateTime> COMPLETED__DATE { get; set; }
-        public string COMPLETED_BY { get; set; }
+        public string INITIATED_BY { get; set; }
+        public Nullable<System.DateTime> INITIATED_DATE { get; set; }
+        public string APPROVED_BY { get; set; }
+        public Nullable<System.DateTime> APPROVED_DATE { get; set; }
+        public string COMMITMENT_WITHDRAWAL_BY { get; set; }
         public Nullable<System.DateTime> COMMITMENT_WITHDRAWAL_DATE { get; set; }
     }
 }

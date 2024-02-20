@@ -106,6 +106,7 @@ namespace IOAS.Controllers
                 ViewBag.SponPrjFunType = Common.GetSponsoredTypeCategory();
                 ViewBag.prjClassification = Common.GetProjectClassification();
                 ViewBag.rptClassification = Common.GetReportClassification();
+                ViewBag.freezedAllocation = Common.freezedAllocationHead(pId);
                 //model.Inputdate = DateTime.Now;
                 ViewBag.ProjectFundingCategory = Common.getprojectfunding();
                 ViewBag.BankID = Common.GetTSABankList();
@@ -389,6 +390,49 @@ namespace IOAS.Controllers
             }
 
         }
+
+        [HttpGet]
+        public JsonResult GetFreezeAndAllocationData(int ProjectId, int AllocationId)
+        {
+            try
+            {
+                var data = ProjectService.GetFreezeAndAllocationValues(ProjectId, AllocationId);
+                return Json(data, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        [HttpGet]
+        public JsonResult GetFreezeOverHeads(int ProjectId)
+        {
+            try
+            {
+                var data = ProjectService.GetFreezeOverHeadsValues(ProjectId);
+                return Json(data, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        [HttpGet]
+        public JsonResult GetFreezeProjectData(int ProjectId)
+        {
+            try
+            {
+                var data = ProjectService.GetFreezeprojectDataValues(ProjectId);
+                return Json(data, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
         [Authorize]
         [HttpPost]
         public ActionResult ProjectEnhancement(ProjectEnhancementModel model, HttpPostedFileBase file)
@@ -725,7 +769,10 @@ namespace IOAS.Controllers
         [HttpPost]
         public JsonResult EditProject(int ProjectId)
         {
+
+            
             object output = ProjectService.EditProject(ProjectId);
+            
             return Json(output, JsonRequestBehavior.AllowGet);
         }
 

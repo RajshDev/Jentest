@@ -495,7 +495,7 @@
                                                         <div class="form-group custom-form-group">
                                                             <label>Medical</label> <br>
                                                             <h4 id="MedicalText" class="dis-none"></h4>
-                                                            @Html.DropDownListFor(m => m.Medical, new SelectList(ViewBag.Medical, "id", "name"), "Select Medical", new { @class = "form-control", @data_val = "false" })
+                                                            @Html.DropDownListFor(m => m.Medical, new SelectList(ViewBag.Medical, "id", "name"), "Select Medical", new { @class = "form-control required ", @data_val = "false" })
                                                             <div>@Html.ValidationMessageFor(m => m.Medical)</div>
                                                         </div>
                                                     </div>
@@ -1199,8 +1199,10 @@
                                                                 </div>*@
                                                             <div class="col-md-6">
                                                                 <div class="form-group custom-form-group mb-sm ">
-                                                                    <label>PF Basic Wages</label>
-                                                                    @Html.TextBoxFor(m => m.EmpPFBasicWages, new { @class = "form-control", @id = "EmpPFBasicWages" })
+                                                                    <label class="required">PF Basic Wages</label>
+                                                                    @Html.TextBoxFor(m => m.EmpPFBasicWages, new { @class = "form-control", @id = "EmpPFBasicWages", @required = "required" })
+                                                                    <div class="txt-error txt-red">@Html.ValidationMessageFor(m => m.EmpPFBasicWages)</div>
+                                                              
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -1546,6 +1548,7 @@
     var IsMsphd = @Html.Raw(Json.Encode(Model.IsMsPhd)) || false;
     var OrderID = @Json.Encode(Model.OrderID) || 0;
     var Status = @Html.Raw(Json.Encode(Model.Status)) || "";
+    var staffcategory = @Html.Raw(Json.Encode(Model.staffcategory)) || '';
     $(document).ready(function () {
         $('[data-toggle="tooltip"]').tooltip();
         if (succMsg != '') {
@@ -1601,15 +1604,32 @@
         }
     });
 
-    $('input[name=EmpPFBasicWages]').keyup(function () {
+    $('input[name=EmpPFBasicWages]').change(function () {
         FillSalaryCalcDetls();
     });
 
     $('input[name=RecommendedSalary]').change(function () {
         FillSalaryCalcDetls();
     });
-    $('#btnSubmitSalaryCalc').click(function () {
-        PopupSalaryConfirm();
+    $('#btnSubmitSalaryCalc').click(function (d) {
+
+        d.preventDefault();
+        var isValid = $('#formSTEJuniorApp').valid();
+        var EmpfBasicwages = $('#EmpPFBasicWages').val();
+        if (EmpfBasicwages.trim() != "" && parseInt(EmpfBasicwages.trim()) >=0 )  {
+            isValid = true; 
+        }
+        else {
+            isValid = false;
+            $('#alert').html("Please Enter EmpPFBasicWages");
+            $('#Validation').modal('toggle');
+            return false;}
+
+
+        if (isValid) { PopupSalaryConfirm();}
+            //$('#formSTEJuniorApp').Submit();
+
+        
     });
     $('#issalaryConfirm').click(function () {
         $('#dialogSalaryConfirm').modal('toggle');
@@ -1927,7 +1947,15 @@
             else if (parseInt($('#Medical').val()) != 1)
                 medical = 0;
 
-            ttlVal = medical + salary + hra;
+            if (parseInt($('#Medical').val()) == 1 && staffcategory == "ICSR Staff") {
+                ttlVal = salary + hra;
+                $('#MedicalAmmount').val(0);
+            }
+            else {
+                ttlVal = medical + salary + hra;
+            }
+
+            //ttlVal = medical + salary + hra;
             var startperday = ttlVal / startmonthend;
             var endperday = ttlVal / enddtmonthend;
             var monthlyamt = ttlVal;
@@ -1940,11 +1968,21 @@
             }
             if(isarrearpay == true)
                 return totalVal;
-            if (parseInt($('#Medical').val()) != 3) {
-                $('#MedicalAmmount').val(parseFloat($('#DesignationMedicalamount').val()));
+            //if (parseInt($('#Medical').val()) != 3) {
+            //    $('#MedicalAmmount').val(parseFloat($('#DesignationMedicalamount').val()));
+            //}
+            //else {
+            //    $('#MedicalAmmount').val(0);
+            //}
+
+            if (parseInt($('#Medical').val()) == 1 && staffcategory == "ICSR Staff") {
+                $('#MedicalAmmount').val(0);
             }
             else {
-                $('#MedicalAmmount').val(0);
+                if ($('#Medical').val() == 1 || $('#Medical').val() == 2)
+                    $('#MedicalAmmount').val(parseFloat($('#DesignationMedicalamount').val()));
+                else
+                    $('#MedicalAmmount').val(0);
             }
             if (getBoolean($('#isHRA').val()) == false){
                 $("#HRA").val(0);
@@ -2003,8 +2041,15 @@
             }
             else if (@Html.Raw(Json.Encode(Model.OldPrjDetailModel.Medical)) != 1)
                 medical = 0;
+            if (parseInt($('#Medical').val()) == 1 && staffcategory == "ICSR Staff") {
+                ttlVal = salary + hra;
+                $('#MedicalAmmount').val(0);
+            }
+            else {
+                ttlVal = medical + salary + hra;
+            }
 
-            ttlVal = medical + salary + hra;
+            //ttlVal = medical + salary + hra;
             var startperday = ttlVal / startmonthend;
             var endperday   = ttlVal / enddtmonthend;
             var monthlyAmt  = ttlVal;
@@ -2027,7 +2072,7 @@
     function FillSalaryCalcDetls() {
         var Vendorid = $('#VendorId').val();
         var salary = $('#Salary').val();
-        var emppfbasicwages = $('input[name=EmpPFBasicWages]').val() || 0;
+        var emppfbasicwages = $('input[name=EmpPFBasicWages]').val();
         var isemppfwages = true;
         $.getJSON("@Url.Action("LoadSalCalPercent", "Requirement")", { VendorId: Vendorid, Salary: salary },
     function (result) {
@@ -2855,9 +2900,14 @@
     }
 
     $('select[name="Medical"]').on('change', function () {
-        var medicalAmt =  parseFloat($('#DesignationMedicalamount').val());
-        if ($(this).val() == 1 || $(this).val() == 2)
+        var medicalAmt = parseFloat($('#DesignationMedicalamount').val());
+        
+        if (staffcategory == "ICSR Staff" && $(this).val() == 1) {
+            $('#MedicalAmmount').val(0);
+        }
+        else if ($(this).val() == 1 || $(this).val() == 2) {
             $('#MedicalAmmount').val(medicalAmt);
+        }
         else
             $('#MedicalAmmount').val(0);
         calcommitmentamount();
@@ -3682,8 +3732,8 @@
                 }
             });
         }
-    });
 
+    });
 
 </script>
 <script src="@Url.Content("~/Content/IOASContent/assets/bootstrap-select/js/bootstrap-select.min.js")"></script>

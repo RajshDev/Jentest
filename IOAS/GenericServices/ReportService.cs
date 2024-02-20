@@ -15,6 +15,7 @@ using System.Configuration;
 
 namespace IOAS.GenericServices
 {
+
     public class ReportService
     {
         ProjectService ProjSer = new ProjectService();
@@ -25,7 +26,7 @@ namespace IOAS.GenericServices
         #region General Voucher Report
         public TravelBillReportModel GetGeneralVoucherBillReport(int Id = 0)
         {
-            TravelBillReportModel model = new TravelBillReportModel();
+              TravelBillReportModel model = new TravelBillReportModel();
             try
             {
                 using (var context = new IOASDBEntities())
@@ -38,7 +39,9 @@ namespace IOAS.GenericServices
                                  join g in context.tblCommitment on f.CommitmentId equals g.CommitmentId
                                  join h in context.tblProject on g.ProjectId equals h.ProjectId
                                  join i in context.tblBudgetHead on f.AllocationHeadId equals i.BudgetHeadId
+                                 
                                  where e.GeneralVoucherId == Id && e.PaymentAmount > 0
+                                
                                  select new
                                  {
                                      h.ProjectType,
@@ -80,15 +83,17 @@ namespace IOAS.GenericServices
                     model.BillDate = String.Format("{0:dd-MMMM-yyyy}", Qry.CRTD_TS);
                     List<PayableListModel> PayList = new List<PayableListModel>();
                     var Pay = (from e in context.tblGeneralVoucher
-                               join f in context.tblGeneralVoucherPaymentBreakUpDetail on e.GeneralVoucherId equals f.GeneralVoucherId
+                               join f in context.tblGeneralVoucherPaymentBreakUpDetail on e.GeneralVoucherId equals f.GeneralVoucherId                              
                                where e.GeneralVoucherId == Id
                                select new
                                {
-                                   f.PaymentAmount,
+                                   f.PaymentAmount,        
                                    f.Name,
-                                   f.CategoryId,
+                                   f.IsHaveTDS,
+                                   f.CategoryId,              
                                    f.UserId
                                }).ToList();
+                 
                     for (int i = 0; i < Pay.Count; i++)
                     {
                         string typecode = "GVR"; int refid = Id; string type = ""; string name = "";
@@ -118,15 +123,23 @@ namespace IOAS.GenericServices
                         }
                         else if (Pay[i].CategoryId == 4)
                         {
-                            nam = Pay[i].Name + "-Travel Agency";
-                            Bank = Common.GetBankDetailsForTarvelAgency(catid).Bank;
-                            Ifsc = Common.GetBankDetailsForTarvelAgency(catid).IFSC;
-                            Branch = Common.GetBankDetailsForTarvelAgency(catid).Branch;
-                            Accno = Common.GetBankDetailsForTarvelAgency(catid).AccNo;
+                            
+                            var userId = Pay[i].UserId;
+                            if (userId != 0)
+                            {
+                                var clearanceName = context.tblClearanceAgentMaster.Where(m => m.ClearanceAgentId == userId && m.IsTravelAgency == true).Select(x => x.AccountHolderName).FirstOrDefault();
+                                nam = clearanceName + "-Travel Agency";
+                                Bank = Common.GetBankDetailsForTarvelAgency(catid).Bank;
+                                Ifsc = Common.GetBankDetailsForTarvelAgency(catid).IFSC;
+                                Branch = Common.GetBankDetailsForTarvelAgency(catid).Branch;
+                                Accno = Common.GetBankDetailsForTarvelAgency(catid).AccNo;
+                            }
                         }
                         else if (Pay[i].CategoryId == 9)
                         {
-                            nam = Pay[i].Name + "-Vendor";
+                            var userId = Pay[i].UserId;
+                            var vendorName = context.tblVendorMaster.Where(m=>m.VendorId== userId).Select(x => x.AccountHolderName ).FirstOrDefault();
+                            nam = vendorName + "-Vendor";
                             Bank = Common.GetBankDetailsForVendor(catid).Bank;
                             Ifsc = Common.GetBankDetailsForVendor(catid).IFSC;
                             Branch = Common.GetBankDetailsForVendor(catid).Branch;
@@ -387,21 +400,20 @@ namespace IOAS.GenericServices
                     List<PayableListModel> PayList = new List<PayableListModel>();
                     var Pay = (from e in context.tblTravelBill
                                join f in context.tblTravelPaymentBreakUpDetail on e.TravelBillId equals f.TravelBillId
-                               // from g in context.tblPayment.Where(m => m.TransactionTypeCode == e.TransactionTypeCode && m.ReferenceId == e.TravelBillId)
-                               //join h in context.tblPayment on e.TravelBillId equals h.ReferenceId
-                               //  where e.TransactionTypeCode == h.TransactionTypeCode
+                               //from g in context.tblPayment.Where(m => m.TransactionTypeCode == e.TransactionTypeCode && m.ReferenceId == e.TravelBillId)
+                               //join h in context.tblPayment on e.TravelBillId equals h.ReferenceId 
                                // join i in context.tblPaymentPayee on h.PaymentId equals i.PaymentId
-                               //join j in context.tblClearanceAgentMaster on f.TravelBillId equals j.ClearanceAgentId where e.TransactionTypeCode == h.TransactionTypeCode && f.CategoryId==3
-                               where e.TravelBillId == Id
+                               //join j in context.tblClearanceAgentMaster on f.UserId equals j.ClearanceAgentId  
+                               where e.TravelBillId == Id //&& f.CategoryId == 4 && e.TransactionTypeCode == h.TransactionTypeCode
                                select new
                                {
-                                   f.PaymentAmount,
-                                   f.Name,
+                                   f.PaymentAmount, 
                                    f.CategoryId,
-                                   f.UserId
-                                   // i.AccountNumber,
-                                   // i.IFSC
+                                   f.UserId,
+                                   f.Name 
                                }).ToList();
+
+                    
                     if (Pay.Count > 0)
                     {
                         for (int i = 0; i < Pay.Count; i++)
@@ -433,13 +445,19 @@ namespace IOAS.GenericServices
                             }
                             if (Pay[i].CategoryId == 4)
                             {
-                                nam = Pay[i].Name + "-Travel Agency";
-                                Bank = Common.GetBankDetailsForTarvelAgency(catid).Bank;
-                                Ifsc = Common.GetBankDetailsForTarvelAgency(catid).IFSC;
-                                Branch = Common.GetBankDetailsForTarvelAgency(catid).Branch;
-                                Accno = Common.GetBankDetailsForTarvelAgency(catid).AccNo;
-                                PAN = Common.GetBankDetailsForTarvelAgency(catid).PAN;
-                                GSTIN = Common.GetBankDetailsForTarvelAgency(catid).GSTIN;
+                                var userId = Pay[i].UserId;
+                                if (userId != 0)
+                                {
+                                    var clearanceName = context.tblClearanceAgentMaster.Where(m => m.ClearanceAgentId == userId && m.IsTravelAgency == true).Select(x => x.AccountHolderName).FirstOrDefault();
+                                    nam = clearanceName + "-Travel Agency";
+                                    Bank = Common.GetBankDetailsForTarvelAgency(catid).Bank;
+                                    Ifsc = Common.GetBankDetailsForTarvelAgency(catid).IFSC;
+                                    Branch = Common.GetBankDetailsForTarvelAgency(catid).Branch;
+                                    Accno = Common.GetBankDetailsForTarvelAgency(catid).AccNo;
+                                    PAN = Common.GetBankDetailsForTarvelAgency(catid).PAN;
+                                    GSTIN = Common.GetBankDetailsForTarvelAgency(catid).GSTIN;
+                                }
+                                
                             }
                             if (Pay[i].CategoryId == 8)
                             {
@@ -781,14 +799,14 @@ namespace IOAS.GenericServices
                         for (int i = 0; i < Pay.Count; i++)
                         {
                             int catid = Convert.ToInt32(Pay[i].PayeeType);
-                            int TdsSec = Convert.ToInt32(Pay[i].TDSPercentage);
+                            string TdsSec = (Pay[i].TDSPercentage).ToString();
                             TDSList.Add(new TDSPerModel()
                             {
                                 PayeeName = Pay[i].PayeeName + "-" + Common.GetCodeControlName(catid, "HonorCategory"),
                                 BasicAmt = Convert.ToDecimal(Pay[i].Amount),
                                 NetAmt = Convert.ToDecimal(Pay[i].NetAmount),
                                 TDSAmt = Convert.ToDecimal(Pay[i].TDS),
-                                TDSPer = Common.GetCodeControlName(TdsSec, "TDS")
+                                TDSPer = Common.GetCodeControlnameTDS(TdsSec, "TDS")
                             });
                         }
                         for (int i = 0; i < Pay.Count; i++)
@@ -1002,7 +1020,7 @@ namespace IOAS.GenericServices
                                      select new
                                      {
                                          e.PaymentAmount,
-                                         e.Name,
+                                         d.AccountHolderName,
                                          d.BankName,
                                          d.AccountNumber,
                                          d.IFSC,
@@ -1012,7 +1030,7 @@ namespace IOAS.GenericServices
                                      }).AsEnumerable()
                                           .Select((x) => new PayableListModel()
                                           {
-                                              Name = x.Name,
+                                              Name = x.AccountHolderName,
                                               Bank = x.BankName,
                                               PAN = x.PAN,
                                               Particulars = x.ModeOfPayment == 1 ? "Cheque" : "Bank Transfer",
@@ -1239,6 +1257,7 @@ namespace IOAS.GenericServices
                     model.AccNo = Qry.AccountNumber;
                     model.Remarks = Qry.Remarks;
                     model.IFSC = Qry.IFSC;
+                    model.RoundOffAdjustment = Qry.RoundOffAdjustment ?? 0;
                     if (Qry.PayeeType == 1)
                     {
                         int PayId = Convert.ToInt32(Qry.PayeeID);
@@ -8860,6 +8879,9 @@ namespace IOAS.GenericServices
                         model.Email = Qry.AgencyContactPersonEmail;
                         model.ContactPerson = Qry.AgencyContactPersonName;
                         model.ContactNo = Qry.AgencyContactPersonNumber;
+                        model.CGSTstr = CreditnoteQry.CGST.ToString();
+                        model.SGSTstr = CreditnoteQry.SGST.ToString();
+                        model.IGSTstr = CreditnoteQry.IGST.ToString();
                         if (QryAgency != null)
                         {
                             model.District = Qry.AgencyDistrict;

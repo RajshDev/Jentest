@@ -37,5 +37,6 @@ namespace IOAS.DataModel
         public Nullable<int> LastUpdateUserId { get; set; }
         public string Status { get; set; }
         public Nullable<System.DateTime> ExpiryDate { get; set; }
+        public Nullable<bool> unRestrict { get; set; }
     }
 }

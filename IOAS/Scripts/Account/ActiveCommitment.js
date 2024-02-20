@@ -26,7 +26,7 @@ $(function () {
     $("#ActiveCommitList").jsGrid({
         paging: true,
         pageIndex: 1,
-        pageSize: 5,
+        pageSize: 20,
         editing: false,
         filtering: true,
         pageLoading: true,
@@ -99,11 +99,19 @@ $(function () {
                 },
                 itemTemplate: function (value, item) {
                     var $result = jsGrid.fields.control.prototype.itemTemplate.apply(this, arguments);
-                    if (item.Status == "Active") {
+                    console.log(item.Freeze);
+                    if (item.Status == "Active" && item.Freeze == 0) {
                         statusList = [{ id: 0, name: "Select Action" }, { id: 1, name: "Add / Withdraw" }]/// { id: 1, name: "Withdraw" }, 
-                    } else {
+                    }
+
+                    else if (item.Status != "Active" && item.Freeze == 0) {
+
                         statusList = [{ id: 0, name: "Select Action" }, { id: 2, name: "Withdraw" }]
                     }
+
+                    else {
+                        statusList = [{ id: 0, name: "Select Action" }]
+                        }                        
 
                     var $customSelect = $("<select>")
                         .attr({"class":"form-control","id":"strAction"}).prop("selectedIndex", 0)
@@ -183,5 +191,5 @@ var loadDetails = function loadDetails() {
         FromCreatedDate: $('#FromCreatedDate').val() || null,
         ToCreatedDate: $('#ToCreatedDate').val() || null
     },
-    $("#ActiveCommitList").jsGrid("search", input, pageIndex = 1, pageSize = 5);
+    $("#ActiveCommitList").jsGrid("search", input, pageIndex = 1, pageSize = 20);
 };

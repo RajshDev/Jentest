@@ -9,6 +9,7 @@ using IOAS.Models;
 using IOAS.DataModel;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Data.SqlClient;
 
 namespace IOAS.GenericServices
 {
@@ -397,38 +398,45 @@ namespace IOAS.GenericServices
                 model = Converter.GetEntityList<ProcessEngineModel>(dsTrasaction.Tables[0]);
                 using (var context = new IOASDBEntities())
                 {
-                    var records = (from po in context.tblProcessTransactionDetail
-                                   join pt in context.tblProcessTransaction on po.ProcessTransactionId equals pt.ProcessTransactionId
-                                   join pgd in context.tblProcessGuidelineDetail on pt.ProcessGuidelineDetailId equals pgd.ProcessGuidelineDetailId
-                                   from clarify in context.tblProcessTransactionDetail.Where(m => m.ProcessTransactionId == po.ProcessTransactionId && m.ActionStatus == "Clarify").OrderByDescending(m => m.TransactionTS).Take(1)
-                                   join user in context.tblUser on clarify.Approverid equals user.UserId
-                                   where po.Approverid == userId && po.ActionStatus == "Initiated" && po.Clarified == true && pt.Closed_F == false
-                                   && !context.tblProcessTransactionDetail.Any(m => m.RefId == po.RefId && m.RefFieldName == po.RefFieldName && m.ActionStatus == "Initiated" && (m.Rejected == true || m.Clarified == false || m.Clarified == null))
-                                   select new
-                                   {
-                                       po.ProcessTransactionId,
-                                       po.ProcessGuidelineDetailId,
-                                       po.RefId,
-                                       //po.RefNumber,
-                                       user.FirstName,
-                                       user.LastName,
-                                       pgd.FlowTitle,
-                                       pt.ActionLink,
-                                       po.TransactionTS,
-                                       po.ActionStatus,
-                                       pt.RefNumber
-                                   }).OrderByDescending(m => m.TransactionTS).ToList();
+                    //var records = (from po in context.tblProcessTransactionDetail
+                    //               join pt in context.tblProcessTransaction on po.ProcessTransactionId equals pt.ProcessTransactionId
+                    //               join pgd in context.tblProcessGuidelineDetail on pt.ProcessGuidelineDetailId equals pgd.ProcessGuidelineDetailId
+                    //               from clarify in context.tblProcessTransactionDetail.Where(m => m.ProcessTransactionId == po.ProcessTransactionId && m.ActionStatus == "Clarify").OrderByDescending(m => m.TransactionTS).Take(1)
+                    //               join user in context.tblUser on clarify.Approverid equals user.UserId
+                    //               where po.Approverid == userId && po.ActionStatus == "Initiated" && po.Clarified == true && pt.Closed_F == false
+                    //               && !context.tblProcessTransactionDetail.Any(m => m.RefId == po.RefId && m.RefFieldName == po.RefFieldName && m.ActionStatus == "Initiated" && (m.Rejected == true || m.Clarified == false || m.Clarified == null))
+                    //               select new
+                    //               {
+                    //                   po.ProcessTransactionId,
+                    //                   po.ProcessGuidelineDetailId,
+                    //                   po.RefId,
+                    //                   //po.RefNumber,
+                    //                   user.FirstName,
+                    //                   user.LastName,
+                    //                   pgd.FlowTitle,
+                    //                   pt.ActionLink,
+                    //                   po.TransactionTS,
+                    //                   po.ActionStatus,
+                    //                   pt.RefNumber
+                    //               }).OrderByDescending(m => m.TransactionTS).ToList();
+                    var UserId = new SqlParameter("@userId", SqlDbType.Int)
+                    {
+                        Value = userId
+                    };
+                    var records = context.Database.SqlQuery<ProcessEngineModel>(
+                                "EXEC Sp_GetProcessTransactionDetail @userId", UserId).ToList();
+
                     if (records.Count > 0)
                     {
                         for (int i = 0; i < records.Count; i++)
                         {
                             model.Add(new ProcessEngineModel
                             {
-                                ProcessTransactionId = records[i].ProcessTransactionId ?? 0,
+                                ProcessTransactionId = records[i].ProcessTransactionId ,
                                 ProcessGuidelineDetailId = Convert.ToInt32(records[i].ProcessGuidelineDetailId),
                                 FirstName = records[i].FirstName,
                                 LastName = records[i].LastName,
-                                RefId = records[i].RefId ?? 0,
+                                RefId = records[i].RefId,
                                 RefNumber = records[i].RefNumber,
                                 FlowTitle = records[i].FlowTitle,
                                 ActionLink = records[i].ActionLink,
@@ -720,7 +728,7 @@ namespace IOAS.GenericServices
                                join PT in context.tblProcessTransaction on PGD.ProcessGuidelineDetailId equals PT.ProcessGuidelineDetailId
                                //join PTD in context.tblProcessTransactionDetail on PT.ProcessTransactionId equals PTD.ProcessTransactionId
                                join U in context.tblUser on WF.ApproverId equals U.UserId
-                               where WF.ProcessGuidelineId == this._processGuideLineId && PT.RefId == this._refId
+                               where WF.ProcessGuidelineId == this._processGuideLineId && PT.RefId == this._refId && U.Status != "InActive"
                                orderby WF.ApproverLevel ascending
                                select new
                                {
@@ -834,8 +842,13 @@ namespace IOAS.GenericServices
                 }
 
                 this.record = InsertProcessTransaction(model);
-
+                if (model.Validatestatus== "")
                 return this;
+                else
+                {
+                    this.errorMsg = "";
+                    return null;
+                }
             }
             catch (Exception ex)
             {
@@ -905,12 +918,60 @@ namespace IOAS.GenericServices
         }
 
 
+        public static bool DuplicateEntryValidation (string refNumber , int ProcessGuidelineDetailId)
+        {
+            try
+            {
+                var DuplicateEntry="";
+                bool retunval = false;
+                using (var context = new IOASDBEntities())
+                {
+
+
+                    var valuesToCheck = new List<int> { 5, 7, 8, 10 };
+                    DuplicateEntry = (
+                        from pt in context.tblProcessTransaction
+                        join pgld in context.tblProcessGuidelineDetail on pt.ProcessGuidelineDetailId equals pgld.ProcessGuidelineDetailId
+                        join pglh in context.tblProcessGuidelineHeader on pgld.ProcessGuidelineId equals pglh.ProcessGuidelineId
+                        join tf in context.tblFunction on pglh.FunctionId equals tf.FunctionId
+                        join tm in context.tblModules on tf.ModuleID equals tm.ModuleID
+                        where pt.RefNumber == refNumber && pt.Closed_F == true && pt.ProcessGuidelineDetailId == ProcessGuidelineDetailId
+                        && valuesToCheck.Contains(tm.ModuleID)
+                        select pt.RefNumber).FirstOrDefault();
+
+                    //DuplicateEntry = (from Pt in context.tblProcessTransaction
+                    //                  where Pt.RefNumber == refNumber && Pt.Closed_F == true && Pt.ProcessGuidelineDetailId == ProcessGuidelineDetailId
+                    //                  select Pt.RefNumber).FirstOrDefault();
+
+                    if (refNumber != DuplicateEntry)
+                    {
+                        retunval = true;
+                    }
+
+
+
+                }
+                return retunval;
+
+
+            }
+
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+                (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                return false;
+            }
+        }
+
+
         private static ProcessEngineModel InsertProcessTransaction(ProcessEngineModel model)
         {
             try
             {
                 using (var context = new IOASDBEntities())
                 {
+                    
                     tblProcessTransaction trans = new tblProcessTransaction();
                     tblProcessTransactionDetail transDetail = new tblProcessTransactionDetail();
                     if (model.ProcessTransactionId != 0)
@@ -945,52 +1006,67 @@ namespace IOAS.GenericServices
                         trans.RefFieldName = model.RefFieldName;
                         trans.FunctionId = model.FunctionId;
                         trans.RefNumber = model.RefNumber;
-                        context.tblProcessTransaction.Add(trans);
-                        context.SaveChanges();
+                       
+                        if (DuplicateEntryValidation(model.RefNumber.ToString(), model.ProcessGuidelineDetailId))
+                        {
+                            context.tblProcessTransaction.Add(trans);
+                            context.SaveChanges();
+                            model.Validatestatus = "";
+                        }
+                        else
+                        {
+                            model.Validatestatus = "WarningStatus";
+                            return model;
+                        }
                     }
+                    var GetProcessTransactionId = trans.ProcessTransactionId;
 
-
-                    transDetail.ProcessTransactionId = trans.ProcessTransactionId;
-                    transDetail.ProcessGuidelineDetailId = model.ProcessGuidelineDetailId;
-                    transDetail.ProcessSeqNumber = model.ProcessSeqNumber;
-                    transDetail.Approverid = model.ApproverId;
-                    transDetail.ActionStatus = model.ActionStatus;
-                    transDetail.TransactionTS = System.DateTime.Now;
-                    transDetail.TransactionIP = model.TransactionIP;
-                    transDetail.MacID = model.MacID;
-                    transDetail.RefId = model.RefId;
-                    transDetail.RefTable = model.RefTable;
-                    transDetail.RefFieldName = model.RefFieldName;
-                    transDetail.Comments = model.Comments;
-                    transDetail.Rejected = false;
-                    transDetail.Clarified = false;
-                    context.tblProcessTransactionDetail.Add(transDetail);
-                    context.SaveChanges();
-                    model.ProcessTransactionDetailId = transDetail.ProcessTransactionDetailId;
-
-                    if (model.ActionStatus == "Rejected" || model.ActionStatus == "Clarify")
+                    if (GetProcessTransactionId != 0 || GetProcessTransactionId != null)
                     {
-                        var details = context.tblProcessTransactionDetail
-                            .Where(p => p.RefId == model.RefId && p.ProcessTransactionId == model.ProcessTransactionId
-                            && p.Rejected == false && p.Clarified == false).ToList();
-                        if (model.ActionStatus == "Rejected")
-                        {
-                            details.ForEach(p => p.Rejected = true);
-                        }
-                        if (model.ActionStatus == "Clarify")
-                        {
-                            details.ForEach(p => p.Clarified = true);
-                        }
-
+                        transDetail.ProcessTransactionId = trans.ProcessTransactionId;
+                        transDetail.ProcessGuidelineDetailId = model.ProcessGuidelineDetailId;
+                        transDetail.ProcessSeqNumber = model.ProcessSeqNumber;
+                        transDetail.Approverid = model.ApproverId;
+                        transDetail.ActionStatus = model.ActionStatus;
+                        transDetail.TransactionTS = System.DateTime.Now;
+                        transDetail.TransactionIP = model.TransactionIP;
+                        transDetail.MacID = model.MacID;
+                        transDetail.RefId = model.RefId;
+                        transDetail.RefTable = model.RefTable;
+                        transDetail.RefFieldName = model.RefFieldName;
+                        transDetail.Comments = model.Comments;
+                        transDetail.Rejected = false;
+                        transDetail.Clarified = false;
+                        context.tblProcessTransactionDetail.Add(transDetail);
                         context.SaveChanges();
 
+                        if (model.ActionStatus == "Rejected" || model.ActionStatus == "Clarify")
+                        {
+                            var details = context.tblProcessTransactionDetail
+                                .Where(p => p.RefId == model.RefId && p.ProcessTransactionId == model.ProcessTransactionId
+                                && p.Rejected == false && p.Clarified == false).ToList();
+                            if (model.ActionStatus == "Rejected")
+                            {
+                                details.ForEach(p => p.Rejected = true);
+                            }
+                            if (model.ActionStatus == "Clarify")
+                            {
+                                details.ForEach(p => p.Clarified = true);
+                            }
+
+                            context.SaveChanges();
+
+                        }
+                        context.Dispose();
+                        return model;
                     }
 
-                    context.Dispose();
+                    else
+                    {
+                        return null;
+                    }
 
-                    return model;
-                }
-
+                }  
             }
             catch (Exception ex)
             {

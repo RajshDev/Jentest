@@ -326,6 +326,25 @@
 
     });*@
 
+    function GetFreezeValueData() {
+
+        var ProjectId = $("#SelProjectNumber").val();
+        var AllocHdId = $("#selAllocationHead").val();
+        var isFreezeDataValid =0;
+        $.ajax({
+            type: "GET",
+            async: false,
+            url: '@Url.Action("GetFreezeAndAllocationData", "Project")',
+            data: {
+                "ProjectId": ProjectId, "AllocationId": AllocHdId},
+            dataType: "json",
+            success: function (result) {
+                isFreezeDataValid = result;                
+                }
+        });
+        return isFreezeDataValid;
+
+    }
 
     $("#btnShowFilter").click(function () {
         $('#popupCommitmentFilter').css("display", "Block");
@@ -396,7 +415,7 @@
         //        $('#popupCommitmentFilter').hide();
         //    }
         //});
-        $("#ActiveCommitList").jsGrid("search", searchdata, pageIndex = 1, pageSize = 5);
+        $("#ActiveCommitList").jsGrid("search", searchdata, pageIndex = 1, pageSize = 20);
     });
 
 

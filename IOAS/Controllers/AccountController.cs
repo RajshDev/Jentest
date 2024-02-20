@@ -17,9 +17,11 @@ using IOAS.Infrastructure;
 using System.IO;
 using IOAS.Filter;
 using reCAPTCHA.MVC;
+using Newtonsoft.Json;
 
 namespace IOAS.Controllers
 {
+
 
     public class AccountController : Controller
     {
@@ -1568,6 +1570,16 @@ namespace IOAS.Controllers
             var doc = Common.GetProjectDocument(ProjectId);
             var result = new { projectData = projectData, Data = Data, CommitNo = CommitNo, Copi = Copi, doc = doc };
             return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
+        public JsonResult LoadProjectDetailsnewone(int ProjectId)
+        {
+            CoreAccountsService _CS = new CoreAccountsService();
+            ProjectOverallReportModel prjdata = new ProjectOverallReportModel();
+            prjdata = _CS.GetProjectOverAllReport(ProjectId);
+            return Json(new { data = prjdata }, JsonRequestBehavior.AllowGet);
+            //  var result = new { projectData = projectData, Data = Data, CommitNo = CommitNo, Copi = Copi, doc = doc };
+            //return Json(result, JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet]

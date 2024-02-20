@@ -824,6 +824,31 @@ new { @class = "form-control", @id = "tdsdoctype" })
         });
 
     });
+
+    function CheckIEmployeestate() {
+        var stateid = $('#ddlstate').val();
+        if (stateid != null && stateid != "" ) {
+            $.ajax({
+                type: "Post",
+                url: '@Url.Action("GetStateCode", "Account")',
+                data: { StateId: stateid },
+                dataType: "json",
+                success: function (result) {
+                    if (result != "") {
+                        $('#txtStateCode').val(result);                                              
+                    }
+                    else {
+                        $('#FailedAlert').html("Somthing went to worng please contact Admin!.");
+                        $('#Failed').modal('toggle');
+                    }
+                }
+            });
+        }
+        else {
+            $('#txtStateCode').val('');            
+        }
+    }
+
     $(document).ready(function () {
         $('input[type=radio][name=GSTExempted]').change(function () {
            
@@ -1018,6 +1043,7 @@ new { @class = "form-control", @id = "tdsdoctype" })
         var doctypevalues = [];
         var docnamevalues = [];
         var attachfile = [];
+        var doclink = [];
         
 
         var doctypevendor = [];
@@ -1038,6 +1064,14 @@ new { @class = "form-control", @id = "tdsdoctype" })
         $('input[name="GSTFile"]').each(function (idx, val) { attachfile.push($(val).val()); });
         
 
+        $('div[id="gstdoclink"]').each(function () {
+            if ($(this).hasClass('dis-none'))
+            { doclink.push('none'); }
+            else
+            { doclink.push($(this).find('a').html()); }
+        });
+
+
         $('select[name="VendorDocumentType"]').each(function (idx, val) { doctypevendor.push($(val).val()); });
         $('input[name="VendorAttachName"]').each(function (idx, val) { docnamevendor.push($(val).val()); });
         $('input[name="VendorFile"]').each(function (idx, val) { attachvendorfile.push($(val).val()); });
@@ -1055,6 +1089,7 @@ new { @class = "form-control", @id = "tdsdoctype" })
         doctypevalues.sort();
         docnamevalues.sort();
         attachfile.sort();
+        doclink.sort();
         
 
         doctypevendor.sort();
@@ -1089,7 +1124,7 @@ new { @class = "form-control", @id = "tdsdoctype" })
                     return false;
 
                 }
-                if ((doctypevalues[k] != 0) && (docnamevalues[k] != null || docnamevalues[k] != "") && (attachfile[k] == null || attachfile[k] == "")) {
+                if ((doctypevalues[k] != 0) && (docnamevalues[k] != null || docnamevalues[k] != "") && (attachfile[k] == null || attachfile[k] == "") && (doclink[k] == null || doclink[k] == "")) {
                     isValid = false;
                     $('#alert').html("Please upload any one of these type file [doc, docx, pdf].");
                     $('#Validation').modal('toggle');
@@ -1109,16 +1144,16 @@ new { @class = "form-control", @id = "tdsdoctype" })
 
             }
             // duplicate check
-            for (var k = 1; k < doctypevalues.length; ++k) {
-                if (doctypevalues[k] == doctypevalues[k - 1]) {
-                    isValid = false;
+            //for (var k = 1; k < doctypevalues.length; ++k) {
+            //    if (doctypevalues[k] == doctypevalues[k - 1]) {
+            //        isValid = false;
 
-                    $('#alert').html("Attachment type is already existing. Please select a different Attachment type.");
-                    $('#Validation').modal('toggle');
-                    return false;
+            //        $('#alert').html("Attachment type is already existing. Please select a different Attachment type.");
+            //        $('#Validation').modal('toggle');
+            //        return false;
 
-                }
-            }
+            //    }
+            //}
 
             for (var j = 0; j < doctypevendor.length; ++j) {
                 if ((doctypevendor[j] > 0) && ((docnamevendor[j] == null) || docnamevendor[j] == "")) {
@@ -1265,6 +1300,7 @@ new { @class = "form-control", @id = "tdsdoctype" })
         var attachfile = [];
         var attachfilefilesize = [];
         var gstdocid = [];
+        var doclink = [];
 
         var doctypevendor = [];
         var docnamevendor = [];
@@ -1285,6 +1321,12 @@ new { @class = "form-control", @id = "tdsdoctype" })
         $('input[name="GSTFile"]').each(function (idx, val) { attachfilefilesize.push($(this).size); });
         $('input[name="GSTDocumentId"]').each(function (idx, val) { gstdocid.push($(val).val()); });
 
+
+        $('div[id="gstdoclink"]').each(function () {
+            if ($(this).hasClass('dis-none')) { doclink.push('none'); }
+            else { doclink.push($(this).find('a').html()); }
+        });
+
         $('select[name="VendorDocumentType"]').each(function (idx, val) { doctypevendor.push($(val).val()); });
         $('input[name="VendorAttachName"]').each(function (idx, val) { docnamevendor.push($(val).val()); });
         $('input[name="VendorFile"]').each(function (idx, val) { attachvendorfile.push($(val).val()); });
@@ -1298,12 +1340,14 @@ new { @class = "form-control", @id = "tdsdoctype" })
         $('input[name="TDSFile"]').each(function (idx, val) { attachtdsfilesize.push($(this).size); });
         $('input[name="TDSDocumentId"]').each(function (idx, val) { attachtdsdocid.push($(val).val()); });
 
+
         // Sort it
         doctypevalues.sort();
         docnamevalues.sort();
         attachfile.sort();
         attachfilefilesize.sort();
         gstdocid.sort();
+        doclink.sort();
 
         doctypevendor.sort();
         docnamevendor.sort();
@@ -1331,7 +1375,7 @@ new { @class = "form-control", @id = "tdsdoctype" })
                     $('#Validation').modal('toggle');
                     return false;
                 }
-                if (attachfile[k] == null || attachfile[k] == "") {
+                if ((attachfile[k] == null || attachfile[k] == "") && (doclink[k] == null || doclink[k] == "")) {
                     isValid = false;
                     $('#alert').html("Please upload any one of these type file [doc, docx, pdf].");
                     $('#Validation').modal('toggle');
@@ -1356,7 +1400,7 @@ new { @class = "form-control", @id = "tdsdoctype" })
 
             }
             if (gstdocid[k] == null || gstdocid[k] == "") {
-                if ((doctypevalues[k] != 0) && (docnamevalues[k] != null || docnamevalues[k] != "") && (attachfile[k] == null || attachfile[k] == "")) {
+                if ((doctypevalues[k] != 0) && (docnamevalues[k] != null || docnamevalues[k] != "") && (attachfile[k] == null || attachfile[k] == "") && (doclink[k] == null || doclink[k] == "")) {
                     isValid = false;
                     $('#alert').html("Please upload any one of these type file [doc, docx, pdf].");
                     $('#Validation').modal('toggle');
@@ -1398,17 +1442,17 @@ new { @class = "form-control", @id = "tdsdoctype" })
             }
 
         }
-        // duplicate check
-        for (var k = 1; k < doctypevalues.length; ++k) {
-            if (doctypevalues[k] == doctypevalues[k - 1]) {
-                isValid = false;
+        //// duplicate check
+        //for (var k = 1; k < doctypevalues.length; ++k) {
+        //    if (doctypevalues[k] == doctypevalues[k - 1]) {
+        //        isValid = false;
 
-                $('#alert').html("Attachment type is already existing. Please select a different Attachment type.");
-                $('#Validation').modal('toggle');
-                return false;
+        //        $('#alert').html("Attachment type is already existing. Please select a different Attachment type.");
+        //        $('#Validation').modal('toggle');
+        //        return false;
 
-            }
-        }
+        //    }
+        //}
 
         for (var j = 0; j < doctypevendor.length; ++j) {
             if (doctypevendor.length > 1) {

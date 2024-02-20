@@ -1,0 +1,55 @@
+﻿@model IOAS.Models.BillReversal
+@{
+    ViewBag.Title = "BillReversal";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+@using (Html.BeginForm("BillReversal", "CoreAccounts", FormMethod.Post, new { @class = "", role = "form", @id = "formOTHJuniorApp", enctype = "multipart/form-data" }))
+{
+    <div class="row hd-tt-bg" id="addnewpage">
+        <div class="col-md-4">
+            <h3>Bill Reversal</h3>
+        </div>
+
+    </div>
+    <div class="page-wrapper" id="">
+        <div class="white-bg">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group custom-form-group">
+                        <label class="required">Transaction:</label>
+                        @Html.DropDownListFor(m => m.Transaction, new SelectList(ViewBag.TransType, "TransactionTypeId", "TransactionType"), "Select Transaction", new { @class = "form-control ", @id = "transtype", @required = "required" })
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group custom-form-group">
+                        <label class="required">Bill Number:</label>
+                        @Html.TextBoxFor(m => m.BillNumber, new { @class = "form-control", @id = "txtBillNumber", @required = "required" })
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12 text-center pd-tb-30">
+            <input type="submit" class="btn btn-primary mr10" value="Reverse" name="Button" id="btnReverse" />
+        </div>
+    </div>
+}
+<script>
+     var errMsg = '@TempData["errMsg"]';
+    var succMsg = '@TempData["succMsg"]';
+    $(document).ready(function () {
+        if (succMsg != '') {
+            $('#alertSuccess').html(succMsg);
+            $('#txtBillNumber').val('');
+            $('#TransactionTypeId option:eq(0)').attr('selected', 'selected'); 
+            $('#Success').modal('toggle');
+        }
+        else if (errMsg != '') {
+            $('#FailedAlert').html(errMsg);
+            $('#TransactionTypeId option:eq(0)').attr('selected', 'selected'); 
+            $('#txtBillNumber').val('');
+            $('#Failed').modal('toggle');
+        }
+    });
+</script>

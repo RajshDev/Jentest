@@ -1365,7 +1365,18 @@
         if (count <= 0) {                // if there are not no reason to loop them
             return true;                 // this can be used to perform other action if there are no steps
         }
-        else if (currentTab == 0) {
+        else if (currentTab == 0) { 
+            var tyPro = $('#type').val();
+            console.log(tyPro);
+            if (tyPro == "2") {
+                var FreezeValidation = GetFreezeValueData();
+                if (FreezeValidation == 1) {
+                    validationMsg = "Allocation Head Freezed";
+                    hadError = true;
+                    $('#FailedAlert').html(validationMsg);
+                    $('#Failed').modal('show');
+                }
+            }
             var validationMsg;
             if ($('#Projtype').val() == "2") {
                 validationMsg = 'valid';
@@ -1496,6 +1507,23 @@
         }
         $(el).find('select').selectpicker('refresh');
         return $(el).children().first().unwrap();
+    }
+
+    function GetFreezeValueData() {
+        var ProjectId = $("#ProjectId").val();
+        var isFreezeDataValid = 0;
+        $.ajax({
+            type: "GET",
+            async: false,
+            url: '@Url.Action("GetFreezeOverHeads", "Project")',
+            data: { "ProjectId": ProjectId },
+            dataType: "json",
+            success: function (result) {
+                isFreezeDataValid = result;
+                console.log(isFreezeDataValid);
+            }
+        });
+        return isFreezeDataValid;
     }
 </script>
 

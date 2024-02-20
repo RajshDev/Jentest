@@ -388,6 +388,8 @@ namespace IOAS.Models
         public List<InvoiceListModel> InvoiceList { get; set; }
         public List<HonororiumPCFModel> PCF { get; set; }
         public List<HeadCreditPayeeLedgerModel> PayeeLeadger { get; set; }
+
+        public decimal RoundOffAdjustment { get; set; }
     }
     public class PayableListModel
     {

@@ -110,6 +110,14 @@
 <script>
     var errMsg = '@TempData["errMsg"]';
     $(document).ready(function () {
+        fincurrent = moment(new Date()).toDate();
+        finyr = new Date('@TempData["Finyear"]');
+        console.log(finyr);
+        $('#BillDate,#CashDate').datepicker({
+            dateFormat: 'dd-mm-yy',
+            changeYear: true,
+        }).datepicker("option", "minDate", finyr).datepicker("option", "maxDate", fincurrent);
+        
         if (errMsg == 'Failed') {
             $("#RefId,#RefNo,#BillDate,#ExpDate,#CashDate,#Remarks").val('');
             $("#CurrDate,#expendituredate,#cashbookdate,#Remarks").text('');
@@ -127,17 +135,44 @@
         applyAutoComplete($('#RefNo'), $('#RefId'), '@Url.Action("LoadDISRefernceNumber", "CoreAccounts")', 'BillDate', undefined, undefined);
        BillDate();
     });
+    function GetRefNumber(Refnum) {
+        var RefNumValidate ='';
+        $.ajax({
+            type: "GET",
+            async: false,
+            url: '@Url.Action("GetRefNumberForValidationAVOBill", "CoreAccounts")',
+            data: {
+                "Refnum": Refnum, "vouchertype":'Distribution'
+            },
+            dataType: "json",
+            success: function (result) {
+                RefNumValidate = result;
+                }
+        });
+        return RefNumValidate;
+    }
     $('#btnSubmit').click(function () {
      //   $('.loading-bg').removeClass('dis-none');
-        var RefNumber = $("#RefId").val();
+        var RefNumber = $("#RefNo").val();
         var BillDate = $("#BillDate").val();
         var ExpDate = $("#ExpDate").val();
         var CashDate = $("#CashDate").val();
-        if (RefNumber != "") {
-          $('#formDISbillDate').submit();
-        }
-        //$('.loading-bg').addClass('dis-none');
+        validate(RefNumber);
+        
     });
+    async function validate(RefNumber) {
+
+        var ValidateRefNumber = await GetRefNumber(RefNumber);
+
+        if (RefNumber == ValidateRefNumber && RefNumber != "") {
+            $('#formDISbillDate').submit();
+        }
+        else {
+            $('#FailedAlert').html("Invalid Reference Number");
+            $('#Failed').modal('show');
+        }
+    };
+
     function BillDate()
     {
         var RefNumber = $("#RefId").val();

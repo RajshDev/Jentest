@@ -1228,6 +1228,21 @@ namespace IOAS.Controllers
             return Json(result, JsonRequestBehavior.AllowGet);
         }
 
+        [HttpGet]
+        public JsonResult STERequestedBy(int Requestpi)
+        {
+            try
+            {
+                STEModel model = new STEModel();
+                model = recruitmentService.STERequestedByPI(Requestpi);
+                return Json(model, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                STEModel model = new STEModel();
+                return Json("");
+            }
+        }
         public ActionResult STEView(int STEID, string listf = null)
         {
             try
@@ -1557,23 +1572,23 @@ namespace IOAS.Controllers
                 if (validateSTEVerification(STEID))
                 {
                     model = recruitmentService.GetVerification(STEID);
-                if (model.Status == "Awaiting Verification-Open")
-                {
-                    var user = Common.getUserIdAndRole(User.Identity.Name);
-                    model.RoleId = user.Item2;
-                    if (model.FlowApprover == "CMAdmin")
-                        ViewBag.processGuideLineId = Common.GetProcessGuidelineId(188, "STEVERAdminFlow", 0);
-                    else if (model.FlowApprover == "NDean")
-                        ViewBag.processGuideLineId = Common.GetProcessGuidelineId(188, "STEVERFlowDean", 0);
-                    else
-                        ViewBag.processGuideLineId = Common.GetProcessGuidelineId(188, "STEVER Flow", 0);
-                    model.List_f = getEmployeeActionLink("STE", "VAL");
-                    //ViewBag.processGuideLineId = processGuideLineId;
-                    ViewBag.currentRefId = model.STEId;
+                    if (model.Status == "Awaiting Verification-Open")
+                    {
+                        var user = Common.getUserIdAndRole(User.Identity.Name);
+                        model.RoleId = user.Item2;
+                        if (model.FlowApprover == "CMAdmin")
+                            ViewBag.processGuideLineId = Common.GetProcessGuidelineId(188, "STEVERAdminFlow", 0);
+                        else if (model.FlowApprover == "NDean")
+                            ViewBag.processGuideLineId = Common.GetProcessGuidelineId(188, "STEVERFlowDean", 0);
+                        else
+                            ViewBag.processGuideLineId = Common.GetProcessGuidelineId(188, "STEVER Flow", 0);
+                        model.List_f = getEmployeeActionLink("STE", "VAL");
+                        //ViewBag.processGuideLineId = processGuideLineId;
+                        ViewBag.currentRefId = model.STEId;
 
 
 
-                }
+                    }
                 }
                 else
                 {
@@ -1687,7 +1702,7 @@ namespace IOAS.Controllers
                 //}
 
                 if (button != "Save as drafts")
-                {                   
+                {
                     bool isHaveExperience = RequirementService.checkIsHaveExperience(model.STEId ?? 0, "STE");
 
                     #region FileValidation
@@ -1701,7 +1716,7 @@ namespace IOAS.Controllers
                             return View(model);
                         }
                     }
-                    
+
                     if (model.Resume != null)
                     {
                         var extension = Path.GetExtension(model.Resume.FileName);
@@ -1836,7 +1851,7 @@ namespace IOAS.Controllers
 
                     #endregion
 
-                    var result = recruitmentService.VerifySTE(model, userId,button);
+                    var result = recruitmentService.VerifySTE(model, userId, button);
                     if (result.Item1 == 1)
                     {
                         //TempData["succMsg"] = "Application verified / Employee number generated:" + result.Item2;
@@ -1861,8 +1876,8 @@ namespace IOAS.Controllers
                 }
                 else if (button == "Save as drafts")
                 {
-                    var result = recruitmentService.VerifySTE(model, userId,button);
-                    
+                    var result = recruitmentService.VerifySTE(model, userId, button);
+
                     if (result.Item1 == 1)
                     {
                         TempData["succMsg"] = "Draft Saved Successfully";
@@ -1940,7 +1955,7 @@ namespace IOAS.Controllers
                 model.List_f = getEmployeeActionLink("STE", listf);
                 return View(model);
 
-                
+
 
             }
             catch (Exception ex)
@@ -1985,7 +2000,7 @@ namespace IOAS.Controllers
                     var curr = DateTime.Now.Date;
                     return context.tblRCTSTE.Any(m => m.STEID == STEID && m.AppointmentStartdate <= curr && m.AppointmentEnddate >= curr);
                 }
-               
+
             }
             catch (Exception ex)
             {
@@ -2184,7 +2199,7 @@ namespace IOAS.Controllers
         {
             try
             {
-                if(orderid== 5006||orderid== 8892)
+                if (orderid == 5006 || orderid == 8892)
                     return "Valid";
                 if (backdate_f == true)
                     return "Valid";
@@ -2289,7 +2304,7 @@ namespace IOAS.Controllers
         #region OrderVerification
 
         public ActionResult OrderVerificationView(int OrderId, string listf = null)
-        {           
+        {
 
             try
             {
@@ -2299,24 +2314,26 @@ namespace IOAS.Controllers
                 model.RoleId = user.Item2;
                 if (model.ApplicationType == "STE")
                 {
-                    if (model.FlowApprover == "CMAdmin")
-                        ViewBag.processGuideLineId = Common.GetProcessGuidelineId(188, "STEORDVERAdminFlow", 0);
-                    else if (model.FlowApprover == "NDean")
-                        ViewBag.processGuideLineId = Common.GetProcessGuidelineId(188, "STEORDVERFlowDean", 0);
-                    else
-                        ViewBag.processGuideLineId = Common.GetProcessGuidelineId(188, "STEORDVER Flow", 0);
+                    //if (model.FlowApprover == "CMAdmin")
+                    //    ViewBag.processGuideLineId = Common.GetProcessGuidelineId(188, "STEORDVERAdminFlow", 0);
+                    //else if (model.FlowApprover == "NDean")
+                    //    ViewBag.processGuideLineId = Common.GetProcessGuidelineId(188, "STEORDVERFlowDean", 0);
+                    //else
+                    //    ViewBag.processGuideLineId = Common.GetProcessGuidelineId(188, "STEORDVER Flow", 0);
+                    ViewBag.processGuideLineId = Common.GetProcessGuidelineId(188, "STEORDVER Flow", 0);
                     model.List_f = getEmployeeActionLink("STE", listf);
                     ViewBag.currentRefId = model.STEId;
 
                 }
-                else if(model.ApplicationType == "OSG")
+                else if (model.ApplicationType == "OSG")
                 {
-                    if (model.FlowApprover == "CMAdmin")
-                        ViewBag.processGuideLineId = Common.GetProcessGuidelineId(206, "OSGORDVERAdminFlow", 0);
-                    else if (model.FlowApprover == "NDean")
-                        ViewBag.processGuideLineId = Common.GetProcessGuidelineId(206, "OSGORDVERFlowDean", 0);
-                    else
-                        ViewBag.processGuideLineId = Common.GetProcessGuidelineId(206, "OSGORDVER Flow", 0);
+                    //if (model.FlowApprover == "CMAdmin")
+                    //    ViewBag.processGuideLineId = Common.GetProcessGuidelineId(206, "OSGORDVERAdminFlow", 0);
+                    //else if (model.FlowApprover == "NDean")
+                    //    ViewBag.processGuideLineId = Common.GetProcessGuidelineId(206, "OSGORDVERFlowDean", 0);
+                    //else
+                    //    ViewBag.processGuideLineId = Common.GetProcessGuidelineId(206, "OSGORDVER Flow", 0);
+                    ViewBag.processGuideLineId = Common.GetProcessGuidelineId(206, "OSGORDVER Flow", 0);
                     model.List_f = getEmployeeActionLink("STE", listf);
                     ViewBag.currentRefId = model.OrderId;
 
@@ -2344,7 +2361,7 @@ namespace IOAS.Controllers
                         model = recruitmentService.GetOrderVerification(OrderId);
                         if (model.ApplicationType == "STE")
                         {
-                           
+
                             if (model.Status == "Awaiting Verification-Open")
                             {
                                 var user = Common.getUserIdAndRole(User.Identity.Name);
@@ -2361,7 +2378,7 @@ namespace IOAS.Controllers
 
                             }
                         }
-                        else if(model.ApplicationType == "OSG")
+                        else if (model.ApplicationType == "OSG")
                         {
                             if (model.Status == "Awaiting Verification-Open")
                             {
@@ -2440,7 +2457,7 @@ namespace IOAS.Controllers
                         TempData["errMsg"] = "Something went wrong please contact administrator";
                         return RedirectToAction(action, "Requirement");
                     }
-                    
+
                 }
                 else
                 {
@@ -2448,7 +2465,7 @@ namespace IOAS.Controllers
                     var result = requirement.UpdateVerificationOrder(model, userId, button);
                     if (result.Item1 == 1 && model.OrderId > 0)
                     {
-                        
+
                         TempData["succMsg"] = "Order verified-Draft successfully";
                         return RedirectToAction(action, "Requirement");
                     }
@@ -4016,9 +4033,9 @@ namespace IOAS.Controllers
             {
                 var mastQuery = context.vw_RCTOverAllApplicationEntry.Where(m => m.ApplicationId == model.ApplicationID && m.Category == model.TypeCode && m.ApplicationType == "New").Select(m => new { m.ProjectId, m.AppointmentStartdate, m.AppointmentEnddate, m.TypeofAppointmentinInt }).FirstOrDefault();
                 var queryExp = (from E in context.tblRCTEmployeeExperience
-                              where E.ApplicationId == model.ApplicationID
-                              orderby E.EffectiveFrom descending
-                              select E).FirstOrDefault();
+                                where E.ApplicationId == model.ApplicationID
+                                orderby E.EffectiveFrom descending
+                                select E).FirstOrDefault();
                 if (mastQuery != null)
                 {
                     var projectDetail = Common.GetProjectsDetails(mastQuery.ProjectId ?? 0);
@@ -5512,7 +5529,7 @@ namespace IOAS.Controllers
         {
             try
             {
-                lock(lockCommitAddrequestObj)
+                lock (lockCommitAddrequestObj)
                 {
                     bool isValidRequest = Common.CheckRCTCommitmentRequest(model.CommitReqModel.CommitmentRequestId);
                     if (isValidRequest)
@@ -5663,110 +5680,111 @@ namespace IOAS.Controllers
         {
             try
             {
-                lock (lockCommitCloserequestObj) { 
-                    bool isValidRequest = Common.CheckRCTCommitmentRequest(model.CommitReqModel.CommitmentRequestId);
-                if (isValidRequest)
+                lock (lockCommitCloserequestObj)
                 {
-                    CommitmentResultModel commit = new CommitmentResultModel();
-                    ViewBag.IITMPensionerOrCSIRStaff = Common.GetCodeControlList("IITMPensioner/CSIRStaff");
-                    ViewBag.Medical = Common.GetCodeControlList("SETMedical");
-                    ViewBag.Reason = Common.GetCommitmentAction();
-                    var username = User.Identity.Name;
-                    int userid = Common.GetUserid(username);
-                    //model = recruitmentService.GetRecruitBookCommitDetails(Id);
-                    ProjSummaryModel psModel = new ProjSummaryModel();
-                    //ProjectSummaryModel psModel = new ProjectSummaryModel();
-                    ProjectService pro = new ProjectService();
-                    var ProjectId = model.ProjectId ?? 0;
-                    if (ProjectId > 0)
+                    bool isValidRequest = Common.CheckRCTCommitmentRequest(model.CommitReqModel.CommitmentRequestId);
+                    if (isValidRequest)
                     {
-                        ViewBag.AllocationHead = Common.getAllocationHeadBasedOnProject(ProjectId);
-                        psModel.Detail = pro.getProjectSummaryDetails(ProjectId);
-                        psModel.Summary = pro.getProjectSummary(ProjectId);
-                        psModel.Common = Common.GetProjectsDetails(ProjectId);
-                        psModel.ProjectStartDate = string.Format("{0:dd-MMM-yyyy}", psModel.Common.SancationDate);
-                        psModel.ProjectCloseDate = string.Format("{0:dd-MMM-yyyy}", psModel.Common.CloseDate);
-                        psModel.ProjId = ProjectId;
-                        psModel.DistributionAmount = Common.GetDistribuAmount(ProjectId);
-                        psModel.ExpAmt = psModel.Summary.AmountSpent;
-                        model.Projsummary = psModel;
-                    }
-                    using (var context = new IOASDBEntities())
-                    {
-                        commit.LogTypeId = 2;
-                        var comitrquestid = model.CommitReqModel.CommitmentRequestId;
-                        var commitrequest = (from prj in context.tblRCTCommitmentRequest
-                                             where prj.RecruitmentRequestId == comitrquestid
-                                             select prj).FirstOrDefault();
-                        if (commitrequest != null)
+                        CommitmentResultModel commit = new CommitmentResultModel();
+                        ViewBag.IITMPensionerOrCSIRStaff = Common.GetCodeControlList("IITMPensioner/CSIRStaff");
+                        ViewBag.Medical = Common.GetCodeControlList("SETMedical");
+                        ViewBag.Reason = Common.GetCommitmentAction();
+                        var username = User.Identity.Name;
+                        int userid = Common.GetUserid(username);
+                        //model = recruitmentService.GetRecruitBookCommitDetails(Id);
+                        ProjSummaryModel psModel = new ProjSummaryModel();
+                        //ProjectSummaryModel psModel = new ProjectSummaryModel();
+                        ProjectService pro = new ProjectService();
+                        var ProjectId = model.ProjectId ?? 0;
+                        if (ProjectId > 0)
                         {
-                            if (commitrequest.AppointmentType.Contains("Change of Project"))
-                                commit.LogTypeId = 3;
-                            else if (commitrequest.AppointmentType.Contains("Relieving"))
-                                commit.LogTypeId = 3;
+                            ViewBag.AllocationHead = Common.getAllocationHeadBasedOnProject(ProjectId);
+                            psModel.Detail = pro.getProjectSummaryDetails(ProjectId);
+                            psModel.Summary = pro.getProjectSummary(ProjectId);
+                            psModel.Common = Common.GetProjectsDetails(ProjectId);
+                            psModel.ProjectStartDate = string.Format("{0:dd-MMM-yyyy}", psModel.Common.SancationDate);
+                            psModel.ProjectCloseDate = string.Format("{0:dd-MMM-yyyy}", psModel.Common.CloseDate);
+                            psModel.ProjId = ProjectId;
+                            psModel.DistributionAmount = Common.GetDistribuAmount(ProjectId);
+                            psModel.ExpAmt = psModel.Summary.AmountSpent;
+                            model.Projsummary = psModel;
                         }
-                    }
-                    commit.ComitmentId = model.CommitReqModel.CommitmentId ?? 0;
-                    commit.strRemarks = model.CommitReqModel.Remarks;
-                    commit.AddCloseAmt = model.CommitReqModel.AddCommitmentAmount ?? 0;
-                    commit.ProjectId = ProjectId;
-                    commit.Reason = model.CommitReqModel.Reason;
-                    commit.AllHeadId = model.CommitReqModel.AllocationHeadId ?? 0;
-                    //commit.selAllocationHead = model.CommitReqModel.AllocationHeadId ?? 0;
-                    commit.Remarks = model.CommitReqModel.Remarks;
-                    //commit.SelProjectNumber = model.ProjectId ?? 0;
-                    //commit.AllocationValue = model.CommitReqModel.CommitmentAmount ?? 0;
-                    //commit.selCommitmentType = 1;
-                    //var basicpayandmedical = Common.getbasicpay(model.CommitReqModel.ReferenceNumber, model.CommitReqModel.AppointmentTypeCode);
-                    //commit.BasicPay = basicpayandmedical.Item1;
-                    //commit.MedicalAllowance = basicpayandmedical.Item2;
-                    //commit.StartDate = basicpayandmedical.Item3;
-                    //commit.CloseDate = basicpayandmedical.Item4;
-                    int commitmentid = model.CommitReqModel.CommitmentId ?? 0;
-                    if (model.CommitReqModel.LogTypeId == 1 && Common.IsInUcCommitment(commitmentid))
-                    {
-                        TempData["errMsg"] = "You can't add any addition value to this commitment. Becouse this commitment treated as expenditure in UC.";
-                        return RedirectToAction("RecruitmentCommitmentRequestList");
-                    }
-                    AccountService _AS = new AccountService();
-                    var result = AccountService.CloseThisCommitment(commit, userid);
-                    if (result == 1)
-                    {
-                        var comitreqid = recruitmentService.UpdateCloseCommitDetails(model, commitmentid, userid);
-                        if (comitreqid > 0)
+                        using (var context = new IOASDBEntities())
                         {
-                            TempData["succMsg"] = "Commitment amount withdrawn successfully.";
-                            return RedirectToAction("RecruitmentCommitmentRequestList", "Requirement");
+                            commit.LogTypeId = 2;
+                            var comitrquestid = model.CommitReqModel.CommitmentRequestId;
+                            var commitrequest = (from prj in context.tblRCTCommitmentRequest
+                                                 where prj.RecruitmentRequestId == comitrquestid
+                                                 select prj).FirstOrDefault();
+                            if (commitrequest != null)
+                            {
+                                if (commitrequest.AppointmentType.Contains("Change of Project"))
+                                    commit.LogTypeId = 3;
+                                else if (commitrequest.AppointmentType.Contains("Relieving"))
+                                    commit.LogTypeId = 3;
+                            }
+                        }
+                        commit.ComitmentId = model.CommitReqModel.CommitmentId ?? 0;
+                        commit.strRemarks = model.CommitReqModel.Remarks;
+                        commit.AddCloseAmt = model.CommitReqModel.AddCommitmentAmount ?? 0;
+                        commit.ProjectId = ProjectId;
+                        commit.Reason = model.CommitReqModel.Reason;
+                        commit.AllHeadId = model.CommitReqModel.AllocationHeadId ?? 0;
+                        //commit.selAllocationHead = model.CommitReqModel.AllocationHeadId ?? 0;
+                        commit.Remarks = model.CommitReqModel.Remarks;
+                        //commit.SelProjectNumber = model.ProjectId ?? 0;
+                        //commit.AllocationValue = model.CommitReqModel.CommitmentAmount ?? 0;
+                        //commit.selCommitmentType = 1;
+                        //var basicpayandmedical = Common.getbasicpay(model.CommitReqModel.ReferenceNumber, model.CommitReqModel.AppointmentTypeCode);
+                        //commit.BasicPay = basicpayandmedical.Item1;
+                        //commit.MedicalAllowance = basicpayandmedical.Item2;
+                        //commit.StartDate = basicpayandmedical.Item3;
+                        //commit.CloseDate = basicpayandmedical.Item4;
+                        int commitmentid = model.CommitReqModel.CommitmentId ?? 0;
+                        if (model.CommitReqModel.LogTypeId == 1 && Common.IsInUcCommitment(commitmentid))
+                        {
+                            TempData["errMsg"] = "You can't add any addition value to this commitment. Becouse this commitment treated as expenditure in UC.";
+                            return RedirectToAction("RecruitmentCommitmentRequestList");
+                        }
+                        AccountService _AS = new AccountService();
+                        var result = AccountService.CloseThisCommitment(commit, userid);
+                        if (result == 1)
+                        {
+                            var comitreqid = recruitmentService.UpdateCloseCommitDetails(model, commitmentid, userid);
+                            if (comitreqid > 0)
+                            {
+                                TempData["succMsg"] = "Commitment amount withdrawn successfully.";
+                                return RedirectToAction("RecruitmentCommitmentRequestList", "Requirement");
+                            }
+                            else
+                            {
+                                TempData["errMsg"] = "Commitment amount withdrawn successfully but something went wrong in data updation. Please contact administrator";
+                                return RedirectToAction("RecruitmentCommitmentRequestList", "Requirement");
+                            }
                         }
                         else
                         {
-                            TempData["errMsg"] = "Commitment amount withdrawn successfully but something went wrong in data updation. Please contact administrator";
-                            return RedirectToAction("RecruitmentCommitmentRequestList", "Requirement");
+                            model = recruitmentService.GetRecruitBookCommitDetails(model.CommitReqModel.CommitmentRequestId);
+                            psModel.Detail = pro.getProjectSummaryDetails(ProjectId);
+                            psModel.Summary = pro.getProjectSummary(ProjectId);
+                            psModel.Common = Common.GetProjectsDetails(ProjectId);
+                            psModel.ProjectStartDate = string.Format("{0:dd-MMM-yyyy}", psModel.Common.SancationDate);
+                            psModel.ProjectCloseDate = string.Format("{0:dd-MMM-yyyy}", psModel.Common.CloseDate);
+                            psModel.ProjId = ProjectId;
+                            psModel.DistributionAmount = Common.GetDistribuAmount(ProjectId);
+                            psModel.ExpAmt = psModel.Summary.AmountSpent;
+                            model.Projsummary = psModel;
+
+                            TempData["errMsg"] = "Commitment amount not updated. Please try again or contact administrator.";
+                            return View(model);
                         }
                     }
                     else
                     {
-                        model = recruitmentService.GetRecruitBookCommitDetails(model.CommitReqModel.CommitmentRequestId);
-                        psModel.Detail = pro.getProjectSummaryDetails(ProjectId);
-                        psModel.Summary = pro.getProjectSummary(ProjectId);
-                        psModel.Common = Common.GetProjectsDetails(ProjectId);
-                        psModel.ProjectStartDate = string.Format("{0:dd-MMM-yyyy}", psModel.Common.SancationDate);
-                        psModel.ProjectCloseDate = string.Format("{0:dd-MMM-yyyy}", psModel.Common.CloseDate);
-                        psModel.ProjId = ProjectId;
-                        psModel.DistributionAmount = Common.GetDistribuAmount(ProjectId);
-                        psModel.ExpAmt = psModel.Summary.AmountSpent;
-                        model.Projsummary = psModel;
-
-                        TempData["errMsg"] = "Commitment amount not updated. Please try again or contact administrator.";
-                        return View(model);
+                        TempData["errMsg"] = "This Request already Booked are not Vaild booking Request.";
+                        return RedirectToAction("RecruitmentCommitmentRequestList", "Requirement");
                     }
                 }
-                else
-                {
-                    TempData["errMsg"] = "This Request already Booked are not Vaild booking Request.";
-                     return RedirectToAction("RecruitmentCommitmentRequestList", "Requirement");
-                    }
-            }
             }
             catch (Exception ex)
             {
@@ -6766,7 +6784,7 @@ namespace IOAS.Controllers
                         var chkemployeepanno = Common.CheckPreviousEmployeePanserver(model.PAN, model.ApplicationNo, true, model.OldEmployeeNumber, "OSG");
                         if (chkemployeepanno != "")
                         {
-                            TempData["alertMsg"] = "This Pan Number is linked to  " + chkemployeepanno;
+                            TempData["alertMsg"] = chkemployeepanno;
                             model.Status = model.Status == null ? "" : model.Status;
                             return View(model);
                         }
@@ -6789,7 +6807,7 @@ namespace IOAS.Controllers
                         var chkemployeepanno = Common.CheckPreviousEmployeePanserver(model.PAN, null, true, model.OldEmployeeNumber, "OSG");
                         if (chkemployeepanno != "")
                         {
-                            TempData["errMsg"] = "This Pan Number is linked to  " + chkemployeepanno;
+                            TempData["errMsg"] =chkemployeepanno;
                             model.Status = model.Status == null ? "" : model.Status;
                             return View(model);
                         }
@@ -7438,33 +7456,33 @@ namespace IOAS.Controllers
                     return RedirectToAction("OSGVerificationList", "Requirement");
                 }
 
-                //if (model.aadharnumber != null)
-                //{
-                //    var chkemployeeadhar = Common.CheckPreviousEmployeeAdharserver(Convert.ToString(model.aadharnumber), model.ApplicationNo, true, model.OldEmployeeNumber, "OSG");
-                //    if (chkemployeeadhar != "")
-                //    {
-                //        TempData["alertMsg"] = chkemployeeadhar;
-                //        model.Status = model.Status == null ? "" : model.Status;
-                //        return View(model);
-                //    }
-                //}
-                //if (!string.IsNullOrEmpty(model.PAN))
-                //{
-                //    var chkemployeepanno = Common.CheckPreviousEmployeePanserver(model.PAN, model.ApplicationNo, true, model.OldEmployeeNumber, "OSG");
-                //    if (chkemployeepanno != "")
-                //    {
-                //        TempData["alertMsg"] = "This Pan Number is linked to  " + chkemployeepanno;
-                //        model.Status = model.Status == null ? "" : model.Status;
-                //        return View(model);
-                //    }
-                //}
+                if (model.aadharnumber != null)
+                {
+                    var chkemployeeadhar = Common.CheckPreviousEmployeeAdharserver(Convert.ToString(model.aadharnumber), model.ApplicationNo, true, model.OldEmployeeNumber, "OSG");
+                    if (chkemployeeadhar != "")
+                    {
+                        TempData["alertMsg"] = chkemployeeadhar;
+                        model.Status = model.Status == null ? "" : model.Status;
+                        return View(model);
+                    }
+                }
+                if (!string.IsNullOrEmpty(model.PAN))
+                {
+                    var chkemployeepanno = Common.CheckPreviousEmployeePanserver(model.PAN, model.ApplicationNo, true, model.OldEmployeeNumber, "OSG");
+                    if (chkemployeepanno != "")
+                    {
+                        TempData["alertMsg"] = "This Pan Number is linked to  " + chkemployeepanno;
+                        model.Status = model.Status == null ? "" : model.Status;
+                        return View(model);
+                    }
+                }
 
                 if (model.STEId > 0 && button == "Save as drafts")
                 {
                     if (string.IsNullOrEmpty(Errormessages))
                     {
 
-                        var result = recruitmentService.VerifyOSG(model, userId,button);
+                        var result = recruitmentService.VerifyOSG(model, userId, button);
                         if (result.Item1 == 1)
                         {
                             TempData["succMsg"] = "Draft successfully";
@@ -7493,7 +7511,7 @@ namespace IOAS.Controllers
                         TempData["errMsg"] = messages;
                     }
                 }
-                else if (model.STEId > 0 )
+                else if (model.STEId > 0)
                 {
                     if (string.IsNullOrEmpty(Errormessages))
                     {
@@ -8160,7 +8178,7 @@ namespace IOAS.Controllers
         {
             try
             {
-               lock (lockObj)
+                lock (lockObj)
                 {
                     var data = Common.GetAutoCompleteRCTSTEEmployee(term, "STE");
                     return Json(data, JsonRequestBehavior.AllowGet);
@@ -9622,17 +9640,35 @@ namespace IOAS.Controllers
             }
         }
         [AcceptVerbs(HttpVerbs.Get)]
-        public JsonResult LoadPayRollInitaDate(string MonthAndYear, int SalaryType)
+        public JsonResult LoadPayRollInitaDate(string MonthAndYear, int SalaryType, int roleid)
         {
+            string saltype = "";
+            if (roleid == 102 || roleid == 103 || roleid == 104 || roleid == 104 || roleid == 105 || roleid == 106 || roleid == 93)
+            { saltype = "Adhoc"; }
+            else if (roleid == 107 || roleid == 108 || roleid == 109)
+            { saltype = "OSG"; }
+
             DateTime Frmdate = DateTime.Now;
+            DateTime Frmdate_osg = DateTime.Now;
             DateTime todate = DateTime.Now;
-            FinOp fac = new FinOp(System.DateTime.Now);
-            //if (SalaryType == 1)
-            //{
-            Frmdate = fac.GetMonthFirstDate(MonthAndYear);
-            todate = fac.GetMonthLastDate(MonthAndYear);
+
+            if (saltype == "Adhoc")
+            {
+                FinOp fac = new FinOp(System.DateTime.Now);
+                Frmdate = fac.GetMonthFirstDate(MonthAndYear);
+                todate = fac.GetMonthLastDate(MonthAndYear);
+            }
+            else
+            {
+                FinOp fac = new FinOp(System.DateTime.Now);
+
+                Frmdate = RequirementService.getOSGFirstSalaryProcessdate();
+                Frmdate_osg = RequirementService.getOSGLastSalaryProcessdate();
+                //  Frmdate = fac.GetMonthFirstDate(MonthAndYear);
+                todate = fac.GetMonthLastDate(MonthAndYear);
+            }
             //}
-            var result = new { FrmSalDate = Frmdate, toSalDate = todate };
+            var result = new { FrmSalDate = Frmdate, toSalDate = todate, FrmSalDateOSG = Frmdate_osg };
             return Json(result, JsonRequestBehavior.AllowGet);
         }
         [HttpPost]
@@ -10220,6 +10256,7 @@ namespace IOAS.Controllers
                 var user = User.Identity.Name;
                 var userId = AdminService.getUserByName(user);
                 int uploadId = 0;
+                int resultId = 0;
                 if (!Directory.Exists(path1))
                 {
                     Directory.CreateDirectory(Server.MapPath("~/Content/RCTOTHTemplate"));
@@ -10263,7 +10300,11 @@ namespace IOAS.Controllers
                         master.ToDate = model.ToDate;
                         master.Crtd_By = userId;
                         master.Crtd_Ts = DateTime.Now;
-                        uploadId = recruitmentService.ValidateOTHPDList(master, list);
+                        var uploadresult = recruitmentService.ValidateOTHPDList(master, list);
+
+
+                        uploadId = uploadresult.Item1;
+                        resultId = uploadresult.Item2;
                         if (uploadId == 0)
                             msg = "Something went wrong please contact administrator.";
                     }
@@ -10274,7 +10315,7 @@ namespace IOAS.Controllers
                 {
                     msg = "Please Upload Files in .xls or .xlsx format";
                 }
-                return Json(new { status = msg, guid = guid, uploadId = uploadId }, JsonRequestBehavior.AllowGet);
+                return Json(new { status = msg, guid = guid, uploadId = uploadId, resultId=resultId }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -10921,6 +10962,37 @@ namespace IOAS.Controllers
                 throw new Exception(ex.Message);
             }
         }
+
+
+        public JsonResult VerifyAadharPan(int STEId, string aadharnumber, string PanNo, string ApplicationNo, string EmployeeNumber)
+        {
+            try
+            {
+                object output = Common.GetVerifyAadharPan(STEId, aadharnumber, PanNo, ApplicationNo, EmployeeNumber);
+                //output.
+                return Json(output, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public JsonResult nextVerifyAadharPan(int STEId, string aadharnumber, string PanNo, string AppicationNo, string EmployeeNumber)
+        {
+            try
+            {
+                object output = Common.GetnextVerifyAadharPan(STEId, aadharnumber, PanNo, AppicationNo, EmployeeNumber);
+                //output.
+                return Json(output, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+
         #region Test
         //public JsonResult GetServicebarExperirence()
         //{
@@ -10968,6 +11040,6 @@ namespace IOAS.Controllers
         //}
 
         #endregion
-
     }
 }
+  

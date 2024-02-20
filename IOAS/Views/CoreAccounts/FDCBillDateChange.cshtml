@@ -110,6 +110,13 @@
 <script>
     var errMsg = '@TempData["errMsg"]';
     $(document).ready(function () {
+        fincurrent = moment(new Date()).toDate();
+        finyr = new Date('@TempData["Finyear"]');
+        console.log(finyr);
+        $('#BillDate,#CashDate').datepicker({
+            dateFormat: 'dd-mm-yy',
+            changeYear: true,
+        }).datepicker("option", "minDate", finyr).datepicker("option", "maxDate", fincurrent);
         if (errMsg == 'Failed') {
             $("#RefId,#RefNo,#BillDate,#ExpDate,#CashDate,#Remarks").val('');
             $("#CurrDate,#expendituredate,#cashbookdate,#Remarks").text('');
@@ -125,7 +132,59 @@
             $('#Success').modal('toggle');
         }
     });
-    $(document).on('change', '#RefNo', function () {
+     $('#BillDate,#ExpDate,#CashDate').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true });
+    $(document).on('click', '#RefNo', function () {
+        applyAutoComplete($('#RefNo'), $('#RefId'), '@Url.Action("LoadFDCRefernceNumber", "CoreAccounts")', 'BillDate', undefined, undefined);
+       BillDate();
+    });
+
+    function GetRefNumber(Refnum) {
+        var RefNumValidate ='';
+        $.ajax({
+            type: "GET",
+            async: false,
+            url: '@Url.Action("GetRefNumberForValidationAVOBill", "CoreAccounts")',
+            data: {
+                "Refnum": Refnum, "vouchertype":'FixedDepositClose'
+            },
+            dataType: "json",
+            success: function (result) {
+                RefNumValidate = result;
+                }
+        });
+        return RefNumValidate;
+    }
+
+    $('#btnSubmit').click(function () {
+        var RefNumber = $("#RefNo").val();
+        var BillDate = $("#BillDate").val();
+        var ExpDate = $("#ExpDate").val();
+        var CashDate = $("#CashDate").val();
+        validate(RefNumber);
+
+        //if (RefNumber != "") {
+        //    $('#formAVObillDate').submit();
+        //}
+
+    });
+    async function validate(RefNumber) {
+
+        var ValidateRefNumber = await GetRefNumber(RefNumber);
+
+        if (RefNumber == ValidateRefNumber && RefNumber != "") {
+            $('#formFDCbillDate').submit();
+        }
+        else {
+            $('#FailedAlert').html("Invalid Reference Number");
+            $('#Failed').modal('show');
+        }
+    };
+    //    if (RefNumber != "") {
+    //        $('#formFDCbillDate').submit();
+    //    }
+    //});
+    
+    @*$(document).on('change', '#RefNo', function () {
         DateModificationRange();
     });
     function DateModificationRange() {
@@ -161,7 +220,7 @@
         if (RefNumber != "") {
             $('#formFDCbillDate').submit();
     }
-    });
+    });*@
     function BillDate()
     {
         var RefNumber = $("#RefId").val();

@@ -51,5 +51,12 @@ namespace IOAS.DataModel
         public string ProjectCoPiID { get; set; }
         public string ProjectCoPiName { get; set; }
         public string SchemeCode { get; set; }
+        public string ForeignState { get; set; }
+        public string ForeignCountry { get; set; }
+        public string CurrencyType { get; set; }
+        public Nullable<decimal> ForeignCurrencyValue { get; set; }
+        public Nullable<decimal> Convertionvalue { get; set; }
+        public string SchemeName { get; set; }
+        public string DomainName { get; set; }
     }
 }

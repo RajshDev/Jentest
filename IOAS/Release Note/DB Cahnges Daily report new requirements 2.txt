@@ -1,0 +1,655 @@
+ALTER view [dbo].[vw_RCTSTENewJoineeReport]  
+as  
+select m.STEID,m.EmployeersID [EMPLOYEE ID],m.NAME,d.DESIGNATION,m.AppointmentStartdate [APPOINTMENT START DATE],m.AppointmentEnddate [END DATE],m.SALARY,p.ProjectNumber [PROJECT NO],c.DepartmentName [DEPARTMENT],  
+apt.CodeValDetail [APPOINTMENT TYPE],NULL [ARREARS TO BE PROCESSED W.E.F],m.NIDNumber,case when wf.Referenceid is not null then'Work flow Initiated' 
+else 'DA Initiated' end as [Initiated by],m.ApplicationReceiveDate as [Request received date],
+--up.FirstName + ' ' + up.LastName + ' - ' + up.UserName as  [LOGCREATED_BY], 
+(select top 1 bb.FirstName + ' ' + bb.LastName + ' - ' + bb.UserName from tblRCTSTEStatusLog as aa join tblUser as bb on aa.Crt_By = bb.UserId 
+where m.STEID = aa.STEID and aa.NewStatus = 'Sent for approval' and aa.Crt_By = bb.UserId) as INITIATOR_NAME,
+(select top 1 aa.Crt_TS from tblRCTSTEStatusLog as aa  
+where m.STEID = aa.STEID and aa.NewStatus = 'Sent for approval') as INITIATED_DATE,
+(select top 1 bb.FirstName + ' ' + bb.LastName + ' - ' + bb.UserName from tblRCTSTEStatusLog as aa join tblUser as bb on aa.Crt_By = bb.UserId 
+where m.STEID = aa.STEID and aa.NewStatus in( 'Awaiting Commitment Booking','Awaiting Committee Approval') and aa.Crt_By = bb.UserId) as APPROVED_BY,
+(select top 1 aa.Crt_TS from tblRCTSTEStatusLog as aa  
+where m.STEID = aa.STEID and aa.NewStatus in( 'Awaiting Commitment Booking','Awaiting Committee Approval')) as APPROVED_DATE,
+(select top 1 bb.FirstName + ' ' + bb.LastName + ' - ' + bb.UserName from tblRCTSTEStatusLog as aa join tblUser as bb on aa.Crt_By = bb.UserId 
+where m.STEID = aa.STEID and aa.PresentStatus = 'Awaiting Commitment Booking' and aa.Crt_By = bb.UserId) as COMMITMENTBOOKED_BY,
+rc.CommitmentCrtdTS as [COMMITMENT BOOKING DATE],
+comapp.CRTD_TS as [COMMMITEE APPROVED DATE], 
+--(select top 1 aa.Crt_TS from tblRCTSTEStatusLog as aa  
+--where m.STEID = aa.STEID and aa.PresentStatus = 'Awaiting Commitment Booking' ) as COMMITMENTBOOKED_DATE,
+(select top 1 bb.FirstName + ' ' + bb.LastName + ' - ' + bb.UserName from tblRCTSTEStatusLog as aa join tblUser as bb on aa.Crt_By = bb.UserId 
+where m.STEID = aa.STEID and aa.NewStatus = 'Sent for approval-Verify' and aa.Crt_By = bb.UserId) as VERIFICATION_INITIATED_BY,
+(select top 1 aa.Crt_TS from tblRCTSTEStatusLog as aa  
+where m.STEID = aa.STEID and aa.NewStatus = 'Sent for approval-Verify') as VERIFICATION_INITIATED_DATE,   
+(select top 1 bb.FirstName + ' ' + bb.LastName + ' - ' + bb.UserName from tblRCTSTEStatusLog as aa join tblUser as bb on aa.Crt_By = bb.UserId 
+where m.STEID = aa.STEID and aa.NewStatus = 'Verification Completed' and aa.Crt_By = bb.UserId) as VERIFICATION_APPROVED_BY,
+(select top 1 aa.Crt_TS from tblRCTSTEStatusLog as aa  
+where m.STEID = aa.STEID and aa.NewStatus = 'Verification Completed') as VERIFICATION_APPROVED_DATE,
+case when m.msphdtype is not null and msphdtype=1 then 'M.S'
+	   when  m.msphdtype is not null and msphdtype=2 then 'Ph.D' end as [MS/PHD COURSE]     
+from dbo.tblRCTSTE m WITH (NOLOCK)
+join dbo.tblRCTDesignation as d WITH (NOLOCK) on m.DesignationId = d.DesignationId  
+join dbo.tblProject as p WITH (NOLOCK) on m.ProjectId = p.ProjectId  
+join dbo.vwFacultyStaffDetails as c WITH (NOLOCK) on p.PIName = c.UserId  
+join dbo.tblCodeControl as apt WITH (NOLOCK) on m.TypeofAppointment = apt.CodeValAbbr    
+left join dbo.tblUser as up WITH (NOLOCK) on m.UptdUser = up.UserId  
+left join dbo.tblRCTCommitmentRequest as rc WITH (NOLOCK) on rc.ReferenceNumber=m.ApplicationNumber 
+left join dbo.tblWorkFlowlog as wf with (NOLOCK) on wf.Referencenbr = m.ApplicationNumber 
+left join dbo.tblRCTCommitteeApprovalLog as comapp WITH (NOLOCK) on comapp.ApplicationId=m.STEID and comapp.Action='Approve' and comapp.ApplicationCategory='STE' 
+where apt.CodeName = 'STEAppointmenttype' and m.Status not in ('Open','Draft')and rc.AppointmentType='Short Term Engagement'  and 
+m.STEID in (select STEID from tblRCTSTEStatusLog where NewStatus = 'Verification Completed' and PresentStatus = 'Awaiting Verification'  or PresentStatus = 'Sent for approval-Verify')
+GO
+
+
+ALTER view [dbo].[vw_RCTSTEExtensionEnhancementReport]
+
+as
+select m.EmployeersID [EMPLOYEE ID],m.NAME,d.DESIGNATION,o.FromDate [APPOINTMENT START DATE],o.ToDate [END DATE],o.Basic [SALARY],o.HRA,p.ProjectNumber [PROJECT NO.],c.DepartmentName [DEPARTMENT],apt.CodeValDetail [APPOINTMENT TYPE],
+       ArrearOrDeductionTillDate as [ARREARS TO BE PROCESSED W.E.F],
+       s.Crt_TS [LOG_TIME],o.OrderType,
+	   --u.FirstName + ' ' + u.LastName  + ' - ' + u.UserName [CREATED_BY]
+       case when o.OrderType = 2 and o.NewProjectId <> o.OldProjectId and o.NewDesignation = o.OldDesignation then 'Project Change'
+            when o.OrderType = 2 and o.NewDesignation <> o.OldDesignation and o.NewProjectId = o.OldProjectId then 'Designation Change'
+            when o.OrderType = 2 and o.NewDesignation <> o.OldDesignation and o.NewProjectId <> o.OldProjectId then 'Project Change and Designation Change'
+            when (select top 1 isnull(Basic,0) from tblRCTOrderHistory where ApplicationId = o.AppointmentId and AppointmentType = 'STE' and HistoryID < maxHistoryID.val  order by HistoryID desc) > o.Basic then 'Revised Salary'
+            when (select top 1 isnull(Basic,0) from tblRCTOrderHistory where ApplicationId = o.AppointmentId and AppointmentType = 'STE' and HistoryID < maxHistoryID.val  order by HistoryID desc) < o.Basic then 'Enhanced Salary'
+            when o.OrderType = 3 then 'Extension'
+       end as [ENHANCEMENT TYPE],
+	   case when o.InitByPI_f is not null then
+		'PI Initiated'
+		else 
+		'DA Initiated' end as [Requested by],
+		case when od.RequestReference =1 and o.InitByPI_f is not null  then
+		'Work flow'
+		when od.RequestReference =2 and o.InitByPI_f is not null then
+		'Email'
+		when od.RequestReference =3 and o.InitByPI_f is not null then
+		'HardCopy'
+		else 'NA' end as [Request Reference],
+		case when od.RequestReference =1 and o.InitByPI_f is not null  then
+		od.RequestReferenceNo
+		when od.RequestReference =2 and o.InitByPI_f is not null then
+		convert(varchar(max), od.RequestEmailDate)
+		when od.RequestReference =3 and o.InitByPI_f is not null then
+		od.RequestReferenceNo
+		else 'NA' end as [Request Reference Number],
+		o.OrderDate as [REQUEST RECEIVED DATE],
+
+		--case when o.InitByPI_f is not null and o.RequestedBy is not null then
+		--(select top (1) EmployeeName from tblFacultyDetail where castEmployeeid=o.crtduser)
+		--else 
+		--(select top (1) FirstName+' '+LastName from tbluser where userid=o.crtduser)
+		--end as [CREATED BY],
+		--o.UpdtTS as [COMPLETED  DATE],
+		--case when o.InitByPI_f is not null and o.RequestedBy is not null then
+		--(select top (1) EmployeeName from tblFacultyDetail where castEmployeeid=o.UPdtuser)
+		--else 
+		--(select top (1) FirstName+' '+LastName from tbluser where userid=o.UPdtuser)
+		--end as [COMPLETED BY],
+		(select top 1  bb.FirstName + ' ' + bb.LastName + ' - ' + bb.UserName from tblRCTOrderLog as aa join tblUser as bb on aa.Crt_By = bb.UserId where aa.OrderID = o.OrderId and aa.NewStatus = 'Sent for approval' and o.OrderType in (2,3)) as INITIATED_BY,
+		(select top 1  aa.Crt_TS from tblRCTOrderLog as aa  where aa.OrderID = o.OrderId and aa.NewStatus = 'Sent for approval' and o.OrderType in (2,3)) as INITIATED_DATE,
+			(select top 1  bb.FirstName + ' ' + bb.LastName + ' - ' + bb.UserName from tblRCTOrderLog as aa join tblUser as bb on aa.Crt_By = bb.UserId where aa.OrderID = o.OrderId and aa.NewStatus = 'Awaiting Commitment Booking' and o.OrderType in (2,3)) as APPROVED_BY,
+		(select top 1  aa.Crt_TS from tblRCTOrderLog as aa  where aa.OrderID = o.OrderId and aa.NewStatus = 'Awaiting Commitment Booking' and o.OrderType in (2,3)) as APPROVED_DATE,
+        (select top 1  bb.FirstName + ' ' + bb.LastName + ' - ' + bb.UserName from tblRCTOrderLog as aa join tblUser as bb on aa.Crt_By = bb.UserId where aa.OrderID = o.OrderId and aa.NewStatus = 'Sent for approval-Verify' and o.OrderType in (2,3)) as [VERFIFICATION_INITIATED_BY],
+		   (select top 1  aa.Crt_TS from tblRCTOrderLog as aa  where aa.OrderID = o.OrderId and aa.NewStatus = 'Sent for approval-Verify' and o.OrderType in (2,3)) as [VERFIFICATION_INITIATED_DATE],		
+		(select top 1  bb.FirstName + ' ' + bb.LastName + ' - ' + bb.UserName from tblRCTOrderLog as aa join tblUser as bb on aa.Crt_By = bb.UserId where aa.OrderID = o.OrderId and aa.NewStatus = 'Completed' and aa.PresentStatus='Sent for approval-Verify' and o.OrderType in (2,3)) as [VERFIFICATION_APPROVED_BY],
+		   (select top 1  aa.Crt_TS from tblRCTOrderLog as aa  where aa.OrderID = o.OrderId and aa.NewStatus = 'Completed' and aa.PresentStatus='Sent for approval-Verify' and o.OrderType in (2,3)) as [VERFIFICATION_APPROVED_DATE],
+	    (select top 1  bb.FirstName + ' ' + bb.LastName + ' - ' + bb.UserName from tblRCTOrderLog as aa join tblUser as bb on aa.Crt_By = bb.UserId where aa.OrderID = o.OrderId and aa.PresentStatus = 'Awaiting Commitment Booking') as [COMMITMENT BOOKED BY],
+		case when o.OrderType=3 then
+		(select top(1) CommitmentCrtdTS from tblrctcommitmentrequest where orderid=o.orderid and AppointmentType='Extension' and Requesttype='Add Commitment')
+		 when o.OrderType=2 then
+		 (select top(1) CommitmentCrtdTS from tblrctcommitmentrequest where orderid=o.orderid and AppointmentType='Enhancement' and (Requesttype='Add Commitment' or Requesttype='New Commitment'))
+		 end as [COMMITMENT BOOKED DATE],
+		 case when o.orderid is not null then 
+		 (select top (1) ca.CRTD_TS from  tblRCTCommitteeApprovalLog as ca 
+		 join tblFacultyDetail as fac on ca.CRTD_By=fac.castEmployeeid
+		 where ca.Action='Approve' and ca.orderid=o.orderid)
+		 else null end as [COMMITEE APPROVED DATE],
+		 case when m.msphdtype is not null and msphdtype=1 then 'M.S'
+	   when  m.msphdtype is not null and msphdtype=2 then 'Ph.D' end as [MS/PHD COURSE]
+from dbo.tblRCTSTE as m WITH (NOLOCK)
+join dbo.tblOrder as o  on o.AppointmentId = m.STEID  and o.AppointmentType = 2
+join dbo.tblOrderDetail as od on o.OrderId=od.OrderId
+join dbo.tblRCTOrderLog as s WITH (NOLOCK) on s.OrderID = o.OrderId
+join dbo.tblRCTDesignation as d WITH (NOLOCK) on d.DesignationId = o.NewDesignation
+join dbo.tblProject as p WITH (NOLOCK) on p.ProjectId = o.NewProjectId
+join dbo.vwFacultyStaffDetails as c WITH (NOLOCK) on p.PIName = c.UserId
+join dbo.tblCodeControl as apt WITH (NOLOCK) on apt.CodeValAbbr = m.TypeofAppointment 
+left join dbo.tblUser as u WITH (NOLOCK) on  u.UserId = o.CrtdUser
+cross apply (select max(HistoryID) from dbo.tblRCTOrderHistory where ApplicationId = o.AppointmentId and AppointmentType = 'STE' and OrderId = o.OrderId group by OrderId) as maxHistoryID(val)
+where apt.CodeName = 'STEAppointmenttype' and s.NewStatus = 'Completed' and (s.PresentStatus = 'Open' or s.PresentStatus = 'Awaiting Verification' or s.PresentStatus = 'Awaiting Commitment Booking' or s.PresentStatus = 'Sent for approval-Verify')
+and o.OrderType in (2,3) and o.Status = 'Completed' 
+GO
+															   
+
+
+ 
+ 
+ 
+ 
+ 
+ 
+
+ALTER VIEW [dbo].[vw_RCTOTHPayDeductionReport]
+as
+
+select a.AppointmentId,a.AppointmentType,
+vw.CandidateName EmployeeName,
+a.EmployeeNo,p.ProjectNumber,d.Designation,a.Basic,a.MonthandYear,a.Status,a.FromDate,a.ToDate,IIF(a.SalaryType is null or a.SalaryType = '',NULL,c.CodeValDetail) as SalaryType,a.ProcessedMonthandYear,
+a.ProcessType,iif(IsNoCommitment_f = 1,'Yes','No') IsNoCommitment_f,IIF(b.OtherType = 1,'Payment','Deduction') as OtherType,h.Head,b.Amount,b.Remarks,
+u.FirstName +' '+ U.LastName + '-' + U.UserName as [INITIATED_BY],a.CrtdTS as [INITIATED_DATE],
+--uptu.FirstName +' '+ uptu.LastName as UpdatedBy,a.UpdtTs as Updated_TS,
+(select bb.TransactionTS from tblProcessTransaction as aa join tblProcessTransactionDetail as bb on aa.ProcessTransactionId = bb.ProcessTransactionId 
+where aa.RefId = a.OTHPayDeductionId and aa.RefFieldName = 'OthId' and bb.ProcessSeqNumber = 2) as [APPROVED_DATE],
+(select cc.FirstName +' '+ cc.LastName + '-' +cc.UserName  from tblProcessTransaction as aa join tblProcessTransactionDetail as bb on aa.ProcessTransactionId = bb.ProcessTransactionId join tblUser as cc on bb.Approverid = cc.UserId
+where aa.RefId = a.OTHPayDeductionId and aa.RefFieldName = 'OthId' and bb.ProcessSeqNumber = 2) as [APPROVED_BY],
+(select bb.CommitmentCrtdTS from tblRCTCommitmentRequest as aa join tblRCTCommitmentBookLog as bb on aa.RecruitmentRequestId = bb.RecruitmentRequestId 
+where aa.AppointmentType in ('OtherPayment','OtherDeduction') and a.OTHPayDeductionId = aa.RefId and aa.Status in ('Commitment Booked','Commitment Withdrawn')) as [COMMITMENT_BOOKED/WITHDRAWAL_DATE],
+(select cc.FirstName +' '+ cc.LastName + '-' +cc.UserName from tblRCTCommitmentRequest as aa join tblRCTCommitmentBookLog as bb on aa.RecruitmentRequestId = bb.RecruitmentRequestId join tbluser as cc on bb.CommitmentCrtdBy = cc.UserId
+where aa.AppointmentType in ('OtherPayment','OtherDeduction') and a.OTHPayDeductionId = aa.RefId and aa.Status in ('Commitment Booked','Commitment Withdrawn')) as [COMMITMENT_BOOKED/WITHDRAWAL_BY]
+from tblRCTOTHPaymentDeduction as a
+join tblRCTOTHPaymentDeductionDetail as b on a.OTHPayDeductionId = b.OTHPayDeductionId
+left join tblProject as p on a.ProjectId = p.ProjectId
+left join tblRCTDesignation as d on a.DesignationId = d.DesignationId 
+left join tblCodeControl as c on COALESCE(a.SalaryType,0) = c.CodeValAbbr
+join tblUser as u on a.CrtdUser = u.UserId
+left join tblUser as uptu on a.UpdtUser = uptu.UserId
+join tblCommonHeads as h on b.HeadId = h.HeadId and h.HeadId!=110
+left join vw_RCTOverAllApplicationEntry as vw on a.EmployeeNo = vw.EmployeeNo  and vw.ApplicationType = 'New' and IsActiveNow = 1
+where h.CategoryId = 1 and c.CodeName = 'PayOfBill' and a.OTHPayDeductionId not in (select OTHPayDeductionId from tblRCTOTHPaymentDeductionUploadDetail where OTHPayDeductionId is not null )
+and a.OTHPayDeductionId not in (select OTHPayDeductionId from tblRCTOTHPaymentDeduction where CrtdUser = 201 and (IsBulkBooking_f is null or IsBulkBooking_f = 0)) and a.OrderId is null
+
+union all
+
+select a.AppointmentId,a.AppointmentType,
+vw.CandidateName EmployeeName,
+a.EmployeeNo,p.ProjectNumber,d.Designation,a.Basic,a.MonthandYear,a.Status,a.FromDate,a.ToDate,IIF(a.SalaryType is null or a.SalaryType = '',NULL,c.CodeValDetail) as SalaryType,a.ProcessedMonthandYear,
+a.ProcessType,iif(IsNoCommitment_f = 1,'Yes','No') IsNoCommitment_f,IIF(b.OtherType = 1,'Payment','Deduction') as OtherType,h.Head,b.Amount,b.Remarks,
+u.FirstName +' '+ U.LastName + '-' + U.UserName as [INITIATED_BY],a.CrtdTS as [INITIATED_DATE],
+--uptu.FirstName +' '+ uptu.LastName as UpdatedBy,a.UpdtTs as Updated_TS,
+(select bb.TransactionTS from tblProcessTransaction as aa join tblProcessTransactionDetail as bb on aa.ProcessTransactionId = bb.ProcessTransactionId 
+where aa.RefId = a.OTHPayDeductionId and aa.RefFieldName = 'OthId' and bb.ProcessSeqNumber = 2) as [APPROVED_DATE],
+(select cc.FirstName +' '+ cc.LastName + '-' +cc.UserName  from tblProcessTransaction as aa join tblProcessTransactionDetail as bb on aa.ProcessTransactionId = bb.ProcessTransactionId join tblUser as cc on bb.Approverid = cc.UserId
+where aa.RefId = a.OTHPayDeductionId and aa.RefFieldName = 'OthId' and bb.ProcessSeqNumber = 2) as [APPROVED_BY],
+(select bb.CommitmentCrtdTS from tblRCTCommitmentRequest as aa join tblRCTCommitmentBookLog as bb on aa.RecruitmentRequestId = bb.RecruitmentRequestId 
+where aa.AppointmentType in ('OtherPayment','OtherDeduction') and a.OTHPayDeductionId = aa.RefId and aa.Status in ('Commitment Booked','Commitment Withdrawn')) as [COMMITMENT_BOOKED/WITHDRAWAL_DATE],
+(select cc.FirstName +' '+ cc.LastName + '-' +cc.UserName from tblRCTCommitmentRequest as aa join tblRCTCommitmentBookLog as bb on aa.RecruitmentRequestId = bb.RecruitmentRequestId join tbluser as cc on bb.CommitmentCrtdBy = cc.UserId
+where aa.AppointmentType in ('OtherPayment','OtherDeduction') and a.OTHPayDeductionId = aa.RefId and aa.Status in ('Commitment Booked','Commitment Withdrawn')) as [COMMITMENT_BOOKED/WITHDRAWAL_BY]
+
+from tblRCTOTHPaymentDeduction as a
+join tblRCTOTHPaymentDeductionDetail as b on a.OTHPayDeductionId = b.OTHPayDeductionId
+left join tblProject as p on a.ProjectId = p.ProjectId
+left join tblRCTDesignation as d on a.DesignationId = d.DesignationId 
+left join tblCodeControl as c on COALESCE(a.SalaryType,0) = c.CodeValAbbr
+left join tblOrder as o on a.OrderId = o.OrderId
+join tblUser as u on o.CrtdUser = u.UserId
+left join tblUser as uptu on a.UpdtUser = uptu.UserId
+join tblCommonHeads as h on b.HeadId = h.HeadId and h.HeadId!=110
+left join vw_RCTOverAllApplicationEntry as vw on a.EmployeeNo = vw.EmployeeNo  and vw.ApplicationType = 'New' and IsActiveNow = 1
+where h.CategoryId = 1 and c.CodeName = 'PayOfBill' and a.OTHPayDeductionId not in (select OTHPayDeductionId from tblRCTOTHPaymentDeductionUploadDetail where OTHPayDeductionId is not null )
+and a.CrtdUser = 201 and a.OrderId is null
+
+union all
+
+select a.AppointmentId,a.AppointmentType,
+vw.CandidateName EmployeeName,
+a.EmployeeNo,p.ProjectNumber,d.Designation,a.Basic,a.MonthandYear,a.Status,a.FromDate,a.ToDate,IIF(a.SalaryType is null or a.SalaryType = '',NULL,c.CodeValDetail) as SalaryType,a.ProcessedMonthandYear,
+a.ProcessType,iif(IsNoCommitment_f = 1,'Yes','No') IsNoCommitment_f,IIF(b.OtherType = 1,'Payment','Deduction') as OtherType,h.Head,b.Amount,b.Remarks,
+u.FirstName +' '+ U.LastName + '-' + U.UserName as [INITIATED_BY],a.CrtdTS as [INITIATED_DATE],
+--uptu.FirstName +' '+ uptu.LastName as UpdatedBy,a.UpdtTs as Updated_TS,
+(select bb.TransactionTS from tblProcessTransaction as aa join tblProcessTransactionDetail as bb on aa.ProcessTransactionId = bb.ProcessTransactionId 
+where aa.RefId = m.OTHUploadMasterId and aa.RefFieldName = 'OTHUpMastrId' and bb.ProcessSeqNumber = 2) as [APPROVED_DATE],
+(select cc.FirstName +' '+ cc.LastName + '-' +cc.UserName  from tblProcessTransaction as aa join tblProcessTransactionDetail as bb on aa.ProcessTransactionId = bb.ProcessTransactionId join tblUser as cc on bb.Approverid = cc.UserId
+where aa.RefId = m.OTHUploadMasterId and aa.RefFieldName = 'OTHUpMastrId' and bb.ProcessSeqNumber = 2) as [APPROVED_BY],
+(select bb.CommitmentCrtdTS from tblRCTCommitmentRequest as aa join tblRCTCommitmentBookLog as bb on aa.RecruitmentRequestId = bb.RecruitmentRequestId 
+where aa.AppointmentType in ('OtherPayment','OtherDeduction') and a.OTHPayDeductionId = aa.RefId and aa.Status in ('Commitment Booked','Commitment Withdrawn')) as [COMMITMENT_BOOKED/WITHDRAWAL_DATE],
+(select cc.FirstName +' '+ cc.LastName + '-' +cc.UserName from tblRCTCommitmentRequest as aa join tblRCTCommitmentBookLog as bb on aa.RecruitmentRequestId = bb.RecruitmentRequestId join tbluser as cc on bb.CommitmentCrtdBy = cc.UserId
+where aa.AppointmentType in ('OtherPayment','OtherDeduction') and a.OTHPayDeductionId = aa.RefId and aa.Status in ('Commitment Booked','Commitment Withdrawn')) as [COMMITMENT_BOOKED/WITHDRAWAL_BY]
+from tblRCTOTHPaymentDeduction as a
+join tblRCTOTHPaymentDeductionDetail as b on a.OTHPayDeductionId = b.OTHPayDeductionId
+join tblRCTOTHPaymentDeductionUploadDetail det on a.OTHPayDeductionId = det.OTHPayDeductionId
+join tblRCTOTHPaymentDeductionUploadMaster m on det.OTHPaymentDeductionUploadId = m.OTHPaymentDeductionUploadId
+left join tblProject as p on a.ProjectId = p.ProjectId
+left join tblRCTDesignation as d on a.DesignationId = d.DesignationId 
+left join tblCodeControl as c on COALESCE(a.SalaryType,0) = c.CodeValAbbr
+join tblUser as u on m.Crtd_By = u.UserId
+left join tblUser as uptu on a.UpdtUser = uptu.UserId
+join tblCommonHeads as h on b.HeadId = h.HeadId and h.HeadId!=110
+left join vw_RCTOverAllApplicationEntry as vw on a.EmployeeNo = vw.EmployeeNo  and vw.ApplicationType = 'New' and IsActiveNow = 1
+where h.CategoryId = 1 and c.CodeName = 'PayOfBill' and a.OTHPayDeductionId in (select OTHPayDeductionId from tblRCTOTHPaymentDeductionUploadDetail where OTHPayDeductionId is not null ) and a.OrderId is null 
+GO
+
+
+
+
+
+
+
+
+
+ALTER view [dbo].[vw_RCTSTELOPReport]
+as
+select m.EmployeersID as [EMPLOYEE ID],m.Name as [NAME],d.DESIGNATION,DATEDIFF(day,o.FromDate,o.ToDate) + 1 as [NO OF DAYS LOP],apt.CodeValDetail [APPOINTMENT TYPE],
+       o.WithdrawAmmount as [WITHDRAWN COMMITMENT AMOUNT],	   
+	  -- u.FirstName + ' ' + u.LastName + ' - ' + u.UserName  as [CREATED BY],
+	  	   case when o.InitByPI_f is not null then
+		'PI Initiated'
+		else 
+		'DA Initiated' end as [Requested by],
+				o.OrderDate as [REQUEST RECEIVED DATE],
+				(select top 1  bb.FirstName + ' ' + bb.LastName + ' - ' + bb.UserName from tblRCTOrderLog as aa join tblUser as bb on aa.Crt_By = bb.UserId where aa.OrderID = o.OrderId and aa.NewStatus = 'Initiated' and o.OrderType =8) as INITIATED_BY,
+	   	   (select top 1  aa.Crt_TS from tblRCTOrderLog as aa  where aa.OrderID = o.OrderId and aa.NewStatus = 'Initiated' and o.OrderType =8) as INITIATED_DATE,
+			(select top (1) FirstName+' '+LastName+' - '+UserName from tbluser where userid=s.Crt_By) as [APPROVED BY],s.Crt_TS [APPROVED_DATE],	   		
+		--o.UpdtTS as [COMMITMENT BOOKED DATE],
+(select top 1  bb.FirstName + ' ' + bb.LastName + ' - ' + bb.UserName from tblRCTOrderLog as aa join tblUser as bb on aa.Crt_By = bb.UserId where aa.OrderID = o.OrderId and aa.NewStatus = 'Completed' and aa.PresentStatus='Awaiting Commitment Booking' and o.OrderType =8 and aa.Crt_By = bb.UserId) as [COMMITMENT BOOKING / WITHDRAWAL BY],
+rc.CommitmentCrtdTS as [COMMITMENT BOOKING / WITHDRAWAL DATE]			   	   
+from dbo.tblRCTSTE as m WITH (NOLOCK)
+join dbo.tblOrder as o WITH (NOLOCK) on o.AppointmentId = m.STEID
+join dbo.tblRCTOrderLog as s WITH (NOLOCK) on s.OrderID = o.OrderId
+join dbo.tblRCTDesignation as d WITH (NOLOCK) on d.DesignationId = o.OldDesignation
+join dbo.tblCodeControl as apt WITH (NOLOCK) on apt.CodeValAbbr = m.TypeofAppointment
+left join dbo.tblUser as u WITH (NOLOCK) on  u.UserId = o.CrtdUser
+left join dbo.tblRCTCommitmentRequest as rc WITH (NOLOCK) on rc.OrderId=o.OrderId
+where apt.CodeName = 'STEAppointmenttype' AND s.NewStatus = 'Completed' and s.PresentStatus = 'Initiated' and o.OrderType = 8  and o.AppointmentType = 2 
+GO
+
+
+
+ALTER view [dbo].[vw_RCTSTERelievingReport]
+
+as
+select m.EmployeersID as [EMPLOYEE ID],m.Name as [NAME],d.DESIGNATION,p.ProjectNumber as [PROJECT NO],apt.CodeValDetail [APPOINTMENT TYPE],
+       o.FromDate as [RELIEVING ON],IIF(o.Status = 'Open','YES','NO') as [NO DUES IF ANY],   	   
+	   case when m.msphdtype is not null and msphdtype=1 then 'M.S'
+	   when  m.msphdtype is not null and msphdtype=2 then 'Ph.D' end as [MS/PHD COURSE], 
+	   case when o.InitByPI_f is not null then
+		'PI Initiated'
+		else 
+		'DA Initiated' end as [Requested by],
+		case when od.RequestReference =1 and o.InitByPI_f is not null  then
+		'Work flow'
+		when od.RequestReference =2 and o.InitByPI_f is not null then
+		'Email'
+		when od.RequestReference =3 and o.InitByPI_f is not null then
+		'HardCopy'
+		else 'NA' end as [Request Reference],
+		case when od.RequestReference =1 and o.InitByPI_f is not null  then
+		od.RequestReferenceNo
+		when od.RequestReference =2 and o.InitByPI_f is not null then
+		convert(varchar(max), od.RequestEmailDate)
+		when od.RequestReference =3 and o.InitByPI_f is not null then
+		od.RequestReferenceNo
+		else 'NA' end as [Request Reference Number],
+		case when od.RelievingMode=1 then 'End of tenure'
+		when od.RelievingMode=2 then 'Resignation'
+		when od.RelievingMode=3 then 'Termination'
+		when od.RelievingMode=4 then 'Project Change' end as [MODE OF RELIEVING],
+				o.OrderDate as [REQUEST RECEIVED DATE],
+				(select top 1 bb.FirstName + ' ' + bb.LastName + ' - ' + bb.UserName from tblRCTOrderLog as a left join tblUser as bb on a.Crt_By = bb.UserId left join tblOrder as c on a.OrderID = c.OrderId
+        left join tblRCTSTE as b on b.STEID = c.AppointmentId and c.AppointmentType = 2 where b.STEID = m.STEID and a.NewStatus = 'Relieving initiated' and o.OrderType =9 and a.Crt_By = bb.UserId) as INITIATED_BY,
+		   (select top (1) a.Crt_TS from tblRCTOrderLog as a left join tblOrder as c on a.OrderID = c.OrderId left join tblRCTSTE as b on b.STEID = c.AppointmentId and c.AppointmentType = 2
+            where m.STEID = b.STEID and a.NewStatus = 'Relieving initiated' and o.OrderType =9) as INITIATED_DATE,
+       (select top (1) FirstName+' '+LastName from tbluser where userid=s.Crt_By) as [APPROVED_BY],s.Crt_TS [APPROVED_DATE],
+		--case when o.InitByPI_f is not null and o.RequestedBy is not null then
+		--(select top (1) EmployeeName from tblFacultyDetail where castEmployeeid=o.crtduser)
+		--else 
+		--(select top (1) FirstName+' '+LastName from tbluser where userid=o.crtduser)
+		--end as [CREATED BY],
+		--o.UpdtTS as [COMMITMENT BOOKING DATE],
+		--case when o.InitByPI_f is not null and o.RequestedBy is not null then
+		--(select top (1) EmployeeName from tblFacultyDetail where castEmployeeid=o.UPdtuser)
+		--else 
+		--(select top (1) FirstName+' '+LastName from tbluser where userid=o.UPdtuser)
+		--end as [COMMITMENT BOOKING BY],			    
+		(select top 1  bb.FirstName + ' ' + bb.LastName + ' - ' + bb.UserName from tblRCTOrderLog as aa join tblUser as bb on aa.Crt_By = bb.UserId where aa.OrderID = o.OrderId and aa.PresentStatus = 'Awaiting Commitment Booking'and aa.NewStatus in('Open','Completed') and o.OrderType =9) as [COMMITMENT WITHDRAWAL BY],
+	    case when o.OrderType=9 then
+		(select top(1) CommitmentCrtdTS from tblrctcommitmentrequest where orderid=o.orderid and AppointmentType='Relieving' and Requesttype='Withdraw Commitment')
+		 end as [COMMITMENT WITHDRAWAL DATE]
+from tblRCTSTE as m WITH (NOLOCK)
+join tblOrder as o WITH (NOLOCK) on o.AppointmentId = m.STEID
+join tblOrderDetail as od WITH (NOLOCK) on od.OrderId=o.OrderId
+join tblRCTOrderLog as s WITH (NOLOCK) on s.OrderID = o.OrderId
+join tblRCTDesignation as d WITH (NOLOCK) on d.DesignationId = o.OldDesignation
+join tblProject as p WITH (NOLOCK) on p.ProjectId = o.OldProjectId
+join dbo.tblCodeControl as apt WITH (NOLOCK) on apt.CodeValAbbr = m.TypeofAppointment
+left join tblUser as u WITH (NOLOCK) on  u.UserId = o.CrtdUser
+where s.PresentStatus = 'Relieving initiated' and apt.CodeName = 'STEAppointmenttype' and (s.NewStatus = 'Completed' or s.NewStatus = 'Open') and o.OrderType = 9  and o.AppointmentType = 2
+and o.Status <> 'Cancel' and o.Status <> 'Rejected' 
+GO
+
+
+
+
+
+USE [IOASDB]
+GO
+
+/****** Object:  View [dbo].[vw_RCTSTEChagofprojectReport]    Script Date: 04/01/2024 9:30:40 AM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+ALTER view [dbo].[vw_RCTSTEChagofprojectReport] 
+as
+select m.EmployeersID [EMPLOYEE ID],m.NAME,d.DESIGNATION,o.FromDate [APPOINTMENT START DATE],o.ToDate [END DATE],o.Basic [SALARY],o.HRA,p.ProjectNumber [PROJECT NO.],c.DepartmentName [DEPARTMENT],apt.CodeValDetail [APPOINTMENT TYPE],
+       ArrearOrDeductionTillDate as [ARREARS TO BE PROCESSED W.E.F],
+       s.Crt_TS [LOG_TIME],
+	  -- u.FirstName + ' ' + u.LastName  + ' - ' + u.UserName [CREATED_BY],
+	   o.OrderType,
+       case when o.OrderType = 1 and o.NewProjectId <> o.OldProjectId and o.Basic <> m.Salary then 'PROJECT CHANGE WITH SALARY CHANGE'
+            when o.OrderType = 1 and o.NewProjectId <> o.OldDesignation  then 'PROJECT CHANGE'
+       end as [CHANGE OF PROJECT TYPE],
+	   case when o.InitByPI_f is not null then
+		'PI Initiated'
+		else 
+		'DA Initiated' end as [Requested by],
+		case when od.RequestReference =1 and o.InitByPI_f is not null  then
+		'Work flow'
+		when od.RequestReference =2 and o.InitByPI_f is not null then
+		'Email'
+		when od.RequestReference =3 and o.InitByPI_f is not null then
+		'HardCopy'
+		else 'NA' end as [Request Reference],
+		case when od.RequestReference =1 and o.InitByPI_f is not null  then
+		od.RequestReferenceNo
+		when od.RequestReference =2 and o.InitByPI_f is not null then
+		convert(varchar(max), od.RequestEmailDate)
+		when od.RequestReference =3 and o.InitByPI_f is not null then
+		od.RequestReferenceNo
+		else 'NA' end as [Request Reference Number],
+		o.OrderDate as [REQUEST RECEIVED DATE],		
+		 (select top 1  bb.Crt_TS from tblRCTOrderLog as bb  where bb.OrderID = o.OrderId and bb.NewStatus = 'Sent for approval' and o.OrderType =1) as [INITIATED DATE],
+		(select top 1  bb.FirstName + ' ' + bb.LastName + ' - ' + bb.UserName from tblRCTOrderLog as aa join tblUser as bb on aa.Crt_By = bb.UserId where aa.OrderID = o.OrderId and aa.NewStatus = 'Sent for approval' and o.OrderType =1) as [INITIATED BY],		
+		(select top 1  bb.Crt_TS from tblRCTOrderLog as bb  where bb.OrderID = o.OrderId and bb.NewStatus = 'Awaiting Commitment Booking' and o.OrderType =1) as [APPROVED DATE],
+		(select top 1  bb.FirstName + ' ' + bb.LastName + ' - ' + bb.UserName from tblRCTOrderLog as aa join tblUser as bb on aa.Crt_By = bb.UserId where aa.OrderID = o.OrderId and aa.NewStatus = 'Awaiting Commitment Booking' and o.OrderType =1) as [APPROVED BY],		
+		 rc.CommitmentCrtdTS as [COMMITMENT BOOKING DATE],
+		(select top (1) FirstName+' '+LastName +' - ' + UserName from tbluser where userid=rc.CommitmentCrtdBy) as [COMMITMENT BOOKED BY],
+		(select top 1  bb.Crt_TS from tblRCTOrderLog as bb  where bb.OrderID = o.OrderId and bb.NewStatus = 'Sent for approval-Verify' and o.OrderType =1) as [VERIFICATION INITIATED DATE],
+		(select top 1  bb.FirstName + ' ' + bb.LastName + ' - ' + bb.UserName from tblRCTOrderLog as aa join tblUser as bb on aa.Crt_By = bb.UserId where aa.OrderID = o.OrderId and aa.NewStatus = 'Sent for approval-Verify' and o.OrderType =1) as [VERIFICATION INITIATED BY],		
+		(select top 1  bb.Crt_TS from tblRCTOrderLog as bb  where bb.OrderID = o.OrderId and bb.NewStatus = 'Completed' and o.OrderType =1) as [VERIFICATION APPROVED DATE],
+		(select top 1  bb.FirstName + ' ' + bb.LastName + ' - ' + bb.UserName from tblRCTOrderLog as aa join tblUser as bb on aa.Crt_By = bb.UserId where aa.OrderID = o.OrderId and aa.NewStatus = 'Completed' and o.OrderType =1) as [VERIFICATION APPROVED BY],		
+		case when m.msphdtype is not null and msphdtype=1 then 'M.S'
+	   when  m.msphdtype is not null and msphdtype=2 then 'Ph.D' end as [MS/PHD COURSE]
+from dbo.tblRCTSTE as m WITH (NOLOCK)
+join dbo.tblOrder as o  on o.AppointmentId = m.STEID  and o.AppointmentType = 2
+join dbo.tblOrderDetail as od on o.OrderId=od.OrderId
+join dbo.tblRCTOrderLog as s WITH (NOLOCK) on s.OrderID = o.OrderId
+join dbo.tblRCTDesignation as d WITH (NOLOCK) on d.DesignationId = o.NewDesignation
+join dbo.tblProject as p WITH (NOLOCK) on p.ProjectId = o.NewProjectId
+join dbo.vwFacultyStaffDetails as c WITH (NOLOCK) on p.PIName = c.UserId
+join dbo.tblCodeControl as apt WITH (NOLOCK) on apt.CodeValAbbr = m.TypeofAppointment 
+left join dbo.tblUser as u WITH (NOLOCK) on  u.UserId = o.CrtdUser
+left join  dbo.tblRCTCommitmentRequest as rc   WITH (NOLOCK) on rc.OrderId=o.OrderId
+where apt.CodeName = 'STEAppointmenttype' and s.NewStatus = 'Completed' and (s.PresentStatus = 'Open' or s.PresentStatus = 'Awaiting Verification' or s.PresentStatus = 'Awaiting Commitment Booking' or s.PresentStatus = 'Sent for approval-Verify')
+and o.OrderType in (1) and o.Status = 'Completed' and rc.AppointmentType='Change of Project' and rc.RequestType='New Commitment' 
+GO
+
+
+
+
+USE [IOASDB]
+GO
+
+/****** Object:  View [dbo].[vw_RCTSTEHRA]    Script Date: 04/01/2024 12:12:25 PM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+ALTER view [dbo].[vw_RCTSTEHRA] as 
+select m.EmployeersID [EMPLOYEE ID],m.NAME,d.DESIGNATION,o.FromDate [HRA START DATE],o.ToDate [HRA END DATE],o.Basic [SALARY],o.HRA,p.ProjectNumber [PROJECT NO.],c.DepartmentName [DEPARTMENT],apt.CodeValDetail [APPOINTMENT TYPE],
+       ArrearOrDeductionTillDate as [ARREARS TO BE PROCESSED W.E.F],
+       --s.Crt_TS [LOG_TIME],
+	   o.OrderType,
+       case when o.InitByPI_f is not null then
+		'PI Initiated'
+		else 
+		'DA Initiated' end as [Requested by],
+		case when od.RequestReference =1 and o.InitByPI_f is not null  then
+		'Work flow'
+		when od.RequestReference =2 and o.InitByPI_f is not null then
+		'Email'
+		when od.RequestReference =3 and o.InitByPI_f is not null then
+		'HardCopy'
+		else 'NA' end as [Request Reference],
+		case when od.RequestReference =1 and o.InitByPI_f is not null  then
+		od.RequestReferenceNo
+		when od.RequestReference =2 and o.InitByPI_f is not null then
+		convert(varchar(max), od.RequestEmailDate)
+		when od.RequestReference =3 and o.InitByPI_f is not null then
+		od.RequestReferenceNo
+		else 'NA' end as [Request Reference Number],
+				o.OrderDate as [REQUEST RECEIVED DATE],
+		u.FirstName + ' ' + u.LastName  + ' - ' + u.UserName [INITIATED_BY],
+	   (select top 1 bb.Crt_TS from tblorder as aa join tblRCTOrderLog as bb on aa.OrderId=bb.OrderID 
+          where m.STEID = aa.AppointmentId and bb.OrderId=o.OrderID and aa.AppointmentType = 2 and bb.NewStatus = 'Sent for approval' and aa.OrderType = 5) as  [INITIATED_DATE],		  
+				 (select top 1 cd.FirstName + ' ' + cd.LastName  + ' - ' + cd.UserName  from tblorder as aa join tblRCTOrderLog as bb on bb.OrderID=aa.OrderId join tbluser as cd on bb.Crt_By = cd.UserId
+         where m.STEID = aa.AppointmentId and bb.OrderId=o.OrderID and aa.AppointmentType = 2 and bb.NewStatus = 'Awaiting Commitment Booking' and aa.OrderType = 5 and bb.Crt_By = cd.UserId) as [APPROVED BY],
+		 (select top 1 bb.Crt_TS from tblorder as aa join tblRCTOrderLog as bb on aa.OrderId=bb.OrderID 
+          where m.STEID = aa.AppointmentId and bb.OrderId=o.OrderID and aa.AppointmentType = 2 and bb.NewStatus = 'Awaiting Commitment Booking' and aa.OrderType = 5) as  [APPROVED DATE],
+		rc.CommitmentCrtdTS as [COMMITMENT BOOKING DATE],
+		case when o.InitByPI_f is not null and o.RequestedBy is not null then
+		(select top (1) EmployeeName from tblFacultyDetail where castEmployeeid=o.UPdtuser)
+		else 
+		(select top (1) FirstName+' '+LastName + ' - ' +UserName  from tbluser where userid=o.UPdtuser)
+		end as [COMMITMENT BOOKING BY],		
+		--o.UpdtTS as [COMPLETED  DATE],		
+		case when m.msphdtype is not null and msphdtype=1 then 'M.S'
+	   when  m.msphdtype is not null and msphdtype=2 then 'Ph.D' end as [MS/PHD COURSE]
+from tblRCTSTE as m WITH (NOLOCK)
+join tblOrder as o  on o.AppointmentId = m.STEID  and o.AppointmentType = 2
+join tblOrderDetail as od on o.OrderId=od.OrderId
+join tblRCTOrderLog as s WITH (NOLOCK) on s.OrderID = o.OrderId
+join tblRCTDesignation as d WITH (NOLOCK) on d.DesignationId = o.NewDesignation
+join tblProject as p WITH (NOLOCK) on p.ProjectId = o.NewProjectId
+join vwFacultyStaffDetails as c WITH (NOLOCK) on p.PIName = c.UserId
+join tblCodeControl as apt WITH (NOLOCK) on apt.CodeValAbbr = m.TypeofAppointment 
+left join tblUser as u WITH (NOLOCK) on  u.UserId = o.CrtdUser
+left join  tblRCTCommitmentRequest as rc   WITH (NOLOCK) on rc.OrderId=o.OrderId
+cross apply (select max(HistoryID) from tblRCTOrderHistory where ApplicationId = o.AppointmentId and AppointmentType = 'STE' and OrderId = o.OrderId group by OrderId) as maxHistoryID(val)
+where apt.CodeName = 'STEAppointmenttype' and s.NewStatus = 'Completed' and (s.PresentStatus = 'Open' or s.PresentStatus = 'Awaiting Verification' or s.PresentStatus = 'Awaiting Commitment Booking')
+and o.OrderType in (5) and o.Status = 'Completed' and rc.AppointmentType='HRA' and (rc.RequestType='Add Commitment' or rc.RequestType='Withdraw Commitment')
+and rc.CommitmentCrtdTS is not null
+
+GO
+
+
+
+
+
+
+USE [IOASDB]
+GO
+
+/****** Object:  View [dbo].[vw_RCTSTEAmendmentReport]    Script Date: 04/01/2024 3:00:04 PM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+ALTER view [dbo].[vw_RCTSTEAmendmentReport] as
+select m.EmployeersID [EMPLOYEE ID],m.NAME,d.DESIGNATION,o.FromDate [APPOINTMENT START DATE],o.ToDate [END DATE],o.Basic [SALARY],o.HRA,p.ProjectNumber [PROJECT NO.],c.DepartmentName [DEPARTMENT],apt.CodeValDetail [APPOINTMENT TYPE],
+       ArrearOrDeductionTillDate as [ARREARS TO BE PROCESSED W.E.F],
+       s.Crt_TS [LOG_TIME],
+	   --u.FirstName + ' ' + u.LastName  + ' - ' + u.UserName [CREATED_BY],
+	   o.OrderType,
+       case when o.InitByPI_f is not null then
+		'PI Initiated'
+		else 
+		'DA Initiated' end as [Requested by],
+		case when od.RequestReference =1 and o.InitByPI_f is not null  then
+		'Work flow'
+		when od.RequestReference =2 and o.InitByPI_f is not null then
+		'Email'
+		when od.RequestReference =3 and o.InitByPI_f is not null then
+		'HardCopy'
+		else 'NA' end as [Request Reference],
+		case when od.RequestReference =1 and o.InitByPI_f is not null  then
+		od.RequestReferenceNo
+		when od.RequestReference =2 and o.InitByPI_f is not null then
+		convert(varchar(max), od.RequestEmailDate)
+		when od.RequestReference =3 and o.InitByPI_f is not null then
+		od.RequestReferenceNo
+		else 'NA' end as [Request Reference Number],
+		--rc.CommitmentCrtdTS as [COMMITMENT BOOKING DATE],
+		o.OrderDate as [REQUEST RECEIVED DATE],
+				(select top 1 bb.FirstName + ' ' + bb.LastName + ' - ' + bb.UserName from tblRCTOrderLog as a left join tblUser as bb on a.Crt_By = bb.UserId left join tblOrder as c on a.OrderID = c.OrderId
+        left join tblRCTSTE as b on b.STEID = c.AppointmentId and c.AppointmentType = 2 where b.STEID = m.STEID and a.NewStatus = 'Sent for approval' and c.OrderType=4 and a.Crt_By = bb.UserId) as [INITIATED BY],
+		   (select top (1) a.Crt_TS from tblRCTOrderLog as a left join tblOrder as c on a.OrderID = c.OrderId left join tblRCTSTE as b on b.STEID = c.AppointmentId and c.AppointmentType = 2
+            where m.STEID = b.STEID and a.NewStatus = 'Sent for approval'and c.OrderType=4) as [INITIATED DATE],
+		(select top 1 bb.FirstName + ' ' + bb.LastName + ' - ' + bb.UserName from tblRCTOrderLog as a left join tblUser as bb on a.Crt_By = bb.UserId left join tblOrder as c on a.OrderID = c.OrderId
+        left join tblRCTSTE as b on b.STEID = c.AppointmentId and c.AppointmentType = 2 where b.STEID = m.STEID and a.NewStatus = 'Awaiting Commitment Booking' and c.OrderType=4 and a.Crt_By = bb.UserId) as [APPROVED BY],
+		   (select top (1) a.Crt_TS from tblRCTOrderLog as a left join tblOrder as c on a.OrderID = c.OrderId left join tblRCTSTE as b on b.STEID = c.AppointmentId and c.AppointmentType = 2
+            where m.STEID = b.STEID and a.NewStatus = 'Awaiting Commitment Booking'and c.OrderType=4) as [APPROVED DATE],
+		o.UpdtTS as [COMMITMENT WITHDRAWAL DATE],
+		case when o.InitByPI_f is not null and o.RequestedBy is not null then
+		(select top (1) EmployeeName from tblFacultyDetail where castEmployeeid=o.UPdtuser)
+		else 
+		(select top (1) FirstName+' '+LastName + '-' + UserName from tbluser where userid=o.UPdtuser)
+		end as [COMMITMENT WITHDRAWAL BY],
+		case when m.msphdtype is not null and msphdtype=1 then 'M.S'
+	   when  m.msphdtype is not null and msphdtype=2 then 'Ph.D' end as [MS/PHD COURSE]
+from tblRCTSTE as m WITH (NOLOCK)
+join tblOrder as o  on o.AppointmentId = m.STEID  and o.AppointmentType = 2
+join tblOrderDetail as od on o.OrderId=od.OrderId
+join tblRCTOrderLog as s WITH (NOLOCK) on s.OrderID = o.OrderId
+join tblRCTDesignation as d WITH (NOLOCK) on d.DesignationId = o.NewDesignation
+join tblProject as p WITH (NOLOCK) on p.ProjectId = o.NewProjectId
+join vwFacultyStaffDetails as c WITH (NOLOCK) on p.PIName = c.UserId
+join tblCodeControl as apt WITH (NOLOCK) on apt.CodeValAbbr = m.TypeofAppointment 
+left join tblUser as u WITH (NOLOCK) on  u.UserId = o.CrtdUser
+left join  tblRCTCommitmentRequest as rc   WITH (NOLOCK) on rc.OrderId=o.OrderId
+where apt.CodeName = 'STEAppointmenttype' and s.NewStatus = 'Completed' and (s.PresentStatus = 'Open' or s.PresentStatus = 'Awaiting Verification' or s.PresentStatus = 'Awaiting Commitment Booking')
+and o.OrderType in (4) and o.Status = 'Completed' and rc.AppointmentType='Amendment' and rc.RequestType='Withdraw Commitment'
+GO
+
+
+
+
+
+
+USE [IOASDB]
+GO
+
+/****** Object:  View [dbo].[vw_RCTSTEMaternity]    Script Date: 04/01/2024 3:37:31 PM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+ALTER view [dbo].[vw_RCTSTEMaternity] as
+select m.EmployeersID [EMPLOYEE ID],m.NAME,d.DESIGNATION,o.FromDate [APPOINTMENT START DATE],o.ToDate [END DATE],o.Basic [SALARY],o.HRA,p.ProjectNumber [PROJECT NO.],c.DepartmentName [DEPARTMENT],apt.CodeValDetail [APPOINTMENT TYPE],
+      -- s.Crt_TS [LOG_TIME],
+	   case when o.InitByPI_f is not null then
+		'PI Initiated'
+		else 
+		'DA Initiated' end as [Requested by],
+		case when od.RequestReference =1 and o.InitByPI_f is not null  then
+		'Work flow'
+		when od.RequestReference =2 and o.InitByPI_f is not null then
+		'Email'
+		when od.RequestReference =3 and o.InitByPI_f is not null then
+		'HardCopy'
+		else 'NA' end as [Request Reference],
+		case when od.RequestReference =1 and o.InitByPI_f is not null  then
+		od.RequestReferenceNo
+		when od.RequestReference =2 and o.InitByPI_f is not null then
+		convert(varchar(max), od.RequestEmailDate)
+		when od.RequestReference =3 and o.InitByPI_f is not null then
+		od.RequestReferenceNo
+		else 'NA' end as [Request Reference Number],
+		o.OrderDate as [REQUEST RECEIVED DATE],
+		(select top 1 bb.FirstName + ' ' + bb.LastName + ' - ' + bb.UserName from tblRCTOrderLog as a left join tblUser as bb on a.Crt_By = bb.UserId left join tblOrder as c on a.OrderID = c.OrderId
+        left join tblRCTSTE as b on b.STEID = c.AppointmentId and c.AppointmentType = 2 where b.STEID = m.STEID and a.NewStatus = 'Initiated' and c.OrderType = 10 and a.Crt_By = bb.UserId) as [INITIATED BY],
+		   (select top (1) a.Crt_TS from tblRCTOrderLog as a left join tblOrder as c on a.OrderID = c.OrderId left join tblRCTSTE as b on b.STEID = c.AppointmentId and c.AppointmentType = 2
+            where m.STEID = b.STEID and a.OrderId=o.OrderID and a.NewStatus = 'Initiated'and c.OrderType = 10) as [INITIATED DATE],
+			(select top 1 bb.FirstName + ' ' + bb.LastName + ' - ' + bb.UserName from tblRCTOrderLog as a left join tblUser as bb on a.Crt_By = bb.UserId left join tblOrder as c on a.OrderID = c.OrderId
+        left join tblRCTSTE as b on b.STEID = c.AppointmentId and c.AppointmentType = 2 where b.STEID = m.STEID and a.NewStatus = 'Open' and c.OrderType = 10 and a.Crt_By = bb.UserId) as [APPROVED BY],
+		   (select top (1) a.Crt_TS from tblRCTOrderLog as a left join tblOrder as c on a.OrderID = c.OrderId left join tblRCTSTE as b on b.STEID = c.AppointmentId and c.AppointmentType = 2
+            where m.STEID = b.STEID and a.OrderId=o.OrderID and a.NewStatus = 'Open'and c.OrderType = 10) as [APPROVED DATE],
+			(select top 1 bb.FirstName + ' ' + bb.LastName + ' - ' + bb.UserName from tblRCTOrderLog as a left join tblUser as bb on a.Crt_By = bb.UserId left join tblOrder as c on a.OrderID = c.OrderId
+        left join tblRCTSTE as b on b.STEID = c.AppointmentId and c.AppointmentType = 2 where b.STEID = m.STEID and a.NewStatus = 'Rejoined' and c.OrderType = 10 and a.Crt_By = bb.UserId) as [REJOIN INITIATED BY],
+		   (select top (1) a.Crt_TS from tblRCTOrderLog as a left join tblOrder as c on a.OrderID = c.OrderId left join tblRCTSTE as b on b.STEID = c.AppointmentId and c.AppointmentType = 2
+            where m.STEID = b.STEID and a.OrderId=o.OrderID and a.NewStatus = 'Rejoined'and c.OrderType = 10) as [REJOIN INITIATED DATE],		  	
+		case when o.InitByPI_f is not null and o.RequestedBy is not null then
+		(select top (1) EmployeeName from tblFacultyDetail where castEmployeeid=o.UPdtuser)
+		else 
+		(select top (1) FirstName+' '+LastName from tbluser where userid=o.UPdtuser)
+		end as [REJOIN APPROVED BY],o.UpdtTS as [REJOIN APPROVED DATE]
+from tblRCTSTE as m WITH (NOLOCK)
+join tblOrder as o  on o.AppointmentId = m.STEID  and o.AppointmentType = 2
+join tblOrderDetail as od on o.OrderId=od.OrderId
+join tblRCTOrderLog as s WITH (NOLOCK) on s.OrderID = o.OrderId
+join tblRCTDesignation as d WITH (NOLOCK) on d.DesignationId = o.NewDesignation
+join tblProject as p WITH (NOLOCK) on p.ProjectId = o.NewProjectId
+join vwFacultyStaffDetails as c WITH (NOLOCK) on p.PIName = c.UserId
+join tblCodeControl as apt WITH (NOLOCK) on apt.CodeValAbbr = m.TypeofAppointment 
+left join tblUser as u WITH (NOLOCK) on  u.UserId = o.CrtdUser
+where apt.CodeName = 'STEAppointmenttype' 
+and o.OrderType in (10) and o.Status = 'Completed' and  S.NewStatus='Completed'
+
+
+GO
+
+
+
+
+
+USE [IOASDB]
+GO
+
+/****** Object:  View [dbo].[vw_RCTSTEStoppayment]    Script Date: 05/01/2024 10:59:09 AM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+ALTER view [dbo].[vw_RCTSTEStoppayment] as
+select m.EmployeersID [EMPLOYEE ID],m.NAME,d.DESIGNATION,o.FromDate [APPOINTMENT START DATE],o.ToDate [END DATE],o.Basic [SALARY],o.HRA,p.ProjectNumber [PROJECT NO.],c.DepartmentName [DEPARTMENT],apt.CodeValDetail [APPOINTMENT TYPE],
+       --o.crtdts [LOG_TIME],
+	   u.FirstName + ' ' + u.LastName  + ' - ' + u.UserName [INITIATED BY],
+		   (select top (1) a.Crt_TS from tblRCTOrderLog as a left join tblOrder as c on a.OrderID = c.OrderId left join tblRCTSTE as b on b.STEID = c.AppointmentId and c.AppointmentType = 2
+            where m.STEID = b.STEID and a.OrderId=o.OrderID and a.NewStatus = 'Initiated'and c.OrderType = 7) as [INITIATED DATE],
+       o.OrderDate as [REQUEST RECEIVED DATE],
+	   case when m.msphdtype is not null and msphdtype=1 then 'M.S'
+	   when  m.msphdtype is not null and msphdtype=2 then 'Ph.D' end as [MS/PHD COURSE],
+		--o.UpdtTS as [COMPLETED  DATE],
+		--case when o.InitByPI_f is not null and o.RequestedBy is not null then
+		--(select top (1) EmployeeName from tblFacultyDetail where castEmployeeid=o.UPdtuser)
+		--else 
+		--(select top (1) FirstName+' '+LastName from tbluser where userid=o.UPdtuser)
+		--end as [COMPLETED BY],
+			(select top 1 bb.FirstName + ' ' + bb.LastName + ' - ' + bb.UserName from tblRCTOrderLog as a left join tblUser as bb on a.Crt_By = bb.UserId left join tblOrder as c on a.OrderID = c.OrderId
+        left join tblRCTSTE as b on b.STEID = c.AppointmentId and c.AppointmentType = 2 where b.STEID = m.STEID and a.NewStatus = 'Approved' and c.OrderType = 7 and a.Crt_By = bb.UserId) as [APPROVED BY],
+		   (select top (1) a.Crt_TS from tblRCTOrderLog as a left join tblOrder as c on a.OrderID = c.OrderId left join tblRCTSTE as b on b.STEID = c.AppointmentId and c.AppointmentType = 2
+            where m.STEID = b.STEID and a.OrderId=o.OrderID and a.NewStatus = 'Approved'and c.OrderType = 7) as [APPROVED DATE],
+			(select top 1 bb.FirstName + ' ' + bb.LastName + ' - ' + bb.UserName from tblRCTOrderLog as a left join tblUser as bb on a.Crt_By = bb.UserId left join tblOrder as c on a.OrderID = c.OrderId
+        left join tblRCTSTE as b on b.STEID = c.AppointmentId and c.AppointmentType = 2 where b.STEID = m.STEID and a.NewStatus = 'Reversal' and c.OrderType = 7 and a.Crt_By = bb.UserId) as [VERIFICATION INITIATED BY],
+	   (select top (1) a.Crt_TS from tblRCTOrderLog as a left join tblOrder as c on a.OrderID = c.OrderId left join tblRCTSTE as b on b.STEID = c.AppointmentId and c.AppointmentType = 2
+            where m.STEID = b.STEID and a.OrderId=o.OrderID and a.NewStatus = 'Reversal'and c.OrderType = 7) as [VERIFICATION INITIATED DATE],
+				(select top 1 bb.FirstName + ' ' + bb.LastName + ' - ' + bb.UserName from tblRCTOrderLog as a left join tblUser as bb on a.Crt_By = bb.UserId left join tblOrder as c on a.OrderID = c.OrderId
+        left join tblRCTSTE as b on b.STEID = c.AppointmentId and c.AppointmentType = 2 where b.STEID = m.STEID and a.NewStatus = 'Completed' and c.OrderType = 7 and a.Crt_By = bb.UserId) as [VERIFICATION APPROVED BY],
+	   (select top (1) a.Crt_TS from tblRCTOrderLog as a left join tblOrder as c on a.OrderID = c.OrderId left join tblRCTSTE as b on b.STEID = c.AppointmentId and c.AppointmentType = 2
+            where m.STEID = b.STEID and a.OrderId=o.OrderID and a.NewStatus = 'Completed'and c.OrderType = 7) as [VERIFICATION APPROVED DATE]
+from tblRCTSTE as m WITH (NOLOCK)
+join tblOrder as o  on o.AppointmentId = m.STEID  and o.AppointmentType = 2
+join tblOrderDetail as od on o.OrderId=od.OrderId
+--join tblRCTOrderLog as s WITH (NOLOCK) on s.OrderID = o.OrderId
+join tblRCTDesignation as d WITH (NOLOCK) on d.DesignationId = o.OldDesignation
+join tblProject as p WITH (NOLOCK) on p.ProjectId = o.oldProjectid
+join vwFacultyStaffDetails as c WITH (NOLOCK) on p.PIName = c.UserId
+join tblCodeControl as apt WITH (NOLOCK) on apt.CodeValAbbr = m.TypeofAppointment 
+left join tblUser as u WITH (NOLOCK) on  u.UserId = o.CrtdUser
+where apt.CodeName = 'STEAppointmenttype' 
+and o.OrderType in (7) and o.Status = 'Completed'
+GO
+
+
+

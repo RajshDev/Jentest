@@ -263,6 +263,159 @@ namespace IOAS.GenericServices
             }
         }
 
+        //yogesh by Requested PIID
+        public static ProjectDetails getProjectSummary(int ProjectId,int RequestedPIId)
+        {
+            try
+            {
+                ProjectDetails prjModel = new ProjectDetails();
+                using (var context = new IOASDBEntities())
+                {
+
+                    var qryProject = (from prj in context.tblProject
+                                      where prj.ProjectId == ProjectId
+                                      select prj).FirstOrDefault();
+                    if (qryProject.SponsoringAgency > 0)
+                    {
+                        var AgencyQry = context.tblAgencyMaster.Where(m => m.AgencyId == qryProject.SponsoringAgency).FirstOrDefault();
+                        if (AgencyQry != null)
+                            prjModel.SponsoringAgency = AgencyQry.AgencyName;
+                    }
+
+                    if (qryProject != null)
+                    {
+                        string pType = Common.getprojectTypeName(qryProject.ProjectType ?? 0);
+                        if (qryProject.ProjectType == 1 && qryProject.ProjectSubType != 1)
+                            pType += qryProject.SponProjectCategory == "1" ? "-PFMS" : qryProject.SponProjectCategory == "2" ? "-NON-PFMS" : "";
+                        else if (qryProject.ProjectType == 1 && qryProject.ProjectSubType == 1)
+                            pType += " - Internal";
+                        prjModel.ProjectType = pType;
+                        prjModel.ProjectTitle = qryProject.ProjectTitle;
+                        prjModel.PIId = qryProject.PIName;
+                        prjModel.PIName = Common.GetPIName(RequestedPIId , false);
+                        prjModel.ProjectStartDate = String.Format("{0:dd-MMM-yyyy}", qryProject.TentativeStartDate);
+                        prjModel.ProjectClosureDate = string.Format("{0:dd-MMM-yyyy}", Common.GetProjectDueDate(ProjectId) ?? qryProject.TentativeCloseDate);
+                        prjModel.ProjectNumber = qryProject.ProjectNumber;
+                        prjModel.ProjectID = qryProject.ProjectId;
+                        if (qryProject.PIName > 0)
+                        {
+                            var qryPIDetails = (from prj in context.vwFacultyStaffDetails
+                                                where prj.UserId == qryProject.PIName
+                                                select prj).FirstOrDefault();
+                            if (qryPIDetails != null)
+                            {
+                                prjModel.Email = qryPIDetails.Email;
+                                prjModel.Phone = qryPIDetails.ContactNumber;
+                                prjModel.PIDepartmentCode = qryPIDetails.DepartmentCode;
+                                prjModel.PIDepartmentName = qryPIDetails.DepartmentName;
+                                prjModel.PICode = qryPIDetails.EmployeeId;
+                                prjModel.PIDesignation = qryPIDetails.Designation;
+                            }
+                        }
+                    }
+
+                }
+                return prjModel;
+            }
+            catch (Exception ex)
+            {
+                ErrorHandler WriteLog = new ErrorHandler();
+                WriteLog.SendErrorToText(ex);
+                ProjectDetails prjModel = new ProjectDetails();
+                return prjModel;
+            }
+        }
+
+
+        //public static ProjectDetails GetOfferLetterProjectDetails(int STEId)
+        //{
+        //    try
+        //    {
+        //        ProjectDetails prjModel = new ProjectDetails();
+        //        using (var context = new IOASDBEntities())
+        //        {
+
+        //            var qryProject = (from prj in context.tblProject
+        //                              from r in context.tblRCTSTE
+        //                              where prj.ProjectId ==r.ProjectId && r.STEID == STEId
+        //                              select new { prj, r } ).FirstOrDefault();
+        //            if (qryProject.prj.SponsoringAgency > 0)
+        //            {
+        //                var AgencyQry = context.tblAgencyMaster.Where(m => m.AgencyId == qryProject.prj.SponsoringAgency).FirstOrDefault();
+        //                if (AgencyQry != null)
+        //                    prjModel.SponsoringAgency = AgencyQry.AgencyName;
+        //            }
+
+        //            if (qryProject != null)
+        //            {
+        //                string pType = Common.getprojectTypeName(qryProject.prj.ProjectType ?? 0);
+        //                if (qryProject.prj.ProjectType == 1 && qryProject.prj.ProjectSubType != 1)
+        //                    pType += qryProject.prj.SponProjectCategory == "1" ? "-PFMS" : qryProject.prj.SponProjectCategory == "2" ? "-NON-PFMS" : "";
+        //                else if (qryProject.prj.ProjectType == 1 && qryProject.prj.ProjectSubType == 1)
+        //                    pType += " - Internal";
+        //                prjModel.ProjectType = pType;
+        //                prjModel.ProjectTitle = qryProject.prj.ProjectTitle;
+        //                prjModel.PIId = qryProject.prj.PIName;
+        //                prjModel.PIName = Common.GetPIName(qryProject.r.RequestedBy ?? 0, false);
+        //                prjModel.ProjectStartDate = String.Format("{0:dd-MMM-yyyy}", qryProject.prj.TentativeStartDate);
+        //                prjModel.ProjectClosureDate = string.Format("{0:dd-MMM-yyyy}", Common.GetProjectDueDate(qryProject.prj.ProjectId) ?? qryProject.prj.TentativeCloseDate);
+        //                prjModel.ProjectNumber = qryProject.prj.ProjectNumber;
+        //                prjModel.ProjectID = qryProject.prj.ProjectId;
+        //                if (qryProject.prj.PIName > 0)
+        //                {
+        //                    var qryPIDetails = (from prj in context.vwFacultyStaffDetails
+        //                                        where prj.UserId == qryProject.prj.PIName
+        //                                        select prj).FirstOrDefault();
+        //                    if (qryPIDetails != null)
+        //                    {
+        //                        prjModel.Email = qryPIDetails.Email;
+        //                        prjModel.Phone = qryPIDetails.ContactNumber;
+        //                        prjModel.PIDepartmentCode = qryPIDetails.DepartmentCode;
+        //                        prjModel.PIDepartmentName = qryPIDetails.DepartmentName;
+        //                        prjModel.PICode = qryPIDetails.EmployeeId;
+        //                        prjModel.PIDesignation = qryPIDetails.Designation;
+        //                    }
+        //                }
+        //            }
+
+        //        }
+        //        return prjModel;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        ErrorHandler WriteLog = new ErrorHandler();
+        //        WriteLog.SendErrorToText(ex);
+        //        ProjectDetails prjModel = new ProjectDetails();
+        //        return prjModel;
+        //    }
+        //}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         public static ProjectDetails getPIDetails(int PIID)
         {
             ProjectDetails model = new ProjectDetails();
@@ -430,7 +583,7 @@ namespace IOAS.GenericServices
                                     query.ModeOfRequest = Common.GetCodeControlAbbrId("ModeOfRequest", model.ModeOfRequest);
                                     query.RequestReceiveDate = model.RequestReceiveDate;
                                     query.ClosureDate = model.AnnouncementClosureDate;
-                                    query.FlowApprover = model.FlowApprover;                                   
+                                    query.FlowApprover = model.FlowApprover;
                                     if (model.AnnouncementCategory == "Project wise")
                                         query.ProjectID = model.ProjectId;
                                     query.PIName = model.PIId;
@@ -707,7 +860,7 @@ namespace IOAS.GenericServices
                                 create.DAComments = model.DAComments;
                                 create.ModeOfRequest = Common.GetCodeControlAbbrId("ModeOfRequest", model.ModeOfRequest);
                                 create.RequestReceiveDate = model.RequestReceiveDate;
-                                create.ClosureDate = model.AnnouncementClosureDate;                               
+                                create.ClosureDate = model.AnnouncementClosureDate;
                                 if (model.AnnouncementCategory == "Project wise")
                                     create.ProjectID = model.ProjectId;
                                 create.PIName = model.PIId;
@@ -984,7 +1137,7 @@ namespace IOAS.GenericServices
                                                    b.AnnouncementCategory,
                                                    p.CodeValDetail,
                                                    b.RequestReceiveDate,
-                                                   b.ClosureDate, 
+                                                   b.ClosureDate,
                                                    b.CanceledReason,
                                                    FirstName = j == null ? "" : j.FirstName,
                                                    DepartmentName = j == null ? "" : j.DepartmentName
@@ -993,7 +1146,7 @@ namespace IOAS.GenericServices
                     if (model.SearchINStatus == null)
                     {
                         list.TotalRecords = QryAnnouncementList.Where(x => x.Status != 13).Count();
-                        QryAnnouncementList = QryAnnouncementList.Where(x => x.Status != 13).Skip(skiprec).Take(pageSize).ToList();                        
+                        QryAnnouncementList = QryAnnouncementList.Where(x => x.Status != 13).Skip(skiprec).Take(pageSize).ToList();
                     }
                     else if (model.SearchINStatus != null)
                     {
@@ -1018,7 +1171,7 @@ namespace IOAS.GenericServices
                                 SNo = sno + i,
                                 AnnouncementID = QryAnnouncementList[i].AnnouncementID,
                                 RefNo = QryAnnouncementList[i].RefNo,
-                                CanceledReason=QryAnnouncementList[i].CanceledReason,
+                                CanceledReason = QryAnnouncementList[i].CanceledReason,
                                 AnnouncementTitle = QryAnnouncementList[i].AnnouncementTitle,
                                 AnnouncementRequestBy = Common.GetCodeControlDes(QryAnnouncementList[i].RequestedBy ?? 0, "Announcement Requestedby"),
                                 AnnouncementCategory = Common.GetCodeControlDes(QryAnnouncementList[i].AnnouncementCategory ?? 0, "Announcement Category"),
@@ -1030,7 +1183,7 @@ namespace IOAS.GenericServices
                                 StatusID = QryAnnouncementList[i].Status ?? 0,
                                 PIName = QryAnnouncementList[i].FirstName,
                                 PIDepartment = QryAnnouncementList[i].DepartmentName
-                        });
+                            });
                         }
                     }
 
@@ -1364,8 +1517,8 @@ namespace IOAS.GenericServices
                                 }
                                 else
                                 {
-                                    add.bcc = model.bcc;
-                                    add.ToMail = model.ToMail;
+                                    add.bcc = model.ToMail;
+                                    add.ToMail = model.ReqTomail;
                                 }
                                 newstatus = add.Status;
                                 add.ProfessionalType = model.ProfessionalId;
@@ -1406,6 +1559,7 @@ namespace IOAS.GenericServices
                                 add.ProjectId = model.ProjectId;
                                 add.DesignationId = model.DesignationId;
                                 add.SalaryLevelId = model.SalaryLevelId;
+                                add.EmployeeWorkplace = model.EmployeeWorkplace;
                                 //if (model.MsPhd || model.TypeofappointmentId == 2)
                                 //{
                                 //    STE.Medical = 3;
@@ -1643,10 +1797,10 @@ namespace IOAS.GenericServices
                                         queryedit.Status = "Draft";
                                     else
                                     {
-                                        if (!string.IsNullOrEmpty(model.bcc))
-                                            queryedit.bcc = model.bcc;
                                         if (!string.IsNullOrEmpty(model.ToMail))
-                                            queryedit.ToMail = model.ToMail;
+                                            queryedit.bcc = model.ToMail;
+                                        if (!string.IsNullOrEmpty(model.ReqTomail))
+                                            queryedit.ToMail = model.ReqTomail;
                                     }
                                     newstatus = queryedit.Status;
                                     res = queryedit.Status == "Open" ? 1 : (queryedit.Status.Contains("Note") || queryedit.Status == "Draft") ? 2 : 0;
@@ -1710,6 +1864,7 @@ namespace IOAS.GenericServices
                                     queryedit.MsPhdType = model.MsPhdType;
                                     queryedit.PhdDetail = model.PhdDetail;
                                     queryedit.Comments = model.Comments;
+                                    queryedit.EmployeeWorkplace = model.EmployeeWorkplace;
                                     if (model.PIJustificationFile != null)
                                     {
                                         foreach (var item in model.PIJustificationFile)
@@ -2282,6 +2437,29 @@ namespace IOAS.GenericServices
             }
         }
 
+        public STEModel STERequestedByPI(int Requestpi)
+        {
+            STEModel model = new STEModel();
+            List<STEEducationModel> EducationList = new List<STEEducationModel>();
+            try
+            {
+                using (var context = new IOASDBEntities())
+                {
+
+                    var query = (from FSD in context.vwFacultyStaffDetails
+                                 where FSD.UserId == Requestpi
+                                 select FSD.Email).FirstOrDefault();
+                    model.ReqTomail = query;
+
+                }
+
+                return model;
+            }
+            catch (Exception ex)
+            {
+                return model;
+            }
+        }
         public STEViewModel GetSTEView(int STEID)
         {
             STEViewModel viewmodel = new STEViewModel();
@@ -2374,11 +2552,18 @@ namespace IOAS.GenericServices
                                                                   FileName = c.FileName,
                                                                   FilePath = c.DocsName,
                                                               }).ToList();
+                        //viewmodel.PIJustificationCommands = (from c in context.tblRCTSTEPIJustificationDocs
+                        //                                     where c.STEID == STEID && !string.IsNullOrEmpty(c.Description)
+                        //                                     && c.Deleted_f != true
+                        //                                     group c by c.Description into grp
+                        //                                     select grp.Key).ToList();
+
                         viewmodel.PIJustificationCommands = (from c in context.tblRCTSTEPIJustificationDocs
-                                                             where c.STEID == STEID && !string.IsNullOrEmpty(c.Description)
-                                                             && c.Deleted_f != true
-                                                             group c by c.Description into grp
-                                                             select grp.Key).ToList();
+                                                             where c.STEID == STEID && !string.IsNullOrEmpty(c.Description) && c.Deleted_f != true
+                                                             orderby c.DocsID descending
+                                                             select c.Description).Take(1).ToList();
+
+
                         viewmodel.Comments = query.A.Comments;
                         viewmodel.CommiteeMemberId1 = query.A.CommitteeMember ?? 0;
                         viewmodel.CommiteeMemberId2 = query.A.CommitteeMembers ?? 0;
@@ -2778,7 +2963,7 @@ namespace IOAS.GenericServices
             }
         }
 
-        public Tuple<bool, string> STEVWFInit(STEVerificationModel model,int id, int logged_in_user)
+        public Tuple<bool, string> STEVWFInit(STEVerificationModel model, int id, int logged_in_user)
         {
             try
             {
@@ -2832,7 +3017,7 @@ namespace IOAS.GenericServices
             }
         }
 
-        public Tuple<bool, string> STEOVWFInit(STEVerificationModel model,int id, int logged_in_user)
+        public Tuple<bool, string> STEOVWFInit(STEVerificationModel model, int id, int logged_in_user)
         {
             try
             {
@@ -2877,7 +3062,7 @@ namespace IOAS.GenericServices
             }
         }
 
-        public Tuple<bool, string> OSGOVWFInit(STEVerificationModel model,int id, int logged_in_user)
+        public Tuple<bool, string> OSGOVWFInit(STEVerificationModel model, int id, int logged_in_user)
         {
             try
             {
@@ -2998,7 +3183,7 @@ namespace IOAS.GenericServices
                             model.PIJustificationCommands = (from c in context.tblRCTOrderPIJustificationDocs
                                                              where c.OrderId == orderid && !string.IsNullOrEmpty(c.Description)
                                                              group c by c.Description into grp
-                                                             select grp.Key).ToList();
+                                                             select grp.Key).Take(1).ToList();
                             model.CommiteeMember1 = Common.GetPIName(query.vw.CommitteeMember ?? 0);
                             model.CommiteeMember2 = Common.GetPIName(query.vw.CommitteeMembers ?? 0);
                             model.ChairpersonName = Common.GetPIName(query.vw.Chairperson ?? 0);
@@ -3077,7 +3262,7 @@ namespace IOAS.GenericServices
                                                                  where c.STEID == appid && !string.IsNullOrEmpty(c.Description)
                                                                  && c.Deleted_f != true
                                                                  group c by c.Description into grp
-                                                                 select grp.Key).ToList();
+                                                                 select grp.Key).Take(1).ToList();
                                 model.CommiteeMember1 = Common.GetPIName(QrySTE.A.CommitteeMember ?? 0);
                                 model.CommiteeMember2 = Common.GetPIName(QrySTE.A.CommitteeMembers ?? 0);
                                 model.ChairpersonName = Common.GetPIName(QrySTE.A.Chairperson ?? 0);
@@ -3218,7 +3403,7 @@ namespace IOAS.GenericServices
                                 model.PIJustificationCommands = (from c in context.tblRCTOSGPIJustificationDoc
                                                                  where c.OSGID == appid && !string.IsNullOrEmpty(c.Description) && c.Deleted_f != true
                                                                  group c by c.Description into grp
-                                                                 select grp.Key).ToList();
+                                                                 select grp.Key).Take(1).ToList();
                                 model.CommiteeMember1 = Common.GetPIName(QrySTE.A.CommitteeMember ?? 0);
                                 model.CommiteeMember2 = Common.GetPIName(QrySTE.A.CommitteeMembers ?? 0);
                                 model.ChairpersonName = Common.GetPIName(QrySTE.A.Chairperson ?? 0);
@@ -3294,8 +3479,17 @@ namespace IOAS.GenericServices
                             //    model.offerDate = query.o.FromDate ?? DateTime.Now;
                             model.offerDate = getOfferLetterDate(model.STEId, "STE", "OfferLetter", orderId);
                             model.EmployeeID = query.S.EmployeersID;
-                            model.ProjectDetailsModel = getProjectSummary(query.o.NewProjectId ?? 0);
+                            model.ProjectDetailsModel = getProjectSummary(query.o.NewProjectId ?? 0, query.S.RequestedBy ?? 0);
+                            //model.ProjectDetailsModel = GetOfferLetterProjectDetails(query.S.STEID);
                             model.ProjectNumber = model.ProjectDetailsModel.ProjectNumber;
+                            model.SalaryLevelId = query.o.SalaryLevelId;
+                            var querydes = (from sl in context.tblRCTSalaryLevel
+                                            where sl.SalaryLevelId == model.SalaryLevelId
+                                            select sl).FirstOrDefault();
+                            if (querydes != null)
+                            {
+                                model.SalaryLevel = querydes.LevelRange;
+                            }
                         }
                     }
                     else if (STEID > 0)
@@ -3308,7 +3502,7 @@ namespace IOAS.GenericServices
                         {
                             model.Designation = query.D.Designation;
                             model.DesignationId = query.D.DesignationId;
-                            model.ProjectDetailsModel = getProjectSummary(query.S.ProjectId ?? 0);
+                            model.ProjectDetailsModel = getProjectSummary(query.S.ProjectId ?? 0,query.S.RequestedBy??0);
                             model.ProjectNumber = model.ProjectDetailsModel.ProjectNumber;
                             model.Typeofappointment = Common.GetCodeControlName(query.S.TypeofAppointment ?? 0, "STEAppointmenttype");
                             model.PayeeType = query.S.ConsolidatedPay == true ? "Consolidated Pay" : "Fellowship Pay";
@@ -3322,12 +3516,20 @@ namespace IOAS.GenericServices
                             model.MsPhd = query.S.MsPhd ?? false;
                             model.MsOrPhd = query.S.MsPhdType == 1 ? "M.S" : query.S.MsPhdType == 2 ? "Ph.D" : "";
                             model.BasicPay = query.S.Salary;
+                            model.SalaryLevelId = query.S.SalaryLevelId;
                             //model.CommitmentAmount = query.S.CommitmentAmount ?? 0;
                             //model.offerDate = query.S.OfferDate ?? DateTime.Now;
                             //if (query.S.OfferDate < query.S.AppointmentStartdate)
                             //    model.offerDate = query.S.AppointmentStartdate ?? DateTime.Now;
                             model.offerDate = getOfferLetterDate(model.STEId, "STE", "OfferLetter");
                             model.EmployeeID = query.S.EmployeersID;
+                            var querydes = (from sl in context.tblRCTSalaryLevel
+                                            where sl.SalaryLevelId == model.SalaryLevelId
+                                            select sl).FirstOrDefault();
+                            if (querydes != null)
+                            {
+                                model.SalaryLevel = querydes.LevelRange;
+                            }
                         }
                     }
                 }
@@ -3501,7 +3703,7 @@ namespace IOAS.GenericServices
                         model.PIJustificationCommands = (from c in context.tblRCTSTEPIJustificationDocs
                                                          where c.STEID == STEID && !string.IsNullOrEmpty(c.Description) && c.Deleted_f != true
                                                          group c by c.Description into grp
-                                                         select grp.Key).ToList();
+                                                         select grp.Key).Take(1).ToList();
                         model.BloodGroup = query.A.Bloodgroup;
                         model.BloodGroupRH = query.A.BloodgroupRH;
                         model.GateScore = query.A.GateScore;
@@ -3549,7 +3751,7 @@ namespace IOAS.GenericServices
             }
         }
 
-        public Tuple<int,int, string> VerifySTE(STEVerificationModel model, int logged_in_userId, string button)
+        public Tuple<int, int, string> VerifySTE(STEVerificationModel model, int logged_in_userId, string button)
         {
             int res = 0, STEID = model.STEId ?? 0, OrderID = model.OrderId ?? 0;
             string EmployeeID = string.Empty, errMsg = string.Empty;
@@ -4007,7 +4209,7 @@ namespace IOAS.GenericServices
                                                 else
                                                 {
                                                     int STEEducationDetailID = item.EducationId ?? 0;
-                                                    var QryEducation = (from SM in context.tblRCTSTEEducationDetail where SM.STEID == STEID && SM.STEEducationDetailID == STEEducationDetailID  select SM).FirstOrDefault();
+                                                    var QryEducation = (from SM in context.tblRCTSTEEducationDetail where SM.STEID == STEID && SM.STEEducationDetailID == STEEducationDetailID select SM).FirstOrDefault();
                                                     if (QryEducation != null)
                                                     {
 
@@ -4083,7 +4285,7 @@ namespace IOAS.GenericServices
                                                 else
                                                 {
                                                     int ExperienceId = item.ExperienceId ?? 0;
-                                                    var QryExp = (from SM in context.tblRCTSTEExperienceDetail where SM.STEID == STEID && SM.STEExperienceDetailID == ExperienceId  select SM).FirstOrDefault();
+                                                    var QryExp = (from SM in context.tblRCTSTEExperienceDetail where SM.STEID == STEID && SM.STEExperienceDetailID == ExperienceId select SM).FirstOrDefault();
                                                     if (QryExp != null)
                                                     {
                                                         if (item.ExperienceTypeId != null)
@@ -6299,7 +6501,7 @@ namespace IOAS.GenericServices
             }
         }
 
-        public Tuple <int, int, string> UpdateVerificationOrder(STEVerificationModel model, int userId, string button)
+        public Tuple<int, int, string> UpdateVerificationOrder(STEVerificationModel model, int userId, string button)
         {
             int res = 0;
             string errMsg = string.Empty;
@@ -6315,7 +6517,7 @@ namespace IOAS.GenericServices
                             var query = (from o in context.tblOrder
                                          from od in context.tblOrderDetail
                                          from vw in context.vw_RCTOverAllApplicationEntry /*o.Status == "Awaiting Verification" || o.Status == "Awaiting Verification-Draft" &&*/
-                                         where  o.OrderId == model.OrderId
+                                         where o.OrderId == model.OrderId
                                          && o.OrderId == od.OrderId && o.OrderId == vw.OrderId
                                          select new { od, o, vw }).FirstOrDefault();
                             if (query != null)
@@ -6335,8 +6537,10 @@ namespace IOAS.GenericServices
                                 query.o.Status = "Awaiting Verification-Draft";
 
                                 var orderid = query.o.OrderId;
-                                query.od.NotetoDean = model.FlowApprover == "NDean" ? true : false;
-                                query.od.NotetoCMAdmin = model.FlowApprover == "CMAdmin" ? true : false;
+                                //10554
+                                //query.od.NotetoDean = model.FlowApprover == "NDean" ? true : false;
+                                //query.od.NotetoCMAdmin = model.FlowApprover == "CMAdmin" ? true : false;
+                                //10554
                                 //var Actualstartdate = query.o.FromDate;
                                 query.o.ActualAppointmentStartDate = query.o.FromDate;
                                 query.o.ActualAppointmentEndDate = query.o.ToDate;
@@ -6384,7 +6588,7 @@ namespace IOAS.GenericServices
                                 //transaction.Commit();
 
                                 PostOrderStatusLog(orderid, "Awaiting Verification", "Awaiting Verification-Draft", userId);
-                                res= 1;
+                                res = 1;
                                 return Tuple.Create(res, orderid, errMsg);
                             }
                         }
@@ -6402,7 +6606,7 @@ namespace IOAS.GenericServices
                                 var orderid = query.o.OrderId;
                                 if (TypeCode == "STE")
                                 {
-                                    var Data = STEOVWFInit(model,orderid, userId);
+                                    var Data = STEOVWFInit(model, orderid, userId);
                                     if (Data.Item1 == false)
                                     {
                                         return Tuple.Create(-1, orderid, Data.Item2);
@@ -6461,9 +6665,10 @@ namespace IOAS.GenericServices
                                         //    }
                                         //}
                                         //var appid = query.o.AppointmentId ?? 0;
-
-                                        query.od.NotetoDean = model.FlowApprover == "NDean" ? true : false;
-                                        query.od.NotetoCMAdmin = model.FlowApprover == "CMAdmin" ? true : false;
+                                        //10554
+                                        //query.od.NotetoDean = model.FlowApprover == "NDean" ? true : false;
+                                        //query.od.NotetoCMAdmin = model.FlowApprover == "CMAdmin" ? true : false;
+                                        //10554
                                         //var Actualstartdate = query.o.FromDate;
                                         query.o.ActualAppointmentStartDate = query.o.FromDate;
                                         query.o.ActualAppointmentEndDate = query.o.ToDate;
@@ -6518,7 +6723,7 @@ namespace IOAS.GenericServices
                                 }
                                 else if (TypeCode == "OSG")
                                 {
-                                    var Data = OSGOVWFInit(model,orderid, userId);
+                                    var Data = OSGOVWFInit(model, orderid, userId);
                                     if (Data.Item1 == false)
                                     {
                                         return Tuple.Create(-1, orderid, Data.Item2);
@@ -6577,9 +6782,10 @@ namespace IOAS.GenericServices
                                         //    }
                                         //}
                                         //var appid = query.o.AppointmentId ?? 0;
-
-                                        query.od.NotetoDean = model.FlowApprover == "NDean" ? true : false;
-                                        query.od.NotetoCMAdmin = model.FlowApprover == "CMAdmin" ? true : false;
+                                        //10554
+                                        //query.od.NotetoDean = model.FlowApprover == "NDean" ? true : false;
+                                        //query.od.NotetoCMAdmin = model.FlowApprover == "CMAdmin" ? true : false;
+                                        //10554
                                         //var Actualstartdate = query.o.FromDate;
                                         query.o.ActualAppointmentStartDate = query.o.FromDate;
                                         query.o.ActualAppointmentEndDate = query.o.ToDate;
@@ -6804,9 +7010,9 @@ namespace IOAS.GenericServices
                                                  where c.CommitmentNumber == QrySTE.A.CommitmentNo
                                                  select c).FirstOrDefault();
                                     var queryExp = (from E in context.tblRCTEmployeeExperience
-                                                  where E.ApplicationId == appid
-                                                  orderby E.EffectiveFrom descending
-                                                  select E).FirstOrDefault();
+                                                    where E.ApplicationId == appid
+                                                    orderby E.EffectiveFrom descending
+                                                    select E).FirstOrDefault();
                                     if (queryExp != null)
                                     {
                                         mastmodel.AppointmentStartDate = string.Format("{0:dd-MMMM-yyyy}", queryExp.EffectiveFrom);
@@ -6881,9 +7087,9 @@ namespace IOAS.GenericServices
                                     mastmodel.CommitmentAmmount = QryOSG.A.CommitmentAmount ?? 0;
                                     mastmodel.EmployeeCTC = getEmployeeCTC(QryOSG.A.OSGID);
                                     var queryExp = (from E in context.tblRCTEmployeeExperience
-                                                  where E.ApplicationId == appid
-                                                  orderby E.EffectiveFrom descending
-                                                  select E).FirstOrDefault();
+                                                    where E.ApplicationId == appid
+                                                    orderby E.EffectiveFrom descending
+                                                    select E).FirstOrDefault();
                                     if (queryExp != null)
                                     {
                                         mastmodel.AppointmentStartDate = string.Format("{0:dd-MMMM-yyyy}", queryExp.EffectiveFrom);
@@ -7388,7 +7594,7 @@ namespace IOAS.GenericServices
                                            where O.OrderId == Od.OrderId && O.Status == "Open"
                                            && O.isCommitmentReject != true && O.isGovAgencyFund != true
                                            && O.OrderId == model.OrderID
-                                           select new { O, Od }).FirstOrDefault();                            
+                                           select new { O, Od }).FirstOrDefault();
                             if (odQuery != null)
                             {
                                 OrderID = odQuery.O.OrderId;
@@ -7504,7 +7710,7 @@ namespace IOAS.GenericServices
                                                            where E.ApplicationId == model.ApplicationID
                                                            orderby E.EffectiveFrom descending
                                                            select E).FirstOrDefault();
-                                
+
                                 if (queryAmendmentOrder != null)
                                 {
                                     Order.AmendmentOrderID = queryAmendmentOrder.OrderId;
@@ -7660,6 +7866,7 @@ namespace IOAS.GenericServices
                                 model.PayType = QryCON.A.ConsolidatedPay == true ? "Consolidated Pay" : "Fellowship pay";
                                 model.ToMail = QryCON.A.ToMail;
                                 model.CCMail = QryCON.A.Bcc;
+                                model.EmpPFBasicWages = 0;
 
                             }
                         }
@@ -7704,6 +7911,7 @@ namespace IOAS.GenericServices
                                 model.Qualification = Common.getQualificationWordings(appid, appType);
                                 model.ToMail = QrySTE.A.ToMail;
                                 model.CCMail = QrySTE.A.bcc;
+                                model.EmpPFBasicWages = 0;
                             }
                         }
                         else if (appTypeId == 3)
@@ -8013,7 +8221,7 @@ namespace IOAS.GenericServices
                                 model.ToMail = QrySTE.A.ToMail;
                                 model.CCMail = QrySTE.A.bcc;
                                 model.MailSent_f = context.tblRCTSTEEmailLog.Any(m => m.OrderId == orderid && m.TypeofMail == 6 && m.IsSend == true);
-
+                                model.EmpPFBasicWages = 0;
                             }
                             else if (apptype == 3)
                             {
@@ -8084,6 +8292,7 @@ namespace IOAS.GenericServices
                                 model.ToMail = QryOSG.A.ToMail;
                                 model.CCMail = QryOSG.A.bcc;
                                 model.MailSent_f = context.tblRCTOSGEmailLog.Any(m => m.OrderId == orderid && m.TypeofMail == 6 && !m.Subject.Contains("structure approval"));
+                                model.EmpPFBasicWages = 0;
                                 if (appid > 0 && orderid > 0)
                                 {
                                     var Qrysalcalc = (from A in context.tblRCTSalaryCalcDetails
@@ -9392,7 +9601,7 @@ namespace IOAS.GenericServices
                                                            where E.ApplicationId == model.ApplicationID
                                                            orderby E.EffectiveFrom descending
                                                            select E).FirstOrDefault();
-                                
+
                                 if (queryAmendmentOrder != null)
                                 {
                                     Order.AmendmentOrderID = 0;
@@ -10002,7 +10211,7 @@ namespace IOAS.GenericServices
                                                            where E.ApplicationId == model.ApplicationID
                                                            orderby E.EffectiveFrom descending
                                                            select E).FirstOrDefault();
-                                
+
                                 if (queryAmendmentOrder != null)
                                 {
                                     Order.AmendmentOrderID = 0;
@@ -10409,7 +10618,7 @@ namespace IOAS.GenericServices
                         model.OrderType = queryorder.O.OrderType ?? 0;
                         model.CommitmentAmount = queryorder.O.CommitmentAmmount ?? 0;
                         model.WithdrawalAmount = queryorder.O.WithdrawAmmount ?? 0;
-                        model.ArrearOrDeductionTillDate = queryorder.O.ArrearOrDeductionTillDate ?? DateTime.Now;
+                        model.ArrearOrDeductionTillDate = queryorder.O.ArrearOrDeductionTillDate;
                         model.ArrearOrDeductionAmount = queryorder.O.ArrearOrDeductionAmount ?? 0;
                         model.strArrearOrDeductionTillDate = string.Format("{0:dd-MMMM-yyyy}", queryorder.O.ArrearOrDeductionTillDate);
                         var query = (from A in context.tblRCTSTE
@@ -11100,10 +11309,11 @@ namespace IOAS.GenericServices
                                 if (odQuery != null)
                                 {
                                     OrderID = odQuery.o.OrderId;
+                                    var MaternityOrderID = OrderID;
                                     prestatus = odQuery.o.Status;
                                     var toDate = odQuery.o.ToDate;
                                     if (toDate.Value.AddDays(+2) <= model.RejoinDate)//If employee take extra leave system take loss of pay
-                                        ExecuteSPMaternity(null, model.RejoinDate);
+                                        ExecuteSPMaternity(null, model.RejoinDate, MaternityOrderID);
                                     string docname = "", docfileId = "", docpath = "";
                                     odQuery.od.isRejoined = model.RejoinDate != null ? true : false;
                                     odQuery.od.RejoinDate = model.RejoinDate;
@@ -11322,7 +11532,7 @@ namespace IOAS.GenericServices
                                     context.SaveChanges();
                                     res = 1;
                                 }
-                                else if(odPIInQuery != null)
+                                else if (odPIInQuery != null)
                                 {
                                     odPIInQuery.o.Status = "Initiated";
                                     prestatus = "PI Initiated";
@@ -11625,8 +11835,25 @@ namespace IOAS.GenericServices
                                         select new { o, d }).FirstOrDefault();
                         if (odrQuery != null)
                         {
-                            model.RequestedfromPI = Common.GetPIName(odrQuery.o.RequestedBy ?? 0);
+
+                            if (odrQuery.o.RequestedBy != null)
+                            {
+                                model.RequestedfromPI = Common.GetPIName(odrQuery.o.RequestedBy ?? 0);
+                            }
+                            else
+                            {
+                                var mastQuery = (from A in context.tblRCTSTE
+                                                 where A.STEID == appid && A.isEmployee == true
+                                                 select A).FirstOrDefault();
+                                if (mastQuery != null)
+                                {
+                                    model.RequestedfromPI = Common.GetPIName(mastQuery.RequestedBy ?? 0);
+                                }
+
+                            }
+
                         }
+
                     }
                     else if (appTypeId == 1)
                     {
@@ -13422,67 +13649,72 @@ namespace IOAS.GenericServices
                 {
                     if (orderid > 0)
                     {
+                        //yogesh
                         var query = (from o in context.vw_RCTOverAllApplicationEntry
-                                     where o.OrderId == orderid
-                                     select o).FirstOrDefault();
+                                     from  prj in context.tblProject
+                                     from  vwp in context.vwFacultyStaffDetails
+                                     from rct in context.tblRCTSTE
+                                     where o.OrderId == orderid  && rct.RequestedBy == vwp.UserId && rct.STEID == o.ApplicationId && o.ProjectId == prj.ProjectId
+                                     select new { o, vwp }).FirstOrDefault();
                         if (query != null)
                         {
-                            model.applicationtype = query.Category;
-                            model.ApplicantName = query.ProfessionalType + " " + query.CandidateName.ToUpper();
+                            model.applicationtype = query.o.Category;
+                            model.ApplicantName = query.o.ProfessionalType + " " + query.o.CandidateName.ToUpper();
                             //model.OrderNo = query.OrderNo;
-                            model.OrderNo = getOfferDetails(query.ApplicationId ?? 0, query.Category, orderid); /*query.S.ApplicationNumber;*/
-                            model.PayType = query.ConsolidatedPay == true ? "Consolidated pay" : "fellowship pay";
-                            model.Pay = query.BasicPay ?? 0;
-                            model.HRA = query.HRA ?? 0;
-                            model.MedicalAmount = (query.MedicalType == 1 || query.MedicalType == 2) ? query.MedicalAmmount : (Decimal)0;
-                            model.Designation = query.PostRecommended;
-                            model.ProjectDetail = getProjectSummary(query.ProjectId ?? 0);
-                            model.FromDate = string.Format("{0:dd-MMMM-yyyy}", query.AppointmentStartdate);
-                            model.ToDate = string.Format("{0:dd-MMMM-yyyy}", query.AppointmentEnddate);
-                            DateTime OfferDate = getOfferLetterDate(query.ApplicationId ?? 0, query.Category, "Order", orderid);
+                            model.OrderNo = getOfferDetails(query.o.ApplicationId ?? 0, query.o.Category, orderid); /*query.S.ApplicationNumber;*/
+                            model.PayType = query.o.ConsolidatedPay == true ? "Consolidated pay" : "fellowship pay";
+                            model.Pay = query.o.BasicPay ?? 0;
+                            model.HRA = query.o.HRA ?? 0;
+                            model.MedicalAmount = (query.o.MedicalType == 1 || query.o.MedicalType == 2) ? query.o.MedicalAmmount : (Decimal)0;
+                            model.Designation = query.o.PostRecommended;
+                            model.ProjectDetail = getProjectSummary(query.o.ProjectId ?? 0);
+                            model.FromDate = string.Format("{0:dd-MMMM-yyyy}", query.o.AppointmentStartdate);
+                            model.ToDate = string.Format("{0:dd-MMMM-yyyy}", query.o.AppointmentEnddate);
+                            DateTime OfferDate = getOfferLetterDate(query.o.ApplicationId ?? 0, query.o.Category, "Order", orderid);
                             model.OrderDate = string.Format("{0:dd-MMMM-yyyy}", OfferDate);
-                            model.PaymentThroughAgency_f = query.CSIRStaffPayMode == 2 ? true : false;
-                            model.MsPhd_f = query.isMsPhd;
-                            model.RollNumber = query.PhdDetail;
-                            model.Gender = query.Sex;
+                            model.PaymentThroughAgency_f = query.o.CSIRStaffPayMode == 2 ? true : false;
+                            model.MsPhd_f = query.o.isMsPhd;
+                            model.RollNumber = query.o.PhdDetail;
+                            model.Gender = query.o.Sex;
+                            model.PiFirstName = query.vwp.FirstName;
                             //Requirement Bug #8535 Order-reference number issue
-                            var OrrderDetail = getReferenceOfferDetails(query.ApplicationId ?? 0, query.AppointmentType ?? 0, query.OrderId);
+                            var OrrderDetail = getReferenceOfferDetails(query.o.ApplicationId ?? 0, query.o.AppointmentType ?? 0, query.o.OrderId);
                             if (OrrderDetail != null)
                             {
                                 model.ReferenceNumber = OrrderDetail.Item1;
                                 model.ReferenceOrder = OrrderDetail.Item2;
                                 model.ExtensionOfficeOrderDate = string.Format("{0:dd-MMMM-yyyy}", OrrderDetail.Item3);
                             }
-                            model.EmployeeNo = query.EmployeersID;
-                            model.Email = query.Email;
-                            model.ApplicationNo = query.ApplicationNo;
-                            model.isConsolidatePay = query.ConsolidatedPay ?? false;
-                            model.ContactNumber = query.ContactNumber;
-                            if (query.AppointmentType == 3)
+                            model.EmployeeNo = query.o.EmployeersID;
+                            model.Email = query.o.Email;
+                            model.ApplicationNo = query.o.ApplicationNo;
+                            model.isConsolidatePay = query.o.ConsolidatedPay ?? false;
+                            model.ContactNumber = query.o.ContactNumber;
+                            if (query.o.AppointmentType == 3)
                             {
-                                var mastquery = context.tblRCTOutsourcing.Where(m => m.OSGID == query.ApplicationId).FirstOrDefault();
+                                var mastquery = context.tblRCTOutsourcing.Where(m => m.OSGID == query.o.ApplicationId).FirstOrDefault();
                                 if (mastquery != null)
                                 {
-                                    if (query.isMsPhd == true)
+                                    if (query.o.isMsPhd == true)
                                         model.MsPhdType = mastquery.MsPhdType == 1 ? "M.S" : mastquery.MsPhdType == 2 ? "Ph.D" : "";
                                     model.AmendmentFromDate = string.Format("{0:dd-MMMM-yyyy}", mastquery.ActualAppointmentStartDate);
                                     model.AmendmentToDate = string.Format("{0:dd-MMMM-yyyy}", mastquery.ActualAppointmentEndDate);
                                 }
                             }
-                            else if (query.AppointmentType == 2)
+                            else if (query.o.AppointmentType == 2)
                             {
-                                var mastquery = context.tblRCTSTE.Where(m => m.STEID == query.ApplicationId).FirstOrDefault();
+                                var mastquery = context.tblRCTSTE.Where(m => m.STEID == query.o.ApplicationId).FirstOrDefault();
                                 if (mastquery != null)
                                 {
-                                    if (query.isMsPhd == true)
+                                    if (query.o.isMsPhd == true)
                                         model.MsPhdType = mastquery.MsPhdType == 1 ? "M.S" : mastquery.MsPhdType == 2 ? "Ph.D" : "";
                                     model.AmendmentFromDate = string.Format("{0:dd-MMMM-yyyy}", mastquery.ActualAppointmentStartDate);
                                     model.AmendmentToDate = string.Format("{0:dd-MMMM-yyyy}", mastquery.ActualAppointmentEndDate);
                                 }
                             }
-                            else if (query.AppointmentType == 1)
+                            else if (query.o.AppointmentType == 1)
                             {
-                                var mastquery = context.tblRCTConsultantAppointment.Where(m => m.ConsultantAppointmentId == query.ApplicationId).FirstOrDefault();
+                                var mastquery = context.tblRCTConsultantAppointment.Where(m => m.ConsultantAppointmentId == query.o.ApplicationId).FirstOrDefault();
                                 if (mastquery != null)
                                 {
                                     model.AmendmentFromDate = string.Format("{0:dd-MMMM-yyyy}", mastquery.ActualAppointmentStartDate);
@@ -13491,19 +13723,19 @@ namespace IOAS.GenericServices
                             }
 
                             int?[] expType = new int?[] { 2, 3, 4 };
-                            if (context.tblOrder.Any(m => m.AppointmentId == query.ApplicationId && m.AppointmentType == query.AppointmentType && m.Status == "Completed" && expType.Contains(m.OrderType) && m.isExtended == true && m.isUpdated == true))
+                            if (context.tblOrder.Any(m => m.AppointmentId == query.o.ApplicationId && m.AppointmentType == query.o.AppointmentType && m.Status == "Completed" && expType.Contains(m.OrderType) && m.isExtended == true && m.isUpdated == true))
                             {
-                                var queryodr = context.tblOrder.OrderByDescending(m => m.OrderId).FirstOrDefault(m => m.AppointmentId == query.ApplicationId && m.AppointmentType == query.AppointmentType && m.Status == "Completed" && expType.Contains(m.OrderType) && m.isExtended == true && m.isUpdated == true);
+                                var queryodr = context.tblOrder.OrderByDescending(m => m.OrderId).FirstOrDefault(m => m.AppointmentId == query.o.ApplicationId && m.AppointmentType == query.o.AppointmentType && m.Status == "Completed" && expType.Contains(m.OrderType) && m.isExtended == true && m.isUpdated == true);
                                 if (queryodr != null)
                                     model.AmendmentToDate = string.Format("{0:dd-MMMM-yyyy}", queryodr.ToDate);
                             }
 
-                            if (query.ApplicationType == "Relieving")
+                            if (query.o.ApplicationType == "Relieving")
                             {
                                 var qurryrelieving = (from O in context.tblOrder
                                                       from r in context.tblRCTRelievingLog
                                                       from Od in context.tblOrderDetail
-                                                      where O.OrderId == Od.OrderId && O.OrderId == r.OrderId && O.OrderId == query.OrderId
+                                                      where O.OrderId == Od.OrderId && O.OrderId == r.OrderId && O.OrderId == query.o.OrderId
                                                       select new { Od.RelievingDate, r.isGenarateRelieveOrder, Od.RelievingMode }).FirstOrDefault();
                                 if (qurryrelieving != null)
                                 {
@@ -13543,7 +13775,7 @@ namespace IOAS.GenericServices
                         model.EmployeeId = query.EmployeersID;
                         model.Name = query.ProfessionalType + " " + query.CandidateName.ToUpper();
                         model.ApplicationNo = getOfferDetails(query.ApplicationId ?? 0, query.Category, orderid);
-                        model.ProjectDetail = getProjectSummary(query.ProjectId ?? 0);
+
                         model.Designation = query.PostRecommended;
                         model.Appointmentstartdate = string.Format("{0:dd-MMMM-yyyy}", query.AppointmentStartdate);
                         model.AppointmentEndDate = string.Format("{0:dd-MMMM-yyyy}", query.AppointmentEnddate);
@@ -13569,17 +13801,26 @@ namespace IOAS.GenericServices
                         model.MsPhd_f = query.isMsPhd;
                         model.RollNumber = query.PhdDetail;
                         model.TypeofAppointment = query.TypeofAppointment;
-                        if (query.AppointmentType == 3 && query.isMsPhd == true)
+                        if (query.AppointmentType == 3 )
                         {
+
                             var QryOSG = context.tblRCTOutsourcing.FirstOrDefault(m => m.OSGID == query.ApplicationId);
                             if (QryOSG != null)
-                                model.MsPhdType = QryOSG.MsPhdType == 1 ? "M.S" : QryOSG.MsPhdType == 2 ? "Ph.D" : "";
+                            {
+                                if (query.isMsPhd == true)
+                                { model.MsPhdType = QryOSG.MsPhdType == 1 ? "M.S" : QryOSG.MsPhdType == 2 ? "Ph.D" : ""; }
+                                model.ProjectDetail = getProjectSummary(query.ProjectId ?? 0, QryOSG.RequestedBy ?? 0);
+                            }
                         }
-                        else if (query.AppointmentType == 2 && query.isMsPhd == true)
+                        else if (query.AppointmentType == 2)
                         {
                             var QrySTE = context.tblRCTSTE.FirstOrDefault(m => m.STEID == query.ApplicationId);
                             if (QrySTE != null)
-                                model.MsPhdType = QrySTE.MsPhdType == 1 ? "M.S" : QrySTE.MsPhdType == 2 ? "Ph.D" : "";
+                            {
+                                if (query.isMsPhd == true)
+                                { model.MsPhdType = QrySTE.MsPhdType == 1 ? "M.S" : QrySTE.MsPhdType == 2 ? "Ph.D" : ""; }
+                                model.ProjectDetail = getProjectSummary(query.ProjectId ?? 0, QrySTE.RequestedBy ?? 0);
+                            }
                         }
 
                         model.ConsolidatedPay = query.ConsolidatedPay ?? false;
@@ -13919,7 +14160,7 @@ namespace IOAS.GenericServices
             List<RCTPopupListModel> listmodel = new List<RCTPopupListModel>();
             List<AppointmenttypeExperienceModel> totexplistmodel = new List<AppointmenttypeExperienceModel>();
             try
-            {               
+            {
                 ExecuteSPEmployeeExperience();
                 using (var context = new IOASDBEntities())
                 {
@@ -13981,11 +14222,11 @@ namespace IOAS.GenericServices
                                          }).ToList();
 
                             listmodel.ForEach(x =>
-                            {                               
+                            {
                                 var data = DateDifference(x.EffectFromDate, x.EffectToDate);
                                 x.Years = data.Item1;
                                 x.Months = data.Item2;
-                                x.Days = data.Item3;                                                 
+                                x.Days = data.Item3;
                                 if (x.AppType == "OSG")
                                 {
                                     var emppfQuery = context.tblRCTSalaryCalcDetails.Where(s => s.ID == x.AppId && (x.OrderId == 0 || s.OrderId == x.OrderId)).Select(s => s.PFBasicWages).FirstOrDefault();
@@ -14011,7 +14252,7 @@ namespace IOAS.GenericServices
                                     var dateDiff = DateDifference(x.effectFrom, x.effectTo);
                                     x.Years = dateDiff.Item1;
                                     x.Months = dateDiff.Item2;
-                                    x.Days = dateDiff.Item3;                                    
+                                    x.Days = dateDiff.Item3;
                                 });
 
                                 var arrEffectFrom = listmodel.Select(x => x.EffectFromDate).ToArray();
@@ -14228,7 +14469,7 @@ namespace IOAS.GenericServices
                                            orderby c.DocsID descending
                                            group c by c.Description into grp
                                            select new { grp.Key }
-                                       ).ToArray();
+                                       ).Take(1).ToArray();                      
                             if (QryNote != null)
                             {
                                 for (int i = 0; i < QryNote.Count(); i++)
@@ -14241,7 +14482,7 @@ namespace IOAS.GenericServices
                             }
                             model.PIJustificationCommands = PICommands;
                             model.Comments = QrySTE.A.Comments;
-                            model.Notes = (from c in context.tblRCTSTENotes
+                                 model.Notes = (from c in context.tblRCTSTENotes
                                            where c.STEID == STEID
                                            orderby c.NotesID descending
                                            group c by c.PICommends into grp
@@ -14395,7 +14636,7 @@ namespace IOAS.GenericServices
                                            where c.OSGID == STEID && c.Deleted_f != true
                                            orderby c.DocsID descending
                                            select new { c.Description, }
-                                       ).ToArray();
+                                       ).Take(1).ToArray();
                             if (QryNote != null)
                             {
                                 for (int i = 0; i < QryNote.Count(); i++)
@@ -15828,14 +16069,14 @@ namespace IOAS.GenericServices
                                                         orderquery.Status = "Awaiting Verification";
                                                     }
                                                 }
-                                                  //orderquery.Status = "Awaiting Committee Approval";
+                                                //orderquery.Status = "Awaiting Committee Approval";
                                             }
                                         }
                                         else
                                         {
                                             //if (commitrequest.AppointmentType == "Extension" && orderquery.Basic < basicpay && appointtyp != 4 && (isgovtagency == false || isgovtagency == null))
                                             //{
-                                               
+
                                             //    orderquery.Status = "Awaiting Committee Approval";
                                             //    if (typecode == "CON")
                                             //        orderquery.Status = "Awaiting Verification";
@@ -16143,7 +16384,7 @@ namespace IOAS.GenericServices
                                                         orderquery.Status = "Awaiting Verification";
                                                     }
                                                 }
-                                                    
+
                                             }
                                             else if (typecode == "CON")
                                             {
@@ -16173,7 +16414,7 @@ namespace IOAS.GenericServices
                                                         orderquery.Status = "Awaiting Verification";
                                                     }
                                                 }
-                                                  //orderquery.Status = "Awaiting Committee Approval";
+                                                //orderquery.Status = "Awaiting Committee Approval";
                                             }
                                         }
                                         else
@@ -16328,13 +16569,13 @@ namespace IOAS.GenericServices
                                         orderquery.UpdtUser = logged_in_userId;
                                         if (commitrequest.AppointmentType == "Change of Project")
                                         {
-                                             
+
                                             if (orderquery.OldDesignation != orderquery.NewDesignation)//|| orderquery.Basic > empdetls.A.Salary
                                             {
                                                 orderquery.Status = "Awaiting Committee Approval";
                                             }
-                                            else 
-                                            {                                               
+                                            else
+                                            {
                                                 orderquery.Status = "Awaiting Verification";
                                             }
                                             //orderquery.Status = "Awaiting Verification";
@@ -16412,7 +16653,7 @@ namespace IOAS.GenericServices
                                                     {
                                                         orderquery.Status = "Awaiting Verification";
                                                     }
-                                                  //orderquery.Status = "Awaiting Committee Approval";
+                                                    //orderquery.Status = "Awaiting Committee Approval";
                                                 }
                                             }
                                         }
@@ -18614,8 +18855,8 @@ namespace IOAS.GenericServices
                                     OSG.Status = "Draft";
                                 else
                                 {
-                                    OSG.bcc = model.bcc;
-                                    OSG.ToMail = model.ToMail;
+                                    OSG.bcc = model.ToMail;
+                                    OSG.ToMail = model.ReqTomail;
                                 }
                                 NewStatus = OSG.Status;
                                 OSG.TypeofAppointment = model.TypeofappointmentId;
@@ -18687,6 +18928,7 @@ namespace IOAS.GenericServices
                                 OSG.ProjectId = model.ProjectId;
                                 OSG.DesignationId = model.DesignationId;
                                 OSG.SalaryLevelId = model.SalaryLevelId;
+                                OSG.EmployeeWorkplace = model.EmployeeWorkplace;
                                 //if (model.MsPhd || model.TypeofappointmentId == 2)
                                 //{
                                 //    STE.Medical = 3;
@@ -19024,13 +19266,18 @@ namespace IOAS.GenericServices
                                     }
                                     else
                                     {
-                                        if (model.bcc != null)
+                                        if (model.ToMail != null)
+                                        {
+                                            qryOSG.bcc = model.ToMail;
+                                        }
+                                        if(model.bcc != null)
                                         {
                                             qryOSG.bcc = model.bcc;
                                         }
-                                        if (model.ToMail != null)
+                                        if (model.ReqTomail != null)
                                         {
-                                            qryOSG.ToMail = model.ToMail;
+                                            qryOSG.ToMail = model.ReqTomail;
+                                            //qryOSG.bcc = model.ToMail;
                                         }
                                     }
                                     NewStatus = qryOSG.Status;
@@ -19098,6 +19345,7 @@ namespace IOAS.GenericServices
                                     qryOSG.MsPhdType = model.MsPhdType;
                                     qryOSG.Comments = model.Comments;
                                     qryOSG.PhdDetail = model.PhdDetail;
+                                    qryOSG.EmployeeWorkplace = model.EmployeeWorkplace;
                                     if (model.PIJustificationFile != null)
                                     {
                                         var QryUpdatePIJustification = (from P in context.tblRCTOSGPIJustificationDoc where P.OSGID == OSGID orderby P.DocsID select P).ToList();
@@ -19408,6 +19656,14 @@ namespace IOAS.GenericServices
                                     {
                                         if (model.OtherDetail.Count > 0)
                                         {
+                                            List<int?> OtherDetailsID = new List<int?>().ToList();
+                                            for (int i = 0; i < model.OtherDetail.Count; i++)
+                                            { OtherDetailsID.Add(model.OtherDetail[i].OtherDetailId); }
+
+                                            context.tblRCTOSGOtherDetail.Where(x => x.OSGId == OSGID && !OtherDetailsID.Contains(x.OtherDetailsId) && x.Status == "Active")
+                                          .ToList()
+                                           .ForEach(m => m.Status = "InActive");
+                                            context.SaveChanges();
                                             for (int i = 0; i < model.OtherDetail.Count; i++)
                                             {
                                                 if (model.OtherDetail[i].OtherDetailId == null && model.OtherDetail[i].OtherNames != null)
@@ -19804,7 +20060,7 @@ namespace IOAS.GenericServices
             }
         }
 
-        public Tuple<bool, string> OSGVERWFInit(STEVerificationModel model,int id, int logged_in_user)
+        public Tuple<bool, string> OSGVERWFInit(STEVerificationModel model, int id, int logged_in_user)
         {
             try
             {
@@ -20403,8 +20659,8 @@ namespace IOAS.GenericServices
                         model.Appointmentstartdate = string.Format("{0:dd-MMMM-yyyy}", QryOSG.A.AppointmentStartdate);
                         model.AppointmentEndDate = string.Format("{0:dd-MMMM-yyyy}", QryOSG.A.AppointmentEnddate);
                         model.EmployeeWorkplace = QryOSG.A.EmployeeWorkplace;
-                        model.ActualDate= QryOSG.A.ActualDate;
-                        model.ActualDateView= string.Format("{0:dd-MMMM-yyyy}", QryOSG.A.ActualDate);
+                        model.ActualDate = QryOSG.A.ActualDate;
+                        model.ActualDateView = string.Format("{0:dd-MMMM-yyyy}", QryOSG.A.ActualDate);
                         model.Designation = QryOSG.Designation;
                         model.PayType = QryOSG.A.ConsolidatedPay == true ? "Consolidated Pay" : "Fellowship Pay";
                         model.VerificationRemarks = QryOSG.A.VerificationRemarks;
@@ -20586,7 +20842,7 @@ namespace IOAS.GenericServices
                         var QryNote = (from c in context.tblRCTOSGPIJustificationDoc
                                        where c.OSGID == OSGID && !string.IsNullOrEmpty(c.Description) && c.Deleted_f != true
                                        group c by c.Description into grp
-                                       select new { grp.Key }).ToArray();
+                                       select new { grp.Key }).Take(1).ToArray();
                         if (QryNote != null)
                         {
                             for (int i = 0; i < QryNote.Count(); i++)
@@ -20628,7 +20884,7 @@ namespace IOAS.GenericServices
             }
         }
 
-        public Tuple<int,int, string> VerifyOSG(STEVerificationModel model, int logged_in_userId, string button)
+        public Tuple<int, int, string> VerifyOSG(STEVerificationModel model, int logged_in_userId, string button)
         {
             try
             {
@@ -20961,7 +21217,7 @@ namespace IOAS.GenericServices
                                 if (_qryOSG != null)
                                 {
                                     //_qryOSG.s.Status = "Sent for approval";
-                                    var Data = OSGVERWFInit(model,OSGID, logged_in_userId);
+                                    var Data = OSGVERWFInit(model, OSGID, logged_in_userId);
                                     if (Data.Item1 == false)
                                     {
                                         return Tuple.Create(-1, OSGID, Data.Item2);
@@ -21706,10 +21962,17 @@ namespace IOAS.GenericServices
                         //        }
                         //    }
                         //}
+                        //model.PIJustificationCommands = (from c in context.tblRCTOSGPIJustificationDoc
+                        //                                 where c.OSGID == OSGID && !string.IsNullOrEmpty(c.Description) && c.Deleted_f != true
+                        //                                 group c by c.Description into grp
+                        //                                 select grp.Key).ToList();
+
                         model.PIJustificationCommands = (from c in context.tblRCTOSGPIJustificationDoc
                                                          where c.OSGID == OSGID && !string.IsNullOrEmpty(c.Description) && c.Deleted_f != true
-                                                         group c by c.Description into grp
-                                                         select grp.Key).ToList();
+                                                         orderby c.DocsID descending
+                                                         select c.Description).Take(1).ToList();
+
+
                         var justificdocs = (from c in context.tblRCTOSGPIJustificationDoc
                                             where c.OSGID == OSGID && c.Deleted_f != true
                                             select c).ToList();
@@ -22015,6 +22278,7 @@ namespace IOAS.GenericServices
                     var query = (from vw in context.vw_RCTOverAllApplicationEntry
                                  where vw.Status != "Cancel" && vw.ApplicationType == "New" && vw.IsActiveNow == true
                                  && vw.EmployeeNo == EmployeeNo
+                                 orderby vw.AppointmentEnddate descending
                                  select vw).FirstOrDefault();
                     if (query != null)
                     {
@@ -25019,7 +25283,45 @@ namespace IOAS.GenericServices
             }
         }
 
+        public static DateTime getOSGLastSalaryProcessdate()
+        {
+            try
+            {
+                using (var context = new IOASDBEntities())
+                {
+                    var query = (from osg in context.tblRCTPayroll
+                                 where osg.AppointmentType == "OSG" && osg.Status == "Requested for salary processing"
+                                 select osg.EndDate).Max();
+                    if (query != null)
+                        return query ?? DateTime.Now;
+                }
+                return DateTime.Now;
+            }
+            catch (Exception ex)
+            {
+                return DateTime.Now;
+            }
+        }
 
+        public static DateTime getOSGFirstSalaryProcessdate()
+        {
+            try
+            {
+                using (var context = new IOASDBEntities())
+                {
+                    var query = (from osg in context.tblRCTPayroll
+                                 where osg.AppointmentType == "OSG" && osg.Status == "Requested for salary processing"
+                                 select osg.StartDate).Max();
+                    if (query != null)
+                        return query ?? DateTime.Now;
+                }
+                return DateTime.Now;
+            }
+            catch (Exception ex)
+            {
+                return DateTime.Now;
+            }
+        }
 
         #region Stored Procedures
 
@@ -25062,13 +25364,13 @@ namespace IOAS.GenericServices
             }
         }
 
-        public static bool ExecuteSPMaternity(IOASDBEntities ctx = null, DateTime? RejoinDate = null)
+        public static bool ExecuteSPMaternity(IOASDBEntities ctx = null, DateTime? RejoinDate = null, int MaternityOrderID = 0)
         {
             try
             {
                 using (var context = ctx == null ? new IOASDBEntities() : ctx)
                 {
-                    context.Database.ExecuteSqlCommand("SPRCTMaternityLeave @p0", RejoinDate);
+                    context.Database.ExecuteSqlCommand("SPRCTMaternityLeave @p0,@p1", RejoinDate, MaternityOrderID);
                 }
                 return true;
             }
@@ -25327,7 +25629,7 @@ namespace IOAS.GenericServices
 
         #region OTHPaymentDeductionUpload
 
-        public int ValidateOTHPDList(tblRCTOTHPaymentDeductionUpload master, List<tblRCTOTHPaymentDeductionUploadDetail> detail)
+        public Tuple<int,int> ValidateOTHPDList(tblRCTOTHPaymentDeductionUpload master, List<tblRCTOTHPaymentDeductionUploadDetail> detail)
         {
             using (var context = new IOASDBEntities())
             {
@@ -25337,6 +25639,7 @@ namespace IOAS.GenericServices
                     context.tblRCTOTHPaymentDeductionUpload.Add(master);
                     context.SaveChanges();
                     int masterId = master.OTHPaymentDeductionUploadId;
+                    int retval = 1;
                     foreach (var det in detail)
                     {
                         if (!string.IsNullOrEmpty(det.EmployeeNumber) || !string.IsNullOrEmpty(det.OtherType) || !string.IsNullOrEmpty(det.HeadName) || det.Amount != null || !string.IsNullOrEmpty(det.Remarks))
@@ -25359,6 +25662,10 @@ namespace IOAS.GenericServices
                             det.EmployeeName = data.Item3.EmployeeName;
                             det.OTHPaymentDeductionUploadId = masterId;
                             det.Remarks = data.Item3.Remarks;
+                            if (det.ValidationMessage != "Valid" )
+                            {
+                                retval = 0;
+                            }
                             context.tblRCTOTHPaymentDeductionUploadDetail.Add(det);
                             context.SaveChanges();
                         }
@@ -25376,19 +25683,21 @@ namespace IOAS.GenericServices
                                 bool checkFund = Common.IsAvailablefundProject(projectidoth, overallamount);
                                 if (checkFund == true)
                                 {
+                                    retval = 0;
                                     Projectothdetails[i].ValidationMessage = "Insufficient fund in project";
                                     context.SaveChanges();
                                 }
                             }
                         }
                     }
-                    return masterId;
+                    
+                    return Tuple.Create(masterId,retval);
                 }
                 catch (Exception ex)
                 {
 
                     WriteLog.SendErrorToText(ex);
-                    return 0;
+                    return Tuple.Create(0,0);
                 }
             }
         }
@@ -25413,7 +25722,7 @@ namespace IOAS.GenericServices
                     if (model.Amount == null || model.Amount == 0)
                         return Tuple.Create("Amount field is required.", 0, model);
 
-                    string EmployeeNo = model.EmployeeNumber;
+                    string EmployeeNo = model.EmployeeNumber;                               
                     var EmployeenoExist = context.vw_RCTOverAllApplicationEntry.AsNoTracking().Any(m => m.EmployeeNo == EmployeeNo || m.EmployeeNo.Contains(EmployeeNo) && m.ApplicationType == "New");
                     if (!EmployeenoExist)
                         return Tuple.Create("Employee Number not exists in the database.", 0, model);
@@ -25473,7 +25782,9 @@ namespace IOAS.GenericServices
 
                         model.CommitmentNumber = empdetails.CommitmentNumber;
                         model.CommitmentAmount = empdetails.CommitmentAmount;
-                    }
+
+
+                    }             
                     model.MonthandYear = model.MonthandYear;
                     if (model.ProjectNumber != null && model.ProjectId != null)
                     {
@@ -25554,8 +25865,87 @@ namespace IOAS.GenericServices
 
 
                         //}
+                    }                    
+                    var reqFreeze = (from ros in context.tblRCTSTE
+                                 join c in context.tblCommitment on ros.CommitmentNo equals c.CommitmentNumber
+                                 join cd in context.tblCommitmentDetails on c.CommitmentId equals cd.CommitmentId
+                                 join bh in context.tblBudgetHead on cd.AllocationHeadId equals bh.BudgetHeadId
+                                 join afl in context.tblAllocationFreezeLog
+                                     on new { ProjectId = c.ProjectId, AllocationHead = cd.AllocationHeadId } equals new { afl.ProjectId, afl.AllocationHead }
+                                 where afl.IsFreeze == 1 && ros.EmployeersID == model.EmployeeNumber && afl.Status  == "Active" && ros.IsActiveNow == true && ros.Status=="Verification Completed"
+                                     select new
+                                 {
+                                     afl.IsFreeze
+                                 }).FirstOrDefault();
+
+                    var reqFreeze1 = (from ros in context.tblRCTOutsourcing
+                                 join c in context.tblCommitment on ros.CommitmentNo equals c.CommitmentNumber
+                                 join cd in context.tblCommitmentDetails on c.CommitmentId equals cd.CommitmentId
+                                 join bh in context.tblBudgetHead on cd.AllocationHeadId equals bh.BudgetHeadId
+                                 join afl in context.tblAllocationFreezeLog
+                                     on new { ProjectId = c.ProjectId, AllocationHead = cd.AllocationHeadId } equals new { afl.ProjectId, afl.AllocationHead }
+                                 where afl.IsFreeze == 1 && ros.EmployeersID == model.EmployeeNumber && afl.Status == "Active" && ros.IsActiveNow == true && ros.Status == "Verification Completed"
+                                      select new
+                                 {
+                                    afl.IsFreeze
+                                 }).FirstOrDefault();
+
+
+                    if (reqFreeze1 == null && reqFreeze == null)
+                    {
+                      //unfreezed 
                     }
+                    else
+                    {
+                        return Tuple.Create("Allocation Head Freezed", 0, model);
+                    }
+
+                   
+                    var findAllval = (from ros in context.tblRCTSTE
+                                      join c in context.tblCommitment on ros.CommitmentNo equals c.CommitmentNumber
+                                      join cd in context.tblCommitmentDetails on c.CommitmentId equals cd.CommitmentId
+                                      join bh in context.tblBudgetHead on cd.AllocationHeadId equals bh.BudgetHeadId
+                                      where ros.EmployeersID == model.EmployeeNumber && ros.IsActiveNow == true && ros.Status == "Verification Completed"
+                                      select new
+                                      {
+                                          bh.BudgetHeadId
+                                      }).FirstOrDefault();
+
+                    var findAllval1 = (from ros in context.tblRCTOutsourcing
+                                      join c in context.tblCommitment on ros.CommitmentNo equals c.CommitmentNumber
+                                      join cd in context.tblCommitmentDetails on c.CommitmentId equals cd.CommitmentId
+                                      join bh in context.tblBudgetHead on cd.AllocationHeadId equals bh.BudgetHeadId
+                                      where ros.EmployeersID == model.EmployeeNumber && ros.IsActiveNow == true && ros.Status == "Verification Completed"
+                                      select new
+                                      {
+                                          bh.BudgetHeadId
+                                      }).FirstOrDefault();
+
+                    //Project Fund Balance Check
+                    string FundTransferStatus = "Valid";
+                    ProjectFundTransferModel projFundTrans = new ProjectFundTransferModel();
+                    ProjectTransferDetailModel projTran = new ProjectTransferDetailModel();
+                    List<ProjectTransferDetailModel> TranDetail = new List<ProjectTransferDetailModel>();
+
+                    CoreAccountsService clsCoreService = new CoreAccountsService();
+                    projFundTrans.CreditProjectId = model.ProjectId;
+                    projFundTrans.DebitProjectId = model.ProjectId;
+                    if (findAllval != null) 
+                        { projTran.BudgetHeadId = findAllval.BudgetHeadId; }
+                   else if (findAllval1 != null)
+                    { projTran.BudgetHeadId = findAllval1.BudgetHeadId; }
+                    projTran.Amount = model.Amount;
+                    TranDetail.Add(projTran);
+                    projFundTrans.DrDetail = TranDetail;
+                    projFundTrans.CrDetail = TranDetail;
+
+
+                    FundTransferStatus = clsCoreService.ValidateProjectFundTransfer(projFundTrans);
+                    if (FundTransferStatus != "Valid")
+                    { return Tuple.Create(FundTransferStatus, maHead, model); }
+
                 }
+
                 return Tuple.Create(msg, maHead, model);
             }
             catch (Exception ex)
@@ -25681,9 +26071,9 @@ namespace IOAS.GenericServices
                                     //data.OTHPayDeductionId = othid;
                                     context.tblRCTOTHPaymentDeductionUploadDetail.Where(m => m.OTHPaymentDeductionUploadId == uploadId && m.EmployeeNumber == employeeNo).
                                         ToList().ForEach(m =>
-                                    {
-                                        m.OTHPayDeductionId = othid;
-                                    });
+                                        {
+                                            m.OTHPayDeductionId = othid;
+                                        });
                                     context.SaveChanges();
                                     if (detail.Count > 0)
                                     {
@@ -27993,7 +28383,7 @@ namespace IOAS.GenericServices
                         if (EffectiveFrom != null && EffectiveTo != null)
                         {
                             //decimal totaldays = Common.GetAvgDaysInAYear(EffectiveTo ?? DateTime.Now, EffectiveFrom ?? DateTime.Now);
-                            decimal totaldays = Common.GetAvgDaysInAYear(EffectiveFrom ?? DateTime.Now, EffectiveTo ?? DateTime.Now,true);
+                            decimal totaldays = Common.GetAvgDaysInAYear(EffectiveFrom ?? DateTime.Now, EffectiveTo ?? DateTime.Now, true);
                             var Differance = EffectiveFrom.Value.Subtract(EffectiveTo.Value).Days + 1;
                             //var Differance = EffectiveTo.Value.Subtract(EffectiveFrom.Value).Days + 1;
                             var totalYear = Differance / totaldays;
@@ -28932,7 +29322,7 @@ namespace IOAS.GenericServices
             {
                 using (var context = new IOASDBEntities())
                 {
-                    if (STEID > 0) 
+                    if (STEID > 0)
                     {
                         tblRCTSTEStatusLog log = new tblRCTSTEStatusLog();
                         log.STEID = STEID;
@@ -29091,7 +29481,7 @@ namespace IOAS.GenericServices
                     {
                         tblRCTOrderLog log = new tblRCTOrderLog();
                         log.OrderID = OrderId;
-                        log.PresentStatus = PreStatus; 
+                        log.PresentStatus = PreStatus;
                         log.NewStatus = NewStatus;
                         log.Crt_By = logged_in_userId;
                         log.Crt_TS = DateTime.Now;
@@ -29987,37 +30377,37 @@ namespace IOAS.GenericServices
                         EmployeeDateofBirth.to = EmployeeDateofBirth.to.Value.Date.AddDays(1).AddTicks(-2);
 
                     var prequery = (from vw in context.vw_RCTRelievedEmployees.AsNoTracking()
-                                     where (vw.Category == model.SearchInCategory)
-                                      //&& (vw.EmployeersID.Contains(model.SearchInEmployeeId) || string.IsNullOrEmpty(model.SearchInEmployeeId))
-                                      //&& (vw.CandidateName.Contains(model.SearchInName) || vw.Email.Contains(model.SearchInName) || vw.PostRecommended.Contains(model.SearchInName) || string.IsNullOrEmpty(model.SearchInName))
-                                      //&& (vw.ProjectNumber.Contains(model.SearchInProjectNumber) || string.IsNullOrEmpty(model.SearchInProjectNumber))
-                                      //&& (vw.Status.Contains(model.SearchInStatus) || string.IsNullOrEmpty(model.SearchInStatus))
-                                      //&& (vw.RelievingType.Contains(model.relievingType) || string.IsNullOrEmpty(model.relievingType))
-                                      //&& ((vw.DateofBirth >= EmployeeDateofBirth.@from && vw.DateofBirth <= EmployeeDateofBirth.to) || (EmployeeDateofBirth.@from == null || EmployeeDateofBirth.to == null))
-                                     orderby vw.OrderId descending
-                                     select new RelivingOrderList()
-                                     {
-                                         OrderId=vw.OrderId,
-                                         ApplicationId=vw.ApplicationId,
-                                         AppointmentType=vw.AppointmentType,
-                                         Category=vw.Category,
-                                         EmployeersID=vw.EmployeersID,
-                                         ApplicationNo=vw.ApplicationNo,
-                                         CandidateName=vw.CandidateName,
-                                         PIName=vw.PIName,
-                                         Status=vw.Status,
-                                         PostRecommended=vw.PostRecommended,
-                                         RelievingType=vw.RelievingType,
-                                         NOCDocSubmitted=vw.NOCDocSubmitted??false,
-                                         isGenarateRelieveOrder=vw.isGenarateRelieveOrder ?? false,
-                                         isGenarateFinalSettlement=vw.isGenarateFinalSettlement ?? false,
-                                         isGenarateServiceCertificate=vw.isGenarateServiceCertificate ?? false,
-                                         ProjectNumber=vw.ProjectNumber,
-                                         TypeofAppointment=vw.TypeofAppointment,
-                                         DateofBirth=vw.DateofBirth,
-                                         Email=vw.Email,
-                                         InitByPI_f=vw.InitByPI_f ?? false
-                                     });
+                                    where (vw.Category == model.SearchInCategory)
+                                    //&& (vw.EmployeersID.Contains(model.SearchInEmployeeId) || string.IsNullOrEmpty(model.SearchInEmployeeId))
+                                    //&& (vw.CandidateName.Contains(model.SearchInName) || vw.Email.Contains(model.SearchInName) || vw.PostRecommended.Contains(model.SearchInName) || string.IsNullOrEmpty(model.SearchInName))
+                                    //&& (vw.ProjectNumber.Contains(model.SearchInProjectNumber) || string.IsNullOrEmpty(model.SearchInProjectNumber))
+                                    //&& (vw.Status.Contains(model.SearchInStatus) || string.IsNullOrEmpty(model.SearchInStatus))
+                                    //&& (vw.RelievingType.Contains(model.relievingType) || string.IsNullOrEmpty(model.relievingType))
+                                    //&& ((vw.DateofBirth >= EmployeeDateofBirth.@from && vw.DateofBirth <= EmployeeDateofBirth.to) || (EmployeeDateofBirth.@from == null || EmployeeDateofBirth.to == null))
+                                    orderby vw.OrderId descending
+                                    select new RelivingOrderList()
+                                    {
+                                        OrderId = vw.OrderId,
+                                        ApplicationId = vw.ApplicationId,
+                                        AppointmentType = vw.AppointmentType,
+                                        Category = vw.Category,
+                                        EmployeersID = vw.EmployeersID,
+                                        ApplicationNo = vw.ApplicationNo,
+                                        CandidateName = vw.CandidateName,
+                                        PIName = vw.PIName,
+                                        Status = vw.Status,
+                                        PostRecommended = vw.PostRecommended,
+                                        RelievingType = vw.RelievingType,
+                                        NOCDocSubmitted = vw.NOCDocSubmitted ?? false,
+                                        isGenarateRelieveOrder = vw.isGenarateRelieveOrder ?? false,
+                                        isGenarateFinalSettlement = vw.isGenarateFinalSettlement ?? false,
+                                        isGenarateServiceCertificate = vw.isGenarateServiceCertificate ?? false,
+                                        ProjectNumber = vw.ProjectNumber,
+                                        TypeofAppointment = vw.TypeofAppointment,
+                                        DateofBirth = vw.DateofBirth,
+                                        Email = vw.Email,
+                                        InitByPI_f = vw.InitByPI_f ?? false
+                                    });
                     var predicate = PredicateBuilder.BaseAnd<RelivingOrderList>();
                     if (!string.IsNullOrEmpty(model.SearchInEmployeeId))
                         predicate = predicate.And(d => d.EmployeersID.Contains(model.SearchInEmployeeId) || d.EmployeersID.Contains(model.SearchInEmployeeId));
@@ -30029,10 +30419,10 @@ namespace IOAS.GenericServices
                         predicate = predicate.And(d => d.Status.Contains(model.SearchInStatus) || d.Status.Contains(model.SearchInStatus));
                     if (!string.IsNullOrEmpty(model.relievingType))
                         predicate = predicate.And(d => d.RelievingType.Contains(model.relievingType) || d.RelievingType.Contains(model.relievingType));
-                    if (EmployeeDateofBirth.@from!=null&& EmployeeDateofBirth.to!=null)
+                    if (EmployeeDateofBirth.@from != null && EmployeeDateofBirth.to != null)
                         predicate = predicate.And(d => d.DateofBirth >= EmployeeDateofBirth.@from && d.DateofBirth <= EmployeeDateofBirth.to);
-                    var querylist= prequery.Where(predicate).Skip(skiprec).Take(pageSize).ToList();
-                    list.TotalRecords=prequery.Where(predicate).Count();
+                    var querylist = prequery.Where(predicate).Skip(skiprec).Take(pageSize).ToList();
+                    list.TotalRecords = prequery.Where(predicate).Count();
                     if (querylist.Count > 0)
                     {
                         int sno = 0;
@@ -30042,7 +30432,7 @@ namespace IOAS.GenericServices
                             sno = (page - 1) * pageSize + 1;
                         for (int i = 0; i < querylist.Count; i++)
                         {
-                            int OrderID = querylist[i].OrderId??0;
+                            int OrderID = querylist[i].OrderId ?? 0;
                             string SendMailType = string.Empty;
                             string Status = querylist[i].Status;
                             if (Status == "Open" && querylist[i].Category == "CON" && context.tblRCTConsutantAppEmailLog.Where(x => x.OrderId == OrderID && x.TypeofMail == 12).ToList().Count == 0)
@@ -30059,7 +30449,7 @@ namespace IOAS.GenericServices
                             EmployeeList.Add(new OrderListModel()
                             {
                                 SNo = sno + i,
-                                OrderID = querylist[i].OrderId??0,
+                                OrderID = querylist[i].OrderId ?? 0,
                                 ID = querylist[i].ApplicationId ?? 0,
                                 TypeCodeID = querylist[i].AppointmentType ?? 0,
                                 CategoryName = querylist[i].Category,
@@ -30706,7 +31096,7 @@ namespace IOAS.GenericServices
                                            && (p.ProjectNumber.Contains(model.SearchInProjectNumber) || model.SearchInProjectNumber == null)
                                            && (vw.EmployeersID.Contains(model.SearchInEmployeeId) || model.SearchInEmployeeId == null)
                                            && (b.Status.Contains(model.SearchInStatus) || model.SearchInStatus == null)
-                                           && (vw.BasicPay==model.SearchBasicAmount || model.SearchBasicAmount == null)
+                                           && (vw.BasicPay == model.SearchBasicAmount || model.SearchBasicAmount == null)
                                            select new
                                            {
                                                vw.CandidateName,
@@ -31046,878 +31436,6 @@ namespace IOAS.GenericServices
             }
         }
         #endregion
-
-        public static ConsultantMasterSearchModel GetConsultantMasterList(ConsultantMasterSearchModel model, int page, int pageSize)
-        {
-            try
-            {
-                ConsultantMasterSearchModel list = new ConsultantMasterSearchModel();
-                List<ConsultantMaster> getConsultant = new List<ConsultantMaster>();
-                using (var context = new IOASDBEntities())
-                {
-                    int skiprec = 0;
-                    if (page == 1)
-                    {
-                        skiprec = 0;
-                    }
-                    else
-                    {
-                        skiprec = (page - 1) * pageSize;
-                    }
-                    var query = (from V in context.tblRCTConsultantMaster
-                                     //join C in context.tblCodeControl on new {V.Consultant_Nationality, V.Consultant_Category} equals new { C.CodeValAbbr,C.CodeValAbbr }
-                                     // join C in context.tblCodeControl on new { codeName = "ConsultantNationality", codeAbbr = V.Consultant_Nationality }
-                                     //equals new { codeName = C.CodeName, codeAbbr = C.CodeValAbbr } 
-                                     //join Y in context.tblCodeControl on V.Consultant_Category equals Y.CodeValAbbr into CY
-                                 join C in context.tblCodeControl on new { codeName = "ConsultantNationality", codeAbbr = V.Consultant_Nationality } equals new { codeName = C.CodeName, codeAbbr = C.CodeValAbbr } into g
-                                 from C in g.DefaultIfEmpty()
-                                 join D in context.tblCodeControl on new { codeName = "ConsultantCategory", codeAbbr = V.Consultant_Category } equals new { codeName = D.CodeName, codeAbbr = D.CodeValAbbr } into d
-                                 from D in d.DefaultIfEmpty()
-                                     //from cl in CO.DefaultIfEmpty()
-                                 orderby V.Consultant_MasterId descending
-                                 where V.Status != "Active"
-
-                                 && (V.Consultant_Name.Contains(model.INConsultantSearchname) || model.INConsultantSearchname == null)
-                                 && (V.Consultant_EmpId.Contains(model.INConsultantsearchID) || model.INConsultantsearchID == null)
-                                 && (V.Consultant_Nationality == model.EXCountryName || model.EXCountryName == 0)
-                                 && (V.Consultant_Name.Contains(model.EXConsultantSearchname) || model.EXConsultantSearchname == null)
-                                 && (V.Consultant_Category == model.EXINConsultantsearchCode || model.EXINConsultantsearchCode == 0)
-
-                                 && (V.Status.Contains(model.INStatus) || model.INStatus == null)
-                                 && (V.Consultant_Category == (model.INConsultantCategory) || model.INConsultantCategory == 0)
-                                 //&& (V.Consultant_Nationality == (model.INCountry) || model.INCountry == null)
-                                 select new
-                                 {
-                                     V.Consultant_MasterId,
-                                     V.Consultant_EmpId,
-                                     V.Consultant_Category,
-                                     V.Consultant_Name,
-                                     V.Consultant_Nationality,
-                                     V.Status,
-                                     C,
-                                     D
-                                 }).Skip(skiprec).Take(pageSize).ToList();
-                    list.TotalRecords = (from V in context.tblRCTConsultantMaster
-                                         join C in context.tblCodeControl on new { codeName = "ConsultantNationality", codeAbbr = V.Consultant_Nationality } equals new { codeName = C.CodeName, codeAbbr = C.CodeValAbbr } into g
-                                         from C in g.DefaultIfEmpty()
-                                         join D in context.tblCodeControl on new { codeName = "ConsultantCategory", codeAbbr = V.Consultant_Category } equals new { codeName = D.CodeName, codeAbbr = D.CodeValAbbr } into d
-                                         from D in d.DefaultIfEmpty()
-                                             //join C in context.tblCodeControl on V.Consultant_Nationality equals C.CodeValAbbr into CO
-                                             //from cl in CO.DefaultIfEmpty()
-                                         orderby V.Consultant_MasterId descending
-                                         where V.Status != "Active" //&& (cl.CodeName == "ConsultantNationality" || cl.CodeName == "ConsultantCategory")
-                                                && (V.Consultant_Name.Contains(model.INConsultantSearchname) || model.INConsultantSearchname == null)
-                                         && (V.Consultant_EmpId.Contains(model.INConsultantsearchID) || model.INConsultantsearchID == null)
-                                          && (V.Consultant_Nationality == model.EXCountryName || model.EXCountryName == 0)
-                                         && (V.Consultant_Name.Contains(model.EXConsultantSearchname) || model.EXConsultantSearchname == null)
-                                         //  //&& (V.VendorCode.Contains(model.EXINVendorsearchCode) || model.EXINVendorsearchCode == null)
-                                         && (V.Status.Contains(model.INStatus) || model.INStatus == null)
-                                          && (V.Consultant_Category == (model.INConsultantCategory) || model.INConsultantCategory == 0)
-                                         //&& (V.Consultant_Nationality == (model.INCountry) || model.INCountry == null)
-                                         select new { V.Consultant_MasterId, V.Consultant_Category, V.Consultant_Name, V.Consultant_Nationality, V.Status }).Count();
-                    if (query.Count > 0)
-                    {
-
-                        for (int i = 0; i < query.Count; i++)
-                        {
-                            var countrylist = "";
-                            if (query[i].Consultant_Nationality == 128)
-                            {
-                                countrylist = "INDIA";
-                            }
-                            else
-                            {
-                                //    countrylist = query[i].CodeValDetail;
-                            }
-                            int sno = i + 1;
-                            getConsultant.Add(new ConsultantMaster()
-                            {
-                                sno = sno,
-                                Consultant_MasterId = query[i].Consultant_MasterId,
-                                ConsultantEmpId = query[i].Consultant_EmpId,
-                                Consultant_Name = query[i].Consultant_Name,
-                                ConsultantCategory = query[i].D.CodeValDetail,
-                                CountryName = query[i].C.CodeValDetail,
-                                Status = query[i].Status
-                                //BankName = query[i].BankName,
-                                //AccountNumber = query[i].AccountNumber
-                            });
-                        }
-                    }
-                    list.ConsultantList = getConsultant;
-                    return list;
-                }
-            }
-            catch (Exception ex)
-            {
-                ConsultantMasterSearchModel list = new ConsultantMasterSearchModel();
-                return list;
-            }
-        }
-
-        public static int ConsultantEmpMaster(ConsultantMaster model)
-        {
-
-            using (var context = new IOASDBEntities())
-            {
-                using (var transaction = context.Database.BeginTransaction())
-                {
-
-                    try
-                    {
-
-                        if (model.Consultant_MasterId == null || model.Consultant_MasterId == 0)
-                        {
-
-                            tblRCTConsultantMaster regvendor = new tblRCTConsultantMaster();
-
-                            if (model.Consultant_Nationality == 1 && model.Consultant_Category == 1)
-                            {
-                                var sqnbr = (from S in context.tblRCTConsultantMaster
-                                             select S.SeqNbr
-                                       ).Max();
-                                regvendor.Consultant_Nationality = model.Consultant_Nationality;
-                                regvendor.Consultant_Category = model.Consultant_Category;
-                                regvendor.Consultant_EmpId = "CID" + (Convert.ToInt32(sqnbr) + 1).ToString("00000");
-                                regvendor.SeqNbr = (Convert.ToInt32(sqnbr) + 1);
-                                regvendor.Consultant_EmpType = "CID";
-                                regvendor.Consultant_DOB = model.Consultant_DOB;
-
-                                if (model.PersonImage != null)
-                                {
-                                    var guid = Guid.NewGuid().ToString();
-                                    var docName = guid + "_" + model.PersonImage.FileName;
-                                    model.PersonImage.UploadFile("RCTEmployeeImages", docName);
-                                    regvendor.Consultant_Photo = docName;
-                                }
-                                else if (!string.IsNullOrEmpty(model.PersonImagePath))
-                                {
-                                    regvendor.Consultant_Photo = model.PersonImagePath;
-                                }
-
-                                regvendor.Consultant_Salutation = model.Consultant_Salutation;
-                                regvendor.Consultant_Name = model.Consultant_Name;
-                                regvendor.Consultant_Gender = model.Consultant_Gender;
-                                //regvendor.Consultant_DOB = model.Consultant_DOB;                           
-
-                                regvendor.Consultant_ContactNumber = model.Consultant_ContactNumber;
-                                regvendor.Consultant_Email = model.Consultant_Email;
-                                regvendor.Consultant_AadhaarNo = model.Consultant_AadhaarNo;
-                                regvendor.IsGST = Convert.ToBoolean(model.IsGST);
-                                regvendor.GSTIN = model.GSTIN;
-                                regvendor.Consultant_PanNo = model.Consultant_PanNo;
-                                regvendor.isSameAsAddress = model.isSameAsAddress;
-                                regvendor.Consultant_Address = model.Consultant_Address;
-                                regvendor.Consultant_Qualification = model.Consultant_Qualification;
-                                regvendor.Consultant_Experience = model.Consultant_Experience;
-                                regvendor.Consultant_City = model.Consultant_City;
-                                regvendor.Consultant_StateCode = model.Consultant_StateCode;
-                                regvendor.Consultant_Pincode = model.Consultant_Pincode;
-
-                                if (model.Consultant_Country != null)
-                                {
-                                    regvendor.Consultant_Country = model.Consultant_Country;
-
-                                }
-                                else
-                                {
-                                    regvendor.Consultant_Country = 128;
-                                }
-                                if (model.Consultant_StateId != 0)
-                                {
-                                    regvendor.Consultant_StateId = model.Consultant_StateId;
-                                }
-                                regvendor.Consultant_ServiceAddress = model.Consultant_ServiceAddress;
-                            }
-                            else if (model.Consultant_Nationality == 1 && model.Consultant_Category == 2)
-                            {
-                                var sqnbr = (from S in context.tblRCTConsultantMaster
-                                             select S.SeqNbr
-                                       ).Max();
-                                regvendor.Consultant_Nationality = model.Consultant_Nationality;
-                                regvendor.Consultant_Category = model.Consultant_Category;
-                                regvendor.Consultant_EmpId = "CFD" + (Convert.ToInt32(sqnbr) + 1).ToString("00000");
-                                regvendor.SeqNbr = (Convert.ToInt32(sqnbr) + 1);
-                                regvendor.Consultant_EmpType = "CFD";
-
-                                regvendor.Consultant_Nationality = model.Consultant_Nationality;
-                                //regvendor.Consultant_EmpId = 'V' + (Convert.ToInt32(sqnbr) + 1).ToString("00000");
-                                //regvendor.SeqNbr = (Convert.ToInt32(sqnbr) + 1);
-                                regvendor.Consultant_Category = model.Consultant_Category;
-
-                                regvendor.Consultant_Salutation = model.Consultant_IFSalutation;
-                                regvendor.Consultant_Name = model.Consultant_IFName;
-
-                                regvendor.Consultant_ContactNumber = model.Consultant_IFContactNumber;
-                                regvendor.Consultant_Email = model.Consultant_IFEmail;
-                                regvendor.Consultant_PanNo = model.Consultant_IFPanNo;
-                                regvendor.IsGST = Convert.ToBoolean(model.IsGSTIF);
-                                regvendor.GSTIN = model.GSTINIF;
-                                regvendor.isSameAsAddress = model.isSameAsIFAddress;
-                                regvendor.Consultant_Address = model.Consultant_IFAddress;
-
-                                regvendor.Consultant_City = model.Consultant_IFCity;
-                                regvendor.Consultant_StateCode = model.Consultant_IFStateCode;
-                                regvendor.Consultant_Pincode = model.Consultant_IFPincode;
-
-
-                                if (model.Consultant_IFStateId != 0)
-                                {
-                                    regvendor.Consultant_StateId = model.Consultant_IFStateId;
-                                }
-                                regvendor.Consultant_ServiceAddress = model.Consultant_IFServiceAddress;
-                                regvendor.isSameAsAddress = model.isSameAsIFAddress;
-                            }
-                            else if (model.Consultant_Nationality == 2 && model.Consultant_Category == 1)
-                            {
-                                var sqnbr = (from S in context.tblRCTConsultantMaster
-                                             select S.SeqNbr
-                                       ).Max();
-                                regvendor.Consultant_Nationality = model.Consultant_Nationality;
-                                regvendor.Consultant_Category = model.Consultant_Category;
-
-                                regvendor.Consultant_EmpId = "CIF" + (Convert.ToInt32(sqnbr) + 1).ToString("00000");
-                                regvendor.SeqNbr = (Convert.ToInt32(sqnbr) + 1);
-                                regvendor.Consultant_EmpType = "CIF";
-                                regvendor.Consultant_DOB = model.Consultant_fi_DOB;
-                                regvendor.Consultant_Salutation = model.Consultant_FISalutation;
-                                regvendor.Consultant_Name = model.Consultant_FIName;
-                                regvendor.Consultant_Gender = model.Consultant_Gender;
-                                //regvendor.Consultant_DOB = model.Consultant_DOB;                           
-                                if (model.PersonFIImage != null)
-                                {
-                                    var guid = Guid.NewGuid().ToString();
-                                    var docName = guid + "_" + model.PersonFIImage.FileName;
-                                    model.PersonFIImage.UploadFile("RCTEmployeeImages", docName);
-                                    regvendor.Consultant_Photo = docName;
-                                }
-                                else if (!string.IsNullOrEmpty(model.PersonImageFIPath))
-                                {
-                                    regvendor.Consultant_Photo = model.PersonImageFIPath;
-                                }
-                                regvendor.Consultant_ContactNumber = model.Consultant_FIContactNumber;
-                                regvendor.Consultant_TIN = model.Consultant_FITIN;
-                                regvendor.Consultant_Email = model.Consultant_FIEmail;
-                                regvendor.isSameAsAddress = model.isSameAsFIAddress;
-                                regvendor.Consultant_Address = model.Consultant_FIAddress;
-                                //regvendor.Consultant_Details = model.Consultant_Details;
-                                regvendor.Consultant_Qualification = model.Consultant_FIQualification;
-                                regvendor.Consultant_Experience = model.Consultant_FIExperience;
-                                regvendor.Consultant_City = model.Consultant_FICity;
-
-                                regvendor.Consultant_Pincode = model.Consultant_FIPincode;
-
-                                if (model.Consultant_FICountry != null)
-                                {
-                                    regvendor.Consultant_Country = model.Consultant_FICountry;
-
-                                }
-                                else
-                                {
-                                    regvendor.Consultant_Country = 128;
-                                }
-
-                                regvendor.Consultant_ServiceAddress = model.Consultant_FIServiceAddress;
-                            }
-                            else if (model.Consultant_Nationality == 2 && model.Consultant_Category == 2)
-                            {
-                                var sqnbr = (from S in context.tblRCTConsultantMaster
-                                             select S.SeqNbr
-                                       ).Max();
-                                regvendor.Consultant_Nationality = model.Consultant_Nationality;
-                                regvendor.Consultant_Category = model.Consultant_Category;
-                                regvendor.Consultant_EmpId = "CFF" + (Convert.ToInt32(sqnbr) + 1).ToString("00000");
-                                regvendor.SeqNbr = (Convert.ToInt32(sqnbr) + 1);
-                                regvendor.Consultant_EmpType = "CFF";
-
-                                regvendor.Consultant_Salutation = model.Consultant_FFSalutation;
-                                regvendor.Consultant_Name = model.Consultant_FFName;
-
-                                regvendor.Consultant_ContactNumber = model.Consultant_FFContactNumber;
-                                regvendor.Consultant_Email = model.Consultant_FFEmail;
-                                regvendor.isSameAsAddress = model.isSameAsFFAddress;
-                                regvendor.Consultant_Address = model.Consultant_FFAddress;
-                                regvendor.Consultant_TIN = model.Consultant_FFTIN;
-
-                                regvendor.Consultant_City = model.Consultant_FFCity;
-
-                                regvendor.Consultant_Pincode = model.Consultant_FFPincode;
-
-                                if (model.Consultant_FFCountry != null)
-                                {
-                                    regvendor.Consultant_Country = model.Consultant_FFCountry;
-
-                                }
-                                else
-                                {
-                                    regvendor.Consultant_Country = 128;
-                                }
-
-                                regvendor.Consultant_ServiceAddress = model.Consultant_FFServiceAddress;
-                            }
-
-                            regvendor.Consultant_AccountHolderName = model.Consultant_AccountHolderName;
-                            regvendor.Consultant_BankName = model.Consultant_BankName;
-                            regvendor.Consultant_Branch = model.Consultant_Branch;
-                            regvendor.Consultant_IFSC = model.Consultant_IFSC;
-                            regvendor.Consultant_AccountNumber = model.Consultant_AccountNumber;
-                            regvendor.Consultant_BankAddress = model.Consultant_BankAddress;
-                            regvendor.Consultant_ABANumber = model.Consultant_ABANumber;
-                            regvendor.Consultant_SortCode = model.Consultant_SortCode;
-                            regvendor.Consultant_IBAN = model.Consultant_IBAN;
-                            regvendor.Consultant_SWIFTorBICCode = model.Consultant_SWIFTorBICCode;
-                            regvendor.Consultant_BankNature = model.Consultant_BankNature;
-                            regvendor.Consultant_MICRCode = model.Consultant_MICRCode;
-                            regvendor.Consultant_BankCountry = model.Consultant_BankCountry;
-                            regvendor.Consultant_BankEmailId = model.Consultant_BankEmailId;
-                            regvendor.Status = "Open";
-                            regvendor.IsActiveNow = true;
-                            //regvendor.isSameAsAddress = model.isSameAsAddress;
-
-                            regvendor.UptdUser = model.UserId;
-                            regvendor.UptdTs = DateTime.Now;
-                            regvendor.Status = "Open";
-                            context.tblRCTConsultantMaster.Add(regvendor);
-                            context.SaveChanges();
-                            var vendoId = regvendor.Consultant_MasterId;
-
-
-                            if (model.AttachmentName != null)
-                            {
-                                if (model.AttachmentName != null)
-                                {
-                                    for (int i = 0; i < model.AttachmentName.Length; i++)
-                                    {
-                                        if (model.AttachmentName[i] != "" && model.ConsultantFile[i] != null)
-                                        {
-                                            //var docid = model.VendorDocumentId[i];
-
-                                            //if (query.Count == 0)
-                                            //{
-                                            string doctaxpath = "";
-                                            doctaxpath = System.IO.Path.GetFileName(model.ConsultantFile[i].FileName);
-                                            var doctaxfileId = Guid.NewGuid().ToString();
-                                            var doctaxname = doctaxfileId + "_" + doctaxpath;
-
-                                            /*Saving the file in server folder*/
-                                            //model.ConsultantFile[i].UploadFile("ConsultantDocumentMaster", doctaxname);
-                                            model.ConsultantFile[i].UploadFile("Requirement", doctaxname);
-                                            tblConsultantDocumentMaster document = new tblConsultantDocumentMaster();
-                                            document.Consultant_MasterId = vendoId;
-                                            if (model.ConsultantFile[i] != null)
-                                            {
-
-                                                document.AttachmentName = model.ConsultantFile[i].FileName;
-                                                document.AttachmentPath = doctaxname;
-                                                document.AttachmentFileName = model.AttachmentName[i];
-                                            }
-
-                                            document.IsCurrentVersion = true;
-                                            document.DocumentUploadUserId = model.UserId;
-                                            document.DocumentUpload_Ts = DateTime.Now;
-                                            context.tblConsultantDocumentMaster.Add(document);
-                                            context.SaveChanges();
-
-                                        }
-                                    }
-
-                                }
-                            }
-
-
-                            transaction.Commit();
-                            return 1;
-
-                        }
-                        else
-                        {
-                            var chkConsultantMaster = context.tblRCTConsultantMaster.FirstOrDefault(M => M.Consultant_MasterId == model.Consultant_MasterId);
-                            if (chkConsultantMaster != null)
-                            {
-                                if (model.Consultant_Nationality == 1 && model.Consultant_Category == 1)
-                                {
-                                    //var sqnbr = (from S in context.tblRCTConsultantMaster
-                                    //             select S.SeqNbr
-                                    //       ).Max();
-                                    //chkConsultantMaster.Consultant_Nationality = model.Consultant_Nationality;
-                                    //chkConsultantMaster.Consultant_Category = model.Consultant_Category;
-                                    //chkConsultantMaster.Consultant_EmpId = "CID" + (Convert.ToInt32(sqnbr) + 1).ToString("00000");
-                                    //.SeqNbr = (Convert.ToInt32(sqnbr) + 1);
-                                    //chkConsultantMaster.Consultant_EmpType = "CID";
-                                    chkConsultantMaster.Consultant_DOB = model.Consultant_DOB;
-
-                                    if (model.PersonImage != null)
-                                    {
-                                        var guid = Guid.NewGuid().ToString();
-                                        var docName = guid + "_" + model.PersonImage.FileName;
-                                        model.PersonImage.UploadFile("RCTEmployeeImages", docName);
-                                        chkConsultantMaster.Consultant_Photo = docName;
-                                    }
-                                    else if (!string.IsNullOrEmpty(model.PersonImagePath))
-                                    {
-                                        chkConsultantMaster.Consultant_Photo = model.PersonImagePath;
-                                    }
-
-                                    chkConsultantMaster.Consultant_Salutation = model.Consultant_Salutation;
-                                    chkConsultantMaster.Consultant_Name = model.Consultant_Name;
-                                    chkConsultantMaster.Consultant_Gender = model.Consultant_Gender;
-                                    //regvendor.Consultant_DOB = model.Consultant_DOB;                           
-
-                                    chkConsultantMaster.Consultant_ContactNumber = model.Consultant_ContactNumber;
-                                    chkConsultantMaster.Consultant_Email = model.Consultant_Email;
-                                    chkConsultantMaster.Consultant_AadhaarNo = model.Consultant_AadhaarNo;
-                                    chkConsultantMaster.IsGST = Convert.ToBoolean(model.IsGST);
-                                    chkConsultantMaster.GSTIN = model.GSTIN;
-                                    chkConsultantMaster.Consultant_PanNo = model.Consultant_PanNo;
-                                    chkConsultantMaster.isSameAsAddress = model.isSameAsAddress;
-                                    chkConsultantMaster.Consultant_Address = model.Consultant_Address;
-                                    chkConsultantMaster.Consultant_Qualification = model.Consultant_Qualification;
-                                    chkConsultantMaster.Consultant_Experience = model.Consultant_Experience;
-                                    chkConsultantMaster.Consultant_City = model.Consultant_City;
-                                    chkConsultantMaster.Consultant_StateCode = model.Consultant_StateCode;
-                                    chkConsultantMaster.Consultant_Pincode = model.Consultant_Pincode;
-
-                                    if (model.Consultant_Country != null)
-                                    {
-                                        chkConsultantMaster.Consultant_Country = model.Consultant_Country;
-
-                                    }
-                                    else
-                                    {
-                                        chkConsultantMaster.Consultant_Country = 128;
-                                    }
-                                    if (model.Consultant_StateId != 0)
-                                    {
-                                        chkConsultantMaster.Consultant_StateId = model.Consultant_StateId;
-                                    }
-                                    chkConsultantMaster.Consultant_ServiceAddress = model.Consultant_ServiceAddress;
-                                }
-                                else if (model.Consultant_Nationality == 1 && model.Consultant_Category == 2)
-                                {
-                                    //var sqnbr = (from S in context.tblRCTConsultantMaster
-                                    //             select S.SeqNbr
-                                    //       ).Max();
-                                    //chkConsultantMaster.Consultant_Nationality = model.Consultant_Nationality;
-                                    //chkConsultantMaster.Consultant_Category = model.Consultant_Category;
-                                    //chkConsultantMaster.Consultant_EmpId = "CFD" + (Convert.ToInt32(sqnbr) + 1).ToString("00000");
-                                    //chkConsultantMaster.SeqNbr = (Convert.ToInt32(sqnbr) + 1);
-                                    //chkConsultantMaster.Consultant_EmpType = "CFD";
-
-                                    //chkConsultantMaster.Consultant_Nationality = model.Consultant_Nationality;
-                                    //regvendor.Consultant_EmpId = 'V' + (Convert.ToInt32(sqnbr) + 1).ToString("00000");
-                                    //regvendor.SeqNbr = (Convert.ToInt32(sqnbr) + 1);
-                                    //chkConsultantMaster.Consultant_Category = model.Consultant_Category;
-
-                                    chkConsultantMaster.Consultant_Salutation = model.Consultant_IFSalutation;
-                                    chkConsultantMaster.Consultant_Name = model.Consultant_IFName;
-
-                                    chkConsultantMaster.Consultant_ContactNumber = model.Consultant_IFContactNumber;
-                                    chkConsultantMaster.Consultant_Email = model.Consultant_IFEmail;
-                                    chkConsultantMaster.Consultant_PanNo = model.Consultant_IFPanNo;
-                                    chkConsultantMaster.isSameAsAddress = model.isSameAsIFAddress;
-                                    chkConsultantMaster.Consultant_Address = model.Consultant_IFAddress;
-                                    chkConsultantMaster.IsGST = Convert.ToBoolean(model.IsGSTIF);
-                                    chkConsultantMaster.GSTIN = model.GSTINIF;
-                                    chkConsultantMaster.Consultant_City = model.Consultant_IFCity;
-                                    chkConsultantMaster.Consultant_StateCode = model.Consultant_IFStateCode;
-                                    chkConsultantMaster.Consultant_Pincode = model.Consultant_IFPincode;
-
-
-                                    if (model.Consultant_IFStateId != 0)
-                                    {
-                                        chkConsultantMaster.Consultant_StateId = model.Consultant_IFStateId;
-                                    }
-                                    chkConsultantMaster.Consultant_ServiceAddress = model.Consultant_IFServiceAddress;
-                                    chkConsultantMaster.isSameAsAddress = model.isSameAsIFAddress;
-                                }
-                                else if (model.Consultant_Nationality == 2 && model.Consultant_Category == 1)
-                                {
-                                    //var sqnbr = (from S in context.tblRCTConsultantMaster
-                                    //             select S.SeqNbr
-                                    //       ).Max();
-                                    //chkConsultantMaster.Consultant_Nationality = model.Consultant_Nationality;
-                                    //chkConsultantMaster.Consultant_Category = model.Consultant_Category;
-
-                                    //chkConsultantMaster.Consultant_EmpId = "CIF" + (Convert.ToInt32(sqnbr) + 1).ToString("00000");
-                                    //chkConsultantMaster.SeqNbr = (Convert.ToInt32(sqnbr) + 1);
-                                    //chkConsultantMaster.Consultant_EmpType = "CIF";
-                                    chkConsultantMaster.Consultant_DOB = model.Consultant_fi_DOB;
-                                    chkConsultantMaster.Consultant_Salutation = model.Consultant_FISalutation;
-                                    chkConsultantMaster.Consultant_Name = model.Consultant_FIName;
-                                    chkConsultantMaster.Consultant_Gender = model.Consultant_FIGender;
-                                    //regvendor.Consultant_DOB = model.Consultant_DOB;                           
-                                    if (model.PersonFIImage != null)
-                                    {
-                                        var guid = Guid.NewGuid().ToString();
-                                        var docName = guid + "_" + model.PersonFIImage.FileName;
-                                        model.PersonFIImage.UploadFile("RCTEmployeeImages", docName);
-                                        chkConsultantMaster.Consultant_Photo = docName;
-                                    }
-                                    else if (!string.IsNullOrEmpty(model.PersonImageFIPath))
-                                    {
-                                        chkConsultantMaster.Consultant_Photo = model.PersonImageFIPath;
-                                    }
-                                    chkConsultantMaster.Consultant_ContactNumber = model.Consultant_FIContactNumber;
-                                    chkConsultantMaster.Consultant_Email = model.Consultant_FIEmail;
-                                    chkConsultantMaster.Consultant_TIN = model.Consultant_FITIN;
-                                    chkConsultantMaster.isSameAsAddress = model.isSameAsFIAddress;
-                                    chkConsultantMaster.Consultant_Address = model.Consultant_FIAddress;
-                                    //regvendor.Consultant_Details = model.Consultant_Details;
-                                    chkConsultantMaster.Consultant_Qualification = model.Consultant_FIQualification;
-                                    chkConsultantMaster.Consultant_Experience = model.Consultant_FIExperience;
-                                    chkConsultantMaster.Consultant_City = model.Consultant_FICity;
-
-                                    chkConsultantMaster.Consultant_Pincode = model.Consultant_FIPincode;
-
-                                    if (model.Consultant_FICountry != null)
-                                    {
-                                        chkConsultantMaster.Consultant_Country = model.Consultant_FICountry;
-
-                                    }
-                                    else
-                                    {
-                                        chkConsultantMaster.Consultant_Country = 128;
-                                    }
-
-                                    chkConsultantMaster.Consultant_ServiceAddress = model.Consultant_FIServiceAddress;
-                                }
-                                else if (model.Consultant_Nationality == 2 && model.Consultant_Category == 2)
-                                {
-                                    //var sqnbr = (from S in context.tblRCTConsultantMaster
-                                    //             select S.SeqNbr
-                                    //       ).Max();
-                                    //chkConsultantMaster.Consultant_Nationality = model.Consultant_Nationality;
-                                    //chkConsultantMaster.Consultant_Category = model.Consultant_Category;
-                                    //chkConsultantMaster.Consultant_EmpId = "CFF" + (Convert.ToInt32(sqnbr) + 1).ToString("00000");
-                                    //chkConsultantMaster.SeqNbr = (Convert.ToInt32(sqnbr) + 1);
-                                    //chkConsultantMaster.Consultant_EmpType = "CFF";
-
-                                    chkConsultantMaster.Consultant_Salutation = model.Consultant_FFSalutation;
-                                    chkConsultantMaster.Consultant_Name = model.Consultant_FFName;
-
-                                    chkConsultantMaster.Consultant_ContactNumber = model.Consultant_FFContactNumber;
-                                    chkConsultantMaster.Consultant_Email = model.Consultant_FFEmail;
-                                    chkConsultantMaster.Consultant_TIN = model.Consultant_FFTIN;
-                                    chkConsultantMaster.isSameAsAddress = model.isSameAsFFAddress;
-                                    chkConsultantMaster.Consultant_Address = model.Consultant_FFAddress;
-
-
-                                    chkConsultantMaster.Consultant_City = model.Consultant_FFCity;
-
-                                    chkConsultantMaster.Consultant_Pincode = model.Consultant_FFPincode;
-
-                                    if (model.Consultant_FFCountry != null)
-                                    {
-                                        chkConsultantMaster.Consultant_Country = model.Consultant_FFCountry;
-
-                                    }
-                                    else
-                                    {
-                                        chkConsultantMaster.Consultant_Country = 128;
-                                    }
-
-                                    chkConsultantMaster.Consultant_ServiceAddress = model.Consultant_FFServiceAddress;
-                                }
-
-                                chkConsultantMaster.Consultant_AccountHolderName = model.Consultant_AccountHolderName;
-                                chkConsultantMaster.Consultant_BankName = model.Consultant_BankName;
-                                chkConsultantMaster.Consultant_Branch = model.Consultant_Branch;
-                                chkConsultantMaster.Consultant_IFSC = model.Consultant_IFSC;
-                                chkConsultantMaster.Consultant_AccountNumber = model.Consultant_AccountNumber;
-                                chkConsultantMaster.Consultant_BankAddress = model.Consultant_BankAddress;
-                                chkConsultantMaster.Consultant_ABANumber = model.Consultant_ABANumber;
-                                chkConsultantMaster.Consultant_SortCode = model.Consultant_SortCode;
-                                chkConsultantMaster.Consultant_IBAN = model.Consultant_IBAN;
-                                chkConsultantMaster.Consultant_SWIFTorBICCode = model.Consultant_SWIFTorBICCode;
-                                chkConsultantMaster.Consultant_BankNature = model.Consultant_BankNature;
-                                chkConsultantMaster.Consultant_MICRCode = model.Consultant_MICRCode;
-                                chkConsultantMaster.Consultant_BankCountry = model.Consultant_BankCountry;
-                                chkConsultantMaster.Consultant_BankEmailId = model.Consultant_BankEmailId;
-                                chkConsultantMaster.Status = "Open";
-                                chkConsultantMaster.IsActiveNow = true;
-                                //regvendor.isSameAsAddress = model.isSameAsAddress;                                
-
-                                chkConsultantMaster.UptdUser = model.UserId;
-                                chkConsultantMaster.UptdTs = DateTime.Now;
-                                //context.tblRCTConsultantMaster.Add(chkConsultantMaster);
-                                context.SaveChanges();
-                                var vendoId = chkConsultantMaster.Consultant_MasterId;
-                                if (model.AttachmentName[0] != null && model.AttachmentName[0] != "")
-                                {
-                                    var deldocument = (from RD in context.tblConsultantDocumentMaster
-                                                       where RD.Consultant_MasterId == model.Consultant_MasterId &&
-                                                       !model.ConsultantDocumentID.Contains(RD.ConsultantDocumentID) && RD.IsCurrentVersion == true
-                                                       select RD).ToList();
-                                    int delCount = deldocument.Count();
-                                    if (delCount > 0)
-                                    {
-                                        for (int i = 0; i < delCount; i++)
-                                        {
-                                            deldocument[i].IsCurrentVersion = false;
-                                            context.SaveChanges();
-                                        }
-                                    }
-                                    for (int i = 0; i < model.AttachmentName.Length; i++)
-                                    {
-                                        if (model.AttachmentName[i] != null)
-                                        {
-                                            var docid = model.ConsultantDocumentID[i];
-                                            var query = (from T in context.tblConsultantDocumentMaster
-                                                         where (T.ConsultantDocumentID == docid && T.Consultant_MasterId == model.Consultant_MasterId && T.IsCurrentVersion == true)
-                                                         select T).ToList();
-                                            if (query.Count == 0)
-                                            {
-                                                string docpath = "";
-                                                docpath = System.IO.Path.GetFileName(model.ConsultantFile[i].FileName);
-                                                var docfileId = Guid.NewGuid().ToString();
-                                                var docname = docfileId + "_" + docpath;
-
-                                                /*Saving the file in server folder*/
-                                                model.ConsultantFile[i].UploadFile("Requirement", docname);
-                                                tblConsultantDocumentMaster document = new tblConsultantDocumentMaster();
-                                                document.Consultant_MasterId = vendoId;
-                                                if (model.ConsultantFile[i] != null)
-                                                {
-                                                    document.AttachmentFileName = model.ConsultantFile[i].FileName;
-
-                                                }
-                                                document.AttachmentPath = docname;
-                                                document.AttachmentName = model.AttachmentName[i];
-                                                //document.DocumentType = model.DocumentType[i];
-                                                document.IsCurrentVersion = true;
-                                                document.DocumentUploadUserId = model.UserId;
-                                                document.DocumentUpload_Ts = DateTime.Now;
-                                                context.tblConsultantDocumentMaster.Add(document);
-                                                context.SaveChanges();
-                                            }
-                                            else
-                                            {
-                                                //query[0].DocumentType = model.DocumentType[i];
-                                                query[0].AttachmentName = model.AttachmentName[i];
-                                                query[0].DocumentUploadUserId = model.UserId;
-                                                query[0].DocumentUpload_Ts = DateTime.Now;
-                                                query[0].IsCurrentVersion = true;
-                                                context.SaveChanges();
-                                            }
-                                        }
-                                    }
-
-                                }
-
-
-                            }
-                            transaction.Commit();
-                            return 3;
-                        }
-
-
-                    }
-                    catch (Exception ex)
-                    {
-                        Infrastructure.IOASException.Instance.HandleMe(
-(object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
-                        transaction.Rollback();
-                        return -1;
-                    }
-
-
-                }
-            }
-
-        }
-
-        public static ConsultantMaster EditConsultantMaster(int consultantMasterId)        {            try            {                using (var context = new IOASDBEntities())                {                    ConsultantMaster editVendor = new ConsultantMaster();                    var query = (from V in context.tblRCTConsultantMaster                                 where (V.Consultant_MasterId == consultantMasterId && V.Status == "Open")                                 select V).FirstOrDefault();
-                    var vendorfile = (from vf in context.tblConsultantDocumentMaster                                      where vf.Consultant_MasterId == consultantMasterId && vf.IsCurrentVersion == true                                      select vf).ToList();
-
-                    if (query != null)                    {                        if (query.Consultant_Nationality == 1 && query.Consultant_Category == 1)
-                        {
-                            editVendor.Consultant_MasterId = query.Consultant_MasterId;
-                            editVendor.Consultant_Nationality = Convert.ToInt32(query.Consultant_Nationality);
-                            editVendor.Consultant_Category = query.Consultant_Category;
-                            editVendor.Consultant_Salutation = query.Consultant_Salutation;
-                            editVendor.Consultant_Name = query.Consultant_Name;
-                            editVendor.Consultant_Gender = query.Consultant_Gender;
-                            //editVendor.Consultant_DOB = String.Format("{0:dd}", (DateTime)query.Consultant_DOB) + "-" + String.Format("{0:MMMM}", (DateTime)query.Consultant_DOB) + "-" + String.Format("{0:yyyy}", (DateTime)query.Consultant_DOB);
-                            editVendor.Consultant_DOB = query.Consultant_DOB;
-                            //editVendor.Consultant_DOB = query.Consultant_DOB;
-                            editVendor.PersonImagePath = query.Consultant_Photo;
-                            editVendor.Consultant_ContactNumber = query.Consultant_ContactNumber;
-                            editVendor.Consultant_Email = query.Consultant_Email;
-                            editVendor.IsGST = Convert.ToBoolean(query.IsGST);
-                            editVendor.GSTIN = query.GSTIN;
-                            editVendor.Consultant_AadhaarNo = query.Consultant_AadhaarNo;
-                            editVendor.Consultant_PanNo = query.Consultant_PanNo;
-                            editVendor.Consultant_Address = query.Consultant_Address;
-                            editVendor.Consultant_Qualification = query.Consultant_Qualification;
-                            editVendor.Consultant_Experience = query.Consultant_Experience;
-                            editVendor.Consultant_City = query.Consultant_City;
-                            editVendor.Consultant_Pincode = query.Consultant_Pincode;
-                            editVendor.Consultant_Country = Convert.ToInt32(query.Consultant_Country);
-                            editVendor.Consultant_StateId = Convert.ToInt32(query.Consultant_StateId);
-                            editVendor.Consultant_StateCode = Convert.ToInt32(query.Consultant_StateCode);
-                            editVendor.Consultant_ServiceAddress = query.Consultant_ServiceAddress;
-                            editVendor.isSameAsAddress = Convert.ToBoolean(query.isSameAsAddress);
-                        }                        else if (query.Consultant_Nationality == 1 && query.Consultant_Category == 2)
-                        {
-                            editVendor.Consultant_MasterId = query.Consultant_MasterId;
-                            editVendor.Consultant_Nationality = Convert.ToInt32(query.Consultant_Nationality);
-                            editVendor.Consultant_Category = query.Consultant_Category;
-                            editVendor.Consultant_IFSalutation = query.Consultant_Salutation;
-                            editVendor.Consultant_IFName = query.Consultant_Name;
-                            editVendor.Consultant_IFContactNumber = query.Consultant_ContactNumber;
-                            editVendor.Consultant_IFEmail = query.Consultant_Email;
-                            editVendor.IsGSTIF = Convert.ToBoolean(query.IsGST);
-                            editVendor.GSTINIF = query.GSTIN;
-                            editVendor.Consultant_IFPanNo = query.Consultant_PanNo;
-                            editVendor.Consultant_IFAddress = query.Consultant_Address;
-                            editVendor.Consultant_IFCity = query.Consultant_City;
-                            editVendor.Consultant_IFPincode = query.Consultant_Pincode;
-                            editVendor.Consultant_IFStateId = Convert.ToInt32(query.Consultant_StateId);
-                            editVendor.Consultant_IFStateCode = Convert.ToInt32(query.Consultant_StateCode);
-                            editVendor.Consultant_IFServiceAddress = query.Consultant_ServiceAddress;
-                            editVendor.isSameAsIFAddress = Convert.ToBoolean(query.isSameAsAddress);
-
-                        }
-                        else if (query.Consultant_Nationality == 2 && query.Consultant_Category == 1)
-                        {
-                            editVendor.Consultant_MasterId = query.Consultant_MasterId;
-                            editVendor.Consultant_Nationality = Convert.ToInt32(query.Consultant_Nationality);
-                            editVendor.Consultant_Category = query.Consultant_Category;
-                            editVendor.Consultant_FISalutation = query.Consultant_Salutation;
-                            editVendor.Consultant_FIName = query.Consultant_Name;
-                            editVendor.Consultant_FIGender = query.Consultant_Gender;
-                            editVendor.Consultant_fi_DOB = query.Consultant_DOB;
-                            editVendor.PersonImageFIPath = query.Consultant_Photo;
-                            editVendor.Consultant_FIContactNumber = query.Consultant_ContactNumber;
-                            editVendor.Consultant_FITIN = query.Consultant_TIN;
-                            editVendor.Consultant_FIEmail = query.Consultant_Email;
-                            editVendor.Consultant_FIAddress = query.Consultant_Address;
-                            editVendor.Consultant_FIQualification = query.Consultant_Qualification;
-                            editVendor.Consultant_FIExperience = query.Consultant_Experience;
-                            editVendor.Consultant_FICity = query.Consultant_City;
-                            editVendor.Consultant_FIPincode = query.Consultant_Pincode;
-                            editVendor.Consultant_FICountry = Convert.ToInt32(query.Consultant_Country);
-                            editVendor.Consultant_FIServiceAddress = query.Consultant_ServiceAddress;
-                            editVendor.isSameAsFIAddress = Convert.ToBoolean(query.isSameAsAddress);
-                        }
-                        else if (query.Consultant_Nationality == 2 && query.Consultant_Category == 2)
-                        {
-                            editVendor.Consultant_MasterId = query.Consultant_MasterId;
-                            editVendor.Consultant_Nationality = Convert.ToInt32(query.Consultant_Nationality);
-                            editVendor.Consultant_Category = query.Consultant_Category;
-                            editVendor.Consultant_FFSalutation = query.Consultant_Salutation;
-                            editVendor.Consultant_FFName = query.Consultant_Name;
-                            editVendor.Consultant_FFContactNumber = query.Consultant_ContactNumber;
-                            editVendor.Consultant_FFTIN = query.Consultant_TIN;
-                            editVendor.Consultant_FFEmail = query.Consultant_Email;
-                            editVendor.Consultant_FFAddress = query.Consultant_Address;
-                            editVendor.Consultant_FFCity = query.Consultant_City;
-                            editVendor.Consultant_FFPincode = query.Consultant_Pincode;
-                            editVendor.Consultant_FFCountry = Convert.ToInt32(query.Consultant_Country);
-                            editVendor.Consultant_FFServiceAddress = query.Consultant_ServiceAddress;
-                            editVendor.isSameAsFFAddress = Convert.ToBoolean(query.isSameAsAddress);
-                        }
-
-
-                        editVendor.Consultant_AccountHolderName = query.Consultant_AccountHolderName;                        editVendor.Consultant_AccountNumber = query.Consultant_AccountNumber;                        editVendor.Consultant_BankName = query.Consultant_BankName;                        editVendor.Consultant_Branch = query.Consultant_Branch;                        editVendor.Consultant_IFSC = query.Consultant_IFSC;                        editVendor.Consultant_BankAddress = query.Consultant_BankAddress;                        editVendor.Consultant_ABANumber = query.Consultant_ABANumber;                        editVendor.Consultant_SortCode = query.Consultant_SortCode;                        editVendor.Consultant_IBAN = query.Consultant_IBAN;                        editVendor.Consultant_SWIFTorBICCode = query.Consultant_SWIFTorBICCode;                        editVendor.Consultant_BankNature = query.Consultant_BankNature;                        editVendor.Consultant_MICRCode = query.Consultant_MICRCode;                        editVendor.Consultant_BankCountry = query.Consultant_BankCountry ?? 0;                        editVendor.Consultant_BankEmailId = query.Consultant_BankEmailId;
-
-                        if (vendorfile.Count > 0)                        {                            int[] _docid = new int[vendorfile.Count];                            int[] _doctype = new int[vendorfile.Count];                            string[] _docname = new string[vendorfile.Count];                            string[] _attchname = new string[vendorfile.Count];                            string[] _docpath = new string[vendorfile.Count];                            for (int i = 0; i < vendorfile.Count; i++)                            {
-                                //_docid[i] = Convert.ToInt32(vendorfile[i].RevereseTaxDocumentId);
-                                //_doctype[i] = Convert.ToInt32(vendorfile[i].TaxDocumentType);
-                                //_docname[i] = vendorfile[i].TaxDocument;
-                                _docid[i] = Convert.ToInt32(vendorfile[i].ConsultantDocumentID);
-                                //_attchname[i] = vendorfile[i].AttachmentName;
-                                _attchname[i] = vendorfile[i].AttachmentFileName;                                _docpath[i] = vendorfile[i].AttachmentPath;                            }                            editVendor.ConsultantDocumentID = _docid;
-                            //editVendor.VendorDocumentType = _doctype;
-                            //editVendor.VendorDocumentName = _docname;
-                            editVendor.AttachmentFileName = _attchname;                            editVendor.AttachmentPath = _docpath;
-
-                        }
-
-
-                    }                    return editVendor;                }            }            catch (Exception ex)            {                Infrastructure.IOASException.Instance.HandleMe((object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);                ConsultantMaster editVendor = new ConsultantMaster();                return editVendor;            }        }
-
-        public static ConsultantMasterView GetConsultantMasterView(int ConsultantMasterId)
-        {
-            ConsultantMasterView model = new ConsultantMasterView();
-            List<GSTDocumentModel> gstlist = new List<GSTDocumentModel>();
-            List<TDSDocumentModel> tdslist = new List<TDSDocumentModel>();
-            List<TaxDocumentModel> taxlist = new List<TaxDocumentModel>();
-            List<VendorTDSDetails> List = new List<VendorTDSDetails>();
-            try
-            {
-                using (var context = new IOASDBEntities())
-                {
-                    var Qry = context.tblRCTConsultantMaster.Where(m => m.Consultant_MasterId == ConsultantMasterId).FirstOrDefault();
-                    model.ConsultantName = Qry.Consultant_Name;
-                    //model.Consultant_MasterId = Qry.Consultant_MasterId;
-                    model.Nationality = Qry.Consultant_Nationality == 1 ? "India" : "Foreign";
-                    model.Category = Qry.Consultant_Category == 1 ? "Individual" : "Firm";
-                    //model.PFMSCode = Qry.PFMSVendorCode;
-                    model.Address = Qry.Consultant_Address;
-                    model.Email = Qry.Consultant_Email;
-                    //model.ContactPerson = Qry.ContactPerson;
-                    model.MobileNo = Qry.Consultant_ContactNumber;
-                    //model.PhoneNo = Qry.PhoneNumber;
-                    model.Country = context.tblCountries.Where(m => m.countryID == Qry.Consultant_Country).Select(m => m.countryName).FirstOrDefault();
-                    int? StateId = Qry.Consultant_StateId;
-                    model.State = context.tblStateMaster.Where(m => m.StateId == StateId).Select(m => m.StateName).FirstOrDefault();
-                    model.StateCode = context.tblStateMaster.Where(m => m.StateId == StateId).Select(m => m.StateCode).FirstOrDefault();
-                    //model.City = Qry.Consultant_City;
-                    model.City = "Chennai";
-                    model.PinCode = Convert.ToString(Qry.Consultant_Pincode);
-                    //model.RegName = Qry.RegisteredName;
-                    //model.TAN = Qry.TAN;
-                    model.PAN = Qry.Consultant_PanNo;
-                    //model.GSTIN = Qry.GSTIN;
-                    //model.TaxExpReason = Qry.Reason;
-
-                    model.AccHolderName = Qry.Consultant_AccountHolderName;
-                    model.AccNo = Qry.Consultant_AccountNumber;
-                    model.IFSC = Qry.Consultant_IFSC;
-                    model.BankName = Qry.Consultant_BankName;
-                    model.BankAddress = Qry.Consultant_BankAddress;
-                    model.Branch = Qry.Consultant_Branch;
-                    model.BankEmail = Qry.Consultant_BankEmailId;
-                    model.BankNature = Qry.Consultant_BankNature;
-                    model.MICRCode = Qry.Consultant_MICRCode;
-                    model.ABANumber = Qry.Consultant_ABANumber;
-                    model.SortCode = Qry.Consultant_SortCode;
-                    model.IBAN = Qry.Consultant_IBAN;
-                    model.MICRCode = Qry.Consultant_MICRCode;
-                    model.SWiftCode = Qry.Consultant_SWIFTorBICCode;
-                    model.BankCountry = Common.GetVendorbankCountry(Qry.Consultant_BankCountry ?? 0);
-                    //model.ServiceCategory = context.tblCodeControl.Where(m => m.CodeName == "DeductionCategory" && m.CodeValAbbr == Qry.Category).Select(m => m.CodeValDetail).FirstOrDefault();
-                    //int? TaxId = Qry.SupplyType == null ? Qry.ServiceType : Qry.SupplyType;
-                    //model.Type = context.tblTaxMaster.Where(m => m.TaxMasterId == TaxId).Select(m => m.ServiceType).FirstOrDefault();
-                    //model.ReverseTaxReson = Qry.ReasonForReservieTax;
-                    //model.CertificateNo = Qry.CertificateNumber;
-                    //model.ValidityReson = Convert.ToString(Qry.ValidityPeriod);
-
-                    model.TdsDocument = (from c in context.tblConsultantDocumentMaster
-                                         where c.Consultant_MasterId == ConsultantMasterId && c.IsCurrentVersion == true//&& c. == "Active" && c.AppointmentType == 2
-                                         orderby c.ConsultantDocumentID
-                                         select new OtherDocumentModel()//OtherDetail
-                                         {
-                                             TdsDocumentName = c.AttachmentName,
-                                             ConsultantDocumentID = c.ConsultantDocumentID,
-                                             //Description = c.Description,
-                                             TdsAttachementName = c.AttachmentName,
-                                             TdsDocumentPath = c.AttachmentPath,
-                                             //Remarks = c.Remarks,
-                                         }).ToList();
-                    model.TdsDocument = model.TdsDocument.Count > 0 ? model.TdsDocument : null;
-
-
-
-                    return model;
-                }
-            }
-            catch (Exception ex)
-            {
-                return model;
-            }
-        }
 
     }
 }

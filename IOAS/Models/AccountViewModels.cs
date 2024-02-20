@@ -348,6 +348,7 @@ namespace IOAS.Models
         public string BankHeadName { get; set; }
         public int BankHeadId { get; set; }
         public int Pre_BankID { get; set; }
+        public int Freeze { get; set; }
     }
 
     public class CommitAllocationHeadDetails
@@ -757,7 +758,7 @@ namespace IOAS.Models
         public int UserId { get; set; }
         public int sno { get; set; }
         [MaxLength(15)]
-        //[RegularExpression("^([0]{1}[1-9]{1}|[1-2]{1}[0-9]{1}|[3]{1}[0-7]{1})([a-zA-Z]{5}[0-9]{4}[a-zA-Z]{1}[1-9a-zA-Z]{1}[zZ]{1}[0-9a-zA-Z]{1})+$", ErrorMessage = "Invalid GST Number")]
+        //[RegularExpression("^([0]{1}[1-9]{1}|[1-2]{1}[0-9]{1}|[3]{1}[0-8]{1})([a-zA-Z]{5}[0-9]{4}[a-zA-Z]{1}[1-9a-zA-Z]{1}[zZ]{1}[0-9a-zA-Z]{1})+$", ErrorMessage = "Invalid GST Number")]
         [Display(Name = "GST Number")]
         public string GSTIN { get; set; }
 
@@ -985,7 +986,7 @@ namespace IOAS.Models
         [Display(Name = "TAN Number")]
         public string TAN { get; set; }
         [MaxLength(15)]
-        [RegularExpression("^([0]{1}[1-9]{1}|[1-2]{1}[0-9]{1}|[3]{1}[0-7]{1})([a-zA-Z]{5}[0-9]{4}[a-zA-Z]{1}[1-9a-zA-Z]{1}[zZ]{1}[0-9a-zA-Z]{1})+$", ErrorMessage = "Invalid GST Number")]
+        [RegularExpression("^([0]{1}[1-9]{1}|[1-2]{1}[0-9]{1}|[3]{1}[0-8]{1})([a-zA-Z]{5}[0-9]{4}[a-zA-Z]{1}[1-9a-zA-Z]{1}[zZ]{1}[0-9a-zA-Z]{1})+$", ErrorMessage = "Invalid GST Number")]
         [Display(Name = "GST Number")]
         public string GSTIN { get; set; }
 
@@ -1050,6 +1051,7 @@ namespace IOAS.Models
         public tblCommitment com { get; set; }
         public tblProject prj { get; set; }
         public tblCommitmentDetails ComDet { get; set; }
+      
     }
 
 

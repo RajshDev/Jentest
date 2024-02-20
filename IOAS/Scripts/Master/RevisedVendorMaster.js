@@ -160,7 +160,8 @@
                 $('#txtPinCode').val(result.PinCode);
                 $('#ddlcountry').val(result.CountryId);
                 $('#ddlstate').val(result.StateId);
-                $('#txtStateCode').val(result.StateCode);
+                CheckIEmployeestate();
+                //$('#txtStateCode').val(result.StateCode);
                 $('#txtRegisteredName').val(result.RegisteredName);
                 $('#hiddRegName').val(result.RegisteredName);
                 $('#txtPANNumber').val(result.PAN);
