@@ -1,0 +1,595 @@
+﻿
+@{
+    ViewBag.Title = "Consultant New Entry";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+<div class="row hd-tt-bg">
+    <div class="col-md-4">
+        <h3>Consultant Appointment</h3>
+    </div>
+    <div class="col-md-8 flt-nav-links">
+        <a href="@Url.Action("RCTConsultantNewEntry")"> <i class="ion-plus"></i>Add New</a>
+    </div>
+</div>
+<div class="row mt30">
+    <div class="page-wrapper">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="custom-jsgrid-normal">
+                    <div id="gridConApp"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="loading-bg dis-none">
+</div>
+<script>
+    var errMsg = '@TempData["errMsg"]';
+    var succMsg = '@TempData["succMsg"]';
+    var alertMsg = '@TempData["alertMsg"]';
+    $(document).ready(function () {
+        if (succMsg != '') {
+            $('#alertSuccess').html(succMsg);
+            $('#Success').modal('toggle');
+        }
+        else if (errMsg != '') {
+            $('#FailedAlert').html(errMsg);
+            $('#Failed').modal('toggle');
+        }
+        else if (alertMsg != '') {
+            $('#alert').html(alertMsg);
+            $('#Validation').modal('toggle');
+        }
+    });
+    $("#gridConApp").jsGrid({
+        paging: true,
+        pageIndex: 1,
+        pageSize: 10,
+        editing: false,
+        filtering: true,
+        pageLoading: true,
+        autoload: true,
+        controller: {
+
+            loadData: function (filter) {
+                var searchData = [];
+                searchData = {
+                    Consultant_AppointmentId: filter.SE_Consultant_AppointmentId || null,
+                    Consultant_EmpNo: filter.SE_Consultant_EmpNo || null,
+                    Consultant_AppNo: filter.Consultant_AppNo || null,
+                    Consultant_Name: filter.SE_Consultant_Name || null,
+                    Consultant_EmpType: filter.SE_Consultant_EmpType || null,
+                    Consultant_ProjectNumber: filter.SE_Consultant_ProjectNumber || null,
+                    Consultant_ProjPI: filter.SE_Consultant_ProjPI || null,
+                    Consultant_ProjEmail: filter.SE_Consultant_ProjEmail || null,
+                    Consultant_Status: filter.SE_Consultant_Status || null
+                },
+                filter.model = searchData;
+                var deferred = $.Deferred();
+                $.ajax({
+                    type: "post",
+                    url: "GetRCTConsultantList",
+                    data: JSON.stringify(filter),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (result) {
+                        var da = {
+                            data: result.ConsultantNewEntryList,
+                            itemsCount: result.SE_TotalRecords
+                        }
+                        deferred.resolve(da);
+                    },
+                    error: function (err) {
+                        console.log("error : " + err);
+                    }
+
+                });
+                return deferred.promise();
+            }
+
+        },
+
+        fields: [
+            { name: "SE_SNo", title: "S.No", editing: false, width: 50 },
+            { type: "number", name: "Consultant_AppointmentId", title: "Id", visible: false },
+            { type: "text", name: "Consultant_EmpNo", title: "Employee Number", editing: false },
+            { type: "text", name: "Consultant_AppNo", title: "Application Number", editing: false },
+            { type: "text", name: "Consultant_Name", title: "Consultant Name", editing: false, width: 130 },
+            { type: "text", name: "Consultant_EmpType", title: "Consultant Type", editing: false },
+            { type: "text", name: "Consultant_ProjectNumber", title: "Project Number", editing: false },
+     {
+         type: "text", name: "Consultant_ProjectPI", title: "PI Name & Email", editing: false, width: 130,
+         itemTemplate: function (item, name) {
+             return $("<td>").append(name.Consultant_ProjectPI + "<br/><span class='fn-s-xs'>(" + name.Consultant_ProjectPIEmail + ")</span>");
+         }
+     },
+     {
+         type: "text", name: "Consultant_Status", title: "Status", editing: false,
+         cellRenderer: function (item, value) {
+             if (value.Consultant_Status == "Open" || value.SE_Consultant_Status == "Active") {
+                 if (!value.SendOffer_f && value.isGovAgencyFund)
+                     return $("<td>").addClass("bg-green").append(value.Consultant_Status);
+                 else
+                     return $("<td>").addClass("txt-bl").append(value.Consultant_Status);
+             }
+             else if (value.Consultant_Status == "Sent for approval") {
+                 return $("<td>").addClass("txt-gr").append(value.Consultant_Status);
+             }
+             else if (value.Consultant_Status == "Cancel" || value.Consultant_Status == "Rejected") {
+                 return $("<td>").addClass("txt-rd").append(value.Consultant_Status);
+             }
+             else if (value.Consultant_Status == "Draft" || value.Consultant_Status == "Awaiting Committee Approval") {
+                 return $("<td>").addClass("txt-org").append(value.Consultant_Status);
+             }
+             else if (value.Consultant_Status == "Committee Clarify") {
+                 return $("<td>").addClass("txt-rd").append(value.Consultant_Status);
+             }
+             else if (value.Consultant_Status == "Awaiting Verification") {
+                 if (!value.SendOffer_f)
+                     return $("<td>").addClass("bg-green").append(value.Consultant_Status);
+                 else
+                     return $("<td>").addClass("txt-org").append(value.Consultant_Status);
+             }
+             else if (value.Consultant_Status == "Note to PI" || value.Consultant_Status == "Awaiting Commitment Booking") {
+                 return $("<td>").addClass("txt-org").append(value.Consultant_Status);
+             }
+             else if (value.Consultant_Status == "Open" && value.isGovAgencyFund == true) {
+                 return $("<td>").addClass("txt-rd").append(value.Consultant_Status);
+             }
+             else {
+                 return $("<td>").append(value.Consultant_Status);
+             }
+         }
+     },
+     //{ name: "EmailRemaindarCount", title: "Email Remaindar Count", visible: false },
+             {
+                 type: "control", editButton: false, deleteButton: false, width: 80, title: "Action",
+
+                 itemTemplate: function (value, item) {
+                     var statusList = [];
+                     var $result = jsGrid.fields.control.prototype.itemTemplate.apply(this, arguments);
+                     if (item.Consultant_Status == "Open") {
+                         statusList = [{ id: "", name: "Action" }, { id: "Edit", name: "Edit" }, { id: "View", name: "View" }]
+                     }
+                     else if (item.Consultant_Status == "Open") {
+                         statusList = [{ id: "", name: "Action" }, { id: "View", name: "Commitment Booking" }, { id: "SendOffer", name: "Send Offer Letter" }]
+                     }
+                     else if (item.Consultant_Status == "Open") {
+                         statusList = [{ id: "", name: "Action" }, { id: "View", name: "Commitment Booking" }]
+                     }
+                     else if (item.Consultant_Status == "Committee Clarify") {
+                         statusList = [{ id: "", name: "Action" }, { id: "View", name: "Send for commitee approval" }]
+                     }
+                     else if (item.Consultant_Status == "Open") {
+                         statusList = [{ id: "", name: "Action" }, { id: "View", name: "Send for commitment booking" }]
+                     }
+                     else if (item.Consultant_Status == "Draft") {
+                         statusList = [{ id: "", name: "Action" }, { id: "Edit", name: "Edit" }, { id: "View", name: "View" }]
+                     }
+                     //else if (item.Status.includes('Note') && item.Status != "Note to Dean") {
+
+                     //    if (item.EmailRemaindarCount == 0) {
+                     //        statusList = [{ id: "", name: "Action" }, { id: "Edit", name: "Edit" }, { id: "EmailNf", name: "Email Notification" } ]
+                     //    }
+                     //    else if (item.EmailRemaindarCount == 1) {
+                     //        statusList = [{ id: "", name: "Action" }, { id: "Edit", name: "Edit" }, { id: "EmailNf", name: "Email Remainder " + " " + item.EmailRemaindarCount }]
+                     //    }
+                     //    else {
+                     //        statusList = [{ id: "", name: "Action" }, { id: "Edit", name: "Edit" }, { id: "EmailNf", name: "Email Reminder" + " " + item.EmailRemaindarCount }]
+                     //    }
+
+                     //}
+                     else if (item.Status == "Awaiting Verification" && item.SendOffer_f) {
+                         statusList = [{ id: "", name: "Action" }, { id: "View", name: "View" }, { id: "SendOffer", name: "Send Offer Letter" }]
+                     }
+                     else {
+                         statusList = [{ id: "", name: "Action" }, { id: "View", name: "View" }]
+                     }
+
+                     if (item.Cancel_f)
+                         statusList.push({ id: "Cancel", name: "Cancel" });
+
+                     var $customSelect = $("<select>")
+                         .attr("class", "form-control").prop("selectedIndex", "")
+                     $.each(statusList, function (index, itemData) {
+                         $customSelect.append($('<option/>', {
+
+                             value: itemData.id,
+                             text: itemData.name
+                         }));
+                     });
+                     $customSelect.change(function (e) {
+                         var selVal = $(this).val();
+                         if (selVal == "Edit") {
+                             var url = '@Url.Action("RCTConsultantNewEntry", "Requirement")?ConsultantServiceID=' + item.Consultant_AppointmentId;
+                             Editconsultant();
+                             window.location.href = url;                            
+                         }
+                         else if (selVal == "EmailNf") {
+                             if (item.EmailRemaindarCount == 2) {
+                                 $('#alert').html("Alert - Reminder E-mails already Sent");
+                                 $('#Validation').modal('toggle');
+                                 return false;
+                             }
+
+                             $.confirm({
+                                 title: "Mail Preview",
+                                 type: 'blue',
+                                 columnClass: 'col-md-12',
+                                 content: function () {
+                                     var self = this;
+                                     return $.ajax({
+                                         type: "Post",
+                                         url: '@Url.Action("SendPIReminderEmail", "Requirement")',
+                                         data: {
+                                             appid: item.STEId,
+                                             apptype: "STE",
+                                             isgetbody_f: true,
+                                         }
+                                     }).done(function (response) {
+                                         self.setContent(response);
+                                     }).fail(function () {
+                                         self.setContent('Preview page not loaded.');
+                                     });
+                                 },
+                                 buttons: {
+                                     Yes: {
+                                         text: 'Send',
+                                         btnClass: 'btn-blue',
+                                         action: function () {
+                                             $.ajax({
+                                                 type: "Post",
+                                                 url: '@Url.Action("SendPIReminderEmail", "Requirement")',
+                                                 data: {
+                                                     appid: item.STEId,
+                                                     apptype: "STE",
+                                                 },
+                                                 beforeSend: function () {
+                                                     $(".loading-bg").removeClass('dis-none');
+                                                 },
+                                                 success: function (output) {
+                                                     if (output == "true") {
+                                                         $(".loading-bg").addClass('dis-none');
+                                                         $('#alertTitle').html("Success");
+                                                         $('#alertSuccessContent').html("Reminder Mail sent to PI");
+                                                         $('#SuccessAll').modal('toggle');
+                                                         $("#gridConApp").jsGrid("loadData");
+                                                     }
+                                                     else if (output == "false") {
+                                                         $(".loading-bg").addClass('dis-none');
+                                                         $('#alertTitle').html("Success");
+                                                         $('#alertSuccessContent').html(output.Item2);
+                                                         $('#SuccessAll').modal('toggle');
+                                                         $("#VerificationList").jsGrid("loadData");
+                                                     }
+                                                     else {
+                                                         $(".loading-bg").addClass('dis-none');
+                                                         $('#FailedAlert').html("Alread final reminder mail sent");
+                                                         $('#Failed').modal('toggle');
+                                                     }
+                                                 },
+                                                 error: function (err) {
+                                                     console.log("error1 : " + err);
+                                                 }
+                                             });
+                                         }
+                                     },
+                                     No: {
+                                         text: 'No',
+                                         btnClass: 'btn-red',
+                                         action: function () {
+                                         }
+                                     },
+                                 }
+                             });
+                         }
+                         else if (selVal == "SendOffer") {
+                             $.confirm({
+                                 title: "Mail Preview",
+                                 type: 'blue',
+                                 columnClass: 'col-md-12',
+                                 content: function () {
+                                     var self = this;
+                                     return $.ajax({
+                                         type: "Post",
+                                         url: '@Url.Action("SendOfferOrder", "Requirement")',
+                                         data: {
+                                             appid: item.STEId,
+                                             apptype: "STE",
+                                             offercategory: "OfferLetter",
+                                             isgetbody_f: true,
+                                         }
+                                     }).done(function (response) {
+                                         self.setContent(response.Item2);
+                                         var url = '@Url.Action("ShowOrderDocument", "RCTReportMaster")?appid=' + item.STEId + '&apptype=STE&offercategory=OfferLetter';
+                                         self.setContentAppend('Attachment : <a href=' + url + ' target="_blank">attachment</a>');
+                                     }).fail(function () {
+                                         self.setContent('Preview page not loaded.');
+                                     });
+                                 },
+                                 buttons: {
+                                     Yes: {
+                                         text: 'Send',
+                                         btnClass: 'btn-blue',
+                                         action: function () {
+                                             $.ajax({
+                                                 type: "Post",
+                                                 url: '@Url.Action("SendOfferOrder", "Requirement")',
+                                                 data: {
+                                                     appid: item.STEId,
+                                                     apptype: "STE",
+                                                     offercategory: "OfferLetter"
+                                                 },
+                                                 beforeSend: function () {
+                                                     $(".loading-bg").removeClass('dis-none');
+                                                 },
+                                                 success: function (output) {
+                                                     if (output.Item1 == 1) {
+                                                         $(".loading-bg").addClass('dis-none');
+                                                         $.confirm({
+                                                             title: 'Success Message!',
+                                                             content: "Offer letter mail sent to candidate",
+                                                             type: 'green',
+                                                             buttons: {
+                                                                 Ok: function () {
+                                                                     $("#gridConApp").jsGrid("loadData");
+                                                                 },
+                                                             },
+                                                         });
+                                                     }
+                                                     else if (output.Item1 == 0) {
+                                                         $(".loading-bg").addClass('dis-none');
+                                                         $.confirm({
+                                                             title: 'Warning!',
+                                                             content: output.Item2,
+                                                             type: 'orange',
+                                                             buttons: {
+                                                                 Ok: function () {
+                                                                     $("#gridConApp").jsGrid("loadData");
+                                                                 },
+                                                             },
+                                                         });
+                                                     }
+                                                 },
+                                                 error: function (err) {
+                                                     console.log("error1 : " + err);
+                                                 }
+                                             });
+                                         }
+                                     },
+                                     No: {
+                                         text: 'No',
+                                         btnClass: 'btn-red',
+                                         action: function () {
+                                         }
+                                     },
+                                 }
+                             });
+                         }
+                         else if (selVal == "Cancel") {
+                             $.confirm({
+                                 title: 'Do you want to cancel application ?',
+                                 content: '' +
+                                 '<form action=""  class="formName">' +
+                                    '<div class="form-group"><br/>' +
+                                        '<table>'+
+                                            '<tr><th>Application No</th><th>&nbsp;&nbsp;:&nbsp;&nbsp;</th><td>' + item.STEAppNo + '</td></tr><tr>' +
+                                            '<th><br/></th><th></th><td></td></tr>' +
+                                            '<th>Candidate Name</th><th>&nbsp;&nbsp;:&nbsp;&nbsp;</th><td>' + item.CandidateName + '</td></tr>' +
+                                        '</table><br/>' +
+                                        '<label class="required">Remarks</label>' +
+                                          '<textarea id="txtResonCancel" name="reason" class="form-control" row="2" required>'+
+                                          '</textarea><br/>' +
+                                        '<label>Attachment (optional)</label>' + '<br/>' +
+                                        '<input type="file" id="attachement" name="attachement" /> ' +
+                                        '<input type="hidden" name="appid" value=' + item.STEId + ' />' +
+                                        '<input type="hidden" name="apptype" value="STE" />' +
+                                    '</div>' +
+                                 '</form>',
+                                 type: 'blue',
+                                 typeAnimated: true,
+                                 boxWidth: '450px',
+                                 useBootstrap: false,
+                                 buttons: {
+                                     formSubmit: {
+                                         text: 'Submit',
+                                         btnClass: 'btn-blue',
+                                         action: function () {
+                                             var reason = $('#txtResonCancel').val();
+                                             if (reason == "" || reason == null) {
+                                                 $.alert('Remarks Field is Required');
+                                                 return false;
+                                             }
+                                             else if (reason != null || reason != "") {
+                                                 var from = $('.formName');
+                                                 var formData = new FormData(from[0]);
+                                                 var fileUpload = $("#attachement").val();
+                                                 if (fileUpload != "") {
+                                                     var allowedExtensions = [".pdf", ".doc", ".docx"];
+                                                     var fileName = document.getElementById('attachement').files[0].name;
+                                                     var extension = fileName.substr((fileName.lastIndexOf('.') + 1)).toLowerCase();
+                                                     var validFormat = allowedExtensions.includes('.' + extension);
+                                                     if (validFormat) {
+                                                         var _size = document.getElementById('attachement').files[0].size;
+                                                         var iSize = (_size / 1024);
+                                                         iSize = (Math.round(iSize * 100) / 100)
+                                                         if (iSize > 5120) {
+                                                             $.confirm({
+                                                                 title: 'Warning!',
+                                                                 content: 'Attachment size should be allow below 5MB',
+                                                                 type: 'orange',
+                                                                 buttons: {
+                                                                     Ok: function () {
+                                                                         //close
+                                                                     },
+                                                                 },
+                                                             });
+                                                             $("#attachement").val('')
+                                                             return;
+                                                         }
+                                                     }
+                                                     else {
+                                                         $.confirm({
+                                                             title: 'Warning!',
+                                                             content: 'Attachment allowed document type [pdf,doc,docx]',
+                                                             type: 'orange',
+                                                             buttons: {
+                                                                 Ok: function () {
+                                                                     //close
+                                                                 },
+                                                             },
+                                                         });
+                                                         $("#attachement").val('')
+                                                         return;
+                                                     }
+                                                 }
+                                                 $.ajax({
+                                                     type: "Post",
+                                                     url: '@Url.Action("RequestCancelApplication", "Requirement")',
+                                                     data: formData,
+                                                     processData: false,
+                                                     contentType: false,
+                                                     beforeSend: function () {
+                                                         $(".loading-bg").removeClass('dis-none');
+                                                     },
+                                                     success: function (result) {
+                                                         $(".loading-bg").addClass('dis-none');
+                                                         if (result != "") {
+                                                             $.confirm({
+                                                                 title: 'Alert!',
+                                                                 content: result,
+                                                                 type: 'blue',
+                                                                 buttons: {
+                                                                     Ok: function () {
+                                                                         $("#gridConApp").jsGrid("loadData");
+                                                                     },
+                                                                 },
+                                                             });
+                                                         }
+                                                     },
+                                                     error: function (err) {
+                                                         $(".loading-bg").addClass('dis-none');
+                                                         console.log("error1 : " + err);
+                                                     }
+                                                 });
+                                             }
+
+                                         }
+                                     },
+                                     cancel: function () {
+                                         //close
+                                     },
+                                 },
+
+                             });
+                         }
+                         else if (selVal == "View") {
+                             if (item.Status == "Committee Clarify" || (item.Status != "Cancellation Initiated" && (item.isGovAgencyFund || item.isCommitmentRejection))) {
+                                 var url = '@Url.Action("RCTOverAllView", "Requirement")?ApplicationId=' + item.STEId + '&AppType=STE&listf=AL';
+                                 window.location.href = url;
+                             }
+                             else {
+                                 var url = '@Url.Action("STEView", "Requirement")?STEID=' + item.STEId + '&listf=AL';
+                                 window.location.href = url;
+                             }
+                         }
+                         $(this).val("");
+                         return false;
+                         e.stopPropagation();
+                     });
+                     return $result.add($customSelect);
+                 },
+                 _createFilterSwitchButton: function () {
+                     return this._createOnOffSwitchButton("filtering", this.searchModeButtonClass, false);
+                 }
+             }
+
+
+        ],
+
+    });
+    $("#gridConApp").jsGrid("option", "filtering", false);
+
+    /* Update Edit details */
+
+    function Editconsultant() {
+        $('#GetConsDetail1').attr("readonly", false);
+         $('#Consultant_WorkPlace').attr("readonly", true);
+         //$('#ServiceDes').attr("readonly", false);
+         //$('#Consultant_AoE').attr("readonly", false);
+         //$('#Consultant_SoW').attr("readonly", false);
+         //$('#Consultant_DAComments').attr("readonly", false);
+         //$('#Consultant_TandC').attr("readonly", false);
+         //$('#Consultant_PaymentTerms').attr("readonly", false);
+         //$('#Consultant_ProjectNumber').attr("readonly", false);
+         //$('#Consultant_AutofillReqInitBy').attr("readonly", false);
+         //parentdiv = $('#Consultant_Mode').parent();
+         //parentdiv.removeClass('disabled');
+         //$('#Consultant_Mode').removeAttr("disabled");
+         //$(parentdiv).find('button').each(function () {
+         //    $(this).removeClass("disabled");
+         //});
+         //var currentdate = moment(new Date()).toDate();
+         //$('#Consultant_ReqReceivedDate').datepicker({
+         //    dateFormat: 'dd-MM-yy',
+         //    changeYear: true
+         //}).datepicker("option", "maxDate", currentdate);
+         //$('#Consultant_ITTDSType').attr("readonly", false);
+         //$('#Consultant_ITTDSType').css('pointer-events', '');
+         //$('#Consultant_PayType').attr("readonly", false);
+         //$('#Consultant_PayType').css('pointer-events', '');
+         //$('#Consultant_RetainerFee').attr("readonly", false);
+         //if ($.trim(result.Consultant_EmpType) == "CFF" || $.trim(result.Consultant_EmpType) == "CIF") {
+         //    $('#CurrType').attr("readonly", false);
+         //    $('#CurrType').css('pointer-events', '');
+         //    $('#Consultant_CurrValue').attr("readonly", false);
+         //    $('#Consultant_CurrConvertionRate').attr("readonly", false);
+         //    $('#Consultant_RetainerFee').attr("readonly", true);
+         //    $('#Consultant_RCMCategoryy').attr("readonly", false);
+         //    $('#Consultant_RCMCategoryy').css('pointer-events', '');
+         //    $('#Consultant_RCMCategory').attr("disabled", false);
+         //}
+         //else {
+         //    $('#CurrType').attr("readonly", true);
+         //    $('#CurrType').css('pointer-events', 'none');
+         //    $('#CurrType').val('');
+         //    $('#Consultant_CurrValue').attr("readonly", true);
+         //    $('#Consultant_CurrValue').val('');
+         //    $('#Consultant_CurrConvertionRate').attr("readonly", true);
+         //    $('#Consultant_CurrConvertionRate').val('');
+         //    $('#Consultant_RetainerFee').val('');
+         //    $('#Consultant_CurrFlutuationvalue').val('');
+         //    $('#Consultant_RCMCategoryy').attr("readonly", true);
+         //    $('#Consultant_RCMCategoryy').css('pointer-events', 'none');
+         //    $('#Consultant_RCMCategoryy').val('');
+         //}
+         //if ($.trim(result.Consultant_EmpType) == "CID" || $.trim(result.Consultant_EmpType) == "CIF") {
+         //    $('#Consultant_Code').attr("readonly", false);
+         //}
+         //else {
+         //    $('#Consultant_Code').attr("readonly", true);
+         //    $('#Consultant_Code').val('');
+         //    $('#Consultant_Title').attr("readonly", true);
+         //    $('#Consultant_Title').val('');
+         //}
+         //if ($.trim(result.Consultant_EmpType) == "CFD" || $.trim(result.Consultant_EmpType) == "CID") {
+         //    $('#Consultant_GSTStatus').attr("readonly", false);
+         //    $('#Consultant_GSTStatus').css('pointer-events', '');
+         //}
+         //    else {
+         //    $('#Consultant_GSTStatus').attr("readonly", true);
+         //    $('#Consultant_GSTStatus').css('pointer-events', 'none');
+         //    $('#Consultant_GSTStatus').val('');
+         //    $('#Consultant_GSTINPercentagee').attr("readonly", true);
+         //    $('#Consultant_GSTINPercentagee').css('pointer-events', 'none');
+         //    $('#Consultant_GSTINPercentagee').val('');
+         //    $('#Consultant_GSTIN').attr("readonly", true);
+         //    $('#Consultant_GSTIN').val('');
+         //    $('#Consultant_GSTEligibilityy').attr("readonly", true);
+         //    $('#Consultant_GSTEligibilityy').css('pointer-events', 'none');
+         //    $('#Consultant_GSTEligibilityy').val('');
+         //}
+         
+                }
+</script>

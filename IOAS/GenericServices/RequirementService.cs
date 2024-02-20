@@ -23871,100 +23871,100 @@ namespace IOAS.GenericServices
             }
         }
 
-        public static ConsultantSearchModel GetConsultantList(ConsultantSearchModel model, int page, int pageSize)
-        {
-            ConsultantSearchModel conseamodel = new ConsultantSearchModel();
-            List<ConsultantAppointmentModel> list = new List<ConsultantAppointmentModel>();
-            try
-            {
-                int skiprec = 0;
-                if (page == 1)
-                {
-                    skiprec = 0;
-                }
-                else
-                {
-                    skiprec = (page - 1) * pageSize;
-                }
-                using (var context = new IOASDBEntities())
-                {
-                    var prequery = (from vw in context.vw_RCTOverAllApplicationEntry.AsNoTracking()
-                                    join prj in context.tblProject on vw.ProjectId equals prj.ProjectId into g
-                                    from prj in g.DefaultIfEmpty()
-                                    orderby vw.ApplicationId descending
-                                    where vw.Category == "CON" && vw.ApplicationType == "New" && vw.isEmployee != true
-                                    select new ConsultantAppointmentModel()
-                                    {
-                                        ConsultantAppointmentId = vw.ApplicationId,
-                                        ConsultantAppNo = vw.ApplicationNo,
-                                        ProjectNumber = prj.ProjectNumber,
-                                        Category = vw.Category,
-                                        CondidateName = vw.CandidateName,
-                                        PIName = vw.PIName,
-                                        Email = vw.PIEmail,
-                                        Status = vw.Status,
-                                        Appointmentstartdate = vw.AppointmentStartdate
-                                    });
-                    var predicate = PredicateBuilder.BaseAnd<ConsultantAppointmentModel>();
-                    if (!string.IsNullOrEmpty(model.ConsultantAppNo))
-                        predicate = predicate.And(d => d.ConsultantAppNo.Contains(model.ConsultantAppNo));
-                    if (!string.IsNullOrEmpty(model.Category))
-                        predicate = predicate.And(d => d.Category.Contains(model.Category));
-                    if (!string.IsNullOrEmpty(model.CondidateName))
-                        predicate = predicate.And(d => d.CondidateName.Contains(model.CondidateName));
-                    if (!string.IsNullOrEmpty(model.PIName))
-                        predicate = predicate.And(d => d.PIName.Contains(model.PIName) || d.Email.Contains(model.PIName));
-                    if (!string.IsNullOrEmpty(model.ProjectNumber))
-                        predicate = predicate.And(d => d.ProjectNumber.Contains(model.ProjectNumber));
-                    if (!string.IsNullOrEmpty(model.Status))
-                        predicate = predicate.And(d => d.Status.Contains(model.Status));
-                    var query = prequery.Where(predicate).OrderByDescending(m => m.ConsultantAppointmentId).Skip(skiprec).Take(pageSize).ToList();
-                    conseamodel.TotalRecords = prequery.Where(predicate).Count();
+        //public static ConsultantSearchModel GetConsultantList(ConsultantSearchModel model, int page, int pageSize)
+        //{
+        //    ConsultantSearchModel conseamodel = new ConsultantSearchModel();
+        //    List<ConsultantAppointmentModel> list = new List<ConsultantAppointmentModel>();
+        //    try
+        //    {
+        //        int skiprec = 0;
+        //        if (page == 1)
+        //        {
+        //            skiprec = 0;
+        //        }
+        //        else
+        //        {
+        //            skiprec = (page - 1) * pageSize;
+        //        }
+        //        using (var context = new IOASDBEntities())
+        //        {
+        //            var prequery = (from vw in context.vw_RCTOverAllApplicationEntry.AsNoTracking()
+        //                            join prj in context.tblProject on vw.ProjectId equals prj.ProjectId into g
+        //                            from prj in g.DefaultIfEmpty()
+        //                            orderby vw.ApplicationId descending
+        //                            where vw.Category == "CON" && vw.ApplicationType == "New" && vw.isEmployee != true
+        //                            select new ConsultantAppointmentModel()
+        //                            {
+        //                                ConsultantAppointmentId = vw.ApplicationId,
+        //                                ConsultantAppNo = vw.ApplicationNo,
+        //                                ProjectNumber = prj.ProjectNumber,
+        //                                Category = vw.Category,
+        //                                CondidateName = vw.CandidateName,
+        //                                PIName = vw.PIName,
+        //                                Email = vw.PIEmail,
+        //                                Status = vw.Status,
+        //                                Appointmentstartdate = vw.AppointmentStartdate
+        //                            });
+        //            var predicate = PredicateBuilder.BaseAnd<ConsultantAppointmentModel>();
+        //            if (!string.IsNullOrEmpty(model.ConsultantAppNo))
+        //                predicate = predicate.And(d => d.ConsultantAppNo.Contains(model.ConsultantAppNo));
+        //            if (!string.IsNullOrEmpty(model.Category))
+        //                predicate = predicate.And(d => d.Category.Contains(model.Category));
+        //            if (!string.IsNullOrEmpty(model.CondidateName))
+        //                predicate = predicate.And(d => d.CondidateName.Contains(model.CondidateName));
+        //            if (!string.IsNullOrEmpty(model.PIName))
+        //                predicate = predicate.And(d => d.PIName.Contains(model.PIName) || d.Email.Contains(model.PIName));
+        //            if (!string.IsNullOrEmpty(model.ProjectNumber))
+        //                predicate = predicate.And(d => d.ProjectNumber.Contains(model.ProjectNumber));
+        //            if (!string.IsNullOrEmpty(model.Status))
+        //                predicate = predicate.And(d => d.Status.Contains(model.Status));
+        //            var query = prequery.Where(predicate).OrderByDescending(m => m.ConsultantAppointmentId).Skip(skiprec).Take(pageSize).ToList();
+        //            conseamodel.TotalRecords = prequery.Where(predicate).Count();
 
-                    if (query.Count > 0)
-                    {
-                        for (int i = 0; i < query.Count; i++)
-                        {
-                            int appid = query[i].ConsultantAppointmentId ?? 0;
-                            int emailcount = context.tblRCTConsutantAppEmailLog.Where(x => x.IsSend == true && x.TypeofMail == 3 && x.ConsultantAppointmentId == appid).Count();
-                            bool isCommitmentRejection = false;
-                            if (query[i].Status == "Open")
-                            {
-                                var Qry = context.tblRCTConsultantAppointment.Where(x => x.ConsultantAppointmentId == appid).FirstOrDefault();
-                                isCommitmentRejection = Qry.isCommitmentReject ?? false;
-                            }
-                            bool SendOffer_f = context.tblRCTOfferDetails.
-                                               Where(x => x.ApplicationId == appid && x.Category == "CON" &&
-                                               x.OfferCategory == "OfferLetter" && x.isSend != true).FirstOrDefault() != null ? true : false;
+        //            if (query.Count > 0)
+        //            {
+        //                for (int i = 0; i < query.Count; i++)
+        //                {
+        //                    int appid = query[i].ConsultantAppointmentId ?? 0;
+        //                    int emailcount = context.tblRCTConsutantAppEmailLog.Where(x => x.IsSend == true && x.TypeofMail == 3 && x.ConsultantAppointmentId == appid).Count();
+        //                    bool isCommitmentRejection = false;
+        //                    if (query[i].Status == "Open")
+        //                    {
+        //                        var Qry = context.tblRCTConsultantAppointment.Where(x => x.ConsultantAppointmentId == appid).FirstOrDefault();
+        //                        isCommitmentRejection = Qry.isCommitmentReject ?? false;
+        //                    }
+        //                    bool SendOffer_f = context.tblRCTOfferDetails.
+        //                                       Where(x => x.ApplicationId == appid && x.Category == "CON" &&
+        //                                       x.OfferCategory == "OfferLetter" && x.isSend != true).FirstOrDefault() != null ? true : false;
 
-                            list.Add(new ConsultantAppointmentModel()
-                            {
-                                SNo = i + 1,
-                                ConsultantAppointmentId = query[i].ConsultantAppointmentId,
-                                ConsultantAppNo = query[i].ConsultantAppNo,
-                                ProjectNumber = query[i].ProjectNumber,
-                                Category = query[i].Category,
-                                CondidateName = query[i].CondidateName,
-                                PIName = query[i].PIName,
-                                Email = query[i].Email,
-                                Status = query[i].Status,
-                                EmailRemaindarCount = emailcount,
-                                isCommitmentRejection = isCommitmentRejection,
-                                SendOffer_f = SendOffer_f,
-                                Cancel_f = IsCancelAppointment(query[i].Appointmentstartdate, query[i].Status)
-                            });
+        //                    list.Add(new ConsultantAppointmentModel()
+        //                    {
+        //                        SNo = i + 1,
+        //                        ConsultantAppointmentId = query[i].ConsultantAppointmentId,
+        //                        ConsultantAppNo = query[i].ConsultantAppNo,
+        //                        ProjectNumber = query[i].ProjectNumber,
+        //                        Category = query[i].Category,
+        //                        CondidateName = query[i].CondidateName,
+        //                        PIName = query[i].PIName,
+        //                        Email = query[i].Email,
+        //                        Status = query[i].Status,
+        //                        EmailRemaindarCount = emailcount,
+        //                        isCommitmentRejection = isCommitmentRejection,
+        //                        SendOffer_f = SendOffer_f,
+        //                        Cancel_f = IsCancelAppointment(query[i].Appointmentstartdate, query[i].Status)
+        //                    });
 
-                        }
-                    }
-                }
-                conseamodel.conList = list;
-                return conseamodel;
-            }
-            catch (Exception ex)
-            {
-                return conseamodel;
-            }
-        }
+        //                }
+        //            }
+        //        }
+        //        conseamodel.conList = list;
+        //        return conseamodel;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return conseamodel;
+        //    }
+        //}
 
         public Tuple<bool, string> CONAPWFInit(int id, int logged_in_user)
         {
@@ -31436,6 +31436,568 @@ namespace IOAS.GenericServices
             }
         }
         #endregion
+
+        public static RCTConsultantSearchModel GetRCTConsultantList(RCTConsultantSearchModel model, int page, int pageSize)
+        {
+            RCTConsultantSearchModel RCTConsSearchModel = new RCTConsultantSearchModel();
+            List<ConsultantEmployeeEntry> list = new List<ConsultantEmployeeEntry>();
+            try
+            {
+                int skiprec = 0;
+                if (page == 1)
+                {
+                    skiprec = 0;
+                }
+                else
+                {
+                    skiprec = (page - 1) * pageSize;
+                }
+                using (var context = new IOASDBEntities())
+                {
+                    var querycons = (from cons in context.tblRCTConsultantEntry.AsNoTracking()
+                                     join cm in context.tblRCTConsultantMaster on cons.Consultant_MasterId equals cm.Consultant_MasterId
+                                     join cc in context.tblCodeControl on cm.Consultant_Nationality equals cc.CodeValAbbr
+                                     join cc1 in context.tblCodeControl on cm.Consultant_Category equals cc1.CodeValAbbr
+                                     join prj1 in context.tblProject on cons.Consultant_ProjectId equals prj1.ProjectId into prj2
+                                     from prj1 in prj2.DefaultIfEmpty()
+                                     join fac in context.tblFacultyDetail on prj1.PIName equals fac.CastEmployeeId into fac1
+                                     from fac in fac1.DefaultIfEmpty()
+                                     join prj in context.tblProject on cons.Consultant_ProjectId equals prj.ProjectId
+                                     into g
+                                     from prj in g.DefaultIfEmpty()
+                                     orderby cons.Consultant_AppointmentId descending
+                                     where cc.CodeName == "ConsultantNationality" && cc1.CodeName == "ConsultantCategory"
+                                     select new RCTConsultantSearchModel()
+                                     {
+                                         SE_Consultant_AppointmentId = cons.Consultant_AppointmentId,
+                                         SE_Consultant_EmpNo = cons.Consultant_EmpNo,
+                                         SE_Consultant_AppNo = cons.Consultant_ApplicationNo ?? null,
+                                         SE_Consultant_ProjectNumber = prj.ProjectNumber ?? null,
+                                         SE_Consultant_EmpType = cc.CodeValDetail + "-" + cc1.CodeValDetail,
+                                         SE_Consultant_Name = cm.Consultant_Name,
+                                         SE_Consultant_ProjPI = fac.EmployeeName ?? null,
+                                         SE_Consultant_ProjEmail = fac.Email ?? null,
+                                         SE_Consultant_Status = cons.Consultant_Status,
+                                     });
+                    var predicate = PredicateBuilder.BaseAnd<RCTConsultantSearchModel>();
+                    if (!string.IsNullOrEmpty(model.SE_Consultant_EmpNo))
+                        predicate = predicate.And(d => d.SE_Consultant_EmpNo.Contains(model.SE_Consultant_EmpNo));
+                    if (!string.IsNullOrEmpty(model.SE_Consultant_AppNo))
+                        predicate = predicate.And(d => d.SE_Consultant_AppNo.Contains(model.SE_Consultant_AppNo));
+                    if (!string.IsNullOrEmpty(model.SE_Consultant_EmpType))
+                        predicate = predicate.And(d => d.SE_Consultant_EmpType.Contains(model.SE_Consultant_EmpType));
+                    if (!string.IsNullOrEmpty(model.SE_Consultant_Name))
+                        predicate = predicate.And(d => d.SE_Consultant_Name.Contains(model.SE_Consultant_Name));
+                    if (!string.IsNullOrEmpty(model.SE_Consultant_ProjPI))
+                        predicate = predicate.And(d => d.SE_Consultant_ProjPI.Contains(model.SE_Consultant_ProjPI) || d.SE_Consultant_ProjEmail.Contains(model.SE_Consultant_ProjEmail));
+                    if (!string.IsNullOrEmpty(model.SE_Consultant_ProjectNumber))
+                        predicate = predicate.And(d => d.SE_Consultant_ProjectNumber.Contains(model.SE_Consultant_ProjectNumber));
+                    if (!string.IsNullOrEmpty(model.SE_Consultant_Status))
+                        predicate = predicate.And(d => d.SE_Consultant_Status.Contains(model.SE_Consultant_Status));
+                    var query = querycons.Where(predicate).OrderByDescending(m => m.SE_Consultant_AppointmentId).Skip(skiprec).Take(pageSize).ToList();
+
+                    if (query.Count > 0)
+                    {
+                        for (int i = 0; i < query.Count; i++)
+                        {
+                            //int appid = query[i].ConsultantAppointmentId ?? 0;
+                            //int emailcount = context.tblRCTConsutantAppEmailLog.Where(x => x.IsSend == true && x.TypeofMail == 3 && x.ConsultantAppointmentId == appid).Count();
+                            //bool isCommitmentRejection = false;
+                            //if (query[i].Status == "Open")
+                            //{
+                            //    var Qry = context.tblRCTConsultantAppointment.Where(x => x.ConsultantAppointmentId == appid).FirstOrDefault();
+                            //    isCommitmentRejection = Qry.isCommitmentReject ?? false;
+                            //}
+                            //bool SendOffer_f = context.tblRCTOfferDetails.
+                            //                   Where(x => x.ApplicationId == appid && x.Category == "CON" &&
+                            //                   x.OfferCategory == "OfferLetter" && x.isSend != true).FirstOrDefault() != null ? true : false;
+
+                            list.Add(new ConsultantEmployeeEntry()
+                            {
+                                SE_SNo = i + 1,
+                                Consultant_AppointmentId = query[i].SE_Consultant_AppointmentId,
+                                Consultant_EmpNo = query[i].SE_Consultant_EmpNo,
+                                Consultant_AppNo = query[i].SE_Consultant_AppNo,
+                                Consultant_Name = query[i].SE_Consultant_Name,
+                                Consultant_EmpType = query[i].SE_Consultant_EmpType,
+                                Consultant_ProjectNumber = query[i].SE_Consultant_ProjectNumber,
+                                Consultant_ProjectPI = query[i].SE_Consultant_ProjPI,
+                                Consultant_ProjectPIEmail = query[i].SE_Consultant_ProjEmail,
+                                Consultant_Status = query[i].SE_Consultant_Status,
+                                //EmailRemaindarCount = emailcount,
+                                //isCommitmentRejection = isCommitmentRejection,
+                                //SendOffer_f = SendOffer_f,
+                                //Cancel_f = IsCancelAppointment(query[i].Appointmentstartdate, query[i].Status)
+                            });
+
+                        }
+                    }
+                    RCTConsSearchModel.SE_TotalRecords = querycons.Where(predicate).Count();
+                }
+                RCTConsSearchModel.ConsultantNewEntryList = list;
+                return RCTConsSearchModel;
+            }
+            catch (Exception ex)
+            {
+                return RCTConsSearchModel;
+            }
+        }
+        public Tuple<int, int, string> PostConsultant(ConsultantEmployeeEntry model, HttpPostedFileBase[] file, int logged_in_userId, string msg = null)
+        {
+            try
+            {
+                int res = 0;
+                int Consultant_AppointmentId = 0;
+                string PreStatus = string.Empty; string NewStatus = string.Empty;
+                List<ConsultantMaster> ConsModel1 = new List<ConsultantMaster>();
+                using (var context = new IOASDBEntities())
+                {
+                    using (var transaction = context.Database.BeginTransaction())
+                    {
+                        try
+                        {
+                            if (model.Consultant_AppointmentId == 0)
+                            {
+                                tblRCTConsultantEntry Cons = new tblRCTConsultantEntry();
+                                Cons.Consultant_Status = model.Consultant_Status;
+                                Cons.Consultant_MasterId = model.Consultant_MasterId;
+                                Cons.Consultant_EmpNo = model.Consultant_EmpNo;
+                                Cons.Consultant_ServiceDescription = model.Consultant_ServiceDescription;
+                                Cons.Consultant_Type = model.ConsultantMasterList[0].Consultant_EmpType;
+                                Cons.Consultant_Code = model.Consultant_CodeId;
+                                Cons.Consultant_Title = model.Consultant_Title;
+                                Cons.Consultant_AoE = model.Consultant_AoE;
+                                Cons.Consultant_SoW = model.Consultant_SoW;
+                                Cons.Consultant_GSTStatus = model.Consultant_GSTStatus;
+                                Cons.Consultant_GSTIN = model.Consultant_GSTIN;
+                                Cons.Consultant_GSTINPercentage = model.Consultant_GSTINPercentage;
+                                Cons.Consultant_TandC = model.Consultant_TandC;
+                                Cons.Consultant_PaymentTerms = model.Consultant_PaymentTerms;
+                                Cons.Consultant_ProjectId = model.Consultant_ProjectId;
+                                Cons.Consultant_AppStartDt = model.Consultant_AppStartDt;
+                                Cons.Consultant_AppEndDt = model.Consultant_AppEndDt;
+                                Cons.Consultant_ActualAppStartDt = model.Consultant_AppStartDt;
+                                Cons.Consultant_ActualAppEndDt = model.Consultant_AppEndDt;
+                                Cons.Consultant_CurrType = model.Consultant_CurrType;
+                                Cons.Consultant_CurrValue = model.Consultant_CurrValue;
+                                Cons.Consultant_CurrConvertionRate = model.Consultant_CurrConvertionRate;
+                                Cons.Consultant_CurrFluctuationvalue = model.Consultant_CurrFlutuationvalue;
+                                Cons.Consultant_RetainerFee = model.Consultant_RetainerFee;
+                                Cons.Consultant_GSTvalue = model.Consultant_GSTvalue;
+                                Cons.Consultant_GSTEligibility = model.Consultant_GSTEligibility;
+                                Cons.Consultant_Commitvalue = model.Consultant_Commitvalue;
+                                Cons.Consultant_ITTDSType = model.Consultant_ITTDSType;
+                                Cons.Consultant_ITTDSPercentage = model.Consultant_ITTDSPercentage;
+                                Cons.Consultant_ITTDSExemptedDate = model.Consultant_ITTDSExemptedDate;
+                                Cons.Consultant_GSTTDSType = model.Consultant_GSTTDSType;
+                                Cons.Consultant_RCMType = model.Consultant_RCMType;
+                                Cons.Consultant_RCMCategory = model.Consultant_RCMCategory;
+                                Cons.Consultant_PayType = model.Consultant_PayType;
+                                Cons.Consultant_AuditApproval = model.Consultant_AuditApproval;
+                                Cons.Consultant_WPCategory = model.Consultant_WPCategory;
+                                Cons.Consultant_WorkPlace = model.Consultant_WorkPlace;
+                                Cons.Consultant_Remarks = null;
+                                Cons.Consultant_ReqReceivedDate = model.Consultant_ReqReceivedDate;
+                                Cons.Consultant_ReqInitBy = model.Consultant_ReqInitBy;
+                                Cons.Consultant_CrtdTs = DateTime.Now;
+                                Cons.Consultant_CrtdUser = logged_in_userId;
+                                Cons.Consultant_ActivityStatus = false;
+                                Cons.Consultant_IsDeleted = false;
+                                Cons.Consultant_DAComments = model.Consultant_DAComments;
+                                Cons.Consultant_FlowApprover = model.Consultant_FlowApprover;
+                                context.tblRCTConsultantEntry.Add(Cons);
+                                context.SaveChanges();
+
+                                Consultant_AppointmentId = Cons.Consultant_AppointmentId;
+                                if (model.Consultant_Mode != null && model.Consultant_Mode[0] != 0)
+                                {
+                                    if (model.Consultant_Mode.Length > 0)
+                                    {
+                                        for (int i = 0; i < model.Consultant_Mode.Length; i++)
+                                        {
+                                            tblRCTConsultantMode ConsMode = new tblRCTConsultantMode();
+                                            ConsMode.Consultant_AppointmentId = Cons.Consultant_AppointmentId;
+                                            ConsMode.Consultant_ModeID = model.Consultant_Mode[i].Value;
+                                            ConsMode.Consultant_CrtdTs = DateTime.Now;
+                                            ConsMode.Consultant_CrtdUser = logged_in_userId;
+                                            ConsMode.Consultant_CurrentVersion = true;
+                                            context.tblRCTConsultantMode.Add(ConsMode);
+                                            context.SaveChanges();
+                                        }
+                                    }
+                                }
+                                if (model.Consultant_DocumentType != null && model.Consultant_DocumentType[0] != 0)
+                                {
+                                    if (model.Consultant_DocumentId.Length > 0)
+                                    {
+                                        for (int i = 0; i < model.Consultant_DocumentId.Length; i++)
+                                        {
+                                            var docid = model.Consultant_DocumentId[i];
+                                            var doctype = model.Consultant_DocumentType[i];
+                                            var docpath = model.Consultant_DocumentNameEncrypted[i];
+                                            var docquery = (from doc in context.tblRCTConsultantEntryDocs
+                                                            where (doc.Consultant_DocumentType == doctype && doc.Consultant_AppointmentId == Consultant_AppointmentId && doc.Consultant_IsDeleted == false)
+                                                            select doc).ToList();
+                                            if (docquery.Count == 0)
+                                            {
+                                                string path = " ";
+                                                path = System.IO.Path.GetFileName(file[i].FileName);
+                                                var docfileId = Guid.NewGuid().ToString();
+                                                var docname = docfileId + "_" + path;
+
+                                                /*Saving the file in server folder*/
+                                                file[i].UploadFile("Consultant", docname);
+                                                tblRCTConsultantEntryDocs ConsDoc = new tblRCTConsultantEntryDocs();
+                                                ConsDoc.Consultant_MasterId = model.Consultant_MasterId;
+                                                ConsDoc.Consultant_AppointmentId = Consultant_AppointmentId;
+                                                ConsDoc.Consultant_DocumentType = model.Consultant_DocumentType[i];
+                                                ConsDoc.Consultant_DocumentName = file[i].FileName;
+                                                ConsDoc.Consultant_DocumentNameEncrypted = docname;
+                                                ConsDoc.Consultant_DocumentRemarks = model.Consultant_DocumentName[i];
+                                                ConsDoc.Consultant_CrtdTs = DateTime.Now;
+                                                ConsDoc.Consultant_CrtdUser = logged_in_userId;
+                                                ConsDoc.Consultant_Status = "Active";
+                                                ConsDoc.Consultant_IsDeleted = false;
+                                                context.tblRCTConsultantEntryDocs.Add(ConsDoc);
+                                                context.SaveChanges();
+                                            }
+
+                                        }
+                                    }
+                                }
+                                Consultant_AppointmentId = Cons.Consultant_AppointmentId;
+                                var SeqNo = (from R in context.tblRCTConsultantEntry select R.Consultant_SeqNbr).Max();
+                                var QryUpdateRefNo = (from R in context.tblRCTConsultantEntry where R.Consultant_AppointmentId == Consultant_AppointmentId select R).FirstOrDefault();
+                                if (QryUpdateRefNo != null)
+                                {
+                                    var number = SeqNo == 0 ? 1 : SeqNo + 1;
+                                    string value = number.ToString("D6");
+                                    QryUpdateRefNo.Consultant_SeqNbr = number;
+                                    QryUpdateRefNo.Consultant_ApplicationNo = "AP/" + value + "/CON";
+                                    context.SaveChanges();
+                                }
+                            }
+                            if (model.Consultant_AppointmentId > 0)
+                            {
+                                tblRCTConsultantEntry ConsEdit = new tblRCTConsultantEntry();
+                                Consultant_AppointmentId = model.Consultant_AppointmentId;
+                                var editconsquery = (from s in context.tblRCTConsultantEntry
+                                                     where (s.Consultant_Status == "Open" || s.Consultant_Status == "Draft")
+                                                     && s.Consultant_AppointmentId == Consultant_AppointmentId
+                                                     select s).FirstOrDefault();
+                                editconsquery.Consultant_Status = model.Consultant_Status;
+                                editconsquery.Consultant_MasterId = model.Consultant_MasterId;
+                                editconsquery.Consultant_EmpNo = model.Consultant_EmpNo;
+                                editconsquery.Consultant_ServiceDescription = model.Consultant_ServiceDescription;
+                                var editconstype = (from s in context.tblRCTConsultantEntry
+                                                    join m in context.tblRCTConsultantMaster on s.Consultant_MasterId equals m.Consultant_MasterId
+                                                    where s.Consultant_AppointmentId == Consultant_AppointmentId
+                                                    select m).FirstOrDefault();
+                                editconsquery.Consultant_Type = editconstype.Consultant_EmpType;
+                                editconsquery.Consultant_Code = model.Consultant_CodeId;
+                                editconsquery.Consultant_Title = model.Consultant_Title;
+                                editconsquery.Consultant_AoE = model.Consultant_AoE;
+                                editconsquery.Consultant_SoW = model.Consultant_SoW;
+                                editconsquery.Consultant_GSTStatus = model.Consultant_GSTStatus;
+                                editconsquery.Consultant_GSTIN = model.Consultant_GSTIN;
+                                editconsquery.Consultant_GSTINPercentage = model.Consultant_GSTINPercentage;
+                                editconsquery.Consultant_TandC = model.Consultant_TandC;
+                                editconsquery.Consultant_PaymentTerms = model.Consultant_PaymentTerms;
+                                editconsquery.Consultant_ProjectId = model.Consultant_ProjectId;
+                                editconsquery.Consultant_AppStartDt = model.Consultant_AppStartDt;
+                                editconsquery.Consultant_AppEndDt = model.Consultant_AppEndDt;
+                                editconsquery.Consultant_ActualAppStartDt = model.Consultant_AppStartDt;
+                                editconsquery.Consultant_ActualAppEndDt = model.Consultant_AppEndDt;
+                                editconsquery.Consultant_CurrType = model.Consultant_CurrType;
+                                editconsquery.Consultant_CurrValue = model.Consultant_CurrValue;
+                                editconsquery.Consultant_CurrConvertionRate = model.Consultant_CurrConvertionRate;
+                                editconsquery.Consultant_CurrFluctuationvalue = model.Consultant_CurrFlutuationvalue;
+                                editconsquery.Consultant_RetainerFee = model.Consultant_RetainerFee;
+                                editconsquery.Consultant_GSTvalue = model.Consultant_GSTvalue;
+                                editconsquery.Consultant_GSTEligibility = model.Consultant_GSTEligibility;
+                                editconsquery.Consultant_Commitvalue = model.Consultant_Commitvalue;
+                                editconsquery.Consultant_ITTDSType = model.Consultant_ITTDSType;
+                                editconsquery.Consultant_ITTDSPercentage = model.Consultant_ITTDSPercentage;
+                                editconsquery.Consultant_ITTDSExemptedDate = model.Consultant_ITTDSExemptedDate;
+                                editconsquery.Consultant_GSTTDSType = model.Consultant_GSTTDSType;
+                                editconsquery.Consultant_RCMType = model.Consultant_RCMType;
+                                editconsquery.Consultant_RCMCategory = model.Consultant_RCMCategory;
+                                editconsquery.Consultant_PayType = model.Consultant_PayType;
+                                editconsquery.Consultant_AuditApproval = model.Consultant_AuditApproval;
+                                editconsquery.Consultant_WPCategory = model.Consultant_WPCategory;
+                                editconsquery.Consultant_WorkPlace = model.Consultant_WorkPlace;
+                                editconsquery.Consultant_Remarks = null;
+                                editconsquery.Consultant_ReqReceivedDate = model.Consultant_ReqReceivedDate;
+                                editconsquery.Consultant_ReqInitBy = model.Consultant_ReqInitBy;
+                                editconsquery.Consultant_UptdTs = DateTime.Now;
+                                editconsquery.Consultant_UptdUser = logged_in_userId;
+                                editconsquery.Consultant_ActivityStatus = false;
+                                editconsquery.Consultant_IsDeleted = false;
+                                editconsquery.Consultant_DAComments = model.Consultant_DAComments;
+                                editconsquery.Consultant_FlowApprover = model.Consultant_FlowApprover;
+                                editconsquery.Consultant_ApplicationNo = model.Consultant_AppNo;
+                                context.SaveChanges();
+                                var QryConsModeremove = (from q in context.tblRCTConsultantMode
+                                                         where q.Consultant_AppointmentId == Consultant_AppointmentId && q.Consultant_CurrentVersion == true
+                                                         select q).ToList();
+                                if (QryConsModeremove != null)
+                                {
+                                    foreach (var item in QryConsModeremove)
+                                    {
+                                        item.Consultant_CurrentVersion = false;
+                                        item.Consultant_UptdTs = DateTime.Now;
+                                        item.Consultant_UptdUser = logged_in_userId;
+                                        context.SaveChanges();
+                                    }
+                                }
+                                if (model.Consultant_Mode != null && model.Consultant_Mode[0] != 0)
+                                {
+                                    if (model.Consultant_Mode.Length > 0)
+                                    {
+                                        for (int i = 0; i < model.Consultant_Mode.Length; i++)
+                                        {
+                                            tblRCTConsultantMode ConsMode = new tblRCTConsultantMode();
+                                            ConsMode.Consultant_AppointmentId = Consultant_AppointmentId;
+                                            ConsMode.Consultant_ModeID = model.Consultant_Mode[i].Value;
+                                            ConsMode.Consultant_CrtdTs = DateTime.Now;
+                                            ConsMode.Consultant_CrtdUser = logged_in_userId;
+                                            ConsMode.Consultant_CurrentVersion = true;
+                                            context.tblRCTConsultantMode.Add(ConsMode);
+                                            context.SaveChanges();
+                                        }
+                                    }
+                                }
+                                //var QryConsattachremove = (from q in context.tblRCTConsultantEntryDocs
+                                //                           where q.Consultant_AppointmentId == Consultant_AppointmentId && q.Consultant_IsDeleted == false
+                                //                           select q).ToList();
+                                //if (QryConsattachremove != null)
+                                //{
+                                //    foreach (var item in QryConsattachremove)
+                                //    {
+                                //        item.Consultant_IsDeleted = true;
+                                //        item.Consultant_UptdTs = DateTime.Now;
+                                //        item.Consultant_UptdUser = logged_in_userId;
+                                //        context.SaveChanges();
+                                //    }
+                                //}
+                                context.tblRCTConsultantEntryDocs.Where(x => x.Consultant_AppointmentId == model.Consultant_AppointmentId && !model.Consultant_DocumentId.Contains(x.Consultant_DocumentId) && x.Consultant_IsDeleted == false)
+                           .ToList()
+                           .ForEach(m => m.Consultant_IsDeleted = true);
+                                context.SaveChanges();
+                                if (model.Consultant_DocumentType != null && model.Consultant_DocumentType[0] != 0 && file != null)
+                                {
+                                    if (model.Consultant_DocumentId.Length > 0)
+                                    {
+                                        for (int i = 0; i < model.Consultant_DocumentId.Length; i++)
+                                        {
+                                            var docid = model.Consultant_DocumentId[i];
+                                            var doctype = model.Consultant_DocumentType[i];
+                                            //string docpath = "";
+                                            var docquery = (from doc in context.tblRCTConsultantEntryDocs
+                                                            where (doc.Consultant_DocumentId == docid && doc.Consultant_AppointmentId == model.Consultant_AppointmentId)
+                                                            select doc).ToList();
+                                            if (docquery.Count == 0 && file[i] != null)
+                                            {
+                                                string path = " ";
+                                                path = System.IO.Path.GetFileName(file[i].FileName);
+                                                var docfileId = Guid.NewGuid().ToString();
+                                                var docname = docfileId + "_" + path;
+
+                                                /*Saving the file in server folder*/
+                                                file[i].UploadFile("Consultant", docname);
+                                                tblRCTConsultantEntryDocs ConsDoc = new tblRCTConsultantEntryDocs();
+                                                ConsDoc.Consultant_MasterId = model.Consultant_MasterId;
+                                                ConsDoc.Consultant_AppointmentId = Consultant_AppointmentId;
+                                                ConsDoc.Consultant_DocumentType = model.Consultant_DocumentType[i];
+                                                ConsDoc.Consultant_DocumentName = file[i].FileName;
+                                                ConsDoc.Consultant_DocumentNameEncrypted = docname;
+                                                ConsDoc.Consultant_DocumentRemarks = model.Consultant_DocumentName[i];
+                                                ConsDoc.Consultant_CrtdTs = DateTime.Now;
+                                                ConsDoc.Consultant_CrtdUser = logged_in_userId;
+                                                ConsDoc.Consultant_Status = "Active";
+                                                ConsDoc.Consultant_IsDeleted = false;
+                                                context.tblRCTConsultantEntryDocs.Add(ConsDoc);
+                                                context.SaveChanges();
+                                            }
+
+                                        }
+                                    }
+                                }
+                            }
+                            if (Consultant_AppointmentId > 0)
+                            {
+                                if (model.Consultant_Status == "Open")
+                                    res = 1;
+                                else if (model.Consultant_Status == "Draft")
+                                    res = 2;
+                            }
+                            else
+                            {
+                                return Tuple.Create(-1, 0, msg);
+                            }
+                            transaction.Commit();
+
+                        }
+                        catch (Exception ex)
+                        {
+                            transaction.Rollback();
+                            WriteLog.SendErrorToText(ex);
+                            return Tuple.Create(0, 0, msg);
+                        }
+                    }
+                }
+                return Tuple.Create(res, Consultant_AppointmentId, msg);
+            }
+            catch (Exception ex)
+            {
+                WriteLog.SendErrorToText(ex);
+                return Tuple.Create(0, 0, msg);
+            }
+        }
+        public ConsultantEmployeeEntry GetEditConsultant(int ConsultantServiceID, HttpPostedFileBase[] file)
+        {
+            ConsultantEmployeeEntry model = new ConsultantEmployeeEntry();
+            List<ConsultantMaster> ConsModel1 = new List<ConsultantMaster>();
+            try
+            {
+                using (var context = new IOASDBEntities())
+                {
+                    if (ConsultantServiceID > 0)
+                    {
+                        var QryCons = (from A in context.tblRCTConsultantEntry
+                                       where A.Consultant_AppointmentId == ConsultantServiceID
+                                       select new { A }).FirstOrDefault();
+                        var QryConsDoc = (from A in context.tblRCTConsultantEntryDocs
+                                          where A.Consultant_AppointmentId == ConsultantServiceID && A.Consultant_IsDeleted == false
+                                          select A).FirstOrDefault();
+                        var QryConsMode = (from A in context.tblRCTConsultantMode
+                                           where A.Consultant_AppointmentId == ConsultantServiceID && A.Consultant_CurrentVersion == true
+                                           select A.Consultant_ModeID).ToList();
+                        var newList = QryConsMode.Select(i => (int?)i).ToList();
+                        model.Consultant_Mode = newList.ToArray();
+                        var consfile = (from TF in context.tblRCTConsultantEntryDocs
+                                        where TF.Consultant_AppointmentId == ConsultantServiceID && TF.Consultant_IsDeleted != true
+                                        select TF).ToList();
+                        if (consfile.Count > 0)
+                        {
+                            int[] _docid = new int[consfile.Count];
+                            int[] _doctype = new int[consfile.Count];
+                            string[] _docname = new string[consfile.Count];
+                            string[] _attchname = new string[consfile.Count];
+                            string[] _docpath = new string[consfile.Count];
+                            for (int i = 0; i < consfile.Count; i++)
+                            {
+                                _docid[i] = Convert.ToInt32(consfile[i].Consultant_DocumentId);
+                                _doctype[i] = Convert.ToInt32(consfile[i].Consultant_DocumentType);
+                                _docname[i] = consfile[i].Consultant_DocumentRemarks;
+                                _attchname[i] = consfile[i].Consultant_DocumentName;
+                                _docpath[i] = consfile[i].Consultant_DocumentNameEncrypted;
+                            }
+                            model.Consultant_DocumentId = _docid;
+                            model.Consultant_DocumentType = _doctype;
+                            model.Consultant_DocumentRemarks = _docname;
+                            model.Consultant_DocumentName = _attchname;
+                            model.Consultant_DocumentNameEncrypted = _docpath;
+                        }
+                        model.Consultant_AppNo = QryCons.A.Consultant_ApplicationNo;
+                        model.Consultant_Status = QryCons.A.Consultant_Status;
+                        model.Consultant_MasterId = QryCons.A.Consultant_MasterId;
+                        var QryGetCons = (from A in context.tblRCTConsultantEntry
+                                          join B in context.tblRCTConsultantMaster on A.Consultant_MasterId equals B.Consultant_MasterId
+                                          where A.Consultant_AppointmentId == ConsultantServiceID
+                                          select new { B }).FirstOrDefault();
+                        model.Consultant_Name = QryGetCons.B.Consultant_Name;
+                        model.Consultant_EmpNo = QryCons.A.Consultant_EmpNo;
+                        model.Consultant_ServiceDescription = QryCons.A.Consultant_ServiceDescription;
+                        var querycons = (from cm in context.tblRCTConsultantMaster
+                                         join ci in context.tblRCTConsultantEntry on cm.Consultant_MasterId equals ci.Consultant_MasterId
+                                         join cc in context.tblCodeControl on cm.Consultant_Nationality equals cc.CodeValAbbr
+                                         join cc1 in context.tblCodeControl on cm.Consultant_Category equals cc1.CodeValAbbr
+                                         where ci.Consultant_AppointmentId == ConsultantServiceID
+                                         && cc.CodeName == "ConsultantNationality" && cc1.CodeName == "ConsultantCategory"
+                                         select new { cm.Consultant_Name, cm.Consultant_EmpType, cm.Consultant_MasterId, cm.GSTIN, cc, cc1 }).FirstOrDefault();
+                        model.Consultant_EmpType = querycons.Consultant_EmpType.Trim().ToString();
+
+                        ConsultantMaster Con_Emptype = new ConsultantMaster();
+                        Con_Emptype.Consultant_EmpType = querycons.Consultant_EmpType.Trim().ToString();
+                        ConsModel1.Add(Con_Emptype);
+                        model.ConsultantMasterList = ConsModel1;
+
+
+
+
+                        model.Consultant_Type = querycons.cc1.CodeValDetail + "-" + querycons.cc.CodeValDetail;
+                        var QryGetConscode = (from A in context.tblRCTConsultantEntry
+                                              join B in context.tblRCTDesignation on A.Consultant_Code equals B.DesignationId
+                                              where A.Consultant_AppointmentId == ConsultantServiceID
+                                              select new { B }).FirstOrDefault();
+                        if (QryGetConscode != null)
+                        {
+                            model.Consultant_CodeId = QryGetConscode.B.DesignationId;
+                        }
+                        //model.Consultant_Code = QryGetConscode.B.DesignationId;
+                        model.Consultant_Title = QryCons.A.Consultant_Title;
+                        model.Consultant_AoE = QryCons.A.Consultant_AoE;
+                        model.Consultant_SoW = QryCons.A.Consultant_SoW;
+                        model.Consultant_GSTStatus = QryCons.A.Consultant_GSTStatus;
+                        model.Consultant_GSTIN = QryCons.A.Consultant_GSTIN;
+                        model.Consultant_GSTINPercentage = QryCons.A.Consultant_GSTINPercentage;
+                        model.Consultant_TandC = QryCons.A.Consultant_TandC;
+                        model.Consultant_PaymentTerms = QryCons.A.Consultant_PaymentTerms;
+                        var QryProjectdet = (from A in context.tblRCTConsultantEntry
+                                             join B in context.tblProject on A.Consultant_ProjectId equals B.ProjectId
+                                             where A.Consultant_AppointmentId == ConsultantServiceID
+                                             select new { B }).FirstOrDefault();
+                        if (QryProjectdet != null)
+                        {
+                            model.Consultant_ProjectId = QryProjectdet.B.ProjectId;
+                            model.Consultant_ProjectNumber = QryProjectdet.B.ProjectNumber;
+                            model.Consultant_AppStartDt = QryCons.A.Consultant_AppStartDt;
+                            model.Consultant_AppEndDt = QryCons.A.Consultant_AppEndDt;
+                            model.Consultant_AppStartDt = QryCons.A.Consultant_ActualAppStartDt;
+                            model.Consultant_AppEndDt = QryCons.A.Consultant_ActualAppEndDt;
+                        }
+                        //model.Consultant_ProjectId = QryProjectdet.B.ProjectId;
+                        //model.Consultant_ProjectNumber = QryProjectdet.B.ProjectNumber;
+                        //model.Consultant_AppStartDt = QryCons.A.Consultant_AppStartDt;
+                        //model.Consultant_AppEndDt = QryCons.A.Consultant_AppEndDt;
+                        //model.Consultant_AppStartDt = QryCons.A.Consultant_ActualAppStartDt;
+                        //model.Consultant_AppEndDt = QryCons.A.Consultant_ActualAppEndDt;
+                        model.Consultant_CurrType = QryCons.A.Consultant_CurrType;
+                        model.Consultant_CurrValue = QryCons.A.Consultant_CurrValue;
+                        model.Consultant_CurrConvertionRate = QryCons.A.Consultant_CurrConvertionRate;
+                        model.Consultant_CurrFlutuationvalue = QryCons.A.Consultant_CurrFluctuationvalue;
+                        model.Consultant_RetainerFee = QryCons.A.Consultant_RetainerFee;
+                        model.Consultant_GSTvalue = QryCons.A.Consultant_GSTvalue;
+                        model.Consultant_GSTEligibility = QryCons.A.Consultant_GSTEligibility;
+                        var GSTPercent = QryCons.A.Consultant_GSTINPercentage;
+                        model.Consultant_GSTINPercentage = Convert.ToInt32(GSTPercent);
+                        model.Consultant_Commitvalue = QryCons.A.Consultant_Commitvalue;
+                        model.Consultant_ITTDSType = QryCons.A.Consultant_ITTDSType;
+                        var ITTDSPercent = QryCons.A.Consultant_ITTDSPercentage;
+                        model.Consultant_ITTDSPercentage = Convert.ToInt32(ITTDSPercent);
+                        model.Consultant_ITTDSExemptedDate = QryCons.A.Consultant_ITTDSExemptedDate ?? null;
+                        model.Consultant_GSTTDSType = QryCons.A.Consultant_GSTTDSType;
+                        model.Consultant_RCMType = QryCons.A.Consultant_RCMType;
+                        model.Consultant_RCMCategory = QryCons.A.Consultant_RCMCategory;
+                        model.Consultant_PayType = QryCons.A.Consultant_PayType;
+                        model.Consultant_AuditApproval = QryCons.A.Consultant_AuditApproval ?? false;
+                        model.Consultant_WPCategory = QryCons.A.Consultant_WPCategory;
+                        model.Consultant_WorkPlace = QryCons.A.Consultant_WorkPlace;
+                        model.Consultant_ReqReceivedDate = QryCons.A.Consultant_ReqReceivedDate;
+                        model.Consultant_ReqInitBy = QryCons.A.Consultant_ReqInitBy;
+                        model.Consultant_DAComments = QryCons.A.Consultant_DAComments;
+                        model.Consultant_FlowApprover = QryCons.A.Consultant_FlowApprover;
+                        model.Consultant_AppointmentId = QryCons.A.Consultant_AppointmentId;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return model;
+            }
+            return model;
+        }
 
     }
 }

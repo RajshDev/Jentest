@@ -9201,19 +9201,19 @@ namespace IOAS.Controllers
         }
         #endregion
 
-        [HttpPost]
-        public JsonResult GetConsultantList(ConsultantSearchModel model, int pageIndex, int pageSize)
-        {
-            try
-            {
-                object output = RequirementService.GetConsultantList(model, pageIndex, pageSize);
-                return Json(output, JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
+        //[HttpPost]
+        //public JsonResult GetConsultantList(ConsultantSearchModel model, int pageIndex, int pageSize)
+        //{
+        //    try
+        //    {
+        //        object output = RequirementService.GetConsultantList(model, pageIndex, pageSize);
+        //        return Json(output, JsonRequestBehavior.AllowGet);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw ex;
+        //    }
+        //}
 
         [HttpPost]
         public JsonResult CONEmailProcess(CheckDevationModel model)
@@ -10991,6 +10991,216 @@ namespace IOAS.Controllers
                 throw new Exception(ex.Message);
             }
         }
+        #region Consultant New Appointment
+        [HttpGet]
+        public ActionResult RCTConsultantNewEntry(HttpPostedFileBase[] file, int ConsultantServiceID = 0)
+        {
+            ConsultantEmployeeEntry ConsultantModel = new ConsultantEmployeeEntry();
+            try
+            {
+                ViewBag.ConsultantGSTType = Common.GetCodeControlList("ConsultantGSTType");
+                ViewBag.TaxPctList = Common.GetCodeControlList("TaxPercentage");
+                ViewBag.Currency = Common.getCurrency(true);
+                ViewBag.ConsultantCommonTaxType1 = Common.GetCodeControlList("ConsultantCommonTaxType1");
+                ViewBag.ConsultantCommonTaxType2 = Common.GetCodeControlList("ConsultantCommonTaxType2");
+                ViewBag.ConsultantRCMTaxType = Common.GetCodeControlList("ConsultantRCMTaxType");
+                ViewBag.TDSSectionList = Common.GetTdsList();
+                ViewBag.ConsultantMode = Common.GetCodeControlList("ConsultantMode");
+                ViewBag.ConsultantPaymentType = Common.GetCodeControlList("ConsultantPaymentType");
+                ViewBag.ConsultantDocType = Common.GetCodeControlList("ConsultantDocType");
+                ConsultantModel.Consultant_Status = string.Empty;
+                //ConsultantModel.Consultant_Code = string.Empty;
+                if (ConsultantServiceID > 0)
+                {
+                    ConsultantModel = recruitmentService.GetEditConsultant(ConsultantServiceID, file);
+                }
+                return View(ConsultantModel);
+            }
+            catch (Exception ex)
+            {
+                ViewBag.ConsultantGSTType = Common.GetCodeControlList("ConsultantGSTType");
+                ViewBag.TaxPctList = Common.GetCodeControlList("TaxPercentage");
+                ViewBag.Currency = Common.getCurrency(true);
+                ViewBag.ConsultantCommonTaxType1 = Common.GetCodeControlList("ConsultantCommonTaxType1");
+                ViewBag.ConsultantCommonTaxType2 = Common.GetCodeControlList("ConsultantCommonTaxType2");
+                ViewBag.ConsultantRCMTaxType = Common.GetCodeControlList("ConsultantRCMTaxType");
+                ViewBag.TDSSectionList = Common.GetTdsList();
+                ViewBag.ConsultantMode = Common.GetCodeControlList("ConsultantMode");
+                ViewBag.ConsultantPaymentType = Common.GetCodeControlList("ConsultantPaymentType");
+                ViewBag.ConsultantDocType = Common.GetCodeControlList("ConsultantDocType");
+                ConsultantModel.Consultant_Status = string.Empty;
+                return View(ConsultantModel);
+            }
+        }
+
+        [HttpPost]
+        public ActionResult RCTConsultantNewEntry(ConsultantEmployeeEntry model, HttpPostedFileBase[] file)
+        {
+            try
+            {
+                int UserId = Common.GetUserid(User.Identity.Name);
+                string folder = System.Web.HttpContext.Current.Server.MapPath("~/Content/Requirement");
+                string Errormessages = string.Empty;
+                ViewBag.List = new List<MasterlistviewModel>();
+                ViewBag.ConsultantGSTType = Common.GetCodeControlList("ConsultantGSTType");
+                ViewBag.TaxPctList = Common.GetCodeControlList("TaxPercentage");
+                ViewBag.Currency = Common.getCurrency(true);
+                ViewBag.ConsultantCommonTaxType1 = Common.GetCodeControlList("ConsultantCommonTaxType1");
+                ViewBag.ConsultantCommonTaxType2 = Common.GetCodeControlList("ConsultantCommonTaxType2");
+                ViewBag.ConsultantRCMTaxType = Common.GetCodeControlList("ConsultantRCMTaxType");
+                ViewBag.TDSSectionList = Common.GetTdsList();
+                ViewBag.ConsultantMode = Common.GetCodeControlList("ConsultantMode");
+                ViewBag.ConsultantPaymentType = Common.GetCodeControlList("ConsultantPaymentType");
+                ViewBag.ConsultantDocType = Common.GetCodeControlList("ConsultantDocType");
+                if (model.Consultant_Status == "Draft")
+                {
+                    var result = recruitmentService.PostConsultant(model, file, UserId);
+                    if (result.Item1 == 1)
+                    {
+                        TempData["succMsg"] = "Appointment Entry submitted Successfully";
+                        return RedirectToAction("RCTConsultantList", "Requirement");
+                    }
+                    else if (result.Item1 == 2)
+                    {
+                        TempData["succMsg"] = "Saved as draft";
+                        return RedirectToAction("RCTConsultantList", "Requirement");
+                    }
+                    else
+                    {
+                        TempData["errMsg"] = "Something went wrong please contact administrator";
+                        return View(model);
+                    }
+                }
+                else if (model.Consultant_Status == "Open")
+                {
+                    var result = recruitmentService.PostConsultant(model, file, UserId);
+                    if (result.Item1 == 1)
+                    {
+                        TempData["succMsg"] = "Appointment Entry submitted Successfully";
+                        return RedirectToAction("RCTConsultantList", "Requirement");
+                    }
+                    else if (result.Item1 == 2)
+                    {
+                        TempData["succMsg"] = "Saved as draft";
+                        return RedirectToAction("RCTConsultantList", "Requirement");
+                    }
+                    else
+                    {
+                        TempData["errMsg"] = "Something went wrong please contact administrator";
+                        return View(model);
+                    }
+                }
+                //else
+                //{
+                //    string messages = string.Join("<br />", ModelState.Values
+                //    .SelectMany(x => x.Errors)
+                //    .Select(x => x.ErrorMessage));
+                //    messages += Errormessages;
+                //    TempData["errMsg"] = messages;
+                //}
+            }
+            catch (Exception ex)
+            {
+                WriteLog.SendErrorToText(ex);
+                ViewBag.List = new List<MasterlistviewModel>();
+                ViewBag.ConsultantGSTType = Common.GetCodeControlList("ConsultantGSTType");
+                ViewBag.TaxPctList = Common.GetCodeControlList("TaxPercentage");
+                ViewBag.Currency = Common.getCurrency(true);
+                ViewBag.ConsultantCommonTaxType1 = Common.GetCodeControlList("ConsultantCommonTaxType1");
+                ViewBag.ConsultantCommonTaxType2 = Common.GetCodeControlList("ConsultantCommonTaxType2");
+                ViewBag.ConsultantRCMTaxType = Common.GetCodeControlList("ConsultantRCMTaxType");
+                ViewBag.TDSSectionList = Common.GetTdsList();
+                ViewBag.ConsultantMode = Common.GetCodeControlList("ConsultantMode");
+                ViewBag.ConsultantPaymentType = Common.GetCodeControlList("ConsultantPaymentType");
+                ViewBag.ConsultantDocType = Common.GetCodeControlList("ConsultantDocType");
+                TempData["errMsg"] = "Something went wrong please contact administrator";
+                return RedirectToAction("RCTConsultantList", "Requirement");
+            }
+            return RedirectToAction("RCTConsultantList", "Requirement");
+        }
+        [HttpGet]
+        public JsonResult LoadRCTCONEmployeeList(string term, string apptype = null)
+        {
+            try
+            {
+                lock (lockObj)
+                {
+                    var data = Common.GetAutoCompleteRCTCONEmployee(term, "CON");
+                    return Json(data, JsonRequestBehavior.AllowGet);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        [HttpGet]
+        public JsonResult GetConsEmpDetails(string ConsEmpID = null)
+        {
+            try
+            {
+                object output = Common.GetConsEmployeeDetails(ConsEmpID);
+                return Json(output, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        [HttpGet]
+        public ActionResult RCTConsultantList()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public JsonResult GetRCTConsultantList(RCTConsultantSearchModel model, int pageIndex, int pageSize)
+        {
+            try
+            {
+                object output = RequirementService.GetRCTConsultantList(model, pageIndex, pageSize);
+                return Json(output, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                WriteLog.SendErrorToText(ex);
+                throw ex;
+            }
+        }
+
+        public ActionResult _ConsultantMasterView(int Vendorid = 0)
+        {
+            try
+            {
+                ConsultantMasterView model = new ConsultantMasterView();
+                model = RequirementService.GetConsultantMasterView(Vendorid);
+                ViewBag.processGuideLineId = 160;
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        #endregion
+
+        public ActionResult ShowDocument(string file, string filepath)
+        {
+            try
+            {
+
+                string fileType = Common.GetMimeType(Path.GetExtension(file));
+                byte[] fileData = file.DownloadFile(Common.GetDirectoryName(filepath));
+                Response.AddHeader("Content-Disposition", "inline; filename=\"" + file + "\"");
+                return File(fileData, fileType);
+            }
+            catch (FileNotFoundException)
+            {
+                throw new HttpException(404, "File not found.");
+            }
+        }
+
 
 
         #region Test

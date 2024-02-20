@@ -30736,6 +30736,94 @@ namespace IOAS.Infrastructure
 
         #endregion
 
+        public static string CheckPreviousGSTNumber(string GSTno)
+        {
+            string isalreadyEmp = string.Empty;
+            try
+            {
+                using (var context = new IOASDBEntities())
+                {
+                    var checkquery = (from cc in context.tblRCTConsultantEntry
+                                      where cc.Consultant_GSTIN.Contains(GSTno)
+
+                                      orderby cc.Consultant_MasterId descending
+                                      select new { cc.Consultant_Status, cc.Consultant_EmpNo, cc.Consultant_MasterId, cc.Consultant_GSTIN }).FirstOrDefault();
+                    if (checkquery != null)
+                    {
+                        isalreadyEmp = checkquery.Consultant_EmpNo;
+                    }
+                }
+                return isalreadyEmp;
+            }
+            catch (Exception ex)
+            {
+                return isalreadyEmp;
+            }
+        }
+        #region Consultant New Entry
+        public static List<AutoCompleteModel> GetAutoCompleteRCTCONEmployee(string term, string apptype = null)
+        {
+            try
+            {
+                List<AutoCompleteModel> list = new List<AutoCompleteModel>();
+                using (var context = new IOASDBEntities())
+                {
+                    list = (from cm in context.tblRCTConsultantMaster
+                            where (string.IsNullOrEmpty(term) || cm.Consultant_EmpId.Contains(term))
+                            && (cm.Status != "InActive" && cm.Status != "Open") && cm.IsActiveNow == true
+                            select new
+                            {
+                                Consultant_EmpId = cm.Consultant_EmpId
+                            })
+                            .Distinct()
+                            .AsEnumerable()
+                            .Select((x, index) => new AutoCompleteModel()
+                            {
+                                value = x.Consultant_EmpId.ToString(),
+                                label = x.Consultant_EmpId
+                            }).ToList();
+                }
+                return list;
+            }
+            catch (Exception ex)
+            {
+                return new List<AutoCompleteModel>();
+            }
+        }
+        public static ConsultantEmployeeEntry GetConsEmployeeDetails(string ConsID = null)
+        {
+            ConsultantEmployeeEntry ConsModel = new ConsultantEmployeeEntry();
+            List<ConsultantMaster> ConsModel1 = new List<ConsultantMaster>();
+            using (var context = new IOASDBEntities())
+            {
+                if (ConsID != null)
+                {
+                    var querycons = (from cm in context.tblRCTConsultantMaster
+                                     join cc in context.tblCodeControl on cm.Consultant_Nationality equals cc.CodeValAbbr
+                                     join cc1 in context.tblCodeControl on cm.Consultant_Category equals cc1.CodeValAbbr
+                                     where cm.Consultant_EmpId == ConsID
+                                     && cc.CodeName == "ConsultantNationality" && cc1.CodeName == "ConsultantCategory"
+                                     select new { cm.Consultant_Name, cm.Consultant_EmpType, cm.Consultant_MasterId, cm.GSTIN, cc, cc1 }).FirstOrDefault();
+                    if (querycons != null)
+                    {
+                        ConsModel.Consultant_Name = querycons.Consultant_Name;
+                        ConsModel1.Add(new ConsultantMaster()
+                        {
+                            Consultant_EmpType = querycons.Consultant_EmpType
+                        });
+                        ConsModel.ConsultantMasterList = ConsModel1;
+                        ConsModel.Consultant_Type = querycons.cc1.CodeValDetail + "-" + querycons.cc.CodeValDetail;
+                        ConsModel.Consultant_EmpType = querycons.Consultant_EmpType;
+                        ConsModel.Consultant_MasterId = querycons.Consultant_MasterId;
+                        ConsModel.Consultant_GSTIN = querycons.GSTIN;
+                    }
+                }
+            }
+            return ConsModel;
+        }
+        #endregion
+
+
     }
 }
 

@@ -1,0 +1,2387 @@
+﻿@model IOAS.Models.ConsultantEmployeeEntry
+@using IOAS.GenericServices
+@{
+    ViewBag.Title = "RCTConsultantNewEntry";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+    <link href="@Url.Content("~/Content/IOASContent/assets/bootstrap-select/css/bootstrap-select.min.css")" rel="stylesheet" />
+}
+@*<script src="@Url.Content("~/Scripts/Project/Project.js")"></script>*@
+
+
+<style>
+    .modal-dialog {
+        width: 850px;
+    }
+
+    .tab-cls-close {
+        float: right;
+        font-size: 24px;
+        margin-top: 18px;
+    }
+
+    .cls-a-wt {
+        color: #ffffff;
+    }
+
+    .rc-tb-scrl {
+        width: 100%;
+        overflow: auto;
+    }
+
+        .rc-tb-scrl table {
+            max-width: 2100px !important;
+            width: 2000px;
+        }
+
+    .reg-no {
+        z-index: 1 !important;
+    }
+
+    .error {
+        color: red;
+        margin-left: 5px;
+    }
+
+    .highlight {
+        background-color: yellow; /* Add your desired highlighting styles here */
+    }
+</style>
+
+@using (Html.BeginForm("RCTConsultantNewEntry", "Requirement", FormMethod.Post, new { @class = "", role = "form", @id = "formConsEntry", enctype = "multipart/form-data" }))
+{
+    <div class="row hd-tt-bg">
+        <div class="col-md-12">
+            <h4><b>Consultant New Entry</b></h4>
+            <ul class="nav nav-pills custom-nav-pills custom-spl-nav">
+                <li class="active"><a href="javascript:void(0)"><span>01</span>Application Entry</a></li>
+            </ul>
+            <a class="tab-cls-close" href="@Url.Action("RCTConsultantList", "Requirement")"><i class="ion-close-circled" style="color:white;"></i></a>
+        </div>
+    </div>
+    <div class=" row cust-tab">
+        <div class="page-wrapper mt30">
+            <div>
+                <div class="col-md-12">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="bl-lg-panel-box pb-null">
+                                <div class="cmn-panel-box">
+                                    <h1 class="spl-title" style="font-size:25px">Consultant Details</h1>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group">
+                                                <label class="required">Enter Consultant Employee Number</label>
+                                                @Html.TextBoxFor(m => m.Consultant_EmpNo, new { @class = "form-control required", @onpaste = "return false", @id = "GetConsDetail1", @onchange = "Removedata()" })
+                                                @Html.HiddenFor(m => m.Consultant_MasterId, new { @id = "txtConMasterId" })
+                                                @Html.HiddenFor(m => m.Consultant_Status, new { @id = "consstatus" })
+                                                @Html.HiddenFor(m => m.Consultant_AppointmentId, new { @id = "AppID" })
+                                                @Html.HiddenFor(m => m.Consultant_AppNo, new { @id = "AppNo" })
+                                                <div>@Html.ValidationMessageFor(m => m.Consultant_EmpNo)</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group">
+                                                <label>Consultant Name</label>
+                                                @Html.TextBoxFor(m => m.Consultant_Name, new { @class = "form-control", @readonly = "readonly" })
+                                                <div>@Html.ValidationMessageFor(m => m.Consultant_Name)</div>
+                                                <h4 id="lblConsultantEmpName"></h4>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group">
+                                                <input type="button" class="btn btn-success" value="View details" id="btnViewConsDetails">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-8">
+                                            <div class="form-group custom-form-group">
+                                                <label class="required">Description of services</label>
+                                                @Html.TextAreaFor(m => m.Consultant_ServiceDescription, new { @class = "form-control", @style = "height : 80px", @id = "ServiceDes", @readonly = "readonly" })
+                                                <div>@Html.ValidationMessageFor(m => m.Consultant_ServiceDescription)</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group">
+                                                <label>Consultant Type</label>
+                                                @Html.TextBoxFor(m => m.Consultant_Type, new { @class = "form-control", @readonly = "readonly", @id = "ConsType" })
+                                                @Html.HiddenFor(m => m.ConsultantMasterList[0].Consultant_EmpType, new { @id = "consemptype" })
+                                                <div>@Html.ValidationMessageFor(m => m.Consultant_Type)</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group">
+                                                <label>Area of Expertise</label>
+                                                @Html.TextAreaFor(m => m.Consultant_AoE, new { @class = "form-control", @style = "height : 80px", @readonly = "readonly" })
+                                                <div>@Html.ValidationMessageFor(m => m.Consultant_AoE)</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group">
+                                                <label>Scope of Work</label>
+                                                @Html.TextAreaFor(m => m.Consultant_SoW, new { @class = "form-control", @style = "height : 80px", @readonly = "readonly" })
+                                                <div>@Html.ValidationMessageFor(m => m.Consultant_SoW)</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group">
+                                                <label class="required">Terms and Conditions</label>
+                                                @Html.TextAreaFor(m => m.Consultant_TandC, new { @class = "form-control", @style = "height : 80px", @readonly = "readonly" })
+                                                <div>@Html.ValidationMessageFor(m => m.Consultant_TandC)</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group">
+                                                <label class="required">Payment Terms</label>
+                                                @Html.TextAreaFor(m => m.Consultant_PaymentTerms, new { @class = "form-control", @style = "height : 80px", @readonly = "readonly" })
+                                                <div>@Html.ValidationMessageFor(m => m.Consultant_PaymentTerms)</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="bl-lg-panel-box pb-null">
+                                <div class="bl-lg-panel-box-hd mb-m-5 pd-null">
+                                    <div class="cmn-panel-box">
+                                        <h1 class="spl-title" style="font-size:25px; color:white">Project details</h1>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-group custom-form-group">
+                                                    <label class="required">Enter Project Number</label><br>
+                                                    @Html.TextBoxFor(m => m.Consultant_ProjectNumber, new { @class = "form-control", @readonly = "readonly", @onchange = "RemoveProjectData(),ITTDS()" })
+                                                    @Html.HiddenFor(m => m.Consultant_ProjectId)
+                                                    @Html.HiddenFor(m => m.Consultant_Projectvalue)
+                                                    <div>@Html.ValidationMessageFor(m => m.Consultant_ProjectNumber)</div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Project Title</label><br>
+                                                    <h4 id="lblProjectTitle"></h4>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-5">
+                                                <div class="form-group custom-form-group">
+                                                    <label>PI Name</label>
+                                                    <h4 id="lblProjectPIName"></h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-2">
+                                                <div class="form-group custom-form-group">
+                                                    <label>PI ID</label>
+                                                    <h4 id="lblProjectPIID"></h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-5">
+                                                <div class="form-group custom-form-group">
+                                                    <label>PI Email</label>
+                                                    <h4 id="lblProjectPIEmail"></h4>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-5">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Department Name</label>
+                                                    <h4 id="lblProjectPIDepartment"></h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Department Code</label>
+                                                    <h4 id="lblProjectPIDepartmentCode"></h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group">
+                                                    <label class="required">Request Received Date</label>
+                                                    @Html.TextBoxFor(m => m.Consultant_ReqReceivedDate, new { @class = "form-control", @readonly = "readonly" })
+                                                    <div>@Html.ValidationMessageFor(m => m.Consultant_ReqReceivedDate)</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-5">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Project Start Date</label>
+                                                    <h4 id="lblProjectStartDate"></h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Project End Date</label>
+                                                    <h4 id="lblProjectEndDate"></h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group">
+                                                    <label class="required">Requested By</label>
+                                                    @Html.TextBoxFor(m => m.Consultant_AutofillReqInitBy, new { @class = "form-control", @readonly = "readonly" })
+                                                    @Html.HiddenFor(m => m.Consultant_ReqInitBy)
+                                                    @*<div>@Html.ValidationMessageFor(m => m.Consultant_AutofillReqInitBy)</div>*@
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group">
+                                                    <br />
+                                                    <input type="button" class="btn btn-success" value="Project Fund Availability" id="btnViewSummary" style="height : 60px;width : 250px">
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Project Balance</label>
+                                                    <h4 id="lblProjectBal"></h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group">
+                                                    <label class="required">Workplace</label><br>
+                                                    @Html.TextBoxFor(m => m.Consultant_WorkPlace, new { @class = "form-control", @readonly = "readonly" })
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group">
+                                                    <br />
+                                                    <input type="button" class="btn btn-success" value="View Staff Allocation" id="btnViewStaffAllocation" style="height : 60px;width : 250px">
+                                                </div>
+                                            </div>
+                                            <div class="col-md-8">
+                                                <div class="form-group custom-form-group">
+                                                    <label>DA Comments</label><br>
+                                                    @Html.TextAreaFor(m => m.Consultant_DAComments, new { @class = "form-control", @readonly = "readonly" })
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="bl-lg-panel-box pb-null">
+                                <div class="cmn-panel-box">
+                                    <h1 class="spl-title" style="font-size:25px">Payment / Tax Details</h1>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group">
+                                                <label>Currency Type</label><br>
+                                                @Html.DropDownListFor(m => m.Consultant_CurrType, new SelectList(ViewBag.Currency, "id", "name"), "Select", new { @class = "form-control", @id = "CurrType", @name = "CurrType1", style = "pointer-events: none;", @readonly = "readonly", @onchange = "Clearconversionrate()" })
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group">
+                                                <label>Foreign Currency Value</label><br>
+                                                @Html.TextBoxFor(m => m.Consultant_CurrValue, new { @class = "form-control", @readonly = "readonly", @onkeypress = "return isNumberKey(event)", @onchange = "calculatefee();commitment()" })
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group">
+                                                <label>Foreign Fluctuation Value</label><br>
+                                                @Html.TextBoxFor(m => m.Consultant_CurrFlutuationvalue, new { @class = "form-control", @readonly = "readonly" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group">
+                                                <label>GST Status</label><br>
+                                                @Html.DropDownListFor(m => m.Consultant_GSTStatus, new SelectList(ViewBag.ConsultantGSTType, "id", "name"), "Select", new { @class = "form-control", style = "pointer-events: none;", @readonly = "readonly", @onchange = "Taxvalidation();calculateGSTTDS();calculatefee();commitment();retailerfeechange()" })
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group">
+                                                <label>GST Number</label>
+                                                @Html.TextBoxFor(m => m.Consultant_GSTIN, new { @class = "form-control", @readonly = "readonly", @onchange = "CheckIGSTno()" })
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group">
+                                                <label>GST %</label><br>
+                                                @Html.DropDownListFor(m => m.Consultant_GSTINPercentage, new SelectList(ViewBag.TaxPctList, "id", "name"), "Select", new { @id = "Consultant_GSTINPercentagee", @class = "form-control", style = "pointer-events: none;", @readonly = "readonly", @onchange = "calculatefee();commitment();calculateGSTTDS()" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group">
+                                                <label class="required">IT TDS</label><br>
+                                                @Html.DropDownListFor(m => m.Consultant_ITTDSType, new SelectList(ViewBag.ConsultantCommonTaxType1, "id", "name"), "Select", new { @class = "form-control", style = "pointer-events: none;", @readonly = "readonly", @onchange = "ITTDS()" })
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group">
+                                                <label>IT TDS %</label><br>
+                                                @Html.DropDownListFor(m => m.Consultant_ITTDSPercentage, new SelectList(ViewBag.TDSSectionList, "id", "name"), "Select", new { @class = "form-control", style = "pointer-events: none;", @readonly = "readonly" })
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group">
+                                                <label>IT TDS Exempted Expiry Date</label>
+                                                @Html.TextBoxFor(m => m.Consultant_ITTDSExemptedDate, new { @class = "form-control", @readonly = "readonly" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group">
+                                                <label>GST TDS</label>
+                                                @Html.DropDownListFor(m => m.Consultant_GSTTDSType, new SelectList(ViewBag.ConsultantCommonTaxType2, "id", "name"), "Select", new { @id = "Consultant_GSTTDSTypes", @class = "form-control", style = "pointer-events: none;", @readonly = "readonly" })
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group">
+                                                <label>RCM</label>
+                                                @Html.DropDownListFor(m => m.Consultant_RCMCategory, new SelectList(ViewBag.ConsultantCommonTaxType2, "id", "name"), "Select", new { @id = "Consultant_RCMCategoryy", @class = "form-control", style = "pointer-events: none;", @readonly = "readonly", @onchange = "foreignRCM();calculatefee();commitment()" })
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group">
+                                                <label>RCM Type</label>
+                                                @Html.DropDownListFor(m => m.Consultant_RCMType, new SelectList(ViewBag.ConsultantRCMTaxType, "id", "name"), "Select", new { @class = "form-control", style = "pointer-events: none;", @readonly = "readonly", @onchange = "commitment();calculatefee();commitment()" })
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group">
+                                                <label>ITC Eligibility</label>
+                                                @Html.DropDownListFor(m => m.Consultant_GSTEligibility, new SelectList(ViewBag.ConsultantCommonTaxType2, "id", "name"), "Select", new { @id = "Consultant_GSTEligibilityy", @class = "form-control", style = "pointer-events: none;", @readonly = "readonly", @onchange = "commitment()" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="bl-lg-panel-box pb-null">
+                                <div class="bl-lg-panel-box-hd mb-m-5 pd-null">
+                                    <div class="cmn-panel-box">
+                                        <h1 class="spl-title" style="font-size:25px; color:white">Appointment Details</h1>
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Consultant Code</label>
+                                                    @Html.TextBoxFor(m => m.Consultant_Code, new { @class = "form-control", @readonly = "readonly", @autocomplete = "off" })
+                                                </div>
+                                            </div>
+                                            <div class="col-md-5">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Consultant Title</label>
+                                                    @Html.TextBoxFor(m => m.Consultant_Title, new { @class = "form-control", @readonly = "readonly" })
+                                                    @Html.HiddenFor(M => M.Consultant_CodeId)
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group">
+                                                    <label class="required">Consultant Mode</label><br>
+                                                    @Html.DropDownListFor(m => m.Consultant_Mode, new SelectList(ViewBag.ConsultantMode, "id", "name"),
+                                                   new { @class = "form-control selectpicker", @multiple = "multiple", @title = "Select any", @disabled = "disabled"})
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group">
+                                                    <label class="required">Service Start date</label>
+                                                    @Html.TextBoxFor(m => m.Consultant_AppStartDt, new { @class = "form-control", @readonly = "readonly", @onchange = "commitment(),calculateGSTTDS()" })
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group">
+                                                    <label class="required">Service End date</label>
+                                                    @Html.TextBoxFor(m => m.Consultant_AppEndDt, new { @class = "form-control", @readonly = "readonly", @onchange = "commitment(),calculateGSTTDS()" })
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group">
+                                                    <label class="required">Payment Type</label><br>
+                                                    @Html.DropDownListFor(m => m.Consultant_PayType, new SelectList(ViewBag.ConsultantPaymentType, "id", "name"), "Select", new { @class = "form-control", style = "pointer-events: none;", @readonly = "readonly", @onchange = "commitment();calculateGSTTDS()" })
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group">
+                                                    <label class="required">Retainer Fee in INR</label><br>
+                                                    @Html.TextBoxFor(m => m.Consultant_RetainerFee, new { @class = "form-control", @readonly = "readonly", @onkeypress = "return isNumberKey(event)", @onchange = "calculatefee();commitment();calculateGSTTDS()" })
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group">
+                                                    <label>GST Value</label><br>
+                                                    @Html.TextBoxFor(m => m.Consultant_GSTvalue, new { @class = "form-control", @readonly = "readonly" })
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Conversion rate</label><br>
+                                                    @Html.TextBoxFor(m => m.Consultant_CurrConvertionRate, new { @class = "form-control", @readonly = "readonly", @onkeypress = "return isNumberKey(event)", @onchange = "calculatefee();commitment()" })
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group">
+                                                    <label class="required">Audit Approval</label><br>
+                                                    @if (Model != null && Model.Consultant_AuditApproval == true)
+                                                    {
+                                                        @Html.RadioButtonFor(M => M.Consultant_AuditApproval, true, new { @id = "IsAuditapprovalYes", @checked = "checked" })@:&nbsp;<label>Yes</label>
+                                                        @Html.RadioButtonFor(M => M.Consultant_AuditApproval, false, new { @id = "IsAuditapprovalNo" })@:&nbsp;<label>No</label>
+                                                    }
+                                                    else
+                                                    {
+                                                        @Html.RadioButtonFor(M => M.Consultant_AuditApproval, true, new { @id = "IsAuditapprovalYes" })@:&nbsp;<label>Yes</label>
+                                                        @Html.RadioButtonFor(M => M.Consultant_AuditApproval, false, new { @id = "IsAuditapprovalNo", @checked = "checked" })@:&nbsp;<label>No</label>
+                                                    }
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group">
+                                                    <label class="required">Category</label><br>
+                                                    @if (Model != null && Model.Consultant_WPCategory != null)
+                                                    {
+                                                        @Html.RadioButtonFor(M => M.Consultant_WPCategory, 1, new { @id = "IsICSR", @checked = "checked" })@:&nbsp;<label>ICSR</label>
+                                                        @Html.RadioButtonFor(M => M.Consultant_WPCategory, 0, new { @id = "IsNonICSR" })@:&nbsp;<label>Non-ICSR</label>
+                                                    }
+                                                    else
+                                                    {
+                                                        @Html.RadioButtonFor(M => M.Consultant_WPCategory, 1, new { @id = "IsICSR" })@:&nbsp;<label>ICSR</label>
+                                                        @Html.RadioButtonFor(M => M.Consultant_WPCategory, 0, new { @id = "IsNonICSR", @checked = "checked" })@:&nbsp;<label>Non-ICSR</label>
+                                                    }
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6 reg-no custom-reg-no">
+                                                <div class="form-group custom-form-group">
+                                                    <div class="form-group custom-form-group">
+                                                        <label>Commitment Value</label><br>
+                                                        @Html.TextBoxFor(m => m.Consultant_Commitvalue, new { @class = "form-control", @readonly = "readonly" })
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="row">
+                        <div class="bl-lg-panel-box pb-null">
+                            <div class="cmn-panel-box">
+                                <div class="grey-bg-adj mb-lg">
+                                    <div class="col-md-12">
+                                        <h3 class="spl-title">Supporting Documents</h3>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div id="DocdivContent">
+                                        <div class="col-md-11 mt10">
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Attachment type</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group">
+                                                    <label> Attachment Name </label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group">
+                                                    <label> Attachment (.pdf, .doc, .docx)</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-1">
+
+                                            </div>
+                                        </div>
+                                        <div id="DocprimaryDiv">
+                                            <div class="col-md-11">
+                                                <div class="col-md-4">
+                                                    <div class="form-group custom-form-group">
+                                                        @Html.DropDownList("Consultant_DocumentType", new SelectList(ViewBag.ConsultantDocType, "id", "name"), "Select Document Type",
+                                                        new { @class = "form-control", @id = "doctype" })
+                                                        @Html.Hidden("Consultant_DocumentId")
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <div class="form-group custom-form-group">
+                                                        <input class="form-control" name="Consultant_DocumentName" id="ConsultantDocumentName" value="" type="text">
+                                                        @*@Html.TextBoxFor(m => m.DocName, new { @class = "form-control", @required = "required", @id="Docname" })*@
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-2" id="browsebtn">
+                                                    <div class="form-group custom-form-group mt5">
+                                                        <input type="file" name="file" id="Consultant_DocumentNameEncrypted" />&nbsp;&nbsp;&nbsp;
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-2 doclink mt6" id="doclink">
+                                                    @*<a href="@Url.Action("ShowDocument", new { Controller = "Manage", file = Model.DocPath, filepath = "~/Content/ProposalDocuments/", link=Model.DocPath })"> </a>*@
+                                                    <a href="#" class="link1" target="_blank"></a>
+                                                    @Html.Hidden("Consultant_DocumentNameEncrypted", "", new { @class = "HiddenDocPath" })
+                                                </div>
+                                                <div class="col-md-1 ml40 mt5">
+                                                    <input class="btn btn-default dis-none" type="button" value="remove" id="firstremoveButton" />
+                                                </div>
+                                                <div class="col-md-1 ml40 mt5">
+                                                    <button class="dis-none" type="button" id="idremoveButton" name="removeButton"><i class="ion-android-close"></i></button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-1">
+                                        <button type="button" id="btnAddDoc" class="btn-sm"><i class="ion-android-add"></i> </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+        </div>
+        <div class="col-md-6">
+            <div class="bl-lg-panel-box pb-null">
+                <div class="bl-lg-panel-box-hd mb-m-5 pd-null">
+                    <div class="cmn-panel-box">
+                        <div class="row">
+                            <div class="col-md-4" id="devCMAdmin">
+                                <div class="form-group custom-form-group">
+                                    @Html.RadioButtonFor(m => m.Consultant_FlowApprover, "CMAdmin", new { @id = "IsNotetoCMAdmin" }) <label class="ml-sm">Note to CM Admin</label>
+                                </div>
+                            </div>
+                            <div class="col-md-4" id="devNoteDean">
+                                <div class="form-group custom-form-group">
+                                    @Html.RadioButtonFor(m => m.Consultant_FlowApprover, "NDean", new { @id = "IsNotetoDean" }) <label class="ml-sm " id="lblNoteDean">Note to Dean</label>
+                                </div>
+                            </div>
+                            @*@if (string.IsNullOrEmpty(Model.Status) || Model.Status == "Draft")
+                                {*@
+                            <div class="col-md-4" id="">
+                                <div class="form-group custom-form-group">
+                                    <a id="clearFlow" style="color:#ffffff;">Clear</a>
+                                </div>
+                            </div>
+                            @*}*@
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="text-center" style="margin-bottom: 50px;">
+        @*@if (Model.Consultant_Status == "Draft" || string.IsNullOrEmpty(Model.Consultant_Status))
+            {
+                <input class="cancel btn btn-danger" type="submit" value="Save as draft" id="btnSave" />
+            }*@
+        <button type="submit" class="btn btn-primary pull-center" style="background-color:red;border-color:red" id="draftbtn" value="Draft" name="Button">Save as Draft</button>
+        <button type="submit" class="btn btn-primary pull-center" id="SFABtn" value="Open" name="Button">Submit</button>
+        <button type="button" onclick="window.location.href='@Url.Action("RCTConsultantList", "Requirement")';" class="btn btn-primary pull-center">Close</button>
+    </div>
+}
+
+@*@if (Model.Consultant_AppointmentId > 0)
+    {
+        <input type="hidden" id="currentRefId" value="@Model.Consultant_AppointmentId" />
+        <input type="hidden" id="processGuideLineId" value="@ViewBag.processGuideLineId" />
+        @Html.Partial("_ProcessStatus")
+    }*@
+
+<div id="ValidationModal" class="modal fade modal-warning" role="dialog">
+    <div class="modal-dialog modal-sm">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <i class="ion-android-warning"></i>
+                <h3 class="modal-title">Warning</h3>
+            </div>
+            <div class="modal-body">
+
+                <p id="MsgValidation"></p>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div id="popup">
+
+</div>
+
+<div id="moddata"
+     data-emptype="@Model.Consultant_EmpType">
+</div>
+
+
+
+<script>
+
+    /* Edit Mode - Employee Details Load */
+    var arrayOfArrays = (@Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model?.Consultant_Mode, Newtonsoft.Json.Formatting.Indented)));
+
+    var ApptId = @Model.Consultant_AppointmentId;
+    var Startdate = $('#Consultant_AppStartDt').val();
+    var Enddate1 = $('#Consultant_AppEndDt').val();
+    var ITTDSDate = $('#Consultant_ITTDSExemptedDate').val();
+    var ReqDate = $('#Consultant_ReqReceivedDate').val();
+    var reqinitby = $('#Consultant_ReqInitBy').val();
+    if (ApptId > 0) {
+        $('#Consultant_Mode').val(arrayOfArrays);
+        var EmptId = $("#moddata").data("emptype");
+        $('#GetConsDetail1').attr("readonly", true);
+        $('#Consultant_WorkPlace').attr("readonly", false);
+        $('#ServiceDes').attr("readonly", false);
+        $('#Consultant_AoE').attr("readonly", false);
+        $('#Consultant_SoW').attr("readonly", false);
+        $('#Consultant_DAComments').attr("readonly", false);
+        $('#Consultant_TandC').attr("readonly", false);
+        $('#Consultant_PaymentTerms').attr("readonly", false);
+        $('#Consultant_ProjectNumber').attr("readonly", false);
+        $('#Consultant_AutofillReqInitBy').attr("readonly", false);
+        $('#Consultant_RetainerFee').attr("readonly", false);
+        parentdiv = $('#Consultant_Mode').parent();
+        parentdiv.removeClass('disabled');
+        $('#Consultant_Mode').removeAttr("disabled");
+        $(parentdiv).find('button').each(function () {
+            $(this).removeClass("disabled");
+        });
+        if (Startdate != null && Startdate != "") {
+            var formattedStartDate = moment(Startdate, 'DD-MM-YYYY HH:mm:ss');
+            var outputDate = formattedStartDate.format('DD-MMMM-YYYY');
+            $('#Consultant_AppStartDt').val(outputDate);
+        }
+        if (Enddate1 != null && Enddate1 != "") {
+            var formattedEndDate = moment(Enddate1, 'DD-MM-YYYY HH:mm:ss');
+            var outputDate1 = formattedEndDate.format('DD-MMMM-YYYY');
+            $('#Consultant_AppEndDt').val(outputDate1);
+        }
+        if (ReqDate != null && ReqDate != "") {
+            var formattedReqDate = moment(ReqDate, 'DD-MM-YYYY HH:mm:ss');
+            var outputReqDate1 = formattedReqDate.format('DD-MMMM-YYYY');
+            $('#Consultant_ReqReceivedDate').val(outputReqDate1);
+        }
+
+        if (ITTDSDate != null && ITTDSDate != "") {
+            var formattedITDate = moment(ITTDSDate, 'DD-MM-YYYY HH:mm:ss');
+            var outputITDate1 = formattedITDate.format('DD-MMMM-YYYY');
+            $('#Consultant_ITTDSExemptedDate').val(outputITDate1);
+        }
+
+
+        var currentDate = new Date();
+        var day2 = ("0" + currentDate.getDate()).slice(-2);
+        var month2 = currentDate.toLocaleString('en-US', { month: 'long' });
+        var year2 = currentDate.getFullYear();
+        var formattedDate2 = `${day2}-${month2}-${year2}`;
+        $('#Consultant_ReqReceivedDate').datepicker({
+            dateFormat: 'dd-MM-yy',
+            changeYear: true
+        }).datepicker("option", "maxDate", formattedDate2);
+
+        $('#Consultant_ITTDSType').attr("readonly", false);
+        $('#Consultant_ITTDSType').css('pointer-events', '');
+        $('#Consultant_PayType').attr("readonly", false);
+        $('#Consultant_PayType').css('pointer-events', '');
+        if (EmptId == "CFF" || EmptId == "CIF") {
+            $('#CurrType').attr("readonly", false);
+            $('#CurrType').css('pointer-events', '');
+            $('#Consultant_CurrValue').attr("readonly", false);
+            $('#Consultant_CurrConvertionRate').attr("readonly", false);
+            $('#Consultant_RetainerFee').attr("readonly", true);
+            $('#Consultant_RCMCategoryy').attr("readonly", false);
+            $('#Consultant_RCMCategoryy').css('pointer-events', '');
+            $('#Consultant_RCMCategory').attr("disabled", false);
+            $('#Consultant_RCMType').attr("readonly", false);
+            $('#Consultant_RCMType').css('pointer-events', '');
+            $('#Consultant_RCMType').attr("disabled", false);
+        }
+        else {
+            //$('#CurrType').attr("readonly", true);
+            //$('#CurrType').css('pointer-events', 'none');
+            //$('#CurrType').val('');
+            //$('#Consultant_CurrValue').attr("readonly", true);
+            //$('#Consultant_CurrValue').val('');
+            //$('#Consultant_CurrConvertionRate').attr("readonly", true);
+            //$('#Consultant_CurrConvertionRate').val('');
+            //$('#Consultant_RetainerFee').attr("readonly", false);
+            ////$('#Consultant_RetainerFee').val('');
+            //$('#Consultant_CurrFlutuationvalue').val('');
+            //$('#Consultant_RCMCategoryy').attr("readonly", true);
+            //$('#Consultant_RCMCategoryy').css('pointer-events', 'none');
+            ////$('#Consultant_RCMCategoryy').val('');
+        }
+        if (EmptId == "CID" || EmptId == "CIF") {
+            $('#Consultant_Code').attr("readonly", false);
+        }
+        else {
+            //$('#Consultant_Code').attr("readonly", true);
+            //$('#Consultant_Code').val('');
+            //$('#Consultant_Title').attr("readonly", true);
+            //$('#Consultant_Title').val('');
+        }
+        if (EmptId == "CFD" || EmptId == "CID") {
+            $('#Consultant_GSTStatus').attr("readonly", false);
+            $('#Consultant_GSTStatus').css('pointer-events', '');
+        }
+        else {
+            //$('#Consultant_GSTStatus').attr("readonly", true);
+            //$('#Consultant_GSTStatus').css('pointer-events', 'none');
+            //$('#Consultant_GSTStatus').val('');
+            //$('#Consultant_GSTINPercentagee').attr("readonly", true);
+            //$('#Consultant_GSTINPercentagee').css('pointer-events', 'none');
+            ////$('#Consultant_GSTINPercentagee').val('');
+            //$('#Consultant_GSTIN').attr("readonly", true);
+            //$('#Consultant_GSTIN').val('');
+            //$('#Consultant_GSTEligibilityy').attr("readonly", true);
+            //$('#Consultant_GSTEligibilityy').css('pointer-events', 'none');
+            //$('#Consultant_GSTEligibilityy').val('');
+        }
+
+        if ($('#Consultant_GSTStatus').val() == 1) {
+            if ($('#Consultant_GSTIN').val() == null || $('#Consultant_GSTIN').val() == "") {
+                $.alert('Consultant not registered under GST');
+                $('#Consultant_GSTStatus').val('');
+            }
+            else {
+                $('#Consultant_GSTINPercentagee').attr("readonly", false);
+                $('#Consultant_GSTINPercentagee').css('pointer-events', '');
+                //$('#Consultant_GSTIN').attr("readonly", false);
+                $('#Consultant_GSTINPercentage').attr("disabled", false);
+                //$('#Consultant_GSTIN').val('');
+                //$('#Consultant_GSTINPercentagee').val('');
+                $('#Consultant_RCMType').attr("readonly", true);
+                $("#Consultant_RCMType").val("3");
+                $('#Consultant_RCMType').attr("disabled", true);
+                $('#Consultant_RCMCategoryy').attr("readonly", true);
+                $("#Consultant_RCMCategoryy").val("2");
+                $('#Consultant_RCMCategory').attr("disabled", true);
+                $('#Consultant_GSTEligibilityy').attr("readonly", false);
+                $('#Consultant_GSTEligibilityy').css('pointer-events', '');
+                $('#Consultant_GSTEligibility').attr("disabled", false);
+                //$('#Consultant_GSTEligibilityy').val('');
+            }
+        }
+        else if ($('#Consultant_GSTStatus').val() == 2) {
+            if ($('#Consultant_GSTIN').val() != null && $('#Consultant_GSTIN').val() != "") {
+                $.alert('Consultant registered under GST');
+                $('#Consultant_GSTStatus').val('');
+            }
+            else {
+                $('#Consultant_GSTIN').attr("readonly", true);
+                //$('#Consultant_GSTIN').val('');
+                $('#Consultant_GSTINPercentagee').attr("readonly", true);
+                $('#Consultant_GSTINPercentagee').css('pointer-events', 'none');
+                $('#Consultant_GSTINPercentagee').val('');
+                $('#Consultant_RCMType').attr("readonly", true);
+                $("#Consultant_RCMType").val("3");
+                $('#Consultant_RCMType').attr("disabled", true);
+                $('#Consultant_RCMCategoryy').attr("readonly", true);
+                $("#Consultant_RCMCategoryy").val("2");
+                $('#Consultant_RCMCategory').attr("disabled", true);
+                $('#Consultant_GSTEligibilityy').attr("readonly", true);
+                $('#Consultant_GSTEligibilityy').css('pointer-events', 'none');
+                //$('#Consultant_GSTEligibilityy').val('');
+                //$('#Consultant_GSTEligibilityy').attr("readonly", true);
+                $("#Consultant_GSTEligibilityy").val("2");
+                $('#Consultant_GSTEligibility').attr("disabled", true);
+            }
+        }
+        else if ($('#Consultant_GSTStatus').val() == 3) {
+            //$('#Consultant_GSTIN').attr("readonly", false);
+            //$('#Consultant_GSTIN').val('');
+            if ($('#Consultant_GSTIN').val() == null || $('#Consultant_GSTIN').val() == "") {
+                $.alert('Consultant not registered under GST');
+                $('#Consultant_GSTStatus').val('');
+            }
+            else {
+                $('#Consultant_GSTINPercentagee').attr("readonly", true);
+                $('#Consultant_GSTINPercentagee').css('pointer-events', 'none');
+                $('#Consultant_GSTINPercentagee').val('');
+                $('#Consultant_RCMType').attr("readonly", true);
+                $("#Consultant_RCMType").val("3");
+                $('#Consultant_RCMType').attr("disabled", true);
+                $('#Consultant_RCMCategoryy').attr("readonly", true);
+                $("#Consultant_RCMCategoryy").val("2");
+                $('#Consultant_RCMCategory').attr("disabled", true);
+                $('#Consultant_GSTEligibilityy').attr("readonly", true);
+                $('#Consultant_GSTEligibilityy').css('pointer-events', 'none');
+                //$('#Consultant_GSTEligibilityy').val('');
+                //$('#Consultant_GSTEligibilityy').attr("readonly", true);
+                $("#Consultant_GSTEligibilityy").val("2");
+                $('#Consultant_GSTEligibility').attr("disabled", true);
+            }
+        }
+        else if ($('#Consultant_GSTStatus').val() == 4) {
+            //if ($('#Consultant_GSTIN').val() == null || $('#Consultant_GSTIN').val() == "") {
+            //    $.alert('Consultant not registered under GST');
+            //    $('#Consultant_GSTStatus').val('');
+            //}
+            //else {
+                $('#Consultant_GSTIN').attr("readonly", true);
+                //$('#Consultant_GSTIN').val('');
+                $('#Consultant_GSTINPercentagee').attr("readonly", true);
+                $("#Consultant_GSTINPercentagee").val("18");
+                $('#Consultant_GSTINPercentage').attr("disabled", true);
+                $('#Consultant_RCMCategoryy').attr("readonly", true);
+                $("#Consultant_RCMCategoryy").val("1");
+                $('#Consultant_RCMCategory').attr("disabled", true);
+                $('#Consultant_RCMType').attr("readonly", false);
+                $('#Consultant_RCMType').css('pointer-events', '');
+                $('#Consultant_RCMType').attr("disabled", false);
+                //$('#Consultant_RCMType').val('');
+                $('#Consultant_GSTEligibilityy').attr("readonly", true);
+                $("#Consultant_GSTEligibilityy").val("2");
+                $('#Consultant_GSTEligibility').attr("disabled", true);
+            }
+       // }
+        else {
+            //$('#Consultant_GSTINPercentagee').attr("readonly", true);
+            //$('#Consultant_GSTINPercentagee').css('pointer-events', 'none');
+            //$('#Consultant_GSTINPercentagee').val('');
+            //$('#Consultant_GSTIN').attr("readonly", true);
+            //$('#Consultant_GSTIN').val('');
+            //$('#Consultant_RCMType').attr("readonly", false);
+            //$('#Consultant_RCMType').css('pointer-events', '');
+            ////$('#Consultant_RCMType').val('');
+            //$('#Consultant_GSTEligibilityy').attr("readonly", true);
+            //$('#Consultant_GSTEligibilityy').css('pointer-events', 'none');
+            //$('#Consultant_GSTEligibilityy').val('');
+            //$('#Consultant_RCMCategoryy').attr("readonly", false);
+            //$('#Consultant_RCMCategoryy').css('pointer-events', '');
+            ////$('#Consultant_RCMCategoryy').val('');
+            //$('#Consultant_GSTTDSTypes').attr("readonly", true);
+            //$('#Consultant_GSTTDSTypes').css('pointer-events', 'none');
+            //$('#Consultant_GSTTDSTypes').val('');
+        }
+
+
+        /* Edit Mode - Project Details Load */
+
+        var projectId = $("#Consultant_ProjectId").val();
+        if (projectId != "" || projectId != 0) {
+            $(".loading-bg").removeClass('dis-none');
+            $.getJSON("@Url.Action("LoadProjectDetails", "Requirement")", { ProjectId: projectId },
+                function (result) {
+                    if (result.projectData.ProjectNumber != null || result.projectData.ProjectNumber != "") {
+                        $('#labelProjectNumber').text(result.projectData.ProjectNumber);
+                        $('#lblProjectTitle').text(result.projectData.ProjectTitle);
+                        $('#lblProjectPIName').text(result.projectData.PIName);
+                        $('#lblProjectStartDate').text(result.projectData.ProjectStartDate);
+                        $('#lblProjectEndDate').text(result.projectData.ProjectClosureDate);
+                        $('#lblProjectPIID').text(result.projectData.PICode);
+                        $('#lblProjectPIEmail').text(result.projectData.Email);
+                        $('#lblProjectPIDepartmentCode').text(result.projectData.PIDepartmentCode);
+                        $('#lblProjectPIDepartment').text(result.projectData.PIDepartmentName);
+                        $(".loading-bg").addClass('dis-none');
+                        $('#Consultant_AppStartDt').datepicker({
+                            dateFormat: 'dd-MM-yy',
+                            showStatus: true,
+                            showWeeks: true,
+                            changeYear: true,
+                            yearRange: '1950:+30',
+                            highlightWeek: true,
+                            numberOfMonths: 1,
+                            showAnim: "scale",
+                            showOptions: {
+                                origin: ["top", "left"]
+                            },
+                            beforeShowDay: function (date) {
+                                var day = date.getDay();
+                                return [day != 0, ''];
+                            }
+                        });
+
+                        $('#Consultant_AppEndDt').datepicker({
+                            dateFormat: 'dd-MM-yy',
+                            showStatus: true,
+                            showWeeks: true,
+                            changeYear: true,
+                            yearRange: '1950:+30',
+                            highlightWeek: true,
+                            numberOfMonths: 1,
+                            showAnim: "scale",
+                            showOptions: {
+                                origin: ["top", "left"]
+                            }
+                        });
+
+                        var strappointmentstartdt = $('#lblProjectStartDate').text().trim();
+                        var strappointmentenddt = $('#lblProjectEndDate').text().trim();
+
+                        var strappointmentstartdtDate = moment(strappointmentstartdt, 'DD-MMM-YYYY');
+                        var outputstrappointmentstartdtDate = strappointmentstartdtDate.format('DD-MMMM-YYYY');
+
+                        var strappointmentendtDate = moment(strappointmentenddt, 'DD-MMM-YYYY');
+                        var outputstrappointmentenddtDate = strappointmentendtDate.format('DD-MMMM-YYYY');
+
+                        if ($('#Consultant_ITTDSType').val() == 1) {
+                            $('#Consultant_ITTDSPercentage').attr("readonly", false);
+                            $('#Consultant_ITTDSPercentage').css('pointer-events', '');
+                            $('#Consultant_ITTDSExemptedDate').attr("readonly", true);
+                            $("#Consultant_ITTDSExemptedDate").datepicker("destroy");
+                            $('#Consultant_ITTDSExemptedDate').val('');
+                        }
+                        else if ($('#Consultant_ITTDSType').val() == 2 && (outputstrappointmentenddtDate != null && outputstrappointmentenddtDate != '')) {
+                            $('#Consultant_ITTDSExemptedDate').datepicker({
+                                dateFormat: "dd-MM-yy",
+                                changeYear: true
+                            }).datepicker("option", "maxDate", outputstrappointmentenddtDate).datepicker("option", "minDate", outputstrappointmentstartdtDate);
+                            $('#Consultant_ITTDSPercentage').attr("readonly", true);
+                            $('#Consultant_ITTDSPercentage').css('pointer-events', 'none');
+                            $('#Consultant_ITTDSPercentage').val('');
+                        }
+                        else {
+                            $('#Consultant_ITTDSPercentage').attr("readonly", true);
+                            $('#Consultant_ITTDSPercentage').css('pointer-events', 'none');
+                            $('#Consultant_ITTDSPercentage').val('');
+                            $('#Consultant_ITTDSExemptedDate').attr("readonly", true);
+                            $("#Consultant_ITTDSExemptedDate").datepicker("destroy");
+                            $('#Consultant_ITTDSExemptedDate').val('');
+                        }
+                    }
+                    else {
+                        $(".loading-bg").addClass('dis-none');
+                    }
+                });
+
+            $.getJSON("@Url.Action("LoadProjectDetails", "Account")", { ProjectId: projectId },
+                function (result) {
+                    if (result.projectData.ProjectNumber != null || result.projectData.ProjectNumber != "") {
+                        $('#lblProjectBal').text(result.projectData.NetBalance);
+                    }
+                    else {
+                        $(".loading-bg").addClass('dis-none');
+                    }
+                });
+        }
+
+        var designationid = $('#Consultant_CodeId').val();
+        if (designationid > 0 && designationid != "") {
+            //$(".loading-bg").removeClass('dis-none');
+            $.getJSON("@Url.Action("LoadDesignationDetails", "Requirement")", { DesignationID: designationid },
+                function (result) {
+                    if (result.DesignationData.DestinationID > 0) {
+                        $("#Consultant_Title").val(result.DesignationData.Designation);
+                        $('#Consultant_Code').val(result.DesignationData.DesignationCode);
+                        $(".loading-bg").addClass('dis-none');
+                    }
+                    //else
+                    //    $(".loading-bg").addClass('dis-none');
+                });
+        }
+
+        if (reqinitby != null && reqinitby != "") {
+            //$(".loading-bg").removeClass('dis-none');
+            $.getJSON("@Url.Action("LoadPIList", "Requirement")", { term: reqinitby },
+                function (data) {
+                    if (data[0].label != "") {
+                        $("#Consultant_AutofillReqInitBy").val(data[0].label);
+                        $("#Consultant_ReqInitBy").val(data[0].value);
+                    }
+                    //else
+                    //    $(".loading-bg").addClass('dis-none');
+                });
+        }
+
+        var Docname =@Html.Raw(Json.Encode(Model.Consultant_DocumentRemarks));
+        var Attachname = @Html.Raw(Json.Encode(Model.Consultant_DocumentName));
+        var Doctype =@Html.Raw(Json.Encode(Model.Consultant_DocumentType));
+        var Docpath =@Html.Raw(Json.Encode(Model.Consultant_DocumentNameEncrypted));
+        var DocID = @Html.Raw(Json.Encode(Model.Consultant_DocumentId));
+        var RCTconsID = @Html.Raw(Json.Encode(Model.Consultant_AppointmentId));
+        $.each(Docname, function (i, val) {
+            if(RCTconsID>0){
+                if (i == 0) {
+                    document.getElementsByName('Consultant_DocumentType')[0].value = Doctype[0];
+                    document.getElementsByName('Consultant_DocumentName')[0].value = Docname[0];
+                    document.getElementsByName('Consultant_DocumentId')[0].value = DocID[0];
+                    document.getElementsByName('Consultant_DocumentNameEncrypted')[0].value = Docpath[0];
+                    document.getElementsByClassName('link1')[0].text = Attachname[0];
+                    document.getElementsByClassName('link1')[0].href = "ShowDocument?file=" + Docpath[0] + "&filepath=~%2FContent%2FConsultant%2F";
+                } else {
+                    var cln = $("#DocprimaryDiv").clone().find("input").val("").end();
+                    $(cln).find('.dis-none').removeClass('dis-none');
+                    $('#DocdivContent').append(cln)
+                    document.getElementsByName('Consultant_DocumentType')[i].value = Doctype[i];
+                    document.getElementsByName('Consultant_DocumentName')[i].value = Docname[i];
+                    document.getElementsByName('Consultant_DocumentId')[i].value = DocID[i];
+                    document.getElementsByName('Consultant_DocumentNameEncrypted')[i].value = Docpath[0];
+                    document.getElementsByClassName('link1')[i].text = Attachname[i];
+                    document.getElementsByClassName('link1')[i].href = "ShowDocument?file=" + Docpath[i] + "&filepath=~%2FContent%2FConsultant%2F";
+                }
+            }
+            //else{
+            //    if (i == 0) {
+            //        document.getElementsByName('DocType')[0].value = Doctype[0];
+            //        document.getElementsByName('AttachName')[0].value = Attachname[0];
+            //        document.getElementsByName('Docid')[0].value = DocID[0];
+            //        document.getElementsByClassName('link1')[0].text = Docname[0];
+            //        document.getElementsByClassName('link1')[0].href = "ShowDocument?file=" + Docpath[0] + "&filepath=~%2FContent%2FSupportDocuments%2F";
+            //    } else {
+            //        var cln = $("#DocprimaryDiv").clone().find("input").val("").end();
+            //        $(cln).find('.dis-none').removeClass('dis-none');
+            //        $('#DocdivContent').append(cln)
+            //        document.getElementsByName('DocType')[i].value = Doctype[i];
+            //        document.getElementsByName('AttachName')[i].value = Attachname[i];
+            //        document.getElementsByName('Docid')[i].value = DocID[i];
+            //        document.getElementsByClassName('link1')[i].text = Docname[i];
+            //        document.getElementsByClassName('link1')[i].href = "ShowDocument?file=" + Docpath[i] + "&filepath=~%2FContent%2FSupportDocuments%2F";
+            //    }
+            //}
+        });
+        //var doctypevalues = [];
+        //var docnamevalues = [];
+        //var docfile = [];
+        //var docId = [];
+        //$('select[name="Consultant_DocumentType"]').each(function (idx, val) { doctypevalues.push($(val).val()); });
+        //$('input[name="Consultant_DocumentName"]').each(function (idx, val) { docnamevalues.push($(val).val()); });
+        //$('input[name="link1"]').each(function (idx, val) { docfile.push($(val).val()); });
+        //$('input[name="Consultant_DocumentId"]').each(function (idx, val) { docId.push($(val).val()); });
+
+    }
+
+
+
+    var Status = @Html.Raw(Json.Encode(Model.Consultant_Status)) || '';
+
+    /* Employee Details and validations */
+
+    applyAutoComplete($('#GetConsDetail1'), $('#txtConMasterId'), '@Url.Action("LoadRCTCONEmployeeList", "Requirement")?apptype=CON', 'AddConsDetail', true);
+
+    function AddConsDetail() {
+        Removedata();
+        var ConsEmpID = $('#GetConsDetail1').val();
+        console.log('ConN0:', ConsEmpID);
+        if (ConsEmpID != null || ConsEmpID != "") {
+            $.ajax({
+                type: "GET",
+                url: "@Url.Action("GetConsEmpDetails", "Requirement")",
+                data: { ConsEmpID: ConsEmpID },
+                dataType: "json",
+                success: function (result) {
+                    $('#Consultant_Name').val(result.Consultant_Name);
+                    $('#ConsType').val(result.Consultant_Type);
+                    $('#txtConMasterId').val(result.Consultant_MasterId);
+                    $('#consemptype').val(result.Consultant_EmpType);
+                    $('#Consultant_GSTIN').val(result.Consultant_GSTIN);
+                    $('#Consultant_WorkPlace').attr("readonly", false);
+                    $('#ServiceDes').attr("readonly", false);
+                    $('#Consultant_AoE').attr("readonly", false);
+                    $('#Consultant_SoW').attr("readonly", false);
+                    $('#Consultant_DAComments').attr("readonly", false);
+                    $('#Consultant_TandC').attr("readonly", false);
+                    $('#Consultant_PaymentTerms').attr("readonly", false);
+                    $('#Consultant_ProjectNumber').attr("readonly", false);
+                    $('#Consultant_AutofillReqInitBy').attr("readonly", false);
+                    parentdiv = $('#Consultant_Mode').parent();
+                    parentdiv.removeClass('disabled');
+                    $('#Consultant_Mode').removeAttr("disabled");
+                    $(parentdiv).find('button').each(function () {
+                        $(this).removeClass("disabled");
+                    });
+                    var currentdate = moment(new Date()).toDate();
+                    $('#Consultant_ReqReceivedDate').datepicker({
+                        dateFormat: 'dd-MM-yy',
+                        changeYear: true
+                    }).datepicker("option", "maxDate", currentdate);
+                    $('#Consultant_ITTDSType').attr("readonly", false);
+                    $('#Consultant_ITTDSType').css('pointer-events', '');
+                    $('#Consultant_PayType').attr("readonly", false);
+                    $('#Consultant_PayType').css('pointer-events', '');
+                    $('#Consultant_RetainerFee').attr("readonly", false);
+                    if ($.trim(result.Consultant_EmpType) == "CFF" || $.trim(result.Consultant_EmpType) == "CIF") {
+                        $('#CurrType').attr("readonly", false);
+                        $('#CurrType').css('pointer-events', '');
+                        $('#Consultant_CurrValue').attr("readonly", false);
+                        $('#Consultant_CurrConvertionRate').attr("readonly", false);
+                        $('#Consultant_RetainerFee').attr("readonly", true);
+                        $('#Consultant_RCMCategoryy').attr("readonly", false);
+                        $('#Consultant_RCMCategoryy').css('pointer-events', '');
+                        $('#Consultant_RCMCategory').attr("disabled", false);
+                    }
+                    else {
+                        $('#CurrType').attr("readonly", true);
+                        $('#CurrType').css('pointer-events', 'none');
+                        $('#CurrType').val('');
+                        $('#Consultant_CurrValue').attr("readonly", true);
+                        $('#Consultant_CurrValue').val('');
+                        $('#Consultant_CurrConvertionRate').attr("readonly", true);
+                        $('#Consultant_CurrConvertionRate').val('');
+                        $('#Consultant_RetainerFee').val('');
+                        $('#Consultant_CurrFlutuationvalue').val('');
+                        $('#Consultant_RCMCategoryy').attr("readonly", true);
+                        $('#Consultant_RCMCategoryy').css('pointer-events', 'none');
+                        $('#Consultant_RCMCategoryy').val('');
+                    }
+                    if ($.trim(result.Consultant_EmpType) == "CID" || $.trim(result.Consultant_EmpType) == "CIF") {
+                        $('#Consultant_Code').attr("readonly", false);
+                    }
+                    else {
+                        $('#Consultant_Code').attr("readonly", true);
+                        $('#Consultant_Code').val('');
+                        $('#Consultant_Title').attr("readonly", true);
+                        $('#Consultant_Title').val('');
+                    }
+                    if ($.trim(result.Consultant_EmpType) == "CFD" || $.trim(result.Consultant_EmpType) == "CID") {
+                        $('#Consultant_GSTStatus').attr("readonly", false);
+                        $('#Consultant_GSTStatus').css('pointer-events', '');
+                    }
+                        else {
+                        $('#Consultant_GSTStatus').attr("readonly", true);
+                        $('#Consultant_GSTStatus').css('pointer-events', 'none');
+                        $('#Consultant_GSTStatus').val('');
+                        $('#Consultant_GSTINPercentagee').attr("readonly", true);
+                        $('#Consultant_GSTINPercentagee').css('pointer-events', 'none');
+                        $('#Consultant_GSTINPercentagee').val('');
+                        $('#Consultant_GSTIN').attr("readonly", true);
+                        $('#Consultant_GSTIN').val('');
+                        $('#Consultant_GSTEligibilityy').attr("readonly", true);
+                        $('#Consultant_GSTEligibilityy').css('pointer-events', 'none');
+                        $('#Consultant_GSTEligibilityy').val('');
+                    }
+                    console.log(result);
+                }
+            });
+        }
+    }
+
+    /* Project Details and validations */
+
+    applyAutoComplete($('#Consultant_ProjectNumber'), $('#Consultant_ProjectId'), '@Url.Action("LoadProjectList","CoreAccounts")', 'ProjectSummary', true);
+
+    function ProjectSummary() {
+        RemoveProjectData();
+        var projectId = $("#Consultant_ProjectId").val();
+        if (projectId != "" || projectId != 0) {
+            $(".loading-bg").removeClass('dis-none');
+            $.getJSON("@Url.Action("LoadProjectDetails", "Requirement")", { ProjectId: projectId },
+                function (result) {
+                    if (result.projectData.ProjectNumber != null || result.projectData.ProjectNumber != "") {
+                        $('#labelProjectNumber').text(result.projectData.ProjectNumber);
+                        $('#lblProjectTitle').text(result.projectData.ProjectTitle);
+                        $('#lblProjectPIName').text(result.projectData.PIName);
+                        $('#lblProjectStartDate').text(result.projectData.ProjectStartDate);
+                        $('#lblProjectEndDate').text(result.projectData.ProjectClosureDate);
+                        $('#lblProjectPIID').text(result.projectData.PICode);
+                        $('#lblProjectPIEmail').text(result.projectData.Email);
+                        $('#lblProjectPIDepartmentCode').text(result.projectData.PIDepartmentCode);
+                        $('#lblProjectPIDepartment').text(result.projectData.PIDepartmentName);
+                        $(".loading-bg").addClass('dis-none');
+                        $('#Consultant_AppStartDt').datepicker({
+                            dateFormat: 'dd-MM-yy',
+                            showStatus: true,
+                            showWeeks: true,
+                            changeYear: true,
+                            yearRange: '1950:+30',
+                            highlightWeek: true,
+                            numberOfMonths: 1,
+                            showAnim: "scale",
+                            showOptions: {
+                                origin: ["top", "left"]
+                            },
+                            beforeShowDay: function (date) {
+                                var day = date.getDay();
+                                return [day != 0, ''];
+                            }
+                        });
+
+                        $('#Consultant_AppEndDt').datepicker({
+                            dateFormat: 'dd-MM-yy',
+                            showStatus: true,
+                            showWeeks: true,
+                            changeYear: true,
+                            yearRange: '1950:+30',
+                            highlightWeek: true,
+                            numberOfMonths: 1,
+                            showAnim: "scale",
+                            showOptions: {
+                                origin: ["top", "left"]
+                            }
+                        });
+                    }
+                    else {
+                        $(".loading-bg").addClass('dis-none');
+                    }
+                });
+
+            $.getJSON("@Url.Action("LoadProjectDetails", "Account")", { ProjectId: projectId },
+                function (result) {
+                    if (result.projectData.ProjectNumber != null || result.projectData.ProjectNumber != "") {
+                        $('#lblProjectBal').text(result.projectData.NetBalance);
+                    }
+                    else {
+                        $(".loading-bg").addClass('dis-none');
+                    }
+                });
+        }
+
+    }
+
+    function ValidateDateDiff() {
+        var strdate = $("#Consultant_AppStartDt").val();
+        var clsdate = $("#Consultant_AppEndDt").val();
+        var appstartdate = new Date(strdate.split('-').join('/'));
+        var appenddate = new Date(clsdate.split('-').join('/'));
+        var prjstartdate = $("#lblProjectStartDate").text();
+        var prjenddate = $("#lblProjectEndDate").text();
+        if (prjstartdate == "" || prjenddate == "") {
+            $("#Consultant_AppStartDt").val('')
+            $("#Consultant_AppEndDt").val('')
+            $.alert('Please enter project number');
+            return;
+        }
+        prjstartdate = new Date(prjstartdate.split('-').join('/'));
+        prjenddate = new Date(prjenddate.split('-').join('/'));
+        if (strdate != '' && clsdate != '') {
+            if (!(prjstartdate <= appstartdate && appenddate <= prjenddate) ) {
+                $("#Consultant_AppStartDt").val('')
+                $("#Consultant_AppEndDt").val('')
+                $.alert('Appointment date must be between the project start date and project closure date.');
+                return;
+            }
+            else if (appenddate < appstartdate){
+                $("#Consultant_AppStartDt").val('')
+                $("#Consultant_AppEndDt").val('')
+                $.alert('Appointment end date must be greater than appointment start date.');
+                return;
+            }
+        }
+    }
+
+    $("#Consultant_AppStartDt, #Consultant_AppEndDt").change(function () {
+        ValidateDateDiff();
+    });
+
+    /* Project Summary View */
+
+    $(document).on('click', '#btnViewSummary', function () {
+        var projNo = $('#Consultant_ProjectId').val() || 0;
+        if (projNo > 0) {
+            var searchData = { "ProjectId": projNo };
+            $.ajax({
+                url: "@Url.Action("_ProjectSummary", "CoreAccounts")",
+                type: "POST",
+                data: searchData,
+                contentType: "application/x-www-form-urlencoded",
+                beforeSend: function () {
+                    $(".loading-bg").removeClass('dis-none');
+                },
+                success: function (result) {
+                    $(".loading-bg").addClass('dis-none');
+                    $("#popup").html(result);
+                    $("#projectSummaryModal").modal('toggle');
+                },
+                error: function (err) {
+                    console.log("error : " + err);
+                }
+            });
+        }
+    });
+
+    /* Project Eligible Staff Category view */
+
+    $(document).on('click', '#btnViewStaffAllocation', function () {
+            var projNo = $('#Consultant_ProjectId').val() || 0;
+        if (projNo > 0) {
+            var searchData = { "ProjectId": projNo };
+            $.ajax({
+                url: "@Url.Action("_ViewStaffAllocation", "Requirement")",
+                type: "POST",
+                data: searchData,
+                contentType: "application/x-www-form-urlencoded",
+                beforeSend: function () {
+                    $(".loading-bg").removeClass('dis-none');
+                },
+                success: function (result) {
+                    $(".loading-bg").addClass('dis-none');
+                    $("#popup").html(result);
+                    $("#myModal1").modal('toggle');
+                },
+                error: function (err) {
+                    console.log("error : " + err);
+                    $(".loading-bg").addClass('dis-none');
+                }
+            });
+        }
+    });
+
+        /* Consultant details */
+
+    $(document).on('click', '#btnViewConsDetails', function () {
+        var empID = $('#txtConMasterId').val() || 0;
+        if (empID > 0) {
+            var searchData = { "Vendorid": empID };
+            $.ajax({
+                url: "@Url.Action("_ConsultantMasterView", "Requirement")",
+                type: "POST",
+                data: searchData,
+                contentType: "application/x-www-form-urlencoded",
+                beforeSend: function () {
+                    $(".loading-bg").removeClass('dis-none');
+                },
+                success: function (result) {
+                    $(".loading-bg").addClass('dis-none');
+                    $("#popup").html(result);
+                    $("#Consultantviewmodel").modal('toggle');
+                },
+                error: function (err) {
+                    console.log("error : " + err);
+                    $(".loading-bg").addClass('dis-none');
+                }
+            });
+        }
+    });
+
+    /* Consultant Designation code */
+
+    applyAutoCompleteDesignation($('#Consultant_Code'), $('#Consultant_CodeId'), '@Url.Action("LoadDesignationList", "Requirement")?TypeCode=1&isConsolidatePay=true', 'FillDesignation', true);
+
+    function FillDesignation()
+    {
+        var designationid = $('#Consultant_CodeId').val();
+        if (designationid > 0) {
+            $(".loading-bg").removeClass('dis-none');
+            $.getJSON("@Url.Action("LoadDesignationDetails", "Requirement")", { DesignationID: designationid },
+                       function (result) {
+                           if (result.DesignationData.DestinationID > 0) {
+                               $("#Consultant_Title").val(result.DesignationData.Designation);
+                               $('#Consultant_Code').val(result.DesignationData.DesignationCode);
+                               $(".loading-bg").addClass('dis-none');
+                           }
+                           else
+                               $(".loading-bg").addClass('dis-none');
+                       });
+        }
+    }
+
+    /* Consultant Workplace */
+
+    applyAutoComplete($('#Consultant_WorkPlace'),undefined, '@Url.Action("LoadWokrPlaceList", "Requirement")');
+
+    /* Consultant Request from PI / COPI */
+
+    applyAutoComplete($('#Consultant_AutofillReqInitBy'), $('#Consultant_ReqInitBy'), '@Url.Action("LoadPIList", "Requirement")');
+
+    /* GST Pattern */
+
+    function CheckIGSTno() {
+        var Gst = $('#Consultant_GSTIN').val() || null;
+        var gstinformat = new RegExp('^([0][1-9]|[1-2][0-9]|[3][0-8])([a-zA-Z]{5}[0-9]{4}[a-zA-Z]{1}[1-9a-zA-Z]{1}[zZ]{1}[0-9a-zA-Z]{1})+$');
+        var data = {};
+        if (Gst != null && Gst.length == 15 && gstinformat.test(Gst)) {
+            data = { GSTno: Gst };
+            $.ajax({
+                url: '@Url.Action("CheckPreviousGSTNumber", "Requirement")',
+                type: "Get",
+                dataType: "JSON",
+                data: data,
+                success: function (result) {
+                    if (result != "") {
+                        $('#alert').html("This GST number is linked to  " + result);
+                        $('#Validation').modal('toggle');
+                        $('#Consultant_GSTIN').val('');
+                        $('#Consultant_GSTIN').focus();
+                    }
+                }
+            });
+        }
+        else {
+            $.alert('Please enter valid GSTIN  \n  Eg:33AAAAI3615G1Z6');
+            $('#Consultant_GSTIN').val('');
+        }
+
+    }
+
+    /* Keyup Events */
+
+    $('#Consultant_ProjectNumber').keyup(function () {
+        if ($('#Consultant_ProjectNumber').val() == null || $('#Consultant_ProjectNumber').val() == "") {
+            $('#lblProjectTitle').text('');
+            $('#lblProjectPIName').text('');
+            $('#lblProjectPIID').text('');
+            $('#lblProjectPIEmail').text('');
+            $('#lblProjectPIDepartment').text('');
+            $('#lblProjectPIDepartmentCode').text('');
+            $('#lblProjectStartDate').text('');
+            $('#lblProjectEndDate').text('');
+            $('#lblProjectBal').text('');
+            $('#Consultant_ProjectNumber').val('');
+            $('#Consultant_ProjectId').val('');
+            $('#Consultant_RetainerFee').val('');
+            $('#Consultant_CurrFlutuationvalue').val('');
+            $('#Consultant_GSTvalue').val('');
+            $('#Consultant_Commitvalue').val('');
+            $('#Consultant_AppStartDt').val('');
+            $('#Consultant_AppEndDt').val('');
+        }
+    });
+
+
+    $('#GetConsDetail1').keyup(function () {
+        if ($('#GetConsDetail1').val() == null || $('#GetConsDetail1').val() == "") {
+            $('#Consultant_Name').val("");
+            $('#ConsType').val("");
+            $('#Consultant_ITTDSType').attr("readonly", true);
+            $('#Consultant_ITTDSType').css('pointer-events', 'none');
+            $('#Consultant_ITTDSType').val('');
+            $('#Consultant_ITTDSPercentage').attr("readonly", true);
+            $('#Consultant_ITTDSPercentage').css('pointer-events', 'none');
+            $('#Consultant_ITTDSPercentage').val('');
+            $('#Consultant_GSTStatus').attr("readonly", true);
+            $('#Consultant_GSTStatus').css('pointer-events', 'none');
+            $('#Consultant_GSTStatus').val('');
+            $('#Consultant_PayType').attr("readonly", true);
+            $('#Consultant_PayType').css('pointer-events', 'none');
+            $('#Consultant_PayType').val('');
+            $('#CurrType').attr("readonly", true);
+            $('#CurrType').css('pointer-events', 'none');
+            $('#CurrType').val('');
+            $('#Consultant_GSTTDSTypes').attr("readonly", true);
+            $('#Consultant_GSTTDSTypes').css('pointer-events', 'none');
+            $('#Consultant_GSTTDSTypes').val('');
+            $('#Consultant_RCMCategoryy').attr("readonly", true);
+            $('#Consultant_RCMCategoryy').css('pointer-events', 'none');
+            $('#Consultant_RCMCategoryy').val('');
+            $('#Consultant_RCMType').attr("readonly", true);
+            $('#Consultant_RCMType').css('pointer-events', 'none');
+            $('#Consultant_RCMType').val('');
+            $('#Consultant_RCMType').attr("readonly", true);
+            $('#Consultant_RCMType').css('pointer-events', 'none');
+            $('#Consultant_RCMType').val('');
+            $('#Consultant_CurrValue').attr("readonly", true);
+            $('#Consultant_CurrValue').val('');
+            $('#Consultant_RetainerFee').attr("readonly", true);
+            $('#Consultant_RetainerFee').val('');
+            $('#Consultant_CurrFlutuationvalue').val('');
+            $('#Consultant_GSTvalue').val('');
+            $('#Consultant_Commitvalue').val('');
+            $('#Consultant_WorkPlace').attr("readonly", true);
+            $('#Consultant_WorkPlace').val('');
+            $('#Consultant_GSTIN').attr("readonly", true);
+            $('#Consultant_GSTIN').val('');
+            $('#Consultant_GSTINPercentagee').attr("readonly", true);
+            $('#Consultant_GSTINPercentagee').css('pointer-events', 'none');
+            $('#Consultant_GSTINPercentagee').val('');
+            $('#Consultant_CurrConvertionRate').attr("readonly", true);
+            $('#Consultant_CurrConvertionRate').val('');
+            $('#Consultant_Code').attr("readonly", true);
+            $('#Consultant_Code').val('');
+            $('#Consultant_Title').attr("readonly", true);
+            $('#Consultant_Title').val('');
+            $('#Consultant_WorkPlace').attr("readonly", true);
+            $('#ServiceDes').attr("readonly", true);
+            $('#Consultant_AoE').attr("readonly", true);
+            $('#Consultant_SoW').attr("readonly", true);
+            $('#Consultant_DAComments').attr("readonly", true);
+            $('#Consultant_TandC').attr("readonly", true);
+            $('#Consultant_PaymentTerms').attr("readonly", true);
+            $('#Consultant_WorkPlace').val('');
+            $('#ServiceDes').val('');
+            $('#Consultant_AoE').val('');
+            $('#Consultant_SoW').val('');
+            $('#Consultant_DAComments').val('');
+            $('#Consultant_TandC').val('');
+            $('#Consultant_PaymentTerms').val('');
+            $('#lblProjectTitle').text('');
+            $('#lblProjectPIName').text('');
+            $('#lblProjectPIID').text('');
+            $('#lblProjectPIEmail').text('');
+            $('#lblProjectPIDepartment').text('');
+            $('#lblProjectPIDepartmentCode').text('');
+            $('#lblProjectStartDate').text('');
+            $('#lblProjectEndDate').text('');
+            $('#lblProjectBal').text('');
+            $('#Consultant_ProjectNumber').attr("readonly", true);
+            $('#Consultant_ProjectNumber').val('');
+            $('#Consultant_ProjectId').val('');
+            $('#Consultant_AutofillReqInitBy').attr("readonly", true);
+            $('#Consultant_AutofillReqInitBy').val('');
+            $('#Consultant_ReqReceivedDate').val('');
+            $("#Consultant_ReqReceivedDate").datepicker("destroy");
+            $('#Consultant_ITTDSExemptedDate').val('');
+            $("#Consultant_ITTDSExemptedDate").datepicker("destroy");
+            $('#Consultant_AppStartDt').val('');
+            $("#Consultant_AppStartDt").datepicker("destroy");
+            $('#Consultant_AppEndDt').val('');
+            $("#Consultant_AppEndDt").datepicker("destroy");
+            $('#Consultant_Mode').prop('disabled', true);
+            $('#Consultant_Mode').val('').trigger("change");
+            $($('.dropdown-menu li')).siblings().removeClass("selected");
+            $('#txtConMasterId').val('');
+        }
+    });
+
+    /* Removing data when an new employee number is replaced with an existing one */
+
+    function Removedata() {
+        $('#Consultant_ITTDSType').val('');
+        $('#Consultant_ITTDSPercentage').val('');
+        $('#Consultant_GSTStatus').val('');
+        $('#Consultant_PayType').val('');
+        $('#CurrType').val('');
+        $('#Consultant_GSTTDSTypes').attr("readonly", true);
+        $('#Consultant_GSTTDSTypes').val('');
+        $('#Consultant_GSTTDSTypes').css('pointer-events', 'none');
+        $('#Consultant_ITTDSPercentage').attr("readonly", true);
+        $('#Consultant_ITTDSPercentage').css('pointer-events', 'none');
+        $('#Consultant_ITTDSPercentage').val('');
+        $('#Consultant_ITTDSExemptedDate').attr("readonly", true);
+        $("#Consultant_ITTDSExemptedDate").datepicker("destroy");
+        $('#Consultant_ITTDSExemptedDate').val('');
+        $('#Consultant_RCMCategoryy').val('');
+        $('#Consultant_RCMType').attr("readonly", true);
+        $('#Consultant_RCMType').css('pointer-events', 'none');
+        $('#Consultant_RCMType').val('');
+        $('#Consultant_GSTEligibilityy').attr("readonly", true);
+        $('#Consultant_GSTEligibilityy').css('pointer-events', 'none');
+        $('#Consultant_GSTEligibilityy').val('');
+        $('#Consultant_CurrValue').val('');
+        $('#Consultant_RetainerFee').val('');
+        $('#Consultant_CurrFlutuationvalue').val('');
+        $('#Consultant_GSTvalue').val('');
+        $('#Consultant_Commitvalue').val('');
+        $('#Consultant_WorkPlace').val('');
+        //$('#Consultant_GSTIN').val('');
+        $('#Consultant_GSTIN').attr("readonly", true);
+        $('#Consultant_GSTINPercentagee').val('');
+        $('#Consultant_GSTINPercentagee').attr("readonly", true);
+        $('#Consultant_GSTINPercentagee').css('pointer-events', 'none');
+        $('#Consultant_CurrConvertionRate').val('');
+        $('#Consultant_Code').val('');
+        $('#Consultant_Title').attr("readonly", true);
+        $('#Consultant_Title').val('');
+        $('#Consultant_WorkPlace').val('');
+        $('#ServiceDes').val('');
+        $('#Consultant_AoE').val('');
+        $('#Consultant_SoW').val('');
+        $('#Consultant_TandC').val('');
+        $('#Consultant_PaymentTerms').val('');
+        $('#lblProjectTitle').text('');
+        $('#lblProjectPIName').text('');
+        $('#lblProjectPIID').text('');
+        $('#lblProjectPIEmail').text('');
+        $('#lblProjectPIDepartment').text('');
+        $('#lblProjectPIDepartmentCode').text('');
+        $('#lblProjectStartDate').text('');
+        $('#lblProjectEndDate').text('');
+        $('#lblProjectBal').text('');
+        $('#Consultant_ProjectNumber').val('');
+        $('#Consultant_ProjectId').val('');
+        $('#Consultant_AutofillReqInitBy').val('');
+        $('#Consultant_ReqReceivedDate').val('');
+        $('#Consultant_AppStartDt').val('');
+        $("#Consultant_AppStartDt").datepicker("destroy");
+        $('#Consultant_AppEndDt').val('');
+        $("#Consultant_AppEndDt").datepicker("destroy");
+        $('#Consultant_Mode').val('').trigger("change");
+        $('#Consultant_DAComments').val('');
+    }
+
+    function Clearconversionrate() {
+        $('#Consultant_CurrConvertionRate').val('');
+    }
+
+    /* Removing data when an new project number is replaced with an existing one */
+
+    function RemoveProjectData() {
+        $('#Consultant_RetainerFee').val('');
+        $('#Consultant_CurrFlutuationvalue').val('');
+        $('#Consultant_GSTvalue').val('');
+        $('#Consultant_Commitvalue').val('');
+        $('#Consultant_ReqReceivedDate').val('');
+        $('#Consultant_AutofillReqInitBy').val('');
+        $('#Consultant_AppStartDt').val('');
+        $('#Consultant_AppEndDt').val('');
+        $('#Consultant_WorkPlace').val('');
+        $('#Consultant_DAComments').val('');
+        $('#Consultant_CurrConvertionRate').val('');
+    }
+
+    /* ITTDS onclick event */
+
+    function ITTDS() {
+        var strappointmentstartdt = $('#lblProjectStartDate').text().split('-').join('/');
+        var strappointmentenddt = $('#lblProjectEndDate').text().split('-').join('/');
+        var AppointmentStartDate = moment(strappointmentstartdt.split('-').join('/')).toDate();
+        var AppointmentEndDate = moment(strappointmentenddt.split('-').join('/')).toDate();
+        var datepickerstartdate = moment(AppointmentStartDate).toDate();
+        var datepickerenddate = moment(AppointmentEndDate).toDate();
+        if ($('#Consultant_ITTDSType').val() == 1) {
+            $('#Consultant_ITTDSPercentage').attr("readonly", false);
+            $('#Consultant_ITTDSPercentage').css('pointer-events', '');
+            $('#Consultant_ITTDSExemptedDate').attr("readonly", true);
+            $("#Consultant_ITTDSExemptedDate").datepicker("destroy");
+            $('#Consultant_ITTDSExemptedDate').val('');
+        }
+        else if ($('#Consultant_ITTDSType').val() == 2 && (strappointmentenddt != null && strappointmentenddt != '')) {
+            $('#Consultant_ITTDSExemptedDate').datepicker({
+                dateFormat: "dd-MM-yy",
+                changeYear: true
+            }).datepicker("option", "maxDate", datepickerenddate).datepicker("option", "minDate", datepickerstartdate);
+            $('#Consultant_ITTDSPercentage').attr("readonly", true);
+            $('#Consultant_ITTDSPercentage').css('pointer-events', 'none');
+            $('#Consultant_ITTDSPercentage').val('');
+        }
+        else {
+            $('#Consultant_ITTDSPercentage').attr("readonly", true);
+            $('#Consultant_ITTDSPercentage').css('pointer-events', 'none');
+            $('#Consultant_ITTDSPercentage').val('');
+            $('#Consultant_ITTDSExemptedDate').attr("readonly", true);
+            $("#Consultant_ITTDSExemptedDate").datepicker("destroy");
+            $('#Consultant_ITTDSExemptedDate').val('');
+        }
+    }
+
+    /* GST Status onclick event */
+
+    function Taxvalidation() {
+        if ($('#Consultant_GSTStatus').val() == 1) {
+            if ($('#Consultant_GSTIN').val() == null || $('#Consultant_GSTIN').val() == "") {
+                $.alert('Consultant not registered under GST');
+                $('#Consultant_GSTStatus').val('');
+            }
+            else {
+                $('#Consultant_GSTINPercentagee').attr("readonly", false);
+                $('#Consultant_GSTINPercentagee').css('pointer-events', '');
+                //$('#Consultant_GSTIN').attr("readonly", false);
+                $('#Consultant_GSTINPercentage').attr("disabled", false);
+                //$('#Consultant_GSTIN').val('');
+                $('#Consultant_GSTINPercentagee').val('');
+                $('#Consultant_RCMType').attr("readonly", true);
+                $("#Consultant_RCMType").val("3");
+                $('#Consultant_RCMType').attr("disabled", true);
+                $('#Consultant_RCMCategoryy').attr("readonly", true);
+                $("#Consultant_RCMCategoryy").val("2");
+                $('#Consultant_RCMCategory').attr("disabled", true);
+                $('#Consultant_GSTEligibilityy').attr("readonly", false);
+                $('#Consultant_GSTEligibilityy').css('pointer-events', '');
+                $('#Consultant_GSTEligibility').attr("disabled", false);
+                $('#Consultant_GSTEligibilityy').val('');
+            }
+        }
+        else if ($('#Consultant_GSTStatus').val() == 2) {
+            if ($('#Consultant_GSTIN').val() != null && $('#Consultant_GSTIN').val() != "") {
+                $.alert('Consultant registered under GST');
+                $('#Consultant_GSTStatus').val('');
+            }
+            else {
+                $('#Consultant_GSTIN').attr("readonly", true);
+                //$('#Consultant_GSTIN').val('');
+                $('#Consultant_GSTINPercentagee').attr("readonly", true);
+                $('#Consultant_GSTINPercentagee').css('pointer-events', 'none');
+                $('#Consultant_GSTINPercentagee').val('');
+                $('#Consultant_RCMType').attr("readonly", true);
+                $("#Consultant_RCMType").val("3");
+                $('#Consultant_RCMType').attr("disabled", true);
+                $('#Consultant_RCMCategoryy').attr("readonly", true);
+                $("#Consultant_RCMCategoryy").val("2");
+                $('#Consultant_RCMCategory').attr("disabled", true);
+                $('#Consultant_GSTEligibilityy').attr("readonly", true);
+                $('#Consultant_GSTEligibilityy').css('pointer-events', 'none');
+                //$('#Consultant_GSTEligibilityy').val('');
+                //$('#Consultant_GSTEligibilityy').attr("readonly", true);
+                $("#Consultant_GSTEligibilityy").val("2");
+                $('#Consultant_GSTEligibility').attr("disabled", true);
+            }
+        }
+        else if ($('#Consultant_GSTStatus').val() == 3) {
+            //$('#Consultant_GSTIN').attr("readonly", false);
+            //$('#Consultant_GSTIN').val('');
+            if ($('#Consultant_GSTIN').val() == null || $('#Consultant_GSTIN').val() == "") {
+                $.alert('Consultant not registered under GST');
+                $('#Consultant_GSTStatus').val('');
+            }
+            else {
+                $('#Consultant_GSTINPercentagee').attr("readonly", true);
+                $('#Consultant_GSTINPercentagee').css('pointer-events', 'none');
+                $('#Consultant_GSTINPercentagee').val('');
+                $('#Consultant_RCMType').attr("readonly", true);
+                $("#Consultant_RCMType").val("3");
+                $('#Consultant_RCMType').attr("disabled", true);
+                $('#Consultant_RCMCategoryy').attr("readonly", true);
+                $("#Consultant_RCMCategoryy").val("2");
+                $('#Consultant_RCMCategory').attr("disabled", true);
+                $('#Consultant_GSTEligibilityy').attr("readonly", true);
+                $('#Consultant_GSTEligibilityy').css('pointer-events', 'none');
+                //$('#Consultant_GSTEligibilityy').val('');
+                //$('#Consultant_GSTEligibilityy').attr("readonly", true);
+                $("#Consultant_GSTEligibilityy").val("2");
+                $('#Consultant_GSTEligibility').attr("disabled", true);
+            }
+        }
+        else if ($('#Consultant_GSTStatus').val() == 4) {
+            //if ($('#Consultant_GSTIN').val() == null || $('#Consultant_GSTIN').val() == "") {
+            //    $.alert('Consultant not registered under GST');
+            //    $('#Consultant_GSTStatus').val('');
+            //}
+            //else {
+                $('#Consultant_GSTIN').attr("readonly", true);
+                //$('#Consultant_GSTIN').val('');
+                $('#Consultant_GSTINPercentagee').attr("readonly", true);
+                $("#Consultant_GSTINPercentagee").val("18");
+                $('#Consultant_GSTINPercentage').attr("disabled", true);
+                $('#Consultant_RCMCategoryy').attr("readonly", true);
+                $("#Consultant_RCMCategoryy").val("1");
+                $('#Consultant_RCMCategory').attr("disabled", true);
+                $('#Consultant_RCMType').attr("readonly", false);
+                $('#Consultant_RCMType').css('pointer-events', '');
+                $('#Consultant_RCMType').attr("disabled", false);
+                $('#Consultant_RCMType').val('');
+                $('#Consultant_GSTEligibilityy').attr("readonly", true);
+                $("#Consultant_GSTEligibilityy").val("2");
+                $('#Consultant_GSTEligibility').attr("disabled", true);
+            }
+        //}
+        else {
+            $('#Consultant_GSTINPercentagee').attr("readonly", true);
+            $('#Consultant_GSTINPercentagee').css('pointer-events', 'none');
+            $('#Consultant_GSTINPercentagee').val('');
+            $('#Consultant_GSTIN').attr("readonly", true);
+            $('#Consultant_GSTIN').val('');
+            $('#Consultant_RCMType').attr("readonly", true);
+            $('#Consultant_RCMType').css('pointer-events', 'none');
+            $('#Consultant_RCMType').val('');
+            $('#Consultant_GSTEligibilityy').attr("readonly", true);
+            $('#Consultant_GSTEligibilityy').css('pointer-events', 'none');
+            $('#Consultant_GSTEligibilityy').val('');
+            $('#Consultant_RCMCategoryy').attr("readonly", true);
+            $('#Consultant_RCMCategoryy').css('pointer-events', 'none');
+            $('#Consultant_RCMCategoryy').val('');
+            $('#Consultant_GSTTDSTypes').attr("readonly", true);
+            $('#Consultant_GSTTDSTypes').css('pointer-events', 'none');
+            $('#Consultant_GSTTDSTypes').val('');
+        }
+    }
+
+    /* Retainer fee onclick event and calculation */
+
+    function retailerfeechange() {
+        $('#Consultant_RetainerFee').val('');
+        $('#Consultant_CurrFlutuationvalue').val('');
+        $('#Consultant_Commitvalue').val('');
+        $('#Consultant_GSTvalue').val('');
+    }
+
+    function calculatefee() {
+        var constype = $('#ConsType').val().trim();
+        if (constype == "Firm-Foreign" || constype == "Individual-Foreign") {
+            var foreigncurrvalue = $('#Consultant_CurrValue').val() || 0;
+            var foreignconversionrate = $('#Consultant_CurrConvertionRate').val() || 0;
+            var retainerfeeforeign = Math.ceil(foreigncurrvalue * foreignconversionrate) || 0;
+            var foreignfluctuationvalue = Math.ceil((foreigncurrvalue * foreignconversionrate)*(10/100)) || 0;
+            $('#Consultant_RetainerFee').val(retainerfeeforeign);
+            $('#Consultant_CurrFlutuationvalue').val(foreignfluctuationvalue);
+        }
+        else {
+            $('#Consultant_RetainerFee').val() || 0;
+            $('#Consultant_CurrFlutuationvalue').val()|| 0;
+        }
+        if ($('#Consultant_GSTINPercentagee').val() != null) {
+            var gstpercentage = parseFloat($('#Consultant_GSTINPercentagee').val()) || 0;
+            var retainerfee = parseFloat($('#Consultant_RetainerFee').val()) || 0;
+            var gstvalue = Math.ceil(retainerfee * gstpercentage / 100) || 0;
+            $('#Consultant_GSTvalue').val(gstvalue);
+        }
+        else {
+            $('#Consultant_GSTvalue').val();
+        }
+    }
+
+    /* Foreign - RCM onclick event */
+
+    function foreignRCM() {
+        if ($('#Consultant_RCMCategoryy').val() == 1) {
+            $('#Consultant_RCMType').attr("readonly", false);
+            $('#Consultant_RCMType').css('pointer-events', '');
+            $('#Consultant_RCMType').attr("disabled", false);
+            $('#Consultant_RCMCategory').attr("disabled", false);
+            $('#Consultant_GSTINPercentagee').attr("readonly", true);
+            $("#Consultant_GSTINPercentagee").val("18");
+            $('#Consultant_GSTINPercentage').attr("disabled", true);
+        }
+        else {
+            $('#Consultant_RCMType').attr("readonly", true);
+            $('#Consultant_RCMType').css('pointer-events', 'none');
+            $('#Consultant_RCMType').val('');
+            $('#Consultant_GSTINPercentagee').attr("readonly", true);
+            $('#Consultant_GSTINPercentagee').css('pointer-events', 'none');
+            $('#Consultant_GSTINPercentagee').val('');
+        }
+    }
+
+    /* GSTTDS eligibility conditions */
+
+    function calculateGSTTDS() {
+        var retainerfee = parseFloat($('#Consultant_RetainerFee').val()) || 0;
+        var gstvalue = parseFloat($('#Consultant_GSTvalue').val()) || 0;
+        var foreignfluctuationvalue = parseFloat($('#Consultant_CurrFlutuationvalue').val()) || 0;
+        var startdate = $('#Consultant_AppStartDt').val();
+        var enddate = $('#Consultant_AppEndDt').val();
+        var ttl = 0;
+        var ttg = 0;
+        var objData = getCalDateDetails(startdate, enddate);
+        var months = objData.monthcount || 0;
+        var days = objData.startworkingdays + objData.endworkingdays;
+        var startperday = (retainerfee + foreignfluctuationvalue) / objData.starttotaldays;
+        var endperday = (retainerfee + foreignfluctuationvalue) / objData.endtotaldays;
+        var startgstperday = gstvalue / objData.starttotaldays;
+        var endgstperday = gstvalue / objData.endtotaldays;
+        var monthlyamt = retainerfee + foreignfluctuationvalue;
+        var monthlygstamt = gstvalue;
+        if (months > 0) {
+            ttl += monthlyamt * months;
+            ttg += monthlygstamt * months;
+        }
+        if (days > 0) {
+            ttl += objData.startworkingdays * startperday;
+            ttl += objData.endworkingdays * endperday;
+            ttg += objData.startworkingdays * startgstperday;
+            ttg += objData.endworkingdays * endgstperday;
+        }
+        retainerfeemonthly = ttl;
+        gstvaluemonthly = ttg;
+        var commitmentvaluemonthly = retainerfeemonthly + gstvaluemonthly;
+        var commitmentvalue = retainerfee + gstvalue;
+        if ($('#Consultant_GSTStatus').val() == 1 && commitmentvalue > 250000 && $('#Consultant_PayType').val() == 2) {
+            $('#Consultant_GSTTDSTypes').attr("readonly", true);
+            $("#Consultant_GSTTDSTypes").val("1");
+            $('#Consultant_GSTTDSType').attr("disabled", true);
+        }
+        else if ($('#Consultant_GSTStatus').val() == 1 && commitmentvaluemonthly > 250000 && $('#Consultant_PayType').val() == 1) {
+            $('#Consultant_GSTTDSTypes').attr("readonly", true);
+            $("#Consultant_GSTTDSTypes").val("1");
+            $('#Consultant_GSTTDSType').attr("disabled", true);
+        }
+        else {
+            $('#Consultant_GSTTDSTypes').attr("readonly", true);
+            $("#Consultant_GSTTDSTypes").val("2");
+            $('#Consultant_GSTTDSType').attr("disabled", true);
+        }
+    }
+
+    /* Commitment value calculation */
+
+    function commitment() {
+        var retainerfee = parseFloat($('#Consultant_RetainerFee').val()) || 0;
+        var gstvalue = parseFloat($('#Consultant_GSTvalue').val()) || 0;
+        var foreignfluctuationvalue = parseFloat($('#Consultant_CurrFlutuationvalue').val()) || 0;
+        var startdate = $('#Consultant_AppStartDt').val();
+        var enddate = $('#Consultant_AppEndDt').val();
+        var ttl = 0;
+        var ttg = 0;
+        var objData = getCalDateDetails(startdate, enddate);
+        var months = objData.monthcount || 0;
+        var days = objData.startworkingdays + objData.endworkingdays;
+        if ($('#Consultant_PayType').val() == 1) {
+            var startperday = (retainerfee + foreignfluctuationvalue) / objData.starttotaldays;
+            var endperday = (retainerfee + foreignfluctuationvalue) / objData.endtotaldays;
+            var startgstperday = gstvalue / objData.starttotaldays;
+            var endgstperday = gstvalue / objData.endtotaldays;
+            var monthlyamt = retainerfee + foreignfluctuationvalue;
+            var monthlygstamt = gstvalue;
+            if (months > 0) {
+                ttl += monthlyamt * months;
+                ttg += monthlygstamt * months;
+            }
+            if (days > 0) {
+                ttl += Math.round(objData.startworkingdays * startperday)||0;
+                ttl += Math.round(objData.endworkingdays * endperday)||0;
+                ttg += Math.round(objData.startworkingdays * startgstperday)||0;
+                ttg += Math.round(objData.endworkingdays * endgstperday)||0;
+            }
+            retainerfee = ttl;
+            gstvalue = ttg;
+        }
+        else {
+            retainerfee = Math.ceil(retainerfee + foreignfluctuationvalue) || 0;
+            gstvalue = parseFloat($('#Consultant_GSTvalue').val()) || 0;
+            foreignfluctuationvalue = parseFloat($('#Consultant_CurrFlutuationvalue').val()) || 0;
+        }
+        if (($('#Consultant_GSTEligibilityy').val() == 1) || ($('#Consultant_RCMType').val() == 2)) {
+            $('#Consultant_Commitvalue').val(retainerfee);
+        }
+        else {
+            var commitmentvalue = Math.ceil(retainerfee + gstvalue) || 0;
+            $('#Consultant_Commitvalue').val(commitmentvalue);
+        }
+
+    }
+
+    /* Fund availability check */
+
+    function fundavailability() {
+        var isvalid = false;
+        var projectbalance = Number($('#lblProjectBal').text()) || 0;
+        var commitmentvalue = Number($('#Consultant_Commitvalue').val()) || 0;
+        var Retainerfee = $('#Consultant_RetainerFee').val() || 0;
+        if (Retainerfee != 0) {
+            if (projectbalance < commitmentvalue) {
+                $.alert('Insufficient funds in the project');
+                $('#Consultant_RetainerFee').val('');
+                $('#Consultant_Commitvalue').val('');
+                $('#Consultant_CurrValue').val('');
+                $('#Consultant_CurrFlutuationvalue').val('');
+                $('#Consultant_CurrConvertionRate').val('');
+                $('#Consultant_GSTvalue').val('');
+                return false;
+            }
+        }
+        else {
+            isvalid = true;
+        }
+        return isvalid;
+    }
+    /* Number key Event */
+
+    function isNumberKey(evt) {
+        var charCode = (evt.which) ? evt.which : evt.keyCode;
+        if (charCode != 46 && charCode > 31
+            && (charCode < 48 || charCode > 57))
+            return false;
+        return true;
+    }
+
+    /* Document Addition */
+
+    $('#btnAddDoc').click(function () {
+        var cln = $("#DocprimaryDiv").clone().find("input").val("").end();
+        $(cln).find('#idremoveButton').removeClass('dis-none');
+        $(cln).find('#firstremoveButton').addClass('dis-none');
+        $(cln).find('.doclink').addClass('dis-none');
+        $('#DocdivContent').append(cln);
+        var len = document.getElementsByName('Consultant_DocumentType').length;
+        if (len == 1)
+            $("#firstremoveButton").removeClass('dis-none');
+    });
+
+    $(document).on('click', '#DocdivContent button', function () {
+        $(this).parent().parent("Div").remove();
+        var len = document.getElementsByName('Consultant_DocumentType').length;
+        if (len == 1)
+            $("#firstremoveButton").removeClass('dis-none');
+    });
+
+    $(document).on('click', '#firstremoveButton', function () {
+        document.getElementsByName('Consultant_DocumentType')[0].value = "";
+        document.getElementsByName('Consultant_DocumentName')[0].value = "";
+        document.getElementsByName('file')[0].value = "";
+        document.getElementsByName('Consultant_DocumentId')[0].value = "";
+        document.getElementsByClassName('link1')[0].text = "";
+        document.getElementsByClassName('link1')[0].href = "";
+    });
+
+    //Fill Document Details in Edit Mode
+    @*$(document).ready(function () {
+        var Docname =@Html.Raw(Json.Encode(Model.ConsultantEmployeeEntryDocs[0].Consultant_DocumentName));
+        var Attachname = @Html.Raw(Json.Encode(Model.ConsultantEmployeeEntryDocs[0].Consultant_DocumentName));
+        var Doctype =@Html.Raw(Json.Encode(Model.ConsultantEmployeeEntryDocs[0].Consultant_DocumentType));
+        var Docpath =@Html.Raw(Json.Encode(Model.ConsultantEmployeeEntryDocs[0].Consultant_DocumentNameEncrypted));
+        var DocID = @Html.Raw(Json.Encode(Model.ConsultantEmployeeEntryDocs[0].Consultant_DocumentId));
+        var RCTconsID = @Html.Raw(Json.Encode(Model.Consultant_AppointmentId));
+        $.each(Docname, function (i, val) {
+            if(RCTconsID>0){
+                if (i == 0) {
+                    document.getElementsByName('DocType')[0].value = Doctype[0];
+                    document.getElementsByName('AttachName')[0].value = Attachname[0];
+                    document.getElementsByName('Docid')[0].value = DocID[0];
+                    document.getElementsByClassName('link1')[0].text = Docname[0];
+                    document.getElementsByClassName('link1')[0].href = "ShowWFProposalDocument?file=" + Docpath[0] + "&filepath=Proposal";
+                } else {
+                    var cln = $("#DocprimaryDiv").clone().find("input").val("").end();
+                    $(cln).find('.dis-none').removeClass('dis-none');
+                    $('#DocdivContent').append(cln)
+                    document.getElementsByName('DocType')[i].value = Doctype[i];
+                    document.getElementsByName('AttachName')[i].value = Attachname[i];
+                    document.getElementsByName('Docid')[i].value = DocID[i];
+                    document.getElementsByClassName('link1')[i].text = Docname[i];
+                    document.getElementsByClassName('link1')[i].href = "ShowWFProposalDocument?file=" + Docpath[i] + "&filepath=Proposal";
+                }
+            }
+            else{
+                if (i == 0) {
+                    document.getElementsByName('DocType')[0].value = Doctype[0];
+                    document.getElementsByName('AttachName')[0].value = Attachname[0];
+                    document.getElementsByName('Docid')[0].value = DocID[0];
+                    document.getElementsByClassName('link1')[0].text = Docname[0];
+                    document.getElementsByClassName('link1')[0].href = "ShowDocument?file=" + Docpath[0] + "&filepath=~%2FContent%2FSupportDocuments%2F";
+                } else {
+                    var cln = $("#DocprimaryDiv").clone().find("input").val("").end();
+                    $(cln).find('.dis-none').removeClass('dis-none');
+                    $('#DocdivContent').append(cln)
+                    document.getElementsByName('DocType')[i].value = Doctype[i];
+                    document.getElementsByName('AttachName')[i].value = Attachname[i];
+                    document.getElementsByName('Docid')[i].value = DocID[i];
+                    document.getElementsByClassName('link1')[i].text = Docname[i];
+                    document.getElementsByClassName('link1')[i].href = "ShowDocument?file=" + Docpath[i] + "&filepath=~%2FContent%2FSupportDocuments%2F";
+                }
+            }
+        });
+    });*@
+
+    // to validate if attachment type or attachment name is not left blank when either one of them is filled
+    function formattachvalidate() {
+        var isValid = true;
+        var doctypevalues = [];
+        var docnamevalues = [];
+        var docfile = [];
+        var docId = [];
+        var docpath = [];
+        $('select[name="Consultant_DocumentType"]').each(function (idx, val) { doctypevalues.push($(val).val()); });
+        $('input[name="Consultant_DocumentName"]').each(function (idx, val) { docnamevalues.push($(val).val()); });
+        $('input[name="file"]').each(function (idx, val) { docfile.push($(val).val()); });
+        $('input[name="Consultant_DocumentId"]').each(function (idx, val) { docId.push($(val).val()); });
+        $('input[name="Consultant_DocumentNameEncrypted"]').each(function (idx, val) { docpath.push($(val).val()); });
+        for (var k = 0; k < docId.length; ++k) {
+            if (docId[k] == 0 || docId[k] == '' || docId[k] == null) {
+                if ((doctypevalues[k] <= 0) && ((docnamevalues[k] == null) || docnamevalues[k] == "")) {
+                    $.alert('Please fill Attachment type');
+                    isValid = false;
+                    return isValid;
+                }
+            }
+            if (docnamevalues[k] == 0 || docnamevalues[k] == '' || docnamevalues[k] == null) {
+                if ((docnamevalues[k] <= 0) && ((docnamevalues[k] == null) || docnamevalues[k] == "")) {
+                    $.alert('Please fill Attachment name');
+                    isValid = false;
+                    return isValid;
+                }
+            }
+            if (docfile[k] == 0 || docfile[k] == '' || docfile[k] == null) {
+                if ((docfile[k] <= 0) && ((docfile[k] == null) || docfile[k] == "") && (docpath[k] <= 0) && ((docpath[k] != null) || docpath[k] != "")) {
+                    $.alert('Please select file');
+                    isValid = false;
+                    return isValid;
+                }
+            }
+        }
+        doctypevalues.sort();
+        return isValid;
+    }
+
+
+    // to validate if attachment type or attachment name is not left blank when either one of them is filled
+    function formattachvalidatedraft() {
+        var isValid = true;
+        var doctypevalues = [];
+        var docnamevalues = [];
+        var docfile = [];
+        var docId = [];
+        var docpath = [];
+        $('select[name="Consultant_DocumentType"]').each(function (idx, val) { doctypevalues.push($(val).val()); });
+        $('input[name="Consultant_DocumentName"]').each(function (idx, val) { docnamevalues.push($(val).val()); });
+        $('input[name="file"]').each(function (idx, val) { docfile.push($(val).val()); });
+        $('input[name="Consultant_DocumentId"]').each(function (idx, val) { docId.push($(val).val()); });
+        $('input[name="Consultant_DocumentNameEncrypted"]').each(function (idx, val) { docpath.push($(val).val()); });
+        if (docId.length == 0 || docnamevalues.length == 0 || docfile.length == 0 || docpath.length == 0) {
+            isValid = true;
+            return isValid;
+        }
+        else {
+            for (var k = 0; k < docId.length; ++k) {
+                if (doctypevalues != null && docnamevalues[k] != null && (docfile[k] != null || docId[k] != null)) {
+                    isValid = true;
+                }
+                else {
+                    isvalid = false;
+                    return isValid;
+                }
+            }
+            return isValid;
+        }
+    }
+
+
+    /* Form Submit */
+
+    function FormDisabled() {
+        $("#formConsEntry").find("input, select, textarea").each(function () {
+            var isdisable = $(this).is(":disabled");
+            var id = $(this).attr('id');
+            if (isdisable == false)
+                $(this).attr("disabled", "disabled");
+        });
+    }
+
+    $(document).on('click', '#draftbtn', function (e) {
+        e.preventDefault();
+        var isformValid = formDraftvalidate();
+        var fundcheck = fundavailability();
+        if (!isformValid)
+            return false;
+        if (!fundcheck)
+            return false;
+        $('#formConsEntry').submit();
+        $(".loading-bg").removeClass('dis-none');
+    });
+
+    $(document).on('click', '#SFABtn', function (e) {
+        e.preventDefault();
+        var isformValid = formSFAvalidate();
+        var fundcheck = fundavailability();
+        if (!isformValid)
+            return false;
+        if (!fundcheck)
+            return false;
+        $('#formConsEntry').submit();
+        $(".loading-bg").removeClass('dis-none');
+    });
+
+    //function formSave() {
+    //    //$('#isDraftbtn').val(false);
+    //    var isvalid = $('#formConsEntry').valid();
+    //    //if (!isValid)
+    //    //    return false;
+    //    //$('.loading-bg').removeClass('dis-none');
+    //    //if (Status == "Open" || Status == "" || Status == "Active" || Status == "Draft" || (Status.includes("Note") && Status != "Note to Dean")) {
+    //    //    $('#formSTEJuniorApp').submit();
+    //    //}
+    //    //else {
+    //    //    $('#FailedAlert').html('Something went wrong please contact administrator');
+    //    //    $('#Failed').modal('toggle');
+    //    //}
+    //}
+
+    $('#clearFlow').click(function () {
+        $("input[name=Consultant_FlowApprover]").prop('checked', false);
+    });
+
+    function formDraftvalidate() {
+        var isvalid = false;
+        var draftattachvalid = formattachvalidatedraft();
+        var formdraftvalidate = formvalidate();
+        var Status = @Html.Raw(Json.Encode(Model.Consultant_Status)) || '';       
+        if (draftattachvalid == false) {
+            isvalid = false;
+            return isvalid;
+        }
+        if (formdraftvalidate == false) {
+            $.alert('Please select the highlighted fields');
+            isvalid = false;
+            return isvalid;
+        }
+        else {
+            isvalid = true;
+            $('#consstatus').val("Draft");
+        }
+        return isvalid;
+    }
+
+    function formvalidate() {
+        var elementsToCheck = [
+            'GetConsDetail1', 'Consultant_Name', 'ServiceDes', 'ConsType',
+            'Consultant_TandC', 'Consultant_PaymentTerms'
+        ];
+        for (var i = 0; i < elementsToCheck.length; i++) {
+            var elementId = elementsToCheck[i];
+            var element = document.getElementById(elementId);
+            isvalid = false;
+            if (
+                (element.value === null || element.value.trim() === "")) {
+                element.style.border = '2px solid red';
+                isvalid = false;
+            }
+            else {
+                element.style.border = '';
+                isvalid = true;
+            }           
+        }
+        return isvalid;
+    }
+
+    function formsfvalidate() {
+        var isvalid = true;
+        var RCMType = $('#Consultant_RCMCategoryy').val();
+        var ConsEmpID = $('#consemptype').val();
+        var elementsToCheck = [
+            'GetConsDetail1', 'Consultant_Name', 'ServiceDes', 'ConsType',
+            'Consultant_TandC', 'Consultant_PaymentTerms', 'Consultant_ITTDSType',
+            'Consultant_Mode', 'Consultant_AppStartDt', 'Consultant_AppEndDt',
+            'Consultant_PayType', 'Consultant_WorkPlace', 'Consultant_RetainerFee',
+            'Consultant_GSTvalue', 'Consultant_ReqReceivedDate', 'Consultant_AutofillReqInitBy',
+            'Consultant_ReqInitBy', 'Consultant_Commitvalue'
+        ];
+        for (var i = 0; i < elementsToCheck.length; i++) {
+            var elementId = elementsToCheck[i];
+            var element = document.getElementById(elementId);
+            if (element.value === null || element.value.trim() === "") {
+                element.style.border = '2px solid red';
+                isvalid = false;
+            }
+            else {
+                element.style.border = '';
+            }
+        }
+        if ($('#Consultant_RetainerFee').val() == "" || $('#Consultant_RetainerFee').val() == null || $('#Consultant_RetainerFee').val() == 0) {
+            $.alert('Retainer fee should not be 0');
+            document.getElementById('Consultant_RetainerFee').style.border = '2px solid red';
+            isvalid = false;
+        }
+        else {
+            document.getElementById('Consultant_RetainerFee').style.border = '';
+        }
+        if ($.trim(ConsEmpID) == "CFF" || $.trim(ConsEmpID) == "CIF") {
+            var elementsToCheck = [
+                'CurrType', 'Consultant_CurrValue', 'Consultant_CurrConvertionRate', 'Consultant_RCMCategoryy'
+            ];
+            for (var i = 0; i < elementsToCheck.length; i++) {
+                var elementId = elementsToCheck[i];
+                var element = document.getElementById(elementId);
+                if (
+                    element.value === null || element.value.trim() === "") {
+                    element.style.border = '2px solid red';
+                    isvalid = false;
+                }
+                else {
+                    element.style.border = '';
+                }
+            }
+        }
+        if ($.trim(ConsEmpID) == "CIF" || $.trim(ConsEmpID) == "CID") {
+            if (
+                $('#Consultant_Code').val() == null ||
+                $('#Consultant_Title').val() == null || $('#Consultant_Code').val() == "") {
+                $.alert('Please update Consultant Code');
+                document.getElementById('Consultant_Code').style.border = '2px solid red';
+                isvalid = false;
+            }
+            else {
+                document.getElementById('Consultant_Code').style.border = '';
+            }
+        }
+        if ($.trim(ConsEmpID) == "CID" || $.trim(ConsEmpID) == "CFD") {
+            if (
+                $('#Consultant_GSTStatus').val() == null || $('#Consultant_GSTStatus').val() == "") {
+                $.alert('Please select GST Status');
+                document.getElementById('Consultant_GSTStatus').style.border = '2px solid red';
+                isvalid = false;
+            }
+            else {
+                document.getElementById('Consultant_GSTStatus').style.border = '';
+            }
+            if ($('#Consultant_GSTStatus').val() == 1) {
+                var elementsToCheck = [
+                    'Consultant_GSTIN', 'Consultant_GSTINPercentagee', 'Consultant_GSTEligibilityy'
+                ];
+                for (var i = 0; i < elementsToCheck.length; i++) {
+                    var elementId = elementsToCheck[i];
+                    var element = document.getElementById(elementId);
+                    if (
+                        element.value === null || element.value.trim() === "") {
+                        element.style.border = '2px solid red';
+                        isvalid = false;
+                    }
+                    else {
+                        element.style.border = '';
+                    }
+                }
+            }
+            if ($('#Consultant_GSTStatus').val() == 2) {
+                element.style.border = '';
+            }
+            if ($('#Consultant_GSTStatus').val() == 3) {
+                if (
+                    $('#Consultant_GSTIN').val() == null || $('#Consultant_GSTIN').val() == "") {
+                    $.alert('Please enter GSTIN');
+                    document.getElementById('Consultant_GSTIN').style.border = '2px solid red';
+                    isvalid = false;
+                }
+                else {
+                    document.getElementById('Consultant_GSTIN').style.border = '';
+                }
+            }
+            if ($('#Consultant_GSTStatus').val() == 4) {
+                if (
+                    $('#Consultant_RCMType').val() == null || $('#Consultant_RCMType').val() == "") {
+                    $.alert('Please select RCM Type');
+                    document.getElementById('Consultant_RCMType').style.border = '2px solid red';
+                    isvalid = false;
+                }
+                else {
+                    document.getElementById('Consultant_RCMType').style.border = '';
+                }
+            }
+        }
+        if ($('#Consultant_ITTDSType').val() == 1) {
+            if (
+                $('#Consultant_ITTDSPercentage').val() == null || $('#Consultant_ITTDSPercentage').val() == "") {
+                $.alert('Please select ITTDS');
+                document.getElementById('Consultant_ITTDSPercentage').style.border = '2px solid red';
+                isvalid = false;
+            }
+            else {
+                document.getElementById('Consultant_ITTDSPercentage').style.border = '';
+            }
+        }
+        if ($('#Consultant_ITTDSType').val() == 2) {
+            if (
+                $('#Consultant_ITTDSExemptedDate').val() == null || $('#Consultant_ITTDSExemptedDate').val() == "") {
+                $.alert('Please select Expiry date');
+                document.getElementById('Consultant_ITTDSExemptedDate').style.border = '2px solid red';
+                isvalid = false;
+            }
+            else {
+                document.getElementById('Consultant_ITTDSExemptedDate').style.border = '';
+            }
+        }
+        if ($.trim(RCMType) == 1) {
+
+            if (
+                $('#Consultant_RCMType').val() == null || $('#Consultant_RCMType').val() == "") {
+                $.alert('Please select RCM Type');
+                document.getElementById('Consultant_RCMType').style.border = '2px solid red';
+                isvalid = false;
+            }
+            else {
+                document.getElementById('Consultant_RCMType').style.border = '';
+            }
+        }
+        return isvalid;
+    }
+
+    function formSFAvalidate() {
+        var isvalid = true;
+        var isformattachValid1 = formattachvalidate();
+        var formsfvalidatecheck = formsfvalidate();
+        $('#consstatus').val("Open");       
+        if (isformattachValid1 == false) {
+            isvalid = false;
+        }
+        if (formsfvalidatecheck == false) {
+            $.alert('Please select the highlighted fields');
+            isvalid = false;
+        }
+        return isvalid;
+    }
+</script>

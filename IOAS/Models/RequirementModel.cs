@@ -3108,18 +3108,18 @@ namespace IOAS.Models
 
     }
 
-    public class ConsultantSearchModel
-    {
-        public string ConsultantAppNo { get; set; }
-        public string PIName { get; set; }
-        public string PIEmail { get; set; }
-        public string CondidateName { get; set; }
-        public string Category { get; set; }
-        public string ProjectNumber { get; set; }
-        public string Status { get; set; }
-        public List<ConsultantAppointmentModel> conList { get; set; }
-        public int TotalRecords { get; set; }
-    }
+    //public class ConsultantSearchModel
+    //{
+    //    public string ConsultantAppNo { get; set; }
+    //    public string PIName { get; set; }
+    //    public string PIEmail { get; set; }
+    //    public string CondidateName { get; set; }
+    //    public string Category { get; set; }
+    //    public string ProjectNumber { get; set; }
+    //    public string Status { get; set; }
+    //    public List<ConsultantAppointmentModel> conList { get; set; }
+    //    public int TotalRecords { get; set; }
+    //}
 
     public class ConsultantMaster
     {
@@ -3591,4 +3591,116 @@ namespace IOAS.Models
         public string EmployeeStatus { get; set; }
     }
     #endregion
+
+    #region Consultant New Entry Creation
+    public class ConsultantEmployeeEntry
+    {
+        public int SE_SNo { get; set; }
+        public int Consultant_AppointmentId { get; set; }
+        public int Consultant_MasterId { get; set; }
+
+        public string Consultant_EmpNo { get; set; }
+
+        public string Consultant_EmpType { get; set; }
+
+        public string Consultant_Name { get; set; }
+        public string Consultant_ServiceNo { get; set; }
+        public string Consultant_AppNo { get; set; }
+
+        public string Consultant_ServiceDescription { get; set; }
+
+        public string Consultant_DAComments { get; set; }
+
+        public string Consultant_Type { get; set; }
+        public Nullable<int> Consultant_Code { get; set; }
+        public Nullable<int> Consultant_CodeId { get; set; }
+        public string Consultant_Title { get; set; }
+
+        public string Consultant_AoE { get; set; }
+
+        public string Consultant_SoW { get; set; }
+        public Nullable<int> Consultant_GSTStatus { get; set; }
+        [MaxLength(15)]
+        [RegularExpression("^([0]{1}[1-9]{1}|[1-2]{1}[0-9]{1}|[3]{1}[0-8]{1})([a-zA-Z]{5}[0-9]{4}[a-zA-Z]{1}[1-9a-zA-Z]{1}[zZ]{1}[0-9a-zA-Z]{1})+$", ErrorMessage = "Invalid GST Number")]
+        public string Consultant_GSTIN { get; set; }
+        public Nullable<decimal> Consultant_GSTINPercentage { get; set; }
+
+        public string Consultant_TandC { get; set; }
+
+        public string Consultant_PaymentTerms { get; set; }
+
+        public Nullable<int> Consultant_ProjectId { get; set; }
+
+        public string Consultant_ProjectNumber { get; set; }
+        public string Consultant_ProjectPI { get; set; }
+        public string Consultant_ProjectPIEmail { get; set; }
+        public Nullable<System.DateTime> Consultant_AppStartDt { get; set; }
+        public Nullable<System.DateTime> Consultant_AppEndDt { get; set; }
+        public Nullable<System.DateTime> Consultant_ActualAppStartDt { get; set; }
+        public Nullable<System.DateTime> Consultant_ActualAppEndDt { get; set; }
+        public string Consultant_CurrType { get; set; }
+        public Nullable<decimal> Consultant_CurrValue { get; set; }
+        public Nullable<decimal> Consultant_CurrConvertionRate { get; set; }
+        public Nullable<decimal> Consultant_CurrFlutuationvalue { get; set; }
+        public Nullable<decimal> Consultant_RetainerFee { get; set; }
+        public Nullable<decimal> Consultant_GSTvalue { get; set; }
+        public Nullable<int> Consultant_GSTEligibility { get; set; }
+        public Nullable<decimal> Consultant_Commitvalue { get; set; }
+        public Nullable<decimal> Consultant_Projectvalue { get; set; }
+        public Nullable<int> Consultant_ITTDSType { get; set; }
+        public Nullable<decimal> Consultant_ITTDSPercentage { get; set; }
+        public Nullable<System.DateTime> Consultant_ITTDSExemptedDate { get; set; }
+        public Nullable<int> Consultant_GSTTDSType { get; set; }
+        public Nullable<int> Consultant_RCMType { get; set; }
+        public Nullable<int> Consultant_RCMCategory { get; set; }
+        public Nullable<int> Consultant_PayType { get; set; }
+        public bool Consultant_AuditApproval { get; set; }
+        public Nullable<int> Consultant_WPCategory { get; set; }
+        public string Consultant_WorkPlace { get; set; }
+        public string Consultant_Remarks { get; set; }
+
+        public Nullable<System.DateTime> Consultant_ReqReceivedDate { get; set; }
+
+        public Nullable<int> Consultant_ReqInitBy { get; set; }
+
+        public Nullable<int> Consultant_AutofillReqInitBy { get; set; }
+        public System.DateTime Consultant_CrtdTs { get; set; }
+        public int Consultant_CrtdUser { get; set; }
+        public Nullable<System.DateTime> Consultant_UptdTs { get; set; }
+        public Nullable<int> Consultant_UptdUser { get; set; }
+        public string Consultant_Status { get; set; }
+        public bool Consultant_IsDeleted { get; set; }
+        public int Consultant_SeqNbr { get; set; }
+        public Nullable<int>[] Consultant_Mode { get; set; }
+        public string Consultant_FlowApprover { get; set; }
+        public int[] Consultant_DocumentId { get; set; }
+        public int[] Consultant_DocumentType { get; set; }
+        public string[] Consultant_DocumentRemarks { get; set; }
+        public string[] Consultant_DocumentName { get; set; }
+        public string[] Consultant_DocumentNameEncrypted { get; set; }
+        public HttpPostedFileBase Consultant_DocumentName1 { get; set; }
+        public List<ConsultantMaster> ConsultantMasterList { get; set; }
+    }
+    #endregion
+
+    #region Consultant New Entry List and Search
+    public class RCTConsultantSearchModel
+    {
+        public string SE_Consultant_ServiceNo { get; set; }
+        public string SE_Consultant_AppNo { get; set; }
+        public string SE_Consultant_EmpNo { get; set; }
+        public string SE_Consultant_Name { get; set; }
+        public int SE_Consultant_AppointmentId { get; set; }
+        public string SE_Consultant_ProjectNumber { get; set; }
+        public string SE_Consultant_ProjPI { get; set; }
+        public string SE_Consultant_ProjEmail { get; set; }
+        public string SE_Consultant_EmpType { get; set; }
+        public string SE_Consultant_Status { get; set; }
+        public int SE_TotalRecords { get; set; }
+        public List<ConsultantEmployeeEntry> ConsultantNewEntryList { get; set; }
+    }
+
+    #endregion
+
+
 }
