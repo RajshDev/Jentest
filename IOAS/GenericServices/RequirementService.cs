@@ -14384,6 +14384,20 @@ namespace IOAS.GenericServices
                                 AppointmentTypeCode = query[i].AppointmentTypeCode,
                                 RequestType = query[i].RequestType,
                             });
+
+
+                            //var changeOfProjectCheckForFreezed = from rctOutsourcing in context.tblRCTOutsourcing
+                            //                                            join commitment in context.tblCommitment on rctOutsourcing.CommitmentNo equals commitment.CommitmentNumber
+                            //                                            join commitmentDetails in context.tblCommitmentDetails on commitment.CommitmentId equals commitmentDetails.CommitmentId
+                            //                                            where rctOutsourcing.ApplicationNumber == ReferenceNumber
+                            //                                     select new
+                            //                                            {
+                            //                                                rctOutsourcing.CommitmentNo,
+                            //                                                rctOutsourcing.ProjectId,
+                            //                                                rctOutsourcing,
+                            //                                                commitment,
+                            //                                                commitmentDetails
+                            //                                            };
                         }
                     }
                 }

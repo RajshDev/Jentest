@@ -106,7 +106,6 @@ namespace IOAS.Controllers
                 ViewBag.SponPrjFunType = Common.GetSponsoredTypeCategory();
                 ViewBag.prjClassification = Common.GetProjectClassification();
                 ViewBag.rptClassification = Common.GetReportClassification();
-                ViewBag.freezedAllocation = Common.freezedAllocationHead(pId);
                 //model.Inputdate = DateTime.Now;
                 ViewBag.ProjectFundingCategory = Common.getprojectfunding();
                 ViewBag.BankID = Common.GetTSABankList();
@@ -380,6 +379,7 @@ namespace IOAS.Controllers
                 //ViewBag.deprtmnt = Common.getDepartment();
                 //ViewBag.PI = Common.GetProjectPIWithDetails();
                 ViewBag.Cadre = Common.getFacultyCadre();
+                //ViewBag.FreezeListForAdd = ProjectService.EditProject();
                 return View(model);
 
             }
