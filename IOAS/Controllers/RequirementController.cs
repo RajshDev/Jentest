@@ -5301,6 +5301,7 @@ namespace IOAS.Controllers
                 ViewBag.IITMPensionerOrCSIRStaff = Common.GetCodeControlList("IITMPensioner/CSIRStaff");
                 ViewBag.Medical = Common.GetCodeControlList("SETMedical");
                 model = recruitmentService.GetRecruitBookCommitDetails(Id, apptype);
+                ViewBag.ChangeOfProjectFreeze = RequirementService.GetFreezeDataForChangeOfProject(model.ApplicationNo);
                 //if(apptype == "Change of Project")
                 //{
                 //    model = 
@@ -5319,7 +5320,7 @@ namespace IOAS.Controllers
                     psModel.ProjectCloseDate = string.Format("{0:dd-MMM-yyyy}", psModel.Common.CloseDate);
                     psModel.ProjId = ProjectId;
                     psModel.DistributionAmount = Common.GetDistribuAmount(ProjectId);
-                    psModel.ExpAmt = psModel.Summary.AmountSpent;
+                    psModel.ExpAmt = psModel.Summary.AmountSpent; 
                     model.Projsummary = psModel;
                 }
                 return View(model);
