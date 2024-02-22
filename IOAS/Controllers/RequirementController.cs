@@ -5301,7 +5301,12 @@ namespace IOAS.Controllers
                 ViewBag.IITMPensionerOrCSIRStaff = Common.GetCodeControlList("IITMPensioner/CSIRStaff");
                 ViewBag.Medical = Common.GetCodeControlList("SETMedical");
                 model = recruitmentService.GetRecruitBookCommitDetails(Id, apptype);
-                ViewBag.ChangeOfProjectFreeze = RequirementService.GetFreezeDataForChangeOfProject(model.ApplicationNo);
+                if (apptype == "Change of Project")
+
+                {
+                    ViewBag.ChangeOfProjectFreeze = RequirementService.GetFreezeDataForChangeOfProject(model.ApplicationNo);
+                }
+                 
                 //if(apptype == "Change of Project")
                 //{
                 //    model = 

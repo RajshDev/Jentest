@@ -14434,7 +14434,7 @@ namespace IOAS.GenericServices
                                              select new { afl.IsFreeze }).FirstOrDefault();
                     
 
-                    if(Changeprojectdata ==null && Changeprojectdata1 == null)
+                    if(Changeprojectdata !=null || Changeprojectdata1 != null)
                     {
                         changefreeze = "Valid";
                     }
