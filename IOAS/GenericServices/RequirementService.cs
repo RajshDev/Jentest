@@ -22763,7 +22763,7 @@ namespace IOAS.GenericServices
                     if (query != null)
                     {
                         string Type = "OTHPaydeu";
-                        var fw = CoreAccount.ProcessTrigger(212, Type, 0, id, logged_in_user, "OthId", query.OTHPayDeductionNo);
+                        var fw = CoreAccount.ProcessTrigger(212, Type, 0, id, logged_in_user, "OthId", query.EmployeeNo);
                         if (String.IsNullOrEmpty(fw.errorMsg))
                         {
                             query.Status = "Sent for approval";
