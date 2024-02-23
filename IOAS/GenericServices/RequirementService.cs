@@ -14411,6 +14411,52 @@ namespace IOAS.GenericServices
             }
         }
 
+        public static string GetFreezeDataForChangeOfProject(string ApplicationNo)
+        {
+            try
+            {
+                var changefreeze = "";
+                using (var context = new IOASDBEntities())
+                {
+
+                    var Changeprojectdata = (from rs in context.tblRCTSTE
+                                             join c in context.tblCommitment on rs.CommitmentNo equals c.CommitmentNumber
+                                join cd in context.tblCommitmentDetails on c.CommitmentId equals cd.CommitmentId
+                                join afl in context.tblAllocationFreezeLog on new { rs.ProjectId, AllocationHead = cd.AllocationHeadId } equals new { afl.ProjectId,afl.AllocationHead }
+                                where rs.Status == "Verification Completed" && rs.ApplicationNumber == ApplicationNo && afl.Status == "Active" && afl.IsCurrentVersion == 1
+                                select new { afl.IsFreeze }).FirstOrDefault();
+
+                    var Changeprojectdata1 = (from rs in context.tblRCTOutsourcing
+                                             join c in context.tblCommitment on rs.CommitmentNo equals c.CommitmentNumber
+                                             join cd in context.tblCommitmentDetails on c.CommitmentId equals cd.CommitmentId
+                                             join afl in context.tblAllocationFreezeLog on new { rs.ProjectId, AllocationHead = cd.AllocationHeadId } equals new { afl.ProjectId, afl.AllocationHead }
+                                             where rs.Status == "Verification Completed" && rs.ApplicationNumber == ApplicationNo && afl.Status == "Active" && afl.IsCurrentVersion == 1
+                                             select new { afl.IsFreeze }).FirstOrDefault();
+                    
+
+                    if(Changeprojectdata !=null || Changeprojectdata1 != null)
+                    {
+                        changefreeze = "Valid";
+                    }
+                    else 
+                    {
+                        changefreeze = "Invalid";
+
+                    }
+                    return changefreeze;
+
+
+                }
+            }
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+                (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                return "";
+            }
+
+        }
+        
         public STEViewModel GetRecruitBookCommitDetails(int CommitRequestID, string appltype = null, bool isView = false)
         {
             RecruitCommitRequestModel commitreqmodel = new RecruitCommitRequestModel();
