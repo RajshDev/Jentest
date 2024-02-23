@@ -3073,6 +3073,8 @@ namespace IOAS.Models
         [Range(0, 9999999999999999.99)]
         public Nullable<decimal> Amount { get; set; }
         public string BudgetHeadName { get; set; }
+
+        public Nullable<int> Freezeval { get; set; }
     }
 
     public class ProjectTransferModel
