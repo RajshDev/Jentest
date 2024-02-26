@@ -1181,7 +1181,8 @@ namespace IOAS.Controllers
 
             var totpayval = (model.InvoiceAmount + model.InvoiceTaxAmount);
                totpayval = (int)Math.Round((totpayval ?? 0), MidpointRounding.AwayFromZero);
-
+            if (netAdvAmt <= 0)
+                netAdvAmt = 0;
 
             if (netAdvAmt != commitmentAmt)
                 msg = "There is a mismatch between the settlement value and allocated commitment value. Please update the value to continue.";
