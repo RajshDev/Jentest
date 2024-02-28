@@ -27801,6 +27801,59 @@ namespace IOAS.Infrastructure
 
         }
 
+        public static bool IsAvailablefundProjects(int projectid, int budgetid, decimal commitmentAmount, int? typeOfAppointment = null)
+        {
+            bool funddeviation = false;
+            bool otherGov_f = false;
+            try
+            {
+                otherGov_f = typeOfAppointment == 4 ? true : false;
+                ProjectService _PS = new ProjectService();
+                var prjDetail = _PS.getProjectSummaryDetails(projectid);
+                decimal netBalance = prjDetail.PrjSummary.NetBalance;
+
+                if (prjDetail.HeadWise != null)
+                {
+                    var totalAllocation = prjDetail.HeadWise.Sum(m => m.Amount);
+                    if (totalAllocation <= 0)
+                    {
+                        if (netBalance < commitmentAmount)
+                            funddeviation = true;
+                    }
+                    else if (otherGov_f == true)
+                    {
+                        if (!prjDetail.HeadWise.Any(m => m.Available >= commitmentAmount))
+                            funddeviation = true;
+                        if (!funddeviation)
+                        {
+                            if (netBalance < commitmentAmount)
+                                funddeviation = true;
+                        }
+                    }
+                    else if (!prjDetail.HeadWise.Any(m => m.AllocationId == budgetid))
+                        funddeviation = true;
+                    else if (prjDetail.HeadWise.Any(m => m.AllocationId == budgetid))
+                    {
+                        var headwisedata = prjDetail.HeadWise.Where(x => x.AllocationId == budgetid).FirstOrDefault();
+                        var AvailableAmt = headwisedata.Available;
+                        if (AvailableAmt < commitmentAmount)
+                            funddeviation = true;
+
+                        if (AvailableAmt >= commitmentAmount && !funddeviation)
+                        {
+                            if (netBalance < commitmentAmount)
+                                funddeviation = true;
+                        }
+                    }
+                }
+                return funddeviation;
+            }
+            catch (Exception ex)
+            {
+                return funddeviation;
+            }
+
+        }
         private static int GetDaysInAYear(int year)
         {
             int days = 0;

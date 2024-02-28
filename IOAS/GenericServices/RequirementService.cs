@@ -25731,26 +25731,27 @@ namespace IOAS.GenericServices
                         }
                     }
 
-                    var Projectothdetails = context.tblRCTOTHPaymentDeductionUploadDetail.Where(x => x.OTHPaymentDeductionUploadId == masterId).ToList();
-                    if (Projectothdetails.Count > 0)
-                    {
-                        for (int i = 0; i < Projectothdetails.Count; i++)
-                        {
-                            if (Projectothdetails[i].ProjectId != null)
-                            {
-                                int projectidoth = Projectothdetails[i].ProjectId ?? 0;
-                                decimal overallamount = Projectothdetails.Where(x => x.ProjectId == projectidoth).Select(x => x.Amount ?? 0).Sum();
-                                bool checkFund = Common.IsAvailablefundProject(projectidoth, overallamount);
-                                if (checkFund == true)
-                                {
-                                    retval = 0;
-                                    Projectothdetails[i].ValidationMessage = "Insufficient fund in project";
-                                    context.SaveChanges();
-                                }
-                            }
-                        }
-                    }
-                    
+                    //var Projectothdetails = context.tblRCTOTHPaymentDeductionUploadDetail.Where(x => x.OTHPaymentDeductionUploadId == masterId).ToList();
+                    //if (Projectothdetails.Count > 0)
+                    //{
+                    //    for (int i = 0; i < Projectothdetails.Count; i++)
+                    //    {
+                    //        if (Projectothdetails[i].ProjectId != null)
+                    //        {
+                    //            int projectidoth = Projectothdetails[i].ProjectId ?? 0;
+                    //            decimal overallamount = Projectothdetails.Where(x => x.ProjectId == projectidoth).Select(x => x.Amount ?? 0).Sum();
+                    //            //int Allcationid =;
+                    //            bool checkFund = Common.IsAvailablefundProject(projectidoth, overallamount);
+                    //            if (checkFund == true)
+                    //            {
+                    //                retval = 0;
+                    //                Projectothdetails[i].ValidationMessage = "Insufficient fund in project";
+                    //                context.SaveChanges();
+                    //            }
+                    //        }
+                    //    }
+                    //}
+
                     return Tuple.Create(masterId,retval);
                 }
                 catch (Exception ex)
@@ -25968,9 +25969,12 @@ namespace IOAS.GenericServices
                                       where ros.EmployeersID == model.EmployeeNumber && ros.IsActiveNow == true && ros.Status == "Verification Completed"
                                       select new
                                       {
-                                          bh.BudgetHeadId
-                                      }).FirstOrDefault();
+                                          bh.BudgetHeadId,
+                                          ros.ProjectId
 
+                                      }).FirstOrDefault();
+                    
+                    
                     var findAllval1 = (from ros in context.tblRCTOutsourcing
                                       join c in context.tblCommitment on ros.CommitmentNo equals c.CommitmentNumber
                                       join cd in context.tblCommitmentDetails on c.CommitmentId equals cd.CommitmentId
@@ -25978,11 +25982,16 @@ namespace IOAS.GenericServices
                                       where ros.EmployeersID == model.EmployeeNumber && ros.IsActiveNow == true && ros.Status == "Verification Completed"
                                       select new
                                       {
-                                          bh.BudgetHeadId
+                                          bh.BudgetHeadId,
+                                          ros.ProjectId
+
                                       }).FirstOrDefault();
+
+                  
 
                     //Project Fund Balance Check
                     string FundTransferStatus = "Valid";
+                     
                     ProjectFundTransferModel projFundTrans = new ProjectFundTransferModel();
                     ProjectTransferDetailModel projTran = new ProjectTransferDetailModel();
                     List<ProjectTransferDetailModel> TranDetail = new List<ProjectTransferDetailModel>();
@@ -25990,11 +25999,24 @@ namespace IOAS.GenericServices
                     CoreAccountsService clsCoreService = new CoreAccountsService();
                     projFundTrans.CreditProjectId = model.ProjectId;
                     projFundTrans.DebitProjectId = model.ProjectId;
+                    int projectid = 0;
                     if (findAllval != null) 
-                        { projTran.BudgetHeadId = findAllval.BudgetHeadId; }
+                        { projTran.BudgetHeadId = findAllval.BudgetHeadId;
+                        projectid = findAllval.ProjectId ?? 0;
+                    }
                    else if (findAllval1 != null)
-                    { projTran.BudgetHeadId = findAllval1.BudgetHeadId; }
+                    { projTran.BudgetHeadId = findAllval1.BudgetHeadId;
+                        projectid = findAllval1.ProjectId ?? 0;
+                    }
                     projTran.Amount = model.Amount;
+                    bool checkFund = Common.IsAvailablefundProjects(projectid, projTran.BudgetHeadId??0, projTran.Amount??0);
+                    //bool checkFund = Common.IsAvailablefundProject(projectidoth, overallamount);
+                    if (checkFund == true)
+                    {
+                        return Tuple.Create("Insufficient fund in project", 0, model);
+
+                    }
+
                     TranDetail.Add(projTran);
                     projFundTrans.DrDetail = TranDetail;
                     projFundTrans.CrDetail = TranDetail;
