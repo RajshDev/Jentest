@@ -7277,6 +7277,13 @@ namespace IOAS.Infrastructure
                                        && boa.PostedDate >= fy.StartDate && boa.PostedDate <= fy.EndDate && fy.CurrentYearFlag == true
                                        select boa.RefNumber).FirstOrDefault();
                             break;
+                        case "LCR":
+                            refnums = (from boa in context.tblBOA
+                                       from fy in context.tblFinYear
+                                       where boa.Status == "Posted" && boa.TransactionTypeCode == "LCR" && boa.RefNumber == Refnum
+                                       && boa.PostedDate >= fy.StartDate && boa.PostedDate <= fy.EndDate && fy.CurrentYearFlag == true
+                                       select boa.RefNumber).FirstOrDefault();
+                            break;
                     }
                     return refnums.ToString();
 
@@ -17521,6 +17528,28 @@ namespace IOAS.Infrastructure
                 return Tuple.Create((string)"NA", (string)"NA", (string)"NA");
             }
         }
+        public Tuple<string, string, string> GetLCCurrentDate(string RefNumber)
+        {
+            try
+            {
+                using (var context = new IOASDBEntities())
+                {
+                    var BoaDate = context.tblBOA.Where(m => m.RefNumber == RefNumber).OrderByDescending(m => m.BOAId).Select(m => m.PostedDate).FirstOrDefault();
+                    var BillDate = context.tblLCRetirement.Where(m => m.ReferenceNumber == RefNumber).FirstOrDefault();
+                    var TransCode = "HON";
+                    int RefId = BillDate.LCOpeningId ?? 0;
+                    var CommDate = context.tblCommitmentLog.Where(m => m.TransactionTypeCode == TransCode && m.RefId == RefId && m.IsCurrentVersion_f == true).FirstOrDefault();
+                    return Tuple.Create(string.Format("{0:dd-MMM-yyyy}", BoaDate), string.Format("{0:dd-MMM-yyyy}", BillDate.CRTD_TS), string.Format("{0:dd-MMM-yyyy}", CommDate.CRTD_TS));
+                }
+            }
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+    (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                return Tuple.Create((string)"NA", (string)"NA", (string)"NA");
+            }
+        }
+
         public Tuple<string, string, string> GetHonorCurrentDate(string RefNumber)
         {
             try
