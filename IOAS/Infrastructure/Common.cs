@@ -18383,6 +18383,35 @@ namespace IOAS.Infrastructure
                 return new List<AutoCompleteModel>();
             }
         }
+        public static string GetDevelopmentMessage()
+        {
+            try
+            {
+                string Isdeploy ="";
+                using (var context = new IOASDBEntities())
+                {
+
+                    
+                    var query = (from d in context.tblDeployment where d.DeploymentStatus == "Active" select d.DeploymentMessenge).FirstOrDefault();
+
+
+                    if (query != null)
+                    {
+                        Isdeploy = query;
+                    }
+
+                    return Isdeploy;
+                }
+            }
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+    (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                return "";
+            }
+        }
+
+
 
         public static List<AutoCompleteModel> GetAllPostedReferenceNumber(string term)
         {
