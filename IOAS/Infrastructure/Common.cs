@@ -30802,18 +30802,37 @@ namespace IOAS.Infrastructure
 
         }
       
-  public static Tuple<string, string> GetVerifyAadharPan(int STEId, string aadharnumber, string PanNo, string ApplicationNo, string EmployeeNumber)
+  //public static Tuple<string, string> GetVerifyAadharPan(int STEId, string aadharnumber, string PanNo, string ApplicationNo, string EmployeeNumber)
+  //      {
+  //          var chkemployeeadhar = "";
+  //          var chkemployeepanno = "";
+  //          try
+  //          {
+  //              string application = (STEId < 0 && ApplicationNo == null || STEId < 0 && string.IsNullOrEmpty(ApplicationNo)) ? null : ApplicationNo;
+  //              chkemployeeadhar = (aadharnumber!= null || aadharnumber != "") ? Common.CheckPreviousEmployeeAdharserver(Convert.ToString(aadharnumber), application, true, EmployeeNumber, "OSG") : "Success";
+  //              chkemployeepanno = (PanNo != null || PanNo != "") ? Common.CheckPreviousEmployeePanserver(PanNo, application, true, EmployeeNumber, "OSG") : "Success";
+  //              if (chkemployeeadhar=="")chkemployeeadhar= "Success";
+  //              if (chkemployeepanno== "")chkemployeepanno="Success";
+  //              return Tuple.Create(chkemployeeadhar,chkemployeepanno);
+  //          }
+  //          catch (Exception ex)
+  //          {
+  //              throw ex;
+  //          }
+
+  //      }
+        public static Tuple<string, string> GetVerifyAadharPan(int STEId, string aadharnumber, string PanNo, string ApplicationNo, string EmployeeNumber)
         {
             var chkemployeeadhar = "";
             var chkemployeepanno = "";
             try
             {
                 string application = (STEId < 0 && ApplicationNo == null || STEId < 0 && string.IsNullOrEmpty(ApplicationNo)) ? null : ApplicationNo;
-                chkemployeeadhar = (aadharnumber!= null || aadharnumber != "") ? Common.CheckPreviousEmployeeAdharserver(Convert.ToString(aadharnumber), application, true, EmployeeNumber, "OSG") : "Success";
+                chkemployeeadhar = (aadharnumber != null || aadharnumber != "") ? Common.CheckPreviousEmployeeAdharserver(Convert.ToString(aadharnumber), application, true, EmployeeNumber, "OSG") : "Success";
                 chkemployeepanno = (PanNo != null || PanNo != "") ? Common.CheckPreviousEmployeePanserver(PanNo, application, true, EmployeeNumber, "OSG") : "Success";
-                if (chkemployeeadhar=="")chkemployeeadhar= "Success";
-                if (chkemployeepanno== "")chkemployeepanno="Success";
-                return Tuple.Create(chkemployeeadhar,chkemployeepanno);
+                if (chkemployeeadhar == "" || aadharnumber == "") chkemployeeadhar = "Success";
+                if (chkemployeepanno == "" || PanNo == "") chkemployeepanno = "Success";
+                return Tuple.Create(chkemployeeadhar, chkemployeepanno);
             }
             catch (Exception ex)
             {
@@ -30821,7 +30840,6 @@ namespace IOAS.Infrastructure
             }
 
         }
-
 
 
         public static Tuple<string, string> GetnextVerifyAadharPan(int STEId, string aadharnumber, string PanNo, string AppicationNo, string EmployeeNumber)
