@@ -6242,7 +6242,7 @@ namespace IOAS.Infrastructure
                     var query = (from C in context.tblVendorMaster
                                  orderby C.Name
                                  where C.Status == "Active"
-                                 select new { C.Name, C.VendorId }).ToList();
+                                 select new { C.Name, C.VendorId, C.isGstVendor }).ToList();
 
                     if (query.Count > 0)
                     {
@@ -6252,12 +6252,14 @@ namespace IOAS.Infrastructure
                             {
                                 id = query[i].VendorId,
                                 name = query[i].Name,
+                                isGstVendor = query[i].isGstVendor
                             });
                         }
                     }
                 }
 
                 return list;
+
             }
             catch (Exception ex)
             {
@@ -10879,10 +10881,9 @@ namespace IOAS.Infrastructure
                             select new AutoCompleteModel()
                             {
                                 value = C.ClearanceAgentId.ToString(),
-                                label = C.Name
+                                label = C.Name,
+                                desc = C.isGstVendor.HasValue && C.isGstVendor.Value ? "HOLD GST FOR THIS VENDOR" : ""
                             }).ToList();
-
-
                 }
 
                 return list;
@@ -10895,6 +10896,8 @@ namespace IOAS.Infrastructure
             }
 
         }
+
+
         public static List<MasterlistviewModel> GetClearanceAgentList(bool isTravelAgent = false)
         {
             try
@@ -17987,7 +17990,8 @@ namespace IOAS.Infrastructure
                             select new AutoCompleteModel()
                             {
                                 value = C.VendorId.ToString(),
-                                label = C.Name
+                                label = C.Name,
+                                desc = C.isGstVendor.HasValue && C.isGstVendor.Value ? "HOLD GST FOR THIS VENDOR" : ""
                             }).ToList();
                 }
                 return list;
@@ -18383,33 +18387,33 @@ namespace IOAS.Infrastructure
                 return new List<AutoCompleteModel>();
             }
         }
-        public static string GetDevelopmentMessage()
-        {
-            try
-            {
-                string Isdeploy ="";
-                using (var context = new IOASDBEntities())
-                {
-
-                    
-                    var query = (from d in context.tblDeployment where d.DeploymentStatus == "Active" select d.DeploymentMessenge).FirstOrDefault();
+    //    public static string GetDevelopmentMessage()
+    //    {
+    //        try
+    //        {
+    //            string Isdeploy ="";
+    //            using (var context = new IOASDBEntities())
+    //            {
 
 
-                    if (query != null)
-                    {
-                        Isdeploy = query;
-                    }
+    //                var query = (from d in context.tblDeployment where d.DeploymentStatus == "Active" select d.DeploymentMessenge).FirstOrDefault();
 
-                    return Isdeploy;
-                }
-            }
-            catch (Exception ex)
-            {
-                Infrastructure.IOASException.Instance.HandleMe(
-    (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
-                return "";
-            }
-        }
+
+    //                if (query != null)
+    //                {
+    //                    Isdeploy = query;
+    //                }
+
+    //                return Isdeploy;
+    //            }
+    //        }
+    //        catch (Exception ex)
+    //        {
+    //            Infrastructure.IOASException.Instance.HandleMe(
+    //(object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+    //            return "";
+    //        }
+    //    }
 
 
 

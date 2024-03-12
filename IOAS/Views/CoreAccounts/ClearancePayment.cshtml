@@ -102,10 +102,12 @@
                                                     @Html.ValidationMessageFor(m => m.ClearanceAgentId)
                                                     @if (Model.ClearanceAgentId != null)
                                                     {
+                                                        <label id="lblisGSTVendor" class="dis-none" style="color:red"></label><br />
                                                         <a href="javascript:void(0)" id="lnkBillHistory">View previous bill history</a>
                                                     }
                                                     else
                                                     {
+                                                        <label id="lblisGSTVendor" class="dis-none" style="color:red"></label><br />
                                                         <a href="javascript:void(0)" id="lnkBillHistory" class="dis-none">View previous bill history</a>
                                                     }
                                                 </div>
@@ -525,7 +527,7 @@
         }
     });
     function resetClearanceAgent() {
-        $('#lblAgentPAN, #lblAgentGSTIN, #lblAgentAddr, #lblStateCode').text('');
+        $('#lblAgentPAN, #lblAgentGSTIN, #lblAgentAddr, #lblStateCode,#lblisGSTVendor').text('');
         //$('#divPreBill').addClass('dis-none');
     }
     function resetPOMasterDetails() {
@@ -560,6 +562,16 @@
                     $('#lblAgentGSTIN').text(result.GSTIN);
                     $('#lblAgentAddr').text(result.Address);
                     $('#lblStateCode').text(result.StateCode);
+                    if (result.isGSTVendor_f) {
+                        $('#lblisGSTVendor').removeClass('dis-none');
+                        $('#lblisGSTVendor').text('HOLD GST FOR THIS VENDOR');
+                        $('#alert').html("HOLD GST FOR THIS VENDOR");
+                        $('#Validation').modal('toggle');
+                    }
+                    else {
+                        $('#lblisGSTVendor').addClass('dis-none');
+                        $('#lblisGSTVendor').text('');
+                    }
                     fillMasterDropDown(selPO,result.PONumberList,true);
                     UpdateGSTSplitUp()
                 },

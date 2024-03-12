@@ -94,10 +94,12 @@
                                                     @Html.ValidationMessageFor(m => m.VendorId)
                                                     @if (Model.VendorId != null)
                                                     {
+                                                        <label id="lblisGSTVendor" class="dis-none" style="color:red"></label><br />
                                                         <a href="javascript:void(0)" id="lnkBillHistory">View previous bill history</a>
                                                     }
                                                     else
                                                     {
+                                                        <label id="lblisGSTVendor" class="dis-none" style="color:red"></label><br />
                                                         <a href="javascript:void(0)" id="lnkBillHistory" class="dis-none">View previous bill history</a>
                                                     }
                                                 </div>
@@ -479,6 +481,16 @@
                     $('#lblVendorGSTIN').text(result.GSTIN);
                     $('#lblVendorAddr').text(result.Address);
                     $('#lblStateCode').text(result.StateCode);
+                    if (result.isGSTVendor_f) {
+                        $('#lblisGSTVendor').removeClass('dis-none');
+                        $('#lblisGSTVendor').text('HOLD GST FOR THIS VENDOR');
+                        $('#alert').html("HOLD GST FOR THIS VENDOR");
+                        $('#Validation').modal('toggle');
+                    }
+                    else {
+                        $('#lblisGSTVendor').addClass('dis-none');
+                        $('#lblisGSTVendor').text('');
+                    }
                     console.log(result.TDSLimit);
                     // 1st Open Alert Popup
                     if (result.TDSLimit === '' || result.TDSLimit === null)
@@ -660,7 +672,7 @@
         }
     });
     function resetVendor() {
-        $('#lblVendorPAN, #lblVendorGSTIN, #lblVendorAddr, #lblStateCode').text('');
+        $('#lblVendorPAN, #lblVendorGSTIN, #lblVendorAddr, #lblStateCode,#lblisGSTVendor').text('');
         //$('#divPreBill').addClass('dis-none');
     }
 
@@ -743,6 +755,16 @@
                     $('#lblVendorAddr').text(result.Address);
                     $('#lblStateCode').text(result.StateCode);
                     fillMasterDropDown(selPO, result.PONumberList, true);
+                    if (result.isGSTVendor_f) {
+                        $('#lblisGSTVendor').removeClass('dis-none');
+                        $('#lblisGSTVendor').text('HOLD GST FOR THIS VENDOR');
+                        $('#alert').html("HOLD GST FOR THIS VENDOR");
+                        $('#Validation').modal('toggle');
+                    }
+                    else {
+                        $('#lblisGSTVendor').addClass('dis-none');
+                        $('#lblisGSTVendor').text('');
+                    }
                     console.log(result.TDSLimit);
                     // Edit Vendor InputBox Alert Popup
                     if (result.TDSLimit === '' || result.TDSLimit === null)

@@ -143,7 +143,18 @@
                 //{
                 //    $("#vendorhead3,#vendorhead5,#vendorhead6").hide();
                 //}
-
+                if (result.ClearanceAgency_f == true)
+                {
+                    $('#ClearanceAgency_f').attr('checked', true);
+                }
+                if (result.TravelAgency_f == true)
+                {
+                    $('#TravelAgency_f').attr('checked', true);
+                }
+                if (result.isGSTVendor == true)
+                {
+                    $('#isGSTVendor').attr('checked', true);
+                }
                 $('#txtVendorCode').val(result.PFMSVendorCode);
                 $('#txtVendorId').val(result.VendorId);
                 $('#txtVondorName').val(result.Name);
@@ -198,7 +209,7 @@
                 }
                 $('#txtcetrificataeNum').val(result.CertificateNumber);
                 $('#txtvaildateprd').val(result.ValidityPeriod);
-
+                
                 if (result.GSTExempted == true) {
 
                     $('#IsYes').attr('checked', true);

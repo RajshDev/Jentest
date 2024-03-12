@@ -1005,6 +1005,7 @@ namespace IOAS.Models
         public string TypeofService { get; set; }
         public bool ReverseTax { get; set; }
         public bool TDSExcempted { get; set; }
+        public bool? isGSTVendor_f { get; set; }
         public string CertificateNumber { get; set; }
         public int ValidityPeriod { get; set; }
         public int CountryId { get; set; }

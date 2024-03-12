@@ -98,10 +98,12 @@ new { @class = "form-control" })
                                                     @Html.ValidationMessageFor(m => m.VendorId)
                                                     @if (Model.VendorId != null)
                                                     {
+                                                        <label id="lblisGSTVendor" class="dis-none" style="color:red"></label><br />
                                                         <a href="javascript:void(0)" id="lnkBillHistory">View previous bill history</a>
                                                     }
                                                     else
                                                     {
+                                                        <label id="lblisGSTVendor" class="dis-none" style="color:red"></label><br />
                                                         <a href="javascript:void(0)" id="lnkBillHistory" class="dis-none">View previous bill history</a>
                                                     }
                                                 </div>
@@ -548,7 +550,16 @@ new { @class = "form-control" })
                     $('#lblVendorAddr').text(result.Address);
                     $('#lblStateCode').text(result.StateCode);
                     $('#lblBankDetails').text(result.BankName + "-" + result.AccountNumber);
-
+                    if (result.isGSTVendor_f) {
+                        $('#lblisGSTVendor').removeClass('dis-none');
+                        $('#lblisGSTVendor').text('HOLD GST FOR THIS VENDOR');
+                        $('#alert').html("HOLD GST FOR THIS VENDOR");
+                        $('#Validation').modal('toggle');
+                    }
+                    else {
+                        $('#lblisGSTVendor').addClass('dis-none');
+                        $('#lblisGSTVendor').text('');
+                    }
                     console.log(result.TDSLimit);
                     // 1st Open Alert Popup
                     if (result.TDSLimit === '' || result.TDSLimit === null)
@@ -688,7 +699,7 @@ new { @class = "form-control" })
         }
     });
     function resetVendor() {
-        $('#lblVendorPAN, #lblVendorGSTIN, #lblVendorAddr, #lblStateCode,#lblBankDetails').text('');
+        $('#lblVendorPAN, #lblVendorGSTIN, #lblVendorAddr, #lblStateCode,#lblBankDetails,#lblisGSTVendor').text('');
         //$('#divPreBill').addClass('dis-none');
     }
 
@@ -735,6 +746,16 @@ new { @class = "form-control" })
                     $('#lblVendorAddr').text(result.Address);
                     $('#lblStateCode').text(result.StateCode);
                     $('#lblBankDetails').text(result.BankName + "-" + result.AccountNumber);
+                    if (result.isGSTVendor_f) {
+                        $('#lblisGSTVendor').removeClass('dis-none');
+                        $('#lblisGSTVendor').text('HOLD GST FOR THIS VENDOR');
+                        $('#alert').html("HOLD GST FOR THIS VENDOR");
+                        $('#Validation').modal('toggle');
+                    }
+                    else {
+                        $('#lblisGSTVendor').addClass('dis-none');
+                        $('#lblisGSTVendor').text('');
+                    }
                     if (result.TDSLimit === '' || result.TDSLimit === null)
                         result.TDSLimit = 0;
                     if (TotalInvoice === '' || TotalInvoice === null)
