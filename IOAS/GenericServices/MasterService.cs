@@ -1450,6 +1450,7 @@ namespace IOAS.GenericServices
                     model.ReverseTaxReson = Qry.ReasonForReservieTax;
                     model.CertificateNo = Qry.CertificateNumber;
                     model.ValidityReson = Convert.ToString(Qry.ValidityPeriod);
+                    model.isGSTVendor = Qry.isGstVendor ?? false;
                     var ClrQry = context.tblClearanceAgentMaster.Where(m => m.ClearanceAgentCode == Qry.VendorCode && m.Status != "InActive").FirstOrDefault();
                     if (ClrQry != null)
                     {

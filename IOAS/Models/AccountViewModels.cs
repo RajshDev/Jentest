@@ -156,6 +156,7 @@ namespace IOAS.Models
         public string BankCountry { get; set; }
         public bool ClearanceAgency_f { get; set; }
         public bool TravelAgency_f { get; set; }
+        public bool isGSTVendor { get; set; }
         public List<VendorTDSDetails> List { get; set; }
         public List<GSTDocumentModel> GstDocument { get; set; }
         public List<TDSDocumentModel> TdsDocument { get; set; }
