@@ -18387,33 +18387,33 @@ namespace IOAS.Infrastructure
                 return new List<AutoCompleteModel>();
             }
         }
-    //    public static string GetDevelopmentMessage()
-    //    {
-    //        try
-    //        {
-    //            string Isdeploy ="";
-    //            using (var context = new IOASDBEntities())
-    //            {
+        public static string GetDevelopmentMessage()
+        {
+            try
+            {
+                string Isdeploy = "";
+                using (var context = new IOASDBEntities())
+                {
 
 
-    //                var query = (from d in context.tblDeployment where d.DeploymentStatus == "Active" select d.DeploymentMessenge).FirstOrDefault();
+                    var query = (from d in context.tblDeployment where d.DeploymentStatus == "Active" select d.DeploymentMessenge).FirstOrDefault();
 
 
-    //                if (query != null)
-    //                {
-    //                    Isdeploy = query;
-    //                }
+                    if (query != null)
+                    {
+                        Isdeploy = query;
+                    }
 
-    //                return Isdeploy;
-    //            }
-    //        }
-    //        catch (Exception ex)
-    //        {
-    //            Infrastructure.IOASException.Instance.HandleMe(
-    //(object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
-    //            return "";
-    //        }
-    //    }
+                    return Isdeploy;
+                }
+            }
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+    (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                return "";
+            }
+        }
 
 
 
