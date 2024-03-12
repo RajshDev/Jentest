@@ -3073,6 +3073,8 @@ namespace IOAS.Models
         [Range(0, 9999999999999999.99)]
         public Nullable<decimal> Amount { get; set; }
         public string BudgetHeadName { get; set; }
+
+        public Nullable<int> Freezeval { get; set; }
     }
 
     public class ProjectTransferModel
@@ -4555,6 +4557,14 @@ namespace IOAS.Models
     //    public List<PaymentBreakUpDetailModel> PaymentBreakDetail { get; set; }
     //}
     #region Bill Status
+
+    public class DeployeModels
+    {
+        public int Deploymentid { get; set; }
+        public string DeploymentStatus { get; set; }
+        public string DeploymentMessenge { get; set; }
+       
+    }
     public class BillStatusModel
     {
         public int BillId { get; set; }

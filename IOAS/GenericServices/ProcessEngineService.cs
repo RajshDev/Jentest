@@ -842,8 +842,11 @@ namespace IOAS.GenericServices
                 }
 
                 this.record = InsertProcessTransaction(model);
-                if (model.Validatestatus== "")
-                return this;
+                if (model.Validatestatus == "WarningStatus")
+                {
+                    this.errorMsg = "Bill is Duplicate";
+                    return this;
+                }
                 else
                 {
                     this.errorMsg = "";
@@ -935,7 +938,7 @@ namespace IOAS.GenericServices
                         join pglh in context.tblProcessGuidelineHeader on pgld.ProcessGuidelineId equals pglh.ProcessGuidelineId
                         join tf in context.tblFunction on pglh.FunctionId equals tf.FunctionId
                         join tm in context.tblModules on tf.ModuleID equals tm.ModuleID
-                        where pt.RefNumber == refNumber && pt.Closed_F == true && pt.ProcessGuidelineDetailId == ProcessGuidelineDetailId
+                        where pt.RefNumber == refNumber && pt.ProcessGuidelineDetailId == ProcessGuidelineDetailId
                         && valuesToCheck.Contains(tm.ModuleID)
                         select pt.RefNumber).FirstOrDefault();
 
