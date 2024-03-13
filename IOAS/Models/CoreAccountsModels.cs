@@ -4557,6 +4557,14 @@ namespace IOAS.Models
     //    public List<PaymentBreakUpDetailModel> PaymentBreakDetail { get; set; }
     //}
     #region Bill Status
+
+    public class DeployeModels
+    {
+        public int Deploymentid { get; set; }
+        public string DeploymentStatus { get; set; }
+        public string DeploymentMessenge { get; set; }
+       
+    }
     public class BillStatusModel
     {
         public int BillId { get; set; }

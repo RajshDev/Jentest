@@ -1181,7 +1181,8 @@ namespace IOAS.Controllers
 
             var totpayval = (model.InvoiceAmount + model.InvoiceTaxAmount);
                totpayval = (int)Math.Round((totpayval ?? 0), MidpointRounding.AwayFromZero);
-
+            if (netAdvAmt <= 0)
+                netAdvAmt = 0;
 
             if (netAdvAmt != commitmentAmt)
                 msg = "There is a mismatch between the settlement value and allocated commitment value. Please update the value to continue.";
@@ -16580,6 +16581,62 @@ namespace IOAS.Controllers
         }
 
         #endregion
+        #region LC Date
+        [HttpGet]
+        public ActionResult LCDateChanger()
+        {
+            BillStatusModel model = new BillStatusModel();
+            DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
+            return View(model);
+        }
+        #endregion
+
+        [HttpGet]
+        public JsonResult LoadLCRefernceNumber(string term)
+        {
+            try
+            {
+                string[] TypeCode = { "LCR" };
+                var data = Common.GetAllReferenceNumber(TypeCode, term);
+                return Json(data, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+       (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                throw new Exception(ex.Message);
+            }
+        }
+
+        [HttpGet]
+        public JsonResult GetLCBillDate(string RefNumber)
+        {
+            try
+            {
+                Common com = new Common();
+                object data = com.GetLCCurrentDate(RefNumber);
+                return Json(data, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+       (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                throw new Exception(ex.Message);
+            }
+        }
+        [HttpPost]
+        public ActionResult LCDateChanger(BillStatusModel model)
+        {
+            int logged_in_user = Common.GetUserid(User.Identity.Name);
+            var empty = new BillStatusModel();
+            BillStatusModel data = new BillStatusModel();
+            CoreAccountsService pro = new CoreAccountsService();
+            DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
+            TempData["errMsg"] = pro.UpdateLCBillDate(model, logged_in_user) == true ? "Success" : "Failed";
+            return View(model);
+        }
         #region Honor Date
         [HttpGet]
         public ActionResult HonorBillDateChange()

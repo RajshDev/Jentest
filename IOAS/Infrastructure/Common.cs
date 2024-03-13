@@ -6242,7 +6242,7 @@ namespace IOAS.Infrastructure
                     var query = (from C in context.tblVendorMaster
                                  orderby C.Name
                                  where C.Status == "Active"
-                                 select new { C.Name, C.VendorId }).ToList();
+                                 select new { C.Name, C.VendorId, C.isGstVendor }).ToList();
 
                     if (query.Count > 0)
                     {
@@ -6252,12 +6252,14 @@ namespace IOAS.Infrastructure
                             {
                                 id = query[i].VendorId,
                                 name = query[i].Name,
+                                isGstVendor = query[i].isGstVendor
                             });
                         }
                     }
                 }
 
                 return list;
+
             }
             catch (Exception ex)
             {
@@ -7274,6 +7276,13 @@ namespace IOAS.Infrastructure
                             refnums = (from boa in context.tblBOA
                                        from fy in context.tblFinYear
                                        where boa.Status == "Posted" && boa.TransactionTypeCode == "JV" && boa.RefNumber == Refnum
+                                       && boa.PostedDate >= fy.StartDate && boa.PostedDate <= fy.EndDate && fy.CurrentYearFlag == true
+                                       select boa.RefNumber).FirstOrDefault();
+                            break;
+                        case "LCR":
+                            refnums = (from boa in context.tblBOA
+                                       from fy in context.tblFinYear
+                                       where boa.Status == "Posted" && boa.TransactionTypeCode == "LCR" && boa.RefNumber == Refnum
                                        && boa.PostedDate >= fy.StartDate && boa.PostedDate <= fy.EndDate && fy.CurrentYearFlag == true
                                        select boa.RefNumber).FirstOrDefault();
                             break;
@@ -10872,10 +10881,9 @@ namespace IOAS.Infrastructure
                             select new AutoCompleteModel()
                             {
                                 value = C.ClearanceAgentId.ToString(),
-                                label = C.Name
+                                label = C.Name,
+                                desc = C.isGstVendor.HasValue && C.isGstVendor.Value ? "HOLD GST FOR THIS VENDOR" : ""
                             }).ToList();
-
-
                 }
 
                 return list;
@@ -10888,6 +10896,8 @@ namespace IOAS.Infrastructure
             }
 
         }
+
+
         public static List<MasterlistviewModel> GetClearanceAgentList(bool isTravelAgent = false)
         {
             try
@@ -17521,6 +17531,28 @@ namespace IOAS.Infrastructure
                 return Tuple.Create((string)"NA", (string)"NA", (string)"NA");
             }
         }
+        public Tuple<string, string, string> GetLCCurrentDate(string RefNumber)
+        {
+            try
+            {
+                using (var context = new IOASDBEntities())
+                {
+                    var BoaDate = context.tblBOA.Where(m => m.RefNumber == RefNumber).OrderByDescending(m => m.BOAId).Select(m => m.PostedDate).FirstOrDefault();
+                    var BillDate = context.tblLCRetirement.Where(m => m.ReferenceNumber == RefNumber).FirstOrDefault();
+                    var TransCode = "HON";
+                    int RefId = BillDate.LCOpeningId ?? 0;
+                    var CommDate = context.tblCommitmentLog.Where(m => m.TransactionTypeCode == TransCode && m.RefId == RefId && m.IsCurrentVersion_f == true).FirstOrDefault();
+                    return Tuple.Create(string.Format("{0:dd-MMM-yyyy}", BoaDate), string.Format("{0:dd-MMM-yyyy}", BillDate.CRTD_TS), string.Format("{0:dd-MMM-yyyy}", CommDate.CRTD_TS));
+                }
+            }
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+    (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                return Tuple.Create((string)"NA", (string)"NA", (string)"NA");
+            }
+        }
+
         public Tuple<string, string, string> GetHonorCurrentDate(string RefNumber)
         {
             try
@@ -17958,7 +17990,8 @@ namespace IOAS.Infrastructure
                             select new AutoCompleteModel()
                             {
                                 value = C.VendorId.ToString(),
-                                label = C.Name
+                                label = C.Name,
+                                desc = C.isGstVendor.HasValue && C.isGstVendor.Value ? "HOLD GST FOR THIS VENDOR" : ""
                             }).ToList();
                 }
                 return list;
@@ -18354,6 +18387,35 @@ namespace IOAS.Infrastructure
                 return new List<AutoCompleteModel>();
             }
         }
+        public static string GetDevelopmentMessage()
+        {
+            try
+            {
+                string Isdeploy = "";
+                using (var context = new IOASDBEntities())
+                {
+
+
+                    var query = (from d in context.tblDeployment where d.DeploymentStatus == "Active" select d.DeploymentMessenge).FirstOrDefault();
+
+
+                    if (query != null)
+                    {
+                        Isdeploy = query;
+                    }
+
+                    return Isdeploy;
+                }
+            }
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+    (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                return "";
+            }
+        }
+
+
 
         public static List<AutoCompleteModel> GetAllPostedReferenceNumber(string term)
         {
@@ -30744,18 +30806,37 @@ namespace IOAS.Infrastructure
 
         }
       
-  public static Tuple<string, string> GetVerifyAadharPan(int STEId, string aadharnumber, string PanNo, string ApplicationNo, string EmployeeNumber)
+  //public static Tuple<string, string> GetVerifyAadharPan(int STEId, string aadharnumber, string PanNo, string ApplicationNo, string EmployeeNumber)
+  //      {
+  //          var chkemployeeadhar = "";
+  //          var chkemployeepanno = "";
+  //          try
+  //          {
+  //              string application = (STEId < 0 && ApplicationNo == null || STEId < 0 && string.IsNullOrEmpty(ApplicationNo)) ? null : ApplicationNo;
+  //              chkemployeeadhar = (aadharnumber!= null || aadharnumber != "") ? Common.CheckPreviousEmployeeAdharserver(Convert.ToString(aadharnumber), application, true, EmployeeNumber, "OSG") : "Success";
+  //              chkemployeepanno = (PanNo != null || PanNo != "") ? Common.CheckPreviousEmployeePanserver(PanNo, application, true, EmployeeNumber, "OSG") : "Success";
+  //              if (chkemployeeadhar=="")chkemployeeadhar= "Success";
+  //              if (chkemployeepanno== "")chkemployeepanno="Success";
+  //              return Tuple.Create(chkemployeeadhar,chkemployeepanno);
+  //          }
+  //          catch (Exception ex)
+  //          {
+  //              throw ex;
+  //          }
+
+  //      }
+        public static Tuple<string, string> GetVerifyAadharPan(int STEId, string aadharnumber, string PanNo, string ApplicationNo, string EmployeeNumber)
         {
             var chkemployeeadhar = "";
             var chkemployeepanno = "";
             try
             {
                 string application = (STEId < 0 && ApplicationNo == null || STEId < 0 && string.IsNullOrEmpty(ApplicationNo)) ? null : ApplicationNo;
-                chkemployeeadhar = (aadharnumber!= null || aadharnumber != "") ? Common.CheckPreviousEmployeeAdharserver(Convert.ToString(aadharnumber), application, true, EmployeeNumber, "OSG") : "Success";
+                chkemployeeadhar = (aadharnumber != null || aadharnumber != "") ? Common.CheckPreviousEmployeeAdharserver(Convert.ToString(aadharnumber), application, true, EmployeeNumber, "OSG") : "Success";
                 chkemployeepanno = (PanNo != null || PanNo != "") ? Common.CheckPreviousEmployeePanserver(PanNo, application, true, EmployeeNumber, "OSG") : "Success";
-                if (chkemployeeadhar=="")chkemployeeadhar= "Success";
-                if (chkemployeepanno== "")chkemployeepanno="Success";
-                return Tuple.Create(chkemployeeadhar,chkemployeepanno);
+                if (chkemployeeadhar == "" || aadharnumber == "") chkemployeeadhar = "Success";
+                if (chkemployeepanno == "" || PanNo == "") chkemployeepanno = "Success";
+                return Tuple.Create(chkemployeeadhar, chkemployeepanno);
             }
             catch (Exception ex)
             {
@@ -30763,7 +30844,6 @@ namespace IOAS.Infrastructure
             }
 
         }
-
 
 
         public static Tuple<string, string> GetnextVerifyAadharPan(int STEId, string aadharnumber, string PanNo, string AppicationNo, string EmployeeNumber)
