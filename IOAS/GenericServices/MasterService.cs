@@ -77,6 +77,7 @@ namespace IOAS.GenericServices
                         editVendor.CertificateNumber = query.CertificateNumber;
                         editVendor.ValidityPeriod = Convert.ToInt32(query.ValidityPeriod);
                         editVendor.BankCountry = query.BankCountry ?? 0;
+                        editVendor.isGSTVendor = query.isGstVendor ?? false;
                         var ClrQry = context.tblClearanceAgentMaster.Where(m => m.ClearanceAgentCode == query.VendorCode && m.Status != "InActive").FirstOrDefault();
                         if (ClrQry != null)
                         {
@@ -113,6 +114,7 @@ namespace IOAS.GenericServices
                             ClrQry.TDSExcempted = Convert.ToBoolean(query.TDSExcempted);
                             ClrQry.CertificateNumber = query.CertificateNumber;
                             ClrQry.ValidityPeriod = Convert.ToInt32(query.ValidityPeriod);
+                            ClrQry.isGstVendor = query.isGstVendor ?? false;
                             context.SaveChanges();
 
                         }
@@ -299,6 +301,8 @@ namespace IOAS.GenericServices
                             regvendor.Status = "Open";
                             regvendor.StateCode = model.StateCode;
                             regvendor.BankCountry = model.BankCountry;
+                            regvendor.isGstVendor = model.isGSTVendor;
+
                             context.tblVendorMaster.Add(regvendor);
                             context.SaveChanges();
                             var vendoId = regvendor.VendorId;
@@ -342,6 +346,7 @@ namespace IOAS.GenericServices
                                 Clr.Status = "Active";
                                 Clr.StateCode = regvendor.StateCode;
                                 Clr.IsTravelAgency = model.TravelAgency_f;
+                                Clr.isGstVendor = model.isGSTVendor_f;
                                 context.tblClearanceAgentMaster.Add(Clr);
                                 context.SaveChanges();
                             }
@@ -539,6 +544,7 @@ namespace IOAS.GenericServices
                                 chkvendor.TDSExcempted = model.TDSExcempted;
                                 chkvendor.ReasonForReservieTax = model.ReverseTaxReason;
                                 chkvendor.BankCountry = model.BankCountry;
+                                chkvendor.isGstVendor = model.isGSTVendor;
                                 if (model.CountryId != null)
                                 {
                                     chkvendor.Country = model.CountryId;
@@ -592,6 +598,7 @@ namespace IOAS.GenericServices
                                         Clr.Status = "Active";
                                         Clr.StateCode = chkvendor.StateCode;
                                         Clr.IsTravelAgency = model.TravelAgency_f;
+                                        Clr.isGstVendor = model.isGSTVendor_f;
                                         context.tblClearanceAgentMaster.Add(Clr);
                                         context.SaveChanges();
                                     }
@@ -634,6 +641,7 @@ namespace IOAS.GenericServices
                                         ClrQry.Status = "Active";
                                         ClrQry.StateCode = chkvendor.StateCode;
                                         ClrQry.IsTravelAgency = model.TravelAgency_f;
+                                        ClrQry.isGstVendor = model.isGSTVendor;
                                         context.SaveChanges();
                                     }
                                 }
@@ -1019,6 +1027,7 @@ namespace IOAS.GenericServices
                         editVendor.CertificateNumber = query.CertificateNumber;
                         editVendor.ValidityPeriod = Convert.ToInt32(query.ValidityPeriod);
                         editVendor.BankCountry = query.BankCountry ?? 0;
+                        editVendor.isGSTVendor = query.isGstVendor ?? false; 
                         var ClrQry = context.tblClearanceAgentMaster.Where(m => m.ClearanceAgentCode == query.VendorCode && m.Status != "InActive").FirstOrDefault();
                         if (ClrQry != null)
                         {
@@ -1441,6 +1450,7 @@ namespace IOAS.GenericServices
                     model.ReverseTaxReson = Qry.ReasonForReservieTax;
                     model.CertificateNo = Qry.CertificateNumber;
                     model.ValidityReson = Convert.ToString(Qry.ValidityPeriod);
+                    model.isGSTVendor = Qry.isGstVendor ?? false;
                     var ClrQry = context.tblClearanceAgentMaster.Where(m => m.ClearanceAgentCode == Qry.VendorCode && m.Status != "InActive").FirstOrDefault();
                     if (ClrQry != null)
                     {

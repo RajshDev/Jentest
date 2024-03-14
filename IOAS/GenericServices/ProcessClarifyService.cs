@@ -1268,6 +1268,31 @@ namespace IOAS.GenericServices
                 return false;
             }
         }
+        public bool OverheadsWFInitClarify(int id, int loggedInUser)
+        {
+            try
+            {
+                //  lock (lockObj)
+                //  {
+                using (var context = new IOASDBEntities())
+                {
+                    var query = context.tblOverheadsPosting.FirstOrDefault(m => m.OverheadsPostingId == id && m.Status == "Submit for approval");
+                    if (query != null)
+                    {
+                        query.Status = "Open";
+                        query.UPTD_By = loggedInUser;
+                        query.UPTD_TS = DateTime.Now;
+                        context.SaveChanges();
+                        return true;
+                    }
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
         public bool IMEWFInitClarify(int id, int loggedInUser)
         {
             try
