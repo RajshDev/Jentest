@@ -14384,6 +14384,20 @@ namespace IOAS.GenericServices
                                 AppointmentTypeCode = query[i].AppointmentTypeCode,
                                 RequestType = query[i].RequestType,
                             });
+
+
+                            //var changeOfProjectCheckForFreezed = from rctOutsourcing in context.tblRCTOutsourcing
+                            //                                            join commitment in context.tblCommitment on rctOutsourcing.CommitmentNo equals commitment.CommitmentNumber
+                            //                                            join commitmentDetails in context.tblCommitmentDetails on commitment.CommitmentId equals commitmentDetails.CommitmentId
+                            //                                            where rctOutsourcing.ApplicationNumber == ReferenceNumber
+                            //                                     select new
+                            //                                            {
+                            //                                                rctOutsourcing.CommitmentNo,
+                            //                                                rctOutsourcing.ProjectId,
+                            //                                                rctOutsourcing,
+                            //                                                commitment,
+                            //                                                commitmentDetails
+                            //                                            };
                         }
                     }
                 }
@@ -14397,6 +14411,52 @@ namespace IOAS.GenericServices
             }
         }
 
+        public static string GetFreezeDataForChangeOfProject(string ApplicationNo)
+        {
+            try
+            {
+                var changefreeze = "";
+                using (var context = new IOASDBEntities())
+                {
+
+                    var Changeprojectdata = (from rs in context.tblRCTSTE
+                                             join c in context.tblCommitment on rs.CommitmentNo equals c.CommitmentNumber
+                                join cd in context.tblCommitmentDetails on c.CommitmentId equals cd.CommitmentId
+                                join afl in context.tblAllocationFreezeLog on new { rs.ProjectId, AllocationHead = cd.AllocationHeadId } equals new { afl.ProjectId,afl.AllocationHead }
+                                where rs.Status == "Verification Completed" && rs.ApplicationNumber == ApplicationNo && afl.Status == "Active" && afl.IsCurrentVersion == 1
+                                select new { afl.IsFreeze }).FirstOrDefault();
+
+                    var Changeprojectdata1 = (from rs in context.tblRCTOutsourcing
+                                             join c in context.tblCommitment on rs.CommitmentNo equals c.CommitmentNumber
+                                             join cd in context.tblCommitmentDetails on c.CommitmentId equals cd.CommitmentId
+                                             join afl in context.tblAllocationFreezeLog on new { rs.ProjectId, AllocationHead = cd.AllocationHeadId } equals new { afl.ProjectId, afl.AllocationHead }
+                                             where rs.Status == "Verification Completed" && rs.ApplicationNumber == ApplicationNo && afl.Status == "Active" && afl.IsCurrentVersion == 1
+                                             select new { afl.IsFreeze }).FirstOrDefault();
+                    
+
+                    if(Changeprojectdata !=null || Changeprojectdata1 != null)
+                    {
+                        changefreeze = "Valid";
+                    }
+                    else 
+                    {
+                        changefreeze = "Invalid";
+
+                    }
+                    return changefreeze;
+
+
+                }
+            }
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+                (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                return "";
+            }
+
+        }
+        
         public STEViewModel GetRecruitBookCommitDetails(int CommitRequestID, string appltype = null, bool isView = false)
         {
             RecruitCommitRequestModel commitreqmodel = new RecruitCommitRequestModel();
@@ -22703,7 +22763,7 @@ namespace IOAS.GenericServices
                     if (query != null)
                     {
                         string Type = "OTHPaydeu";
-                        var fw = CoreAccount.ProcessTrigger(212, Type, 0, id, logged_in_user, "OthId", query.OTHPayDeductionNo);
+                        var fw = CoreAccount.ProcessTrigger(212, Type, 0, id, logged_in_user, "OthId", query.EmployeeNo);
                         if (String.IsNullOrEmpty(fw.errorMsg))
                         {
                             query.Status = "Sent for approval";
@@ -25629,7 +25689,7 @@ namespace IOAS.GenericServices
 
         #region OTHPaymentDeductionUpload
 
-        public int ValidateOTHPDList(tblRCTOTHPaymentDeductionUpload master, List<tblRCTOTHPaymentDeductionUploadDetail> detail)
+        public Tuple<int,int> ValidateOTHPDList(tblRCTOTHPaymentDeductionUpload master, List<tblRCTOTHPaymentDeductionUploadDetail> detail)
         {
             using (var context = new IOASDBEntities())
             {
@@ -25639,6 +25699,7 @@ namespace IOAS.GenericServices
                     context.tblRCTOTHPaymentDeductionUpload.Add(master);
                     context.SaveChanges();
                     int masterId = master.OTHPaymentDeductionUploadId;
+                    int retval = 1;
                     foreach (var det in detail)
                     {
                         if (!string.IsNullOrEmpty(det.EmployeeNumber) || !string.IsNullOrEmpty(det.OtherType) || !string.IsNullOrEmpty(det.HeadName) || det.Amount != null || !string.IsNullOrEmpty(det.Remarks))
@@ -25661,36 +25722,43 @@ namespace IOAS.GenericServices
                             det.EmployeeName = data.Item3.EmployeeName;
                             det.OTHPaymentDeductionUploadId = masterId;
                             det.Remarks = data.Item3.Remarks;
+                            if (det.ValidationMessage != "Valid" )
+                            {
+                                retval = 0;
+                            }
                             context.tblRCTOTHPaymentDeductionUploadDetail.Add(det);
                             context.SaveChanges();
                         }
                     }
 
-                    var Projectothdetails = context.tblRCTOTHPaymentDeductionUploadDetail.Where(x => x.OTHPaymentDeductionUploadId == masterId).ToList();
-                    if (Projectothdetails.Count > 0)
-                    {
-                        for (int i = 0; i < Projectothdetails.Count; i++)
-                        {
-                            if (Projectothdetails[i].ProjectId != null)
-                            {
-                                int projectidoth = Projectothdetails[i].ProjectId ?? 0;
-                                decimal overallamount = Projectothdetails.Where(x => x.ProjectId == projectidoth).Select(x => x.Amount ?? 0).Sum();
-                                bool checkFund = Common.IsAvailablefundProject(projectidoth, overallamount);
-                                if (checkFund == true)
-                                {
-                                    Projectothdetails[i].ValidationMessage = "Insufficient fund in project";
-                                    context.SaveChanges();
-                                }
-                            }
-                        }
-                    }
-                    return masterId;
+                    //var Projectothdetails = context.tblRCTOTHPaymentDeductionUploadDetail.Where(x => x.OTHPaymentDeductionUploadId == masterId).ToList();
+                    //if (Projectothdetails.Count > 0)
+                    //{
+                    //    for (int i = 0; i < Projectothdetails.Count; i++)
+                    //    {
+                    //        if (Projectothdetails[i].ProjectId != null)
+                    //        {
+                    //            int projectidoth = Projectothdetails[i].ProjectId ?? 0;
+                    //            decimal overallamount = Projectothdetails.Where(x => x.ProjectId == projectidoth).Select(x => x.Amount ?? 0).Sum();
+                    //            //int Allcationid =;
+                    //            bool checkFund = Common.IsAvailablefundProject(projectidoth, overallamount);
+                    //            if (checkFund == true)
+                    //            {
+                    //                retval = 0;
+                    //                Projectothdetails[i].ValidationMessage = "Insufficient fund in project";
+                    //                context.SaveChanges();
+                    //            }
+                    //        }
+                    //    }
+                    //}
+
+                    return Tuple.Create(masterId,retval);
                 }
                 catch (Exception ex)
                 {
 
                     WriteLog.SendErrorToText(ex);
-                    return 0;
+                    return Tuple.Create(0,0);
                 }
             }
         }
@@ -25715,7 +25783,7 @@ namespace IOAS.GenericServices
                     if (model.Amount == null || model.Amount == 0)
                         return Tuple.Create("Amount field is required.", 0, model);
 
-                    string EmployeeNo = model.EmployeeNumber;
+                    string EmployeeNo = model.EmployeeNumber;                               
                     var EmployeenoExist = context.vw_RCTOverAllApplicationEntry.AsNoTracking().Any(m => m.EmployeeNo == EmployeeNo || m.EmployeeNo.Contains(EmployeeNo) && m.ApplicationType == "New");
                     if (!EmployeenoExist)
                         return Tuple.Create("Employee Number not exists in the database.", 0, model);
@@ -25775,7 +25843,9 @@ namespace IOAS.GenericServices
 
                         model.CommitmentNumber = empdetails.CommitmentNumber;
                         model.CommitmentAmount = empdetails.CommitmentAmount;
-                    }
+
+
+                    }             
                     model.MonthandYear = model.MonthandYear;
                     if (model.ProjectNumber != null && model.ProjectId != null)
                     {
@@ -25856,8 +25926,108 @@ namespace IOAS.GenericServices
 
 
                         //}
+                    }                    
+                    var reqFreeze = (from ros in context.tblRCTSTE
+                                 join c in context.tblCommitment on ros.CommitmentNo equals c.CommitmentNumber
+                                 join cd in context.tblCommitmentDetails on c.CommitmentId equals cd.CommitmentId
+                                 join bh in context.tblBudgetHead on cd.AllocationHeadId equals bh.BudgetHeadId
+                                 join afl in context.tblAllocationFreezeLog
+                                     on new { ProjectId = c.ProjectId, AllocationHead = cd.AllocationHeadId } equals new { afl.ProjectId, afl.AllocationHead }
+                                 where afl.IsFreeze == 1 && ros.EmployeersID == model.EmployeeNumber && afl.Status  == "Active" && ros.IsActiveNow == true && ros.Status=="Verification Completed"
+                                     select new
+                                 {
+                                     afl.IsFreeze
+                                 }).FirstOrDefault();
+
+                    var reqFreeze1 = (from ros in context.tblRCTOutsourcing
+                                 join c in context.tblCommitment on ros.CommitmentNo equals c.CommitmentNumber
+                                 join cd in context.tblCommitmentDetails on c.CommitmentId equals cd.CommitmentId
+                                 join bh in context.tblBudgetHead on cd.AllocationHeadId equals bh.BudgetHeadId
+                                 join afl in context.tblAllocationFreezeLog
+                                     on new { ProjectId = c.ProjectId, AllocationHead = cd.AllocationHeadId } equals new { afl.ProjectId, afl.AllocationHead }
+                                 where afl.IsFreeze == 1 && ros.EmployeersID == model.EmployeeNumber && afl.Status == "Active" && ros.IsActiveNow == true && ros.Status == "Verification Completed"
+                                      select new
+                                 {
+                                    afl.IsFreeze
+                                 }).FirstOrDefault();
+
+
+                    if (reqFreeze1 == null && reqFreeze == null)
+                    {
+                      //unfreezed 
                     }
+                    else
+                    {
+                        return Tuple.Create("Allocation Head Freezed", 0, model);
+                    }
+
+                   
+                    var findAllval = (from ros in context.tblRCTSTE
+                                      join c in context.tblCommitment on ros.CommitmentNo equals c.CommitmentNumber
+                                      join cd in context.tblCommitmentDetails on c.CommitmentId equals cd.CommitmentId
+                                      join bh in context.tblBudgetHead on cd.AllocationHeadId equals bh.BudgetHeadId
+                                      where ros.EmployeersID == model.EmployeeNumber && ros.IsActiveNow == true && ros.Status == "Verification Completed"
+                                      select new
+                                      {
+                                          bh.BudgetHeadId,
+                                          ros.ProjectId
+
+                                      }).FirstOrDefault();
+                    
+                    
+                    var findAllval1 = (from ros in context.tblRCTOutsourcing
+                                      join c in context.tblCommitment on ros.CommitmentNo equals c.CommitmentNumber
+                                      join cd in context.tblCommitmentDetails on c.CommitmentId equals cd.CommitmentId
+                                      join bh in context.tblBudgetHead on cd.AllocationHeadId equals bh.BudgetHeadId
+                                      where ros.EmployeersID == model.EmployeeNumber && ros.IsActiveNow == true && ros.Status == "Verification Completed"
+                                      select new
+                                      {
+                                          bh.BudgetHeadId,
+                                          ros.ProjectId
+
+                                      }).FirstOrDefault();
+
+                  
+
+                    //Project Fund Balance Check
+                    string FundTransferStatus = "Valid";
+                     
+                    ProjectFundTransferModel projFundTrans = new ProjectFundTransferModel();
+                    ProjectTransferDetailModel projTran = new ProjectTransferDetailModel();
+                    List<ProjectTransferDetailModel> TranDetail = new List<ProjectTransferDetailModel>();
+
+                    CoreAccountsService clsCoreService = new CoreAccountsService();
+                    projFundTrans.CreditProjectId = model.ProjectId;
+                    projFundTrans.DebitProjectId = model.ProjectId;
+                    int projectid = 0;
+                    if (findAllval != null) 
+                        { projTran.BudgetHeadId = findAllval.BudgetHeadId;
+                        projectid = findAllval.ProjectId ?? 0;
+                    }
+                   else if (findAllval1 != null)
+                    { projTran.BudgetHeadId = findAllval1.BudgetHeadId;
+                        projectid = findAllval1.ProjectId ?? 0;
+                    }
+                    projTran.Amount = model.Amount;
+                    bool checkFund = Common.IsAvailablefundProjects(projectid, projTran.BudgetHeadId??0, projTran.Amount??0);
+                    //bool checkFund = Common.IsAvailablefundProject(projectidoth, overallamount);
+                    if (checkFund == true)
+                    {
+                        return Tuple.Create("Insufficient fund in project", 0, model);
+
+                    }
+
+                    TranDetail.Add(projTran);
+                    projFundTrans.DrDetail = TranDetail;
+                    projFundTrans.CrDetail = TranDetail;
+
+
+                    FundTransferStatus = clsCoreService.ValidateProjectFundTransfer(projFundTrans);
+                    if (FundTransferStatus != "Valid")
+                    { return Tuple.Create(FundTransferStatus, maHead, model); }
+
                 }
+
                 return Tuple.Create(msg, maHead, model);
             }
             catch (Exception ex)

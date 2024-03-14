@@ -401,6 +401,7 @@
     <script>
         $(document).ready(function () {
             $('#myModal').modal('show');
+            console.log(Freezelist);
         });
 
     </script>
@@ -434,6 +435,7 @@
     <script>
         $(document).ready(function () {
             $('#myModal1').modal('show');
+            console.log(Freezelist);
         });
 
     </script>
@@ -447,6 +449,8 @@
 <script>
     var errMsg = '@ViewBag.errMsg';
     var modelData = '@Html.Raw(Json.Encode(Model))';
+   
+    var FreezeHeadList;
     $(document).ready(function () {
         var searchData = { classification: 1 };
         applyAutoComplete($('#Project'), $('#SelectProject'), "@Url.Action("LoadProjectList", "CoreAccounts")", undefined, undefined, undefined, searchData);
@@ -578,6 +582,7 @@
                     var AllocateId = result.AllocationId;
                     var AllocateHead = result.Allocationhead;
                     var OldAllocationvalue = result.OldAllocationvalue;
+                    FreezeHeadList = result.Freezelist;
 
                     //    $('#divAllocateContent #primaryAllocateDiv').not(':first').remove();
                     document.getElementsByName('Allocationhead')[0].value = "";
@@ -615,6 +620,24 @@
                         document.getElementsByClassName('link1')[0].href = "ShowDocument?file=" + path + "&filepath=~%2FContent%2FSupportDocuments%2F";
                     }
                     totalSum();
+                    $('select[name="Allocationhead"]').each(function (index) {
+                        var id = $(this).attr('id');
+                        var selectedValue = $(this).val();
+
+                        if (FreezeHeadList.indexOf(parseInt(selectedValue)) >= 0) {
+                            console.log("Freeze", selectedValue);
+                            $(this).prop("disabled", true);
+                            var parentElement = $(this).parent();
+                            var parentElement1 = $(parentElement).parent();
+                            var parentElement2 = $(parentElement1).parent();
+                            var txtamt = parentElement2.find('input[name="EnhancedAllocationvalue"]');
+                            $(txtamt).prop("disabled", true);
+
+                        }
+
+                        console.log(selectedValue);
+                    });
+                   
                 },
                 error: function (err) {
                     console.log("error1 : " + err);
@@ -698,8 +721,11 @@
 
     $('#btnAddAllocationhead').click(function () {
         var cln = $("#primaryAllocateDiv").clone().find("input").val("").end();
+        cln.find("select,input").removeAttr('disabled');
+        cln.find("select,input").prop('disabled', false);
         $(cln).find('.dis-none').removeClass('dis-none');
         $('#divAllocateContent').append(cln)
+        cln.find("a.disabled").removeClass("disabled");      
         $(cln).find('.allochead').removeAttr("disabled");
         $(cln).find('.oldalloc').val(0);
     });
@@ -734,9 +760,20 @@
         }
     });
   
-        $(document).on('change', 'select[name="Allocationhead"]', function () {
-       
+    $(document).on('change', 'select[name="Allocationhead"]', function () {
+
         $(this).closest('div').find('input[name="Allochead"]').val($(this).val());
+
+        var selectedValue = $(this).val();
+        var selectedele = $(this);
+        console.log(FreezeHeadList);
+        var firstmessfreeze = (FreezeHeadList.indexOf(parseInt(selectedValue)));
+        if (firstmessfreeze >= 0) {
+            
+            messageBox('Allocation Head Freezed', "warning");
+            selectedele.val("");
+        }
+       
     });
 
     $('#btnaddnew').on('click', function () {
@@ -878,6 +915,8 @@
     function noedit() {
         return false;
     }
+   
+    
 
 
 </script>

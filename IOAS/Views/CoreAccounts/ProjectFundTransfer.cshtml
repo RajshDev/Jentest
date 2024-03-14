@@ -300,6 +300,7 @@
     $(document).ready(function () {
         GetFreezeFirstValue();
         GetFreezeFirstDrValue();
+       
         if (succMsg != '') {
             $('#alertSuccess').html(succMsg);
             $('#Success').modal('toggle');
@@ -335,6 +336,9 @@
         CalculateTotal();
         applyProjectAutoComplete($('#CreditProject'), $('#CreditProjectId'));
         applyProjectAutoComplete($('#DebitProject'), $('#DebitProjectId'));
+
+       
+
     });
 
     $('#Source').change(function () {
@@ -364,7 +368,7 @@
         $('#tbodyDr input[name$=".Amount"]').each(function (i, rowEle) {
             var parseVal = parseFloat($(this).val()) || 0;
             ttlDrVal = ttlDrVal + parseVal;
-            GetFreezeValueData();
+
         });
         $('#tbodyCr input[name$=".Amount"]').each(function (i, rowEle) {
             var parseVal = parseFloat($(this).val()) || 0;
@@ -378,6 +382,7 @@
         var isValid = $('#formPFT').valid();
         var inputs = $("#DebitProjectId, #CreditProjectId");
         var stepElements = $('#formPFT').find(inputs);
+        
         $(stepElements).each(function (idx, ele) {
             if (!$(ele).is(':radio') && !$(ele).is(':checkbox')) {
                 isValid = $(ele).valid();
@@ -403,7 +408,7 @@
                 $('#Validation').modal('toggle');
                 return false;
             }
-        }
+        }   
         $('#tbodyCr select[name$=".BudgetHeadId"]').each(function (idx, val) { crHead.push($(val).val()); });
         crHead.sort();
         for (var k = 1; k < crHead.length; ++k) {
@@ -442,7 +447,7 @@
         if ($('#tbodyDr tr').length != 1) {
             $(this).closest('tr').remove();
             CalculateTotal();
-            GetFreezeValueData();
+            
         }
     });
     $('#btnAddCrDetail').click(function () {
@@ -466,22 +471,22 @@
         if ($('#tbodyCr tr').length != 1) {
             $(this).closest('tr').remove();
             CalculateTotal();
-            GetFreezeValueDataForCr();
+           
         }
     });
     $('#tbodyDr tr').each(function (idx, trval) {
-        AccHead = ($(this).find('select[name$=".BudgetHeadId"]').val());
-        console.log(AccHead);
-        GetFreezeValueData(AccHead)
+        AccHeadDr = ($(this).find('select[name$=".BudgetHeadId"]').val());
+        console.log(AccHeadDr);
+        GetFreezeValueData(AccHeadDr)
     });
 
     $('#tbodyCr tr').each(function (idx, trval) {
-        AccHead = ($(this).find('select[name$=".BudgetHeadId"]').val());
-        console.log(AccHead);
-        GetFreezeValueDataForCr(AccHead)
+        AccHeadCr = ($(this).find('select[name$=".BudgetHeadId"]').val());
+        console.log(AccHeadCr);
+        GetFreezeValueDataForCr(AccHeadCr)
     });
 
-    function GetFreezeValueData(AccHead) {
+    function GetFreezeValueData(AccHeadDr) {
         var ProjectId = $("#DebitProjectId").val();        
         var isFreezeDataValid = 0;
         $.ajax({
@@ -489,7 +494,7 @@
             async: false,
             url: '@Url.Action("GetFreezeAndAllocationData", "Project")',
             data: {
-                "ProjectId": ProjectId, "AllocationId": AccHead},
+                "ProjectId": ProjectId, "AllocationId": AccHeadDr},
             dataType: "json",
             success: function (result) {
                 isFreezeDataValid = result;                
@@ -506,7 +511,7 @@
             ele.selectedIndex = -1; 
         }
     }
-    function GetFreezeValueDataForCr(AccHead) {
+    function GetFreezeValueDataForCr(AccHeadCr) {
         var ProjectId = $("#CreditProjectId").val();        
         var isFreezeDataValid = 0;
         $.ajax({
@@ -514,7 +519,7 @@
             async: false,
             url: '@Url.Action("GetFreezeAndAllocationData", "Project")',
             data: {
-                "ProjectId": ProjectId, "AllocationId": AccHead},
+                "ProjectId": ProjectId, "AllocationId": AccHeadCr},
             dataType: "json",
             success: function (result) {
                 isFreezeDataValid = result;                
@@ -546,9 +551,22 @@
                             if (FirAccHead == value.AllocationHead) {
                                 console.log(ele2);
                                 ele.prop('disabled', true);
-                                $(ele1).attr("disabled", "disabled"); 
+                                $(ele1).attr("disabled", "disabled");
                                 $(ele2).addClass('disabled');
+                            } else {
+                                ele.prop('disabled', false);
+                                ele1.prop('disabled', false);
+                                ele2.removeClass('disabled');
                             }
+                           
+
+                            if (isFreezeDataValid != 0 && isFreezeDataValid != null && isFreezeDataValid != "") {
+                                $("#FailedAlert").text('Allocation Head Freezed.');
+                                $('#Failed').modal('show');
+                                $('#btnSave').attr('disabled', 'disabled');
+                            }
+                           
+
                         });
 
                     });
@@ -584,7 +602,17 @@
                                 ele.prop('disabled', true);
                                 $(ele1).attr("disabled", "disabled"); 
                                 $(ele2).addClass('disabled');
+                            } else {
+                                ele.prop('disabled', false);
+                                ele1.prop('disabled', false);
+                                ele2.removeClass('disabled');
                             }
+
+                            if (isFreezeDataValid != 0 && isFreezeDataValid != null && isFreezeDataValid != "") {
+                                $("#FailedAlert").text('Allocation Head Freezed.');
+                                $('#Failed').modal('show');
+                                $('#btnSave').attr('disabled', 'disabled');
+                            } 
                         });
 
                     });
@@ -595,12 +623,9 @@
     }
 
 
-
-
-
     function BudgetHeadChangeForcr(ele) {
 
-        var firstmessfreeze = GetFreezeValueData(ele.value);
+        var firstmessfreeze =GetFreezeValueDataForCr(ele.value);
         if (firstmessfreeze == 1) {
             //var selectedText = ele.options[ele.selectedIndex].text;
             messageBox('Allocation Head Freezed', "warning");

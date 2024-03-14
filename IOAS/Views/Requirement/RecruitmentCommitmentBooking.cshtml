@@ -345,7 +345,7 @@
                                                 <div class="col-md-4">
                                                     <div class="form-group custom-form-group">
                                                         <label>Medical</label> <br>
-                                                        @Html.DropDownListFor(m => m.Medical, new SelectList(ViewBag.Medical, "id", "name"), "Select Medical", new { @class = "form-control", @disabled = "disabled" })
+                                                        @Html.DropDownListFor(m => m.Medical, new SelectList(ViewBag.Medical, "id", "name"), "Select Allocation Head", new { @class = "form-control", @disabled = "disabled", @onchange = "BudgetHeadChange(this);" })
                                                     </div>
                                                 </div>
                                             }
@@ -544,12 +544,12 @@
 
                                                     @if (Model.STEId > 0)
                                                     {
-                                                        @Html.DropDownListFor(m => m.CommitReqModel.AllocationHeadId, new SelectList(ViewBag.AllocationHead, "id", "name", Model.CommitReqModel.AllocationHeadId), "Select Medical", new { @class = "form-control", @data_val = "false" })
+                                                        @Html.DropDownListFor(m => m.CommitReqModel.AllocationHeadId, new SelectList(ViewBag.AllocationHead, "id", "name", Model.CommitReqModel.AllocationHeadId), "Select Allocation Head", new { @class = "form-control", @data_val = "false" ,@onchange = "BudgetHeadChange(this);" })
                                                         @*@Html.HiddenFor(m => m.CommitReqModel.AllocationHead)*@
                                                     }
                                                     else
                                                     {
-                                                        @Html.DropDownListFor(m => m.CommitReqModel.AllocationHeadId, new SelectList(ViewBag.AllocationHead, "id", "name"), "Select Medical", new { @class = "form-control", @data_val = "false" })
+                                                        @Html.DropDownListFor(m => m.CommitReqModel.AllocationHeadId, new SelectList(ViewBag.AllocationHead, "id", "name"), "Select Allocation Head", new { @class = "form-control", @data_val = "false", @onchange = "BudgetHeadChange(this);" })
                                                         @*@Html.HiddenFor(m => m.CommitReqModel.AllocationHead)*@
                                                     }
                                                     <div>@Html.ValidationMessageFor(m => m.CommitReqModel.AllocationHeadId)</div>
@@ -957,6 +957,15 @@
 
     var errMsg = '@TempData["errMsg"]';
     var succMsg = '@TempData["succMsg"]';
+    var allocationHeads = @Html.Raw(Json.Encode(ViewBag.ChangeOfProjectFreeze));
+
+    if (allocationHeads != "Valid") {
+        console.log("Valid");  
+    } else {
+        $('#nextBtn').prop('disabled', true);
+        messageBox("Project Allocation Head Freezed Cannot Book Commitment", "warning");
+             
+    }
 
     $(document).ready(function () {
         if(@Model.STEId>0){
@@ -1085,6 +1094,22 @@
         // This function will figure out which tab to display
         var x = document.getElementsByClassName("cust-tab");
         // Exit the function if any field in the current tab is invalid:
+
+        var isFreezed = GetFreezeValueData();
+        console.log(isFreezed);
+        if (isFreezed != 0 && isFreezed != null && isFreezed != "") {
+            $("#FailedAlert").text('Allocation Head Freezed.');
+            $('#Failed').modal('show');
+            $('#nextBtn').prop('disabled', true);
+            $('#CommitReqModel_CommitmentAmount').prop('readonly', true);
+            $('#CommitReqModel_CommitmentBalanceAmount').prop('readonly', true);
+            $('#CommitReqModel_AddCommitmentAmount').prop('readonly', true);
+            
+        } else {
+            $('#CommitReqModel_CommitmentAmount').prop('readonly', false);
+            
+            
+        }
         var v=n;
         if($('#nextBtn').text()=="Submit"){
             v=1;
@@ -1161,6 +1186,13 @@
                 {
                     allowedamount = negativebalamt;
                 }
+            }
+            var isFreezed = GetFreezeValueData();
+            console.log(isFreezed);
+            if (isFreezed != 0 && isFreezed != null && isFreezed != "") {
+                $("#FailedAlert").text('Allocation Head Freezed.');
+                $('#Failed').modal('show');             
+                return false;
             }
 
             if(bookedamount > allowedamount)
@@ -1375,6 +1407,47 @@
                 console.log("error1 : " + err);
             }
         });
+    }
+
+
+
+
+    //$('#CommitReqModel_AllocationHeadId').on('change', function () {
+    //    // Your code here, which will be executed when the value changes
+    //    var selectedValue = $(this).val();
+        
+    //});
+
+    function GetFreezeValueData() {
+        var ProjectId = $('#ProjectId').val();     
+        var AllHead = $('#CommitReqModel_AllocationHeadId').val();
+        var isFreezeDataValid = 0;
+        $.ajax({
+            type: "GET",
+            async: false,
+            url: '@Url.Action("GetFreezeAndAllocationData", "Project")',
+            data: {
+                "ProjectId": ProjectId, "AllocationId": AllHead},
+            dataType: "json",
+            success: function (result) {
+                isFreezeDataValid = result;                
+                }
+        });
+        return isFreezeDataValid;
+    }
+    function BudgetHeadChange(ele) {
+
+        var firstmessfreeze = GetFreezeValueData(ele.value);
+        if (firstmessfreeze == 1) {
+            //var selectedText = ele.options[ele.selectedIndex].text;
+            messageBox('Allocation Head Freezed', "warning");
+            ele.selectedIndex = -1;
+            $('#nextBtn').prop('disabled', true);
+
+        } else {
+            $('#CommitReqModel_CommitmentAmount').prop('readonly', false);
+            $('#nextBtn').prop('disabled', false);
+        }
     }
 
 </script>

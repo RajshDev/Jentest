@@ -156,6 +156,7 @@ namespace IOAS.Models
         public string BankCountry { get; set; }
         public bool ClearanceAgency_f { get; set; }
         public bool TravelAgency_f { get; set; }
+        public bool isGSTVendor { get; set; }
         public List<VendorTDSDetails> List { get; set; }
         public List<GSTDocumentModel> GstDocument { get; set; }
         public List<TDSDocumentModel> TdsDocument { get; set; }
@@ -1005,6 +1006,7 @@ namespace IOAS.Models
         public string TypeofService { get; set; }
         public bool ReverseTax { get; set; }
         public bool TDSExcempted { get; set; }
+        public bool? isGSTVendor_f { get; set; }
         public string CertificateNumber { get; set; }
         public int ValidityPeriod { get; set; }
         public int CountryId { get; set; }

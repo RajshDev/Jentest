@@ -4872,17 +4872,21 @@ namespace IOAS.Infrastructure
 
                 using (var context = new IOASDBEntities())
                 {
-                    stud = (from C in context.tblTapal
-                            join wf in context.tblTapalWorkflow on C.TapalId equals wf.TapalId
-                            orderby C.TapalId descending
-                            where wf.MarkTo == depId && C.IsClosed == true
-                            && C.TapalNo.Contains(term)
-                            group C by C.TapalId into g
-                            select new AutoCompleteModel
-                            {
-                                value = g.Key.ToString(),
-                                label = g.Select(m => m.TapalNo).FirstOrDefault()
-                            }).ToList();
+                    //stud = (from C in context.tblTapal
+                    //        join wf in context.tblTapalWorkflow on C.TapalId equals wf.TapalId
+                    //        orderby C.TapalId descending
+                    //        where wf.MarkTo == depId && C.IsClosed == true
+                    //        && C.TapalNo.Contains(term)
+                    //        group C by C.TapalId into g
+                    //        select new AutoCompleteModel
+                    //        {
+                    //            value = g.Key.ToString(),
+                    //            label = g.Select(m => m.TapalNo).FirstOrDefault()
+                    //        }).ToList();
+                    stud = context.Database.SqlQuery<AutoCompleteModel>("EXEC SP_GetTapalNo @term, @depId",
+                        new SqlParameter("@term", term),
+                        new SqlParameter("@depId", depId)
+                        ).ToList();
 
                 }
 
@@ -6236,7 +6240,7 @@ namespace IOAS.Infrastructure
                     var query = (from C in context.tblVendorMaster
                                  orderby C.Name
                                  where C.Status == "Active"
-                                 select new { C.Name, C.VendorId }).ToList();
+                                 select new { C.Name, C.VendorId, C.isGstVendor }).ToList();
 
                     if (query.Count > 0)
                     {
@@ -6246,12 +6250,14 @@ namespace IOAS.Infrastructure
                             {
                                 id = query[i].VendorId,
                                 name = query[i].Name,
+                                isGstVendor = query[i].isGstVendor
                             });
                         }
                     }
                 }
 
                 return list;
+
             }
             catch (Exception ex)
             {
@@ -7268,6 +7274,13 @@ namespace IOAS.Infrastructure
                             refnums = (from boa in context.tblBOA
                                        from fy in context.tblFinYear
                                        where boa.Status == "Posted" && boa.TransactionTypeCode == "JV" && boa.RefNumber == Refnum
+                                       && boa.PostedDate >= fy.StartDate && boa.PostedDate <= fy.EndDate && fy.CurrentYearFlag == true
+                                       select boa.RefNumber).FirstOrDefault();
+                            break;
+                        case "LCR":
+                            refnums = (from boa in context.tblBOA
+                                       from fy in context.tblFinYear
+                                       where boa.Status == "Posted" && boa.TransactionTypeCode == "LCR" && boa.RefNumber == Refnum
                                        && boa.PostedDate >= fy.StartDate && boa.PostedDate <= fy.EndDate && fy.CurrentYearFlag == true
                                        select boa.RefNumber).FirstOrDefault();
                             break;
@@ -8974,26 +8987,32 @@ namespace IOAS.Infrastructure
 
                 using (var context = new IOASDBEntities())
                 {
-                    list = (from P in context.tblProject
-                            join U in context.vwFacultyStaffDetails on P.PIName equals U.UserId
-                            where (string.IsNullOrEmpty(term) || P.ProjectNumber.Contains(term) || U.FirstName.Contains(term))
-                            && (type == null || type == P.ProjectType)
-                            && (classification == null || classification == P.ProjectClassification)
-                            && P.Status == "Active"
-                            orderby P.ProjectNumber
-                            select new
-                            {
-                                P.ProjectId,
-                                P.ProjectNumber,
-                                U.FirstName
-                            })
-                            .AsEnumerable()
-                            .Select((x, index) => new AutoCompleteModel()
-                            {
-                                value = x.ProjectId.ToString(),
-                                label = x.ProjectNumber + "-" + x.FirstName
-                            }).ToList();
+                    //list = (from P in context.tblProject
+                    //        join U in context.vwFacultyStaffDetails on P.PIName equals U.UserId
+                    //        where (string.IsNullOrEmpty(term) || P.ProjectNumber.Contains(term) || U.FirstName.Contains(term))
+                    //        && (type == null || type == P.ProjectType)
+                    //        && (classification == null || classification == P.ProjectClassification)
+                    //        && P.Status == "Active"
+                    //        orderby P.ProjectNumber
+                    //        select new
+                    //        {
+                    //            P.ProjectId,
+                    //            P.ProjectNumber,
+                    //            U.FirstName
+                    //        })
+                    //        .AsEnumerable()
+                    //        .Select((x, index) => new AutoCompleteModel()
+                    //        {
+                    //            value = x.ProjectId.ToString(),
+                    //            label = x.ProjectNumber + "-" + x.FirstName
+                    //        }).ToList();
 
+                    list = context.Database.SqlQuery<AutoCompleteModel>(
+                        "GetProjectAutoCompleteList @term, @type, @classification",
+                        new SqlParameter("@term", term ?? (object)DBNull.Value),
+                        new SqlParameter("@type", type ?? (object)DBNull.Value),
+                        new SqlParameter("@classification", classification ?? (object)DBNull.Value)
+                        ).ToList();
                 }
 
                 return list;
@@ -9006,7 +9025,6 @@ namespace IOAS.Infrastructure
             }
 
         }
-
         public static List<AutoCompleteModel> GetAutoCompleteProjectByBankIDList(string term, int? type = null, int? BankHeadId = 0, int? classification = null)
         {
             try
@@ -9023,8 +9041,29 @@ namespace IOAS.Infrastructure
                                  && (C.ProjectFundingCategory == 2 || C.ProjectFundingCategory == 3 || C.ProjectFundingCategory == 4))
                                  orderby C.ProjectId
                                  select new { U.FirstName, C }).ToList();
-
                     if (query.Count > 0)
+                    {
+                        list = context.Database.SqlQuery<AutoCompleteModel>("EXEC Sp_GetProjectAutoCompleteList_BankHead @term, @type, @BankHeadId, @classification",
+                        new SqlParameter("@term", term),
+                        new SqlParameter("@type", type ?? (object)DBNull.Value),
+                        new SqlParameter("@BankHeadId", BankHeadId ?? (object)DBNull.Value),
+                        new SqlParameter("@classification", classification ?? (object)DBNull.Value)
+                        ).ToList();
+
+                        return list;
+                    }
+                    else
+                    {
+                        var genlist = context.Database.SqlQuery<AutoCompleteModel>("EXEC Sp_GetProjectAutoCompleteList_BankHeadTSA @term, @type, @classification",
+                        new SqlParameter("@term", term),
+                        new SqlParameter("@type", type ?? (object)DBNull.Value),
+                        new SqlParameter("@classification", classification ?? (object)DBNull.Value)
+                        ).ToList();
+
+                        return genlist;
+                    }
+
+                    /*if (query.Count > 0)
                     {
                         list = (from P in context.tblProject
                                 join U in context.vwFacultyStaffDetails on P.PIName equals U.UserId
@@ -9072,16 +9111,8 @@ namespace IOAS.Infrastructure
                              }).ToList();
 
                         return genlist;
-                    }
-
-
-
-
-
-
+                    }*/
                 }
-
-
             }
             catch (Exception ex)
             {
@@ -10849,10 +10880,9 @@ namespace IOAS.Infrastructure
                             select new AutoCompleteModel()
                             {
                                 value = C.ClearanceAgentId.ToString(),
-                                label = C.Name
+                                label = C.Name,
+                                desc = C.isGstVendor.HasValue && C.isGstVendor.Value ? "HOLD GST FOR THIS VENDOR" : ""
                             }).ToList();
-
-
                 }
 
                 return list;
@@ -10865,6 +10895,8 @@ namespace IOAS.Infrastructure
             }
 
         }
+
+
         public static List<MasterlistviewModel> GetClearanceAgentList(bool isTravelAgent = false)
         {
             try
@@ -12735,7 +12767,6 @@ namespace IOAS.Infrastructure
                                     AccountNumber = bankDetail[i].AccountNumber,
                                     IFSCCode = bankDetail[i].IFSCCode,
                                     PAN = bankDetail[i].PAN
-
                                 });
                             }
                         }
@@ -17561,6 +17592,28 @@ namespace IOAS.Infrastructure
                 return Tuple.Create((string)"NA", (string)"NA", (string)"NA");
             }
         }
+        public Tuple<string, string, string> GetLCCurrentDate(string RefNumber)
+        {
+            try
+            {
+                using (var context = new IOASDBEntities())
+                {
+                    var BoaDate = context.tblBOA.Where(m => m.RefNumber == RefNumber).OrderByDescending(m => m.BOAId).Select(m => m.PostedDate).FirstOrDefault();
+                    var BillDate = context.tblLCRetirement.Where(m => m.ReferenceNumber == RefNumber).FirstOrDefault();
+                    var TransCode = "HON";
+                    int RefId = BillDate.LCOpeningId ?? 0;
+                    var CommDate = context.tblCommitmentLog.Where(m => m.TransactionTypeCode == TransCode && m.RefId == RefId && m.IsCurrentVersion_f == true).FirstOrDefault();
+                    return Tuple.Create(string.Format("{0:dd-MMM-yyyy}", BoaDate), string.Format("{0:dd-MMM-yyyy}", BillDate.CRTD_TS), string.Format("{0:dd-MMM-yyyy}", CommDate.CRTD_TS));
+                }
+            }
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+    (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                return Tuple.Create((string)"NA", (string)"NA", (string)"NA");
+            }
+        }
+
         public Tuple<string, string, string> GetHonorCurrentDate(string RefNumber)
         {
             try
@@ -17998,7 +18051,8 @@ namespace IOAS.Infrastructure
                             select new AutoCompleteModel()
                             {
                                 value = C.VendorId.ToString(),
-                                label = C.Name
+                                label = C.Name,
+                                desc = C.isGstVendor.HasValue && C.isGstVendor.Value ? "HOLD GST FOR THIS VENDOR" : ""
                             }).ToList();
                 }
                 return list;
@@ -18394,6 +18448,35 @@ namespace IOAS.Infrastructure
                 return new List<AutoCompleteModel>();
             }
         }
+        public static string GetDevelopmentMessage()
+        {
+            try
+            {
+                string Isdeploy = "";
+                using (var context = new IOASDBEntities())
+                {
+
+
+                    var query = (from d in context.tblDeployment where d.DeploymentStatus == "Active" select d.DeploymentMessenge).FirstOrDefault();
+
+
+                    if (query != null)
+                    {
+                        Isdeploy = query;
+                    }
+
+                    return Isdeploy;
+                }
+            }
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+    (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                return "";
+            }
+        }
+
+
 
         public static List<AutoCompleteModel> GetAllPostedReferenceNumber(string term)
         {
@@ -23085,6 +23168,32 @@ namespace IOAS.Infrastructure
                 return list;
             }
         }
+
+
+
+        public static List<FreezeFirstLoadScreenModel> freezedAllocationHead(int ProjectId)
+        {
+            List<FreezeFirstLoadScreenModel> firstfreeze = new List<FreezeFirstLoadScreenModel>();
+            try
+            {
+                using (var context = new IOASDBEntities())
+                {
+                    var query = (from cc in context.tblAllocationFreezeLog
+                                 where cc.ProjectId == ProjectId && cc.IsFreeze==1
+                                 select new { cc.IsFreeze }).ToList();
+                   
+                }
+                return firstfreeze;
+            }
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+          (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+
+                return firstfreeze;
+            }
+        }
+
         public static List<MasterlistviewModel> GetCodeFacaltyList(string codeName)
         {
             try
@@ -25721,7 +25830,7 @@ namespace IOAS.Infrastructure
                 using (var context = new IOASDBEntities())
                 {
                     var checkquery = (from cc in context.vw_RCTOverAllApplicationEntry.AsNoTracking()
-                                      where cc.Status != "Cancel" && cc.Status != "Relieved" && cc.Status != "Rejected" && cc.ApplicationType == "New"
+                                      where cc.Status != "Cancel" && cc.Status != "Rejected" && cc.Status != "Relieved" && cc.ApplicationType == "New" 
                                       && cc.AadhaarNo.Contains(adharno) && (string.IsNullOrEmpty(RefNo) || !cc.ApplicationNo.Contains(RefNo))
                                       select new { cc.EmployeeNo, cc.ApplicationNo }).ToArray();
 
@@ -25730,8 +25839,8 @@ namespace IOAS.Infrastructure
                         string[] record = new string[checkquery.Count()];
                         for (int i = 0; i < checkquery.Count(); i++)
                             record[i] = checkquery[i].EmployeeNo == null ? checkquery[i].ApplicationNo : checkquery[i].EmployeeNo;
-                        isalreadyEmp = string.Join(",", record);
-                        return "This Aadhaar Number is linked to " + isalreadyEmp;
+                        isalreadyEmp = string.Join(" , ", record);
+                        return "This Aadhaar Number is linked to " + isalreadyEmp+"," ;
                     }
 
                     if (Preval_f == true)
@@ -25745,11 +25854,11 @@ namespace IOAS.Infrastructure
                         {
                             if (!string.IsNullOrEmpty(Oldemployeeno) && relQuery.EmployeeNo != Oldemployeeno)
                             {
-                                return "This Aadhaar Number is linked to old number " + relQuery.EmployeeNo;
+                                return "This Aadhaar Number is linked to old number " + relQuery.EmployeeNo + "&";
                             }
                             if (string.IsNullOrEmpty(Oldemployeeno))
                             {
-                                return "This Aadhaar Number is linked to old number " + relQuery.EmployeeNo;
+                                return "This Aadhaar Number is linked to old number " + relQuery.EmployeeNo + "&";
                             }
                         }
 
@@ -25761,7 +25870,7 @@ namespace IOAS.Infrastructure
                                          orderby cc.ApplicationId descending
                                          select new { cc.EmployeeNo, cc.AadhaarNo }).FirstOrDefault();
                             if (Query != null && Query.AadhaarNo != adharno)
-                                return "This Old employee number  is linked to aadhaar Number " + Query.AadhaarNo;
+                                return "This Old employee number  is linked to aadhaar Number " + Query.AadhaarNo + "&";
                         }
                     }
                 }
@@ -25781,7 +25890,7 @@ namespace IOAS.Infrastructure
                 using (var context = new IOASDBEntities())
                 {
                     var checkquery = (from cc in context.vw_RCTOverAllApplicationEntry.AsNoTracking()
-                                      where cc.Status != "Cancel" && cc.Status != "Relieved" && cc.Status != "Rejected" && cc.ApplicationType == "New"
+                                      where cc.Status != "Cancel"&& cc.Status != "Rejected" && cc.Status != "Relieved" && cc.ApplicationType == "New"
                                       && cc.PANNo.Contains(Panno) && (string.IsNullOrEmpty(RefNo) || !cc.ApplicationNo.Contains(RefNo))
                                       select new { cc.EmployeeNo, cc.ApplicationNo }).ToArray();
 
@@ -25790,7 +25899,7 @@ namespace IOAS.Infrastructure
                         string[] record = new string[checkquery.Count()];
                         for (int i = 0; i < checkquery.Count(); i++)
                             record[i] = checkquery[i].EmployeeNo == null ? checkquery[i].ApplicationNo : checkquery[i].EmployeeNo;
-                        isalreadyEmp = string.Join(",", record);
+                        isalreadyEmp = string.Join(" , ", record);
                         return "This Pan Number is linked to " + isalreadyEmp;
                     }
 
@@ -27852,6 +27961,59 @@ namespace IOAS.Infrastructure
 
         }
 
+        public static bool IsAvailablefundProjects(int projectid, int budgetid, decimal commitmentAmount, int? typeOfAppointment = null)
+        {
+            bool funddeviation = false;
+            bool otherGov_f = false;
+            try
+            {
+                otherGov_f = typeOfAppointment == 4 ? true : false;
+                ProjectService _PS = new ProjectService();
+                var prjDetail = _PS.getProjectSummaryDetails(projectid);
+                decimal netBalance = prjDetail.PrjSummary.NetBalance;
+
+                if (prjDetail.HeadWise != null)
+                {
+                    var totalAllocation = prjDetail.HeadWise.Sum(m => m.Amount);
+                    if (totalAllocation <= 0)
+                    {
+                        if (netBalance < commitmentAmount)
+                            funddeviation = true;
+                    }
+                    else if (otherGov_f == true)
+                    {
+                        if (!prjDetail.HeadWise.Any(m => m.Available >= commitmentAmount))
+                            funddeviation = true;
+                        if (!funddeviation)
+                        {
+                            if (netBalance < commitmentAmount)
+                                funddeviation = true;
+                        }
+                    }
+                    else if (!prjDetail.HeadWise.Any(m => m.AllocationId == budgetid))
+                        funddeviation = true;
+                    else if (prjDetail.HeadWise.Any(m => m.AllocationId == budgetid))
+                    {
+                        var headwisedata = prjDetail.HeadWise.Where(x => x.AllocationId == budgetid).FirstOrDefault();
+                        var AvailableAmt = headwisedata.Available;
+                        if (AvailableAmt < commitmentAmount)
+                            funddeviation = true;
+
+                        if (AvailableAmt >= commitmentAmount && !funddeviation)
+                        {
+                            if (netBalance < commitmentAmount)
+                                funddeviation = true;
+                        }
+                    }
+                }
+                return funddeviation;
+            }
+            catch (Exception ex)
+            {
+                return funddeviation;
+            }
+
+        }
         private static int GetDaysInAYear(int year)
         {
             int days = 0;
@@ -30741,17 +30903,37 @@ namespace IOAS.Infrastructure
             }
 
         }
-        public static Tuple<string, string> GetVerifyAadharPan(int STEId, string aadharnumber, string PanNo, string AppicationNo, string EmployeeNumber)
+      
+  //public static Tuple<string, string> GetVerifyAadharPan(int STEId, string aadharnumber, string PanNo, string ApplicationNo, string EmployeeNumber)
+  //      {
+  //          var chkemployeeadhar = "";
+  //          var chkemployeepanno = "";
+  //          try
+  //          {
+  //              string application = (STEId < 0 && ApplicationNo == null || STEId < 0 && string.IsNullOrEmpty(ApplicationNo)) ? null : ApplicationNo;
+  //              chkemployeeadhar = (aadharnumber!= null || aadharnumber != "") ? Common.CheckPreviousEmployeeAdharserver(Convert.ToString(aadharnumber), application, true, EmployeeNumber, "OSG") : "Success";
+  //              chkemployeepanno = (PanNo != null || PanNo != "") ? Common.CheckPreviousEmployeePanserver(PanNo, application, true, EmployeeNumber, "OSG") : "Success";
+  //              if (chkemployeeadhar=="")chkemployeeadhar= "Success";
+  //              if (chkemployeepanno== "")chkemployeepanno="Success";
+  //              return Tuple.Create(chkemployeeadhar,chkemployeepanno);
+  //          }
+  //          catch (Exception ex)
+  //          {
+  //              throw ex;
+  //          }
+
+  //      }
+        public static Tuple<string, string> GetVerifyAadharPan(int STEId, string aadharnumber, string PanNo, string ApplicationNo, string EmployeeNumber)
         {
             var chkemployeeadhar = "";
             var chkemployeepanno = "";
             try
             {
-                string application = (STEId < 0 && AppicationNo == null || STEId < 0 && string.IsNullOrEmpty(AppicationNo)) ? null : AppicationNo;
-                chkemployeeadhar = (aadharnumber!=null || aadharnumber !="") ? Common.CheckPreviousEmployeeAdharserver(Convert.ToString(aadharnumber), application, true, EmployeeNumber, "OSG") : "Success";
-                chkemployeepanno = (PanNo!= null || PanNo != "")? Common.CheckPreviousEmployeePanserver(PanNo, application, true, EmployeeNumber, "OSG") : "Success";
-                if (chkemployeeadhar=="") chkemployeeadhar= "Success";
-                if (chkemployeepanno == "") chkemployeepanno = "Success";
+                string application = (STEId < 0 && ApplicationNo == null || STEId < 0 && string.IsNullOrEmpty(ApplicationNo)) ? null : ApplicationNo;
+                chkemployeeadhar = (aadharnumber != null || aadharnumber != "") ? Common.CheckPreviousEmployeeAdharserver(Convert.ToString(aadharnumber), application, true, EmployeeNumber, "OSG") : "Success";
+                chkemployeepanno = (PanNo != null || PanNo != "") ? Common.CheckPreviousEmployeePanserver(PanNo, application, true, EmployeeNumber, "OSG") : "Success";
+                if (chkemployeeadhar == "" || aadharnumber == "") chkemployeeadhar = "Success";
+                if (chkemployeepanno == "" || PanNo == "") chkemployeepanno = "Success";
                 return Tuple.Create(chkemployeeadhar, chkemployeepanno);
             }
             catch (Exception ex)
@@ -30762,9 +30944,25 @@ namespace IOAS.Infrastructure
         }
 
 
+        public static Tuple<string, string> GetnextVerifyAadharPan(int STEId, string aadharnumber, string PanNo, string AppicationNo, string EmployeeNumber)
+        {
+            var chkemployeeadhar = "";
+            var chkemployeepanno = "";
+            try
+            {
+                string application = (STEId < 0 && AppicationNo == null || STEId < 0 && string.IsNullOrEmpty(AppicationNo)) ? null : AppicationNo;
+                chkemployeeadhar = (aadharnumber != null || aadharnumber != "") ? Common.CheckPreviousEmployeeAdharserver(Convert.ToString(aadharnumber), application, true, EmployeeNumber, "OSG") : "Success";
+                chkemployeepanno = (PanNo != null || PanNo != "") ? Common.CheckPreviousEmployeePanserver(PanNo, application, true, EmployeeNumber, "OSG") : "Success";
+                if (chkemployeeadhar == "") chkemployeeadhar = "Success";
+                if (chkemployeepanno == "") chkemployeepanno = "Success";
+                return Tuple.Create(chkemployeeadhar, chkemployeepanno);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
 
-
-
+        }
 
 
         #endregion

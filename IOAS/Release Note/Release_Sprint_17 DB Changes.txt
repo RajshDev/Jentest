@@ -1,0 +1,127 @@
+Rajesh --Freezeing And Unfreezeing
+
+--vw_ProjectAllocationHeadList  
+
+CREATE view [dbo].[vw_ProjectAllocationHeadList]              
+as              
+select distinct a.ProjectId,b.AllocationHead,min(a.ProjectNumber) as ProjectNumber ,d.HeadName,             
+case               
+when a.ProjectId not in (select ProjectId from tblProjectEnhancementAllocation as cc where cc.IsCurrentVersion = 1             
+and cc.AllocationHead = b.AllocationHead)              
+then min(b.AllocationValue  )            
+else              
+min(c.TotalValue)            
+end as TotalValue, COALESCE (f.IsFreeze,0) as IsFreeze            
+from tblProject as a               
+left join tblProjectAllocation as b on a.ProjectId = b.ProjectId              
+--inner join tblBudgetHead as d on (b.AllocationHead = d.BudgetHeadId  or d.BudgetHeadId in(28,29))    
+ inner join tblBudgetHead as d on (b.AllocationHead = d.BudgetHeadId  )    
+left join tblProjectEnhancementAllocation as c on b.ProjectId = c.ProjectId and c.IsCurrentVersion = 1 and b.AllocationHead = c.AllocationHead              
+left join TblAllocationFreezeLog as f on b.ProjectId = f.ProjectId and f.IsCurrentVersion = 1 and b.AllocationHead = f.AllocationHead              
+where b.AllocationHead is not null and b.ProjectId is not null and a.Status = 'Active' group by  a.ProjectId,b.AllocationHead,d.HeadName,f.IsFreeze     
+union    
+select distinct a.ProjectId,d.BudgetHeadId,min(a.ProjectNumber) as ProjectNumber ,d.HeadName,           
+0 as TotalValue,   
+(select COALESCE (f.IsFreeze,0) from TblAllocationFreezeLog f   
+where  a.ProjectId = f.ProjectId and f.IsCurrentVersion = 1 and d.BudgetHeadId = f.AllocationHead   ) as IsFreeze          
+from tblProject as a           
+inner join tblBudgetHead as d on d.BudgetHeadId in(28,29)  
+where  a.Status = 'Active'   
+  
+group by  a.ProjectId,d.BudgetHeadId,d.HeadName  
+
+
+
+
+
+--ProjectAllocationAllHeadList
+  
+CREATE view [dbo].[vw_ProjectAllocationAllHeadList] as  
+select P.ProjectId,BH.BudgetHeadId,P.ProjectNumber,BH.HeadName,0 as TotalValue,AF.IsFreeze from tblBudgetHead as BH   
+left join tblProject as P on P.ProjectId=P.ProjectId  
+left join tblAllocationFreezeLog as AF on  P.ProjectId=Af.ProjectId  
+and AF.IsCurrentVersion = 1 and BH.BudgetHeadId = AF.AllocationHead      
+
+
+CREATE TABLE [dbo].[tblAllocationFreezeLog](
+	[AllocationFreezeLogId] [int] IDENTITY(1,1) NOT FOR REPLICATION NOT NULL,
+	[ProjectId] [int] NULL,
+	[AllocationHead] [int] NULL,
+	[CrtdUserId] [int] NULL,
+	[CrtdTS] [datetime] NULL,
+	[Status] [varchar](max) NULL,
+	[IsCurrentVersion] [int] NULL,
+	[IsFreeze] [int] NULL,
+ CONSTRAINT [PK_tblAllocationFreezeLog] PRIMARY KEY CLUSTERED 
+(
+	[AllocationFreezeLogId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+
+
+INSERT INTO [dbo].[tblRoleaccess]([RoleId],[FunctionId],[Read_f],[Add_f],[Delete_f],[Approve_f],[Update_f],[DepartmentId],[Status])
+VALUES (6,238,1,1,1,1,1,3,'Active')
+
+INSERT INTO [dbo].[tblFunction]([FunctionId],[FunctionName],[ActionName],[ControllerName],[ModuleID],[MenuGroupID],[MenuSeq],[Status])
+     VALUES (238,'Allocation Freezing UnFreezing','AllocationFreezingUnFreezing','CoreAccounts',5,6,226,'Active')
+
+
+Rajesh --Vendor Status Changer
+
+
+ 
+/****** Object:  Table [dbo].[tblVendorStatusModifierLog]    Script Date: 05-02-2024 11:23:35 ******/
+SET ANSI_NULLS ON
+GO
+ 
+SET QUOTED_IDENTIFIER ON
+GO
+ 
+CREATE TABLE [dbo].[tblVendorStatusModifierLog](
+	[Id] [int] IDENTITY(1,1) NOT FOR REPLICATION NOT NULL,
+	[VendorId] [int] NULL,
+	[Vendor_Clearance] [nvarchar](max) NULL,
+	[PrevStatus] [varchar](max) NULL,
+	[ModifiedStatus] [varchar](max) NULL,
+	[Crtd_By] [int] NULL,
+	[Crtd_Ts] [datetime] NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+
+
+select v.VendorCode,v.name,c.Name,v.status,c.status, 
+case when v.name=c.Name then 'Equal' else 'Fail' end,
+case when v.status=c.status then 'Equal' else 'Fail' end
+from tblVendorMaster v, tblClearanceAgentMaster c
+where v.VendorCode=c.ClearanceAgentCode
+order by 6 desc
+ 
+update  tblVendorMaster  set status='InActive'
+where VendorCode in( 'V04052','V01929','V08545')
+ 
+update  tblClearanceAgentMaster  set status='InActive'
+from tblVendorMaster v
+where v.VendorCode=tblClearanceAgentMaster.ClearanceAgentCode 
+and v.status='InActive' and tblClearanceAgentMaster.Status='Active'
+ 
+ 
+update  tblVendorMaster   set status='InActive'
+from  tblClearanceAgentMaster v
+where tblVendorMaster.VendorCode=v.ClearanceAgentCode 
+and v.status='InActive' and tblVendorMaster.Status='Active'
+
+
+INSERT [dbo].[tblFunction] ([FunctionId], [FunctionName], [ActionName], [ControllerName], [ModuleID], [MenuGroupID], [MenuSeq], [Status], [FileName], [ActualFileName], [Updt_UserId], [Updt_TS]) VALUES (239, N'Vendor Status Changer', N'VendorStatusChanger', N'CoreAccounts', 5, 6, 226, N'Active', NULL, NULL, NULL, NULL)
+
+
+INSERT [dbo].[tblFunction] ([FunctionId], [FunctionName], [ActionName], [ControllerName], [ModuleID], [MenuGroupID], [MenuSeq], [Status], [FileName], [ActualFileName], [Updt_UserId], [Updt_TS]) VALUES (238, N'Allocation Freezing UnFreezing', N'AllocationFreezingUnFreezing', N'CoreAccounts', 5, 6, 226, N'Active', NULL, NULL, NULL, NULL)
+
+INSERT [dbo].[tblRoleaccess] ([RoleaccessId], [RoleId], [FunctionId], [Read_f], [Add_f], [Delete_f], [Approve_f], [Update_f], [DepartmentId], [Status]) VALUES (31458, 6, 238, 1, 1, 1, 1, 1, 3, N'Active')
+GO
+INSERT [dbo].[tblRoleaccess] ([RoleaccessId], [RoleId], [FunctionId], [Read_f], [Add_f], [Delete_f], [Approve_f], [Update_f], [DepartmentId], [Status]) VALUES (31459, 6, 239, 1, 1, 1, 1, 1, 3, N'Active')
+

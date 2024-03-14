@@ -22,6 +22,7 @@ using Newtonsoft.Json;
 namespace IOAS.Controllers
 {
 
+
     public class AccountController : Controller
     {
         [Authorized]
@@ -1788,6 +1789,28 @@ namespace IOAS.Controllers
         {
             object output = AccountService.Getagenctlist(model, pageIndex, pageSize);
             return Json(output, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult _LoginPartial()
+        {
+            DeployeModels model = new DeployeModels();
+            return View();
+        }
+
+        [HttpGet]
+        public JsonResult TulaGlobalAlert()
+        {
+            try
+            {
+                
+                var data = Common.GetDevelopmentMessage();
+                return Json(data, JsonRequestBehavior.AllowGet);               
+            }
+            catch (Exception ex)
+            {
+                
+                return Json("", JsonRequestBehavior.AllowGet);
+            }
         }
 
 

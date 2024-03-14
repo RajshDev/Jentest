@@ -712,6 +712,7 @@ else
             }
         }
         CommitmentTypeChange();
+        GetFreezeValueData();
         
 
 
@@ -1059,6 +1060,18 @@ else
         //    messageBox('Allocation Head Freezed <br/> Unable To Save Allocation', "warning");
         //    return false;
         //}
+        var freezelist = GetFreezeValueData();
+        var SelectHead = 1
+        if (SelectHead == freezelist) {
+            $('#AllocationValue').attr('readonly', true);
+            $('#selAllocationHead').attr('readonly', true);            
+            messageBox('Allocation Head Freezed', "warning");
+            isValid = false;
+            return false;
+        } else {
+            $('#AllocationValue').attr('readonly', false);
+            $('#selAllocationHead').attr('readonly', true)
+        }
 
         if (CommitType == "") {
             isValid = false;
@@ -1273,7 +1286,9 @@ else
     }
 
     //Active commitment
-    $("#btnSubmit").click(function () {
+    $("#btnSubmit").click(function ()
+    {
+
         var commitId = $("#hdnCommitId").val();
         var commitVal = $("#commitmentValue").val();
         var BalCommitForCurYear = $("#spanTCCY").text();
@@ -1296,6 +1311,19 @@ else
             $('#alert').html("Total commitment value cannot be above net balance");
             $('#Validation').modal('toggle'); isValid = false;
             return false;
+        }
+        
+        var freezelist = GetFreezeValueData();
+        var SelectHead = 1 
+        if (SelectHead == freezelist) {
+            $('#AllocationValue').attr('readonly', true);
+            $('#selAllocationHead').attr('readonly', true);            
+            messageBox('Allocation Head Freezed', "warning");
+            isValid = false;
+            return false;
+        } else {
+            $('#AllocationValue').attr('readonly', false); 
+            $('#selAllocationHead').attr('readonly', true)
         }
         //if (parseFloat(commitVal) > parseFloat(BalCommitForCurYear)) {
         //    $('#alert').html("Balance Commitment allowed for this year " + BalCommitForCurYear + "(INR)");

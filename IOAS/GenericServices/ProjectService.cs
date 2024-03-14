@@ -2962,7 +2962,7 @@ namespace IOAS.GenericServices
                 try
                 {
                     var Freezedata = (from FreezeLog in context.tblAllocationFreezeLog
-                                      where FreezeLog.ProjectId == ProjectId && FreezeLog.IsCurrentVersion == 1
+                                      where FreezeLog.ProjectId == ProjectId && FreezeLog.IsCurrentVersion == 1 && FreezeLog.Status== "Active" && FreezeLog.IsFreeze==1
                                       select new { FreezeLog.AllocationHead }).Distinct().ToList();
                                      
                     for (int i = 0; i < Freezedata.Count; i++)
@@ -3056,8 +3056,35 @@ namespace IOAS.GenericServices
                 {
 
                     var Freezedata = (from FreezeLog in context.tblAllocationFreezeLog                               
-                               where FreezeLog.ProjectId== ProjectId && FreezeLog.AllocationHead== AllocationId && FreezeLog.IsCurrentVersion==1
-                               select FreezeLog.IsFreeze).FirstOrDefault();
+                               where FreezeLog.ProjectId== ProjectId && FreezeLog.AllocationHead== AllocationId && FreezeLog.IsCurrentVersion==1 && FreezeLog.Status == "Active" && FreezeLog.IsFreeze == 1
+                                      select FreezeLog.IsFreeze).FirstOrDefault();
+
+                    if (Freezedata == null)
+                        return 0;
+                    else
+                        return (int)Freezedata;
+
+                }
+            }
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+                (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                return -1;
+            }
+
+        }
+
+        public static int GetFreezeOverHeadsValues(int ProjectId)
+        {
+            try
+            {
+                using (var context = new IOASDBEntities())
+                {
+
+                    var Freezedata = (from FreezeLog in context.tblAllocationFreezeLog
+                                      where FreezeLog.ProjectId == ProjectId && FreezeLog.IsCurrentVersion == 1 && FreezeLog.AllocationHead==6
+                                      select FreezeLog.IsFreeze).FirstOrDefault();
 
                     if (Freezedata == null)
                         return 0;
@@ -3121,6 +3148,9 @@ namespace IOAS.GenericServices
                     var Companyquery = (from C in context.tblJointDevelopmentCompany
                                         where C.ProjectId == ProjectId
                                         select C).ToList();
+                    var Freezelist = (from cc in context.tblAllocationFreezeLog
+                                where cc.ProjectId == ProjectId && cc.IsFreeze == 1 && cc.Status=="Active"
+                                select new { cc.AllocationHead }).ToList();
                     bool isYearWiseAH = false;
 
                     int allocatedYear = 0;
@@ -3146,6 +3176,7 @@ namespace IOAS.GenericServices
                             }
 
                         }
+                        editProject.Freezelist= Freezelist.Select(item => (int?)item.GetType().GetProperty("AllocationHead").GetValue(item)).ToList();
                         //editProject.MainProjectList = Common.GetMainProjectNumberList(query.ProjectType ?? 0);
                         editProject.MainProjectList = new List<MasterlistviewModel>();
                         //int months = (query.DurationOfProjectMonths ?? 0) > 0 ? 1 : 0;
@@ -4003,6 +4034,8 @@ namespace IOAS.GenericServices
                         editProject.JointDevelopmentRemarks = _remarks;
 
                     }
+
+                   
                     return editProject;
                 }
             }
@@ -4359,7 +4392,13 @@ namespace IOAS.GenericServices
 
 
                     }
-
+                    var Freezelist = (from cc in context.tblAllocationFreezeLog
+                                      where cc.ProjectId == projectid && cc.IsFreeze == 1 && cc.Status == "Active"
+                                      select new { cc.AllocationHead }).ToList();
+                    if (Freezelist.Count!=0)
+                    {
+                        Projectdetails.Freezelist = Freezelist.Select(item => (int?)item.GetType().GetProperty("AllocationHead").GetValue(item)).ToList();
+                    }
 
                     var enhanceallocation = (from C in context.tblProjectEnhancementAllocation
                                              where C.ProjectId == projectid && C.IsCurrentVersion == true
@@ -4929,6 +4968,10 @@ namespace IOAS.GenericServices
                     var projectallocquery = (from prjct in context.tblProjectAllocation
                                              where prjct.ProjectId == query.ProjectId
                                              select prjct).ToList();
+
+                    var Freezelist = (from cc in context.tblAllocationFreezeLog
+                                      where cc.ProjectId == query.ProjectId && cc.IsFreeze == 1 && cc.Status == "Active"
+                                      select new { cc.AllocationHead }).ToList();
                     ///********* Added by Benet Shibin 08-09-2010 (purpose:Get CoPI & PI details ) **********/
                     int ProjectId = Convert.ToInt32(query.ProjectId);
                     //var QryCo_PIDetails = (from C in context.tblProjectCoPI where C.ProjectId == ProjectId && C.Status == "Active" select new { C.Department, C.Name, C.Designation }).ToList();
@@ -4983,6 +5026,9 @@ namespace IOAS.GenericServices
                         //    editenhancement.CoPIDesignation = _CoPIDesig;
                         //}
                         /********* End **********/
+
+                        editenhancement.Freezelist = Freezelist.Select(item => (int?)item.GetType().GetProperty("AllocationHead").GetValue(item)).ToList();
+
                         var projectid = editenhancement.ProjectID;
                         var projectquery = (from P in context.tblProject
                                             where (P.ProjectId == projectid)

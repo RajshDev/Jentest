@@ -894,52 +894,52 @@ namespace IOAS.Controllers
                 }
                 #endregion
 
-                //if (model.STEId > 0)
-                //{
-                //    if (model.aadharnumber != null)
-                //    {
-                //        var chkemployeeadhar = Common.CheckPreviousEmployeeAdharserver(Convert.ToString(model.aadharnumber), model.ApplicationNo, true, model.OldEmployeeNumber, "STE");
-                //        if (chkemployeeadhar != "")
-                //        {
-                //            TempData["alertMsg"] = chkemployeeadhar;
-                //            model.Status = model.Status == null ? "" : model.Status;
-                //            return View(model);
-                //        }
-                //    }
-                //    if (!string.IsNullOrEmpty(model.PAN))
-                //    {
-                //        var chkemployeepanno = Common.CheckPreviousEmployeePanserver(model.PAN, model.ApplicationNo, true, model.OldEmployeeNumber, "STE");
-                //        if (chkemployeepanno != "")
-                //        {
-                //            TempData["alertMsg"] = chkemployeepanno;
-                //            model.Status = model.Status == null ? "" : model.Status;
-                //            return View(model);
-                //        }
-                //    }
-                //}
-                //else
-                //{
-                //    if (model.aadharnumber != null)
-                //    {
-                //        var chkemployeeadhar = Common.CheckPreviousEmployeeAdharserver(Convert.ToString(model.aadharnumber), null, true, model.OldEmployeeNumber, "STE");
-                //        if (chkemployeeadhar != "")
-                //        {
-                //            TempData["errMsg"] = chkemployeeadhar;
-                //            model.Status = model.Status == null ? "" : model.Status;
-                //            return View(model);
-                //        }
-                //    }
-                //    if (!string.IsNullOrEmpty(model.PAN))
-                //    {
-                //        var chkemployeepanno = Common.CheckPreviousEmployeePanserver(model.PAN, null, true, model.OldEmployeeNumber, "STE");
-                //        if (chkemployeepanno != "")
-                //        {
-                //            TempData["errMsg"] = "This Pan Number is linked to  " + chkemployeepanno;
-                //            model.Status = model.Status == null ? "" : model.Status;
-                //            return View(model);
-                //        }
-                //    }
-                //}
+                if (model.STEId > 0)
+                {
+                    if (model.aadharnumber != null)
+                    {
+                        var chkemployeeadhar = Common.CheckPreviousEmployeeAdharserver(Convert.ToString(model.aadharnumber), model.ApplicationNo, true, model.OldEmployeeNumber, "STE");
+                        if (chkemployeeadhar != "")
+                        {
+                            TempData["alertMsg"] = chkemployeeadhar;
+                            model.Status = model.Status == null ? "" : model.Status;
+                            return View(model);
+                        }
+                    }
+                    if (!string.IsNullOrEmpty(model.PAN))
+                    {
+                        var chkemployeepanno = Common.CheckPreviousEmployeePanserver(model.PAN, model.ApplicationNo, true, model.OldEmployeeNumber, "STE");
+                        if (chkemployeepanno != "")
+                        {
+                            TempData["alertMsg"] = chkemployeepanno;
+                            model.Status = model.Status == null ? "" : model.Status;
+                            return View(model);
+                        }
+                    }
+                }
+                else
+                {
+                    if (model.aadharnumber != null)
+                    {
+                        var chkemployeeadhar = Common.CheckPreviousEmployeeAdharserver(Convert.ToString(model.aadharnumber), null, true, model.OldEmployeeNumber, "STE");
+                        if (chkemployeeadhar != "")
+                        {
+                            TempData["errMsg"] = chkemployeeadhar;
+                            model.Status = model.Status == null ? "" : model.Status;
+                            return View(model);
+                        }
+                    }
+                    if (!string.IsNullOrEmpty(model.PAN))
+                    {
+                        var chkemployeepanno = Common.CheckPreviousEmployeePanserver(model.PAN, null, true, model.OldEmployeeNumber, "STE");
+                        if (chkemployeepanno != "")
+                        {
+                            TempData["errMsg"] = "This Pan Number is linked to  " + chkemployeepanno;
+                            model.Status = model.Status == null ? "" : model.Status;
+                            return View(model);
+                        }
+                    }
+                }
 
                 if (model.isDraftbtn == false && ModelState.IsValid)
                 {
@@ -5301,6 +5301,12 @@ namespace IOAS.Controllers
                 ViewBag.IITMPensionerOrCSIRStaff = Common.GetCodeControlList("IITMPensioner/CSIRStaff");
                 ViewBag.Medical = Common.GetCodeControlList("SETMedical");
                 model = recruitmentService.GetRecruitBookCommitDetails(Id, apptype);
+                if (apptype == "Change of Project")
+
+                {
+                    ViewBag.ChangeOfProjectFreeze = RequirementService.GetFreezeDataForChangeOfProject(model.ApplicationNo);
+                }
+                 
                 //if(apptype == "Change of Project")
                 //{
                 //    model = 
@@ -5319,7 +5325,7 @@ namespace IOAS.Controllers
                     psModel.ProjectCloseDate = string.Format("{0:dd-MMM-yyyy}", psModel.Common.CloseDate);
                     psModel.ProjId = ProjectId;
                     psModel.DistributionAmount = Common.GetDistribuAmount(ProjectId);
-                    psModel.ExpAmt = psModel.Summary.AmountSpent;
+                    psModel.ExpAmt = psModel.Summary.AmountSpent; 
                     model.Projsummary = psModel;
                 }
                 return View(model);
@@ -6767,52 +6773,52 @@ namespace IOAS.Controllers
                     }
                 }
                 #endregion
-                //if (model.STEId > 0)
-                //{
-                //    if (model.aadharnumber != null)
-                //    {
-                //        var chkemployeeadhar = Common.CheckPreviousEmployeeAdharserver(Convert.ToString(model.aadharnumber), model.ApplicationNo, true, model.OldEmployeeNumber, "OSG");
-                //        if (chkemployeeadhar != "")
-                //        {
-                //            TempData["alertMsg"] = chkemployeeadhar;
-                //            model.Status = model.Status == null ? "" : model.Status;
-                //            return View(model);
-                //        }
-                //    }
-                //    if (!string.IsNullOrEmpty(model.PAN))
-                //    {
-                //        var chkemployeepanno = Common.CheckPreviousEmployeePanserver(model.PAN, model.ApplicationNo, true, model.OldEmployeeNumber, "OSG");
-                //        if (chkemployeepanno != "")
-                //        {
-                //            TempData["alertMsg"] = "This Pan Number is linked to  " + chkemployeepanno;
-                //            model.Status = model.Status == null ? "" : model.Status;
-                //            return View(model);
-                //        }
-                //    }
-                //}
-                //else
-                //{
-                //    if (model.aadharnumber != null)
-                //    {
-                //        var chkemployeeadhar = Common.CheckPreviousEmployeeAdharserver(Convert.ToString(model.aadharnumber), null, true, model.OldEmployeeNumber, "OSG");
-                //        if (chkemployeeadhar != "")
-                //        {
-                //            TempData["errMsg"] = chkemployeeadhar;
-                //            model.Status = model.Status == null ? "" : model.Status;
-                //            return View(model);
-                //        }
-                //    }
-                //    if (!string.IsNullOrEmpty(model.PAN))
-                //    {
-                //        var chkemployeepanno = Common.CheckPreviousEmployeePanserver(model.PAN, null, true, model.OldEmployeeNumber, "OSG");
-                //        if (chkemployeepanno != "")
-                //        {
-                //            TempData["errMsg"] = "This Pan Number is linked to  " + chkemployeepanno;
-                //            model.Status = model.Status == null ? "" : model.Status;
-                //            return View(model);
-                //        }
-                //    }
-                //}
+                if (model.STEId > 0)
+                {
+                    if (model.aadharnumber != null)
+                    {
+                        var chkemployeeadhar = Common.CheckPreviousEmployeeAdharserver(Convert.ToString(model.aadharnumber), model.ApplicationNo, true, model.OldEmployeeNumber, "OSG");
+                        if (chkemployeeadhar != "")
+                        {
+                            TempData["alertMsg"] = chkemployeeadhar;
+                            model.Status = model.Status == null ? "" : model.Status;
+                            return View(model);
+                        }
+                    }
+                    if (!string.IsNullOrEmpty(model.PAN))
+                    {
+                        var chkemployeepanno = Common.CheckPreviousEmployeePanserver(model.PAN, model.ApplicationNo, true, model.OldEmployeeNumber, "OSG");
+                        if (chkemployeepanno != "")
+                        {
+                            TempData["alertMsg"] = chkemployeepanno;
+                            model.Status = model.Status == null ? "" : model.Status;
+                            return View(model);
+                        }
+                    }
+                }
+                else
+                {
+                    if (model.aadharnumber != null)
+                    {
+                        var chkemployeeadhar = Common.CheckPreviousEmployeeAdharserver(Convert.ToString(model.aadharnumber), null, true, model.OldEmployeeNumber, "OSG");
+                        if (chkemployeeadhar != "")
+                        {
+                            TempData["errMsg"] = chkemployeeadhar;
+                            model.Status = model.Status == null ? "" : model.Status;
+                            return View(model);
+                        }
+                    }
+                    if (!string.IsNullOrEmpty(model.PAN))
+                    {
+                        var chkemployeepanno = Common.CheckPreviousEmployeePanserver(model.PAN, null, true, model.OldEmployeeNumber, "OSG");
+                        if (chkemployeepanno != "")
+                        {
+                            TempData["errMsg"] =chkemployeepanno;
+                            model.Status = model.Status == null ? "" : model.Status;
+                            return View(model);
+                        }
+                    }
+                }
                 if (!model.isDraftbtn)//..........Submit Button
                 {
                     ModelState.Remove("CSIRStaff");
@@ -10250,6 +10256,7 @@ namespace IOAS.Controllers
                 var user = User.Identity.Name;
                 var userId = AdminService.getUserByName(user);
                 int uploadId = 0;
+                int resultId = 0;
                 if (!Directory.Exists(path1))
                 {
                     Directory.CreateDirectory(Server.MapPath("~/Content/RCTOTHTemplate"));
@@ -10293,7 +10300,11 @@ namespace IOAS.Controllers
                         master.ToDate = model.ToDate;
                         master.Crtd_By = userId;
                         master.Crtd_Ts = DateTime.Now;
-                        uploadId = recruitmentService.ValidateOTHPDList(master, list);
+                        var uploadresult = recruitmentService.ValidateOTHPDList(master, list);
+
+
+                        uploadId = uploadresult.Item1;
+                        resultId = uploadresult.Item2;
                         if (uploadId == 0)
                             msg = "Something went wrong please contact administrator.";
                     }
@@ -10304,7 +10315,7 @@ namespace IOAS.Controllers
                 {
                     msg = "Please Upload Files in .xls or .xlsx format";
                 }
-                return Json(new { status = msg, guid = guid, uploadId = uploadId }, JsonRequestBehavior.AllowGet);
+                return Json(new { status = msg, guid = guid, uploadId = uploadId, resultId=resultId }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
@@ -10796,11 +10807,11 @@ namespace IOAS.Controllers
         }
 
 
-        public JsonResult VerifyAadharPan(int STEId, string aadharnumber, string PanNo, string AppicationNo, string EmployeeNumber)
+        public JsonResult VerifyAadharPan(int STEId, string aadharnumber, string PanNo, string ApplicationNo, string EmployeeNumber)
         {
             try
             {
-                object output = Common.GetVerifyAadharPan(STEId, aadharnumber, PanNo, AppicationNo, EmployeeNumber);
+                object output = Common.GetVerifyAadharPan(STEId, aadharnumber, PanNo, ApplicationNo, EmployeeNumber);
                 //output.
                 return Json(output, JsonRequestBehavior.AllowGet);
             }
@@ -10810,6 +10821,19 @@ namespace IOAS.Controllers
             }
         }
 
+        public JsonResult nextVerifyAadharPan(int STEId, string aadharnumber, string PanNo, string AppicationNo, string EmployeeNumber)
+        {
+            try
+            {
+                object output = Common.GetnextVerifyAadharPan(STEId, aadharnumber, PanNo, AppicationNo, EmployeeNumber);
+                //output.
+                return Json(output, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
 
 
         #region Test

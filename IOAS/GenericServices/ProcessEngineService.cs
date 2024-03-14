@@ -294,34 +294,34 @@ namespace IOAS.GenericServices
                 List<ProcessGuidelineWorkflowDocument> model = new List<ProcessGuidelineWorkflowDocument>();
                 using (var context = new IOASDBEntities())
                 {
-                    var records = (from PGD in context.tblProcessGuidelineDetail
-                                   join WF in context.tblProcessGuidelineWorkFlow on PGD.ProcessGuidelineDetailId equals WF.ProcessGuidelineDetailId
-                                   join WFD in context.tblProcessGuidelineWorkflowDocument on WF.ProcessGuidelineWorkFlowId equals WFD.ProcessGuidelineWorkflowId
-                                   where PGD.ProcessGuidelineId == processGuideLineId && WF.ApproverId == userId
-                                   select new
-                                   {
-                                       WFD.ProcessGuidelineWorkflowDocumentId,
-                                       WFD.ProcessGuidelineWorkflowId,
-                                       WFD.DocumentId,
-                                       WFD.DocumentName,
-                                       WFD.DocumentType,
-                                       WFD.IsRequired
-                                   }).ToList();
-                    if (records != null && records.Count > 0)
-                    {
-                        for (int i = 0; i < records.Count; i++)
-                        {
-                            model.Add(new ProcessGuidelineWorkflowDocument
-                            {
-                                ProcessGuidelineWorkflowId = Convert.ToInt32(records[i].ProcessGuidelineWorkflowId),
-                                ProcessGuidelineWorkflowDocumentId = Convert.ToInt32(records[i].ProcessGuidelineWorkflowDocumentId),
-                                DocumentId = Convert.ToInt32(records[i].DocumentId),
-                                DocumentName = records[i].DocumentName,
-                                DocumentType = records[i].DocumentType,
-                                IsRequired = Convert.ToBoolean(records[i].IsRequired)
-                            });
-                        }
-                    }
+                    //var records = (from PGD in context.tblProcessGuidelineDetail
+                    //               join WF in context.tblProcessGuidelineWorkFlow on PGD.ProcessGuidelineDetailId equals WF.ProcessGuidelineDetailId
+                    //               join WFD in context.tblProcessGuidelineWorkflowDocument on WF.ProcessGuidelineWorkFlowId equals WFD.ProcessGuidelineWorkflowId
+                    //               where PGD.ProcessGuidelineId == processGuideLineId && WF.ApproverId == userId
+                    //               select new
+                    //               {
+                    //                   WFD.ProcessGuidelineWorkflowDocumentId,
+                    //                   WFD.ProcessGuidelineWorkflowId,
+                    //                   WFD.DocumentId,
+                    //                   WFD.DocumentName,
+                    //                   WFD.DocumentType,
+                    //                   WFD.IsRequired
+                    //               }).ToList();
+                    //if (records != null && records.Count > 0)
+                    //{
+                    //    for (int i = 0; i < records.Count; i++)
+                    //    {
+                    //        model.Add(new ProcessGuidelineWorkflowDocument
+                    //        {
+                    //            ProcessGuidelineWorkflowId = Convert.ToInt32(records[i].ProcessGuidelineWorkflowId),
+                    //            ProcessGuidelineWorkflowDocumentId = Convert.ToInt32(records[i].ProcessGuidelineWorkflowDocumentId),
+                    //            DocumentId = Convert.ToInt32(records[i].DocumentId),
+                    //            DocumentName = records[i].DocumentName,
+                    //            DocumentType = records[i].DocumentType,
+                    //            IsRequired = Convert.ToBoolean(records[i].IsRequired)
+                    //        });
+                    //    }
+                    //}
                 }
 
                 return model;
@@ -842,8 +842,16 @@ namespace IOAS.GenericServices
                 }
 
                 this.record = InsertProcessTransaction(model);
-
-                return this;
+                if (model.Validatestatus == "WarningStatus")
+                {
+                    this.errorMsg = "Bill is Duplicate";
+                    return this;
+                }
+                else
+                {
+                    this.errorMsg = "";
+                    return null;
+                }
             }
             catch (Exception ex)
             {
@@ -921,10 +929,22 @@ namespace IOAS.GenericServices
                 bool retunval = false;
                 using (var context = new IOASDBEntities())
                 {
-                    
-                    DuplicateEntry = (from Pt in context.tblProcessTransaction
-                                      where  Pt.RefNumber == refNumber && Pt.Closed_F == true && Pt.ProcessGuidelineDetailId==ProcessGuidelineDetailId
-                                      select Pt.RefNumber).FirstOrDefault();
+
+
+                    var valuesToCheck = new List<int> { 5, 7, 8, 10 };
+                    DuplicateEntry = (
+                        from pt in context.tblProcessTransaction
+                        join pgld in context.tblProcessGuidelineDetail on pt.ProcessGuidelineDetailId equals pgld.ProcessGuidelineDetailId
+                        join pglh in context.tblProcessGuidelineHeader on pgld.ProcessGuidelineId equals pglh.ProcessGuidelineId
+                        join tf in context.tblFunction on pglh.FunctionId equals tf.FunctionId
+                        join tm in context.tblModules on tf.ModuleID equals tm.ModuleID
+                        where pt.RefNumber == refNumber && pt.ProcessGuidelineDetailId == ProcessGuidelineDetailId
+                        && valuesToCheck.Contains(tm.ModuleID)
+                        select pt.RefNumber).FirstOrDefault();
+
+                    //DuplicateEntry = (from Pt in context.tblProcessTransaction
+                    //                  where Pt.RefNumber == refNumber && Pt.Closed_F == true && Pt.ProcessGuidelineDetailId == ProcessGuidelineDetailId
+                    //                  select Pt.RefNumber).FirstOrDefault();
 
                     if (refNumber != DuplicateEntry)
                     {
@@ -989,18 +1009,23 @@ namespace IOAS.GenericServices
                         trans.RefFieldName = model.RefFieldName;
                         trans.FunctionId = model.FunctionId;
                         trans.RefNumber = model.RefNumber;
-                        //rajesh duplication                       
-                        context.tblProcessTransaction.Add(trans);
-                        context.SaveChanges();
-                        //if (DuplicateEntryValidation(model.RefNumber.ToString(), model.ProcessGuidelineDetailId))
-                        //{
-                            
-                        //}
+                       
+                        if (DuplicateEntryValidation(model.RefNumber.ToString(), model.ProcessGuidelineDetailId))
+                        {
+                            context.tblProcessTransaction.Add(trans);
+                            context.SaveChanges();
+                            model.Validatestatus = "";
+                        }
+                        else
+                        {
+                            model.Validatestatus = "WarningStatus";
+                            return model;
+                        }
                     }
                     var GetProcessTransactionId = trans.ProcessTransactionId;
-                    
-                    //if (GetProcessTransactionId != 0 || GetProcessTransactionId != null)
-                    //{
+
+                    if (GetProcessTransactionId != 0 || GetProcessTransactionId != null)
+                    {
                         transDetail.ProcessTransactionId = trans.ProcessTransactionId;
                         transDetail.ProcessGuidelineDetailId = model.ProcessGuidelineDetailId;
                         transDetail.ProcessSeqNumber = model.ProcessSeqNumber;
@@ -1035,15 +1060,15 @@ namespace IOAS.GenericServices
                             context.SaveChanges();
 
                         }
-
                         context.Dispose();
-
                         return model;
-                    //}
-                    //else
-                    //{
-                    //    return null; 
-                    //}
+                    }
+
+                    else
+                    {
+                        return null;
+                    }
+
                 }  
             }
             catch (Exception ex)

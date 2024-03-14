@@ -332,6 +332,7 @@
                                         </div>
                                         <div class="row text-center mb-lg">
                                             <button type="submit" id="btnSave" class="btn btn-primary">Submit</button>
+                                            @Html.Hidden("FreezeValidation", "True", new { @id = "FreezeValidation" })
                                             <button type="button" class="btn btn-default" onclick="window.location.href='@Url.Action("OtherReceiptList", "CoreAccounts")';">Close</button>
                                         </div>
                                     </div>
@@ -369,6 +370,13 @@
         resetForm();
         CalculateTxTotal();
         ProjectSummary('update');
+
+        var isReceiptReversal = $('#categorydropdown').val();        
+        if (isReceiptReversal == 18)
+        {
+            GetFreezeValueData();
+        }
+       
         //GetInvoiceType();
     });
     $('#InvoiceNo').blur(function () {
@@ -582,32 +590,44 @@
     $('#btnSave').click(function (e) {
         e.preventDefault();
         formSave();
-    })
-    function formSave() {
-        var validationMsg = 'valid';
-        if ($('#categorydropdown').val() != "18")
-            validationMsg = ValidateTransaction();
+        })
 
-        if (validationMsg != 'valid') {
-            $("#alert").text(validationMsg);
-            $('#Validation').modal('show');
-            return false;
+        function formSave() {
+            var validationMsg = 'valid';
+            if ($('#categorydropdown').val() != "18")
+                validationMsg = ValidateTransaction();
+
+            if (validationMsg != 'valid') {
+                $("#alert").text(validationMsg);
+                $('#Validation').modal('show');
+                return false;
+            }
+            //if ($('#categorydropdown').val() == "15") {
+            //    var msg = ValidateReceipt();
+            //    if (msg != 'valid') {
+            //        $("#alert").text(msg);
+            //        $('#Validation').modal('show');
+            //        return false;
+            //    }
+            //}
+
+            var isValid = $('#formRCV').valid();
+            if (isValid) {
+                var FreezeValidation = $("#FreezeValidation").val();
+                if (FreezeValidation == "False") {
+                    validationMsg = "Allocation Head Freezed";
+                    
+                    $('#FailedAlert').html(validationMsg);
+                    $('#Failed').modal('show');
+
+                    return false;
+                }
+                else {
+                    $('#formRCV').submit();
+                }
+            }
+           
         }
-        //if ($('#categorydropdown').val() == "15") {
-        //    var msg = ValidateReceipt();
-        //    if (msg != 'valid') {
-        //        $("#alert").text(msg);
-        //        $('#Validation').modal('show');
-        //        return false;
-        //    }
-        //}
-
-        var isValid = $('#formRCV').valid();
-        if (!isValid)
-            return false;
-
-        $('#formRCV').submit();
-    }
 
     $('input[name$="Amount"]').on("copy cut paste drop", function () {
         return false;
@@ -792,11 +812,33 @@
                        text: itemData.name
 
                    }));
+                   GetFreezeValueData();
                });
                select.selectpicker('refresh');
+              
            });
         });
 
+        function GetFreezeValueData() {
+            var ProjectId = $("#ProjectId").val();
+
+            var isFreezeDataValid = 0;
+            $.ajax({
+                type: "GET",
+                async: false,
+                url: '@Url.Action("GetFreezeOverHeads", "Project")',
+                data: { "ProjectId": ProjectId },
+                dataType: "json",
+                success: function (result) {
+                    isFreezeDataValid = result;
+                    if (isFreezeDataValid == 1)
+                        $("#FreezeValidation").val("False");
+                    else
+                        $("#FreezeValidation").val("True");
+                }
+            });
+            return isFreezeDataValid;
+        }
 
     </script>
 <script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>

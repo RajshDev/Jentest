@@ -284,7 +284,11 @@ namespace IOAS.Models
 
         public Nullable<decimal> hiddenSettTaxAmt { get; set; }
         public Nullable<decimal> hiddenTaxEligibleAmt { get; set; }
-        public bool PartAdvance_f { get; set; }
+        //TULA Optimization work
+        //public bool PartAdvance_f { get; set; }
+
+        public bool? isPartAdvance_f { get; set; }
+        public int totalRecords { get; set; }
         public bool InclusiveOfTax_f { get; set; } = true;
         public bool ICSROverHead_f { get; set; }
         public bool RCM_f { get; set; }
@@ -3069,6 +3073,8 @@ namespace IOAS.Models
         [Range(0, 9999999999999999.99)]
         public Nullable<decimal> Amount { get; set; }
         public string BudgetHeadName { get; set; }
+
+        public Nullable<int> Freezeval { get; set; }
     }
 
     public class ProjectTransferModel
@@ -4551,6 +4557,14 @@ namespace IOAS.Models
     //    public List<PaymentBreakUpDetailModel> PaymentBreakDetail { get; set; }
     //}
     #region Bill Status
+
+    public class DeployeModels
+    {
+        public int Deploymentid { get; set; }
+        public string DeploymentStatus { get; set; }
+        public string DeploymentMessenge { get; set; }
+       
+    }
     public class BillStatusModel
     {
         public int BillId { get; set; }
@@ -5990,7 +6004,9 @@ namespace IOAS.Models
         public Nullable<decimal> IGST { get; set; }
         public Nullable<decimal> SGST { get; set; }
         public Nullable<decimal> CGST { get; set; }
+        public Nullable<int> Freezeval { get; set; }
     }
+    
 
 
     #endregion

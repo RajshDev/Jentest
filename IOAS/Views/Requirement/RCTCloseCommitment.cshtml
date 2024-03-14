@@ -1028,7 +1028,7 @@
                 $('input[name="CommitReqModel.AllowedAmount"]').val(item.Available);
             }
         });
-
+        
     });
     if ($("#DesignationId").val() != 0) {
         LoadFillDesignation()
@@ -1113,6 +1113,21 @@
         // This function will figure out which tab to display
         var x = document.getElementsByClassName("cust-tab");
         // Exit the function if any field in the current tab is invalid:
+        var isFreezed = GetFreezeValueData();
+        console.log(isFreezed);
+        if (isFreezed != 0 && isFreezed != null && isFreezed != "") {
+            $("#FailedAlert").text('Allocation Head Freezed.');
+            $('#Failed').modal('show');
+            $('#CommitReqModel_CommitmentAmount').prop('readonly', true);
+            $('#CommitReqModel_CommitmentBalanceAmount').prop('readonly', true);
+            $('#CommitReqModel_AddCommitmentAmount').prop('readonly', true);
+            $('#nextBtn').prop('disabled', 'disabled');
+        } else {
+            $('#CommitReqModel_CommitmentAmount').prop('readonly', false);
+            $('#CommitReqModel_CommitmentBalanceAmount').prop('readonly', false);
+            $('#CommitReqModel_AddCommitmentAmount').prop('readonly', false);
+            $('#nextBtn').prop('disabled', false);
+        }
         var v=n;
         if($('#nextBtn').text()=="Submit"){
             v=1;
@@ -1125,6 +1140,7 @@
             x[currentTab].style.display = "none";
             $(".custom-nav-pills li:eq(" + currentTab + ")").removeClass("active");
         }
+       
     else
     {
             formSave();
@@ -1133,7 +1149,8 @@
         currentTab = currentTab + n;
 
     // Otherwise, display the correct tab:
-    showTab(currentTab);
+        showTab(currentTab);
+        
     }
     function validateForm(n) {
         //EnableDisableReqClass(true);
@@ -1180,6 +1197,8 @@
                 $('#ValidationModal').modal('toggle');
                 return false;
             }
+            
+            
         }
         //if($("input[name='isHaveGateScore']:checked").val()=="Yes"){
         //    if($('#Score').val()==""){
@@ -1322,6 +1341,25 @@
             }
         });
     }
+
+    function GetFreezeValueData() {
+        var ProjectId = $('#ProjectId').val();     
+        var AllHead = $('#CommitReqModel_AllocationHeadId').val();
+        var isFreezeDataValid = 0;
+        $.ajax({
+            type: "GET",
+            async: false,
+            url: '@Url.Action("GetFreezeAndAllocationData", "Project")',
+            data: {
+                "ProjectId": ProjectId, "AllocationId": AllHead},
+            dataType: "json",
+            success: function (result) {
+                isFreezeDataValid = result;                
+                }
+        });
+        return isFreezeDataValid;
+    }
+
 
 </script>
 <script src="@Url.Content("~/Content/IOASContent/assets/bootstrap-select/js/bootstrap-select.min.js")"></script>

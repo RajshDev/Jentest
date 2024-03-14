@@ -1877,14 +1877,14 @@ namespace IOAS.Controllers
                     dt1 = dataset1.Tables[0].Copy();
                     dt1.TableName = "NEW JOINEE";
 
-                    command.CommandText = "select ROW_NUMBER() OVER(ORDER BY [EMPLOYEE ID]) AS [S. No.],[EMPLOYEE ID],[NAME],[DESIGNATION],[APPOINTMENT START DATE],[END DATE],[SALARY],[HRA],[PROJECT NO.],[DEPARTMENT],[APPOINTMENT TYPE],[ARREARS TO BE PROCESSED W.E.F],[LOG_TIME],[Requested by],[Request Reference],[Request Reference Number],[REQUEST RECEIVED DATE],[INITIATED_BY],[INITIATED_DATE],[APPROVED_BY],[APPROVED_DATE],[COMMITMENT BOOKED BY],[COMMITMENT BOOKED DATE],[COMMITEE APPROVED DATE],[VERFIFICATION_INITIATED_BY],[VERFIFICATION_INITIATED_DATE],[VERFIFICATION_APPROVED_BY],[VERFIFICATION_APPROVED_DATE],[MS/PHD COURSE] from [dbo].[vw_RCTSTEExtensionEnhancementReport] where OrderType = 3 and APPROVED_DATE between '" + strFrom + "' and '" + strTo + "'";
+                    command.CommandText = "select ROW_NUMBER() OVER(ORDER BY [EMPLOYEE ID]) AS [S. No.],[EMPLOYEE ID],[NAME],[DESIGNATION],[APPOINTMENT START DATE],[END DATE],[SALARY],[HRA],[PROJECT NO.],[DEPARTMENT],[APPOINTMENT TYPE],[ARREARS TO BE PROCESSED W.E.F],[Requested by],[Request Reference],[Request Reference Number],[REQUEST RECEIVED DATE],[INITIATED_BY],[INITIATED_DATE],[APPROVED_BY],[APPROVED_DATE],[COMMITMENT BOOKED BY],[COMMITMENT BOOKED DATE],[COMMITEE APPROVED DATE],[VERFIFICATION_INITIATED_BY],[VERFIFICATION_INITIATED_DATE],[VERFIFICATION_APPROVED_BY],[VERFIFICATION_APPROVED_DATE],[MS/PHD COURSE] from [dbo].[vw_RCTSTEExtensionEnhancementReport] where OrderType = 3 and APPROVED_DATE between '" + strFrom + "' and '" + strTo + "'";
                     var adapter2 = new SqlDataAdapter(command);
                     adapter2 = new SqlDataAdapter(command);
                     adapter2.Fill(dataset2);
                     dt2 = dataset2.Tables[0].Copy();
                     dt2.TableName = "EXTENSION";
 
-                    command.CommandText = "select ROW_NUMBER() OVER(ORDER BY [EMPLOYEE ID]) AS [S. No.],[EMPLOYEE ID],[NAME],[DESIGNATION],[APPOINTMENT START DATE],[END DATE],[SALARY],[HRA],[PROJECT NO.],[DEPARTMENT],[APPOINTMENT TYPE],[ARREARS TO BE PROCESSED W.E.F],[LOG_TIME],[ENHANCEMENT TYPE],[Requested by],[Request Reference],[Request Reference Number],[REQUEST RECEIVED DATE],[INITIATED_BY],[INITIATED_DATE],[APPROVED_BY],[APPROVED_DATE],[COMMITMENT BOOKED BY],[COMMITMENT BOOKED DATE],[COMMITEE APPROVED DATE],[VERFIFICATION_INITIATED_BY],[VERFIFICATION_INITIATED_DATE],[VERFIFICATION_APPROVED_BY],[VERFIFICATION_APPROVED_DATE],[MS/PHD COURSE]from [dbo].[vw_RCTSTEExtensionEnhancementReport] where OrderType = 2 and APPROVED_DATE between '" + strFrom + "' and '" + strTo + "'";
+                    command.CommandText = "select ROW_NUMBER() OVER(ORDER BY [EMPLOYEE ID]) AS [S. No.],[EMPLOYEE ID],[NAME],[DESIGNATION],[APPOINTMENT START DATE],[END DATE],[SALARY],[HRA],[PROJECT NO.],[DEPARTMENT],[APPOINTMENT TYPE],[ARREARS TO BE PROCESSED W.E.F],[ENHANCEMENT TYPE],[Requested by],[Request Reference],[Request Reference Number],[REQUEST RECEIVED DATE],[INITIATED_BY],[INITIATED_DATE],[APPROVED_BY],[APPROVED_DATE],[COMMITMENT BOOKED BY],[COMMITMENT BOOKED DATE],[COMMITEE APPROVED DATE],[VERFIFICATION_INITIATED_BY],[VERFIFICATION_INITIATED_DATE],[VERFIFICATION_APPROVED_BY],[VERFIFICATION_APPROVED_DATE],[MS/PHD COURSE]from [dbo].[vw_RCTSTEExtensionEnhancementReport] where OrderType = 2 and VERFIFICATION_APPROVED_DATE between '" + strFrom + "' and '" + strTo + "'";
                     var adapter3 = new SqlDataAdapter(command);
                     adapter3 = new SqlDataAdapter(command);
                     adapter3.Fill(dataset3);
@@ -1912,35 +1912,35 @@ namespace IOAS.Controllers
                     dt6 = dataset6.Tables[0].Copy();
                     dt6.TableName = "RELIEVING";
 
-                    command.CommandText = "select ROW_NUMBER() OVER(ORDER BY [EMPLOYEE ID]) AS [S. No.],[EMPLOYEE ID],[NAME],[DESIGNATION],[APPOINTMENT START DATE],[END DATE],[SALARY],[HRA],[PROJECT NO.],[DEPARTMENT],[APPOINTMENT TYPE],[ARREARS TO BE PROCESSED W.E.F],[LOG_TIME],[CHANGE OF PROJECT TYPE],[Requested by],[Request Reference],[Request Reference Number],[REQUEST RECEIVED DATE],[INITIATED BY],[INITIATED DATE],[APPROVED BY],[APPROVED DATE],[COMMITMENT BOOKED BY],[COMMITMENT BOOKING DATE],[VERIFICATION INITIATED BY],[VERIFICATION INITIATED DATE],[VERIFICATION APPROVED BY],[VERIFICATION APPROVED DATE],[MS/PHD COURSE] from [dbo].[vw_RCTSTEChagofprojectReport] where  LOG_TIME between '" + strFrom + "' and '" + strTo + "'";
+                    command.CommandText = "select ROW_NUMBER() OVER(ORDER BY [EMPLOYEE ID]) AS [S. No.],[EMPLOYEE ID],[NAME],[DESIGNATION],[APPOINTMENT START DATE],[END DATE],[SALARY],[HRA],[PROJECT NO.],[DEPARTMENT],[APPOINTMENT TYPE],[ARREARS TO BE PROCESSED W.E.F],[CHANGE OF PROJECT TYPE],[Requested by],[Request Reference],[Request Reference Number],[REQUEST RECEIVED DATE],[INITIATED BY],[INITIATED DATE],[APPROVED BY],[APPROVED DATE],[COMMITMENT BOOKED BY],[COMMITMENT BOOKING DATE],[VERIFICATION INITIATED BY],[VERIFICATION INITIATED DATE],[VERIFICATION APPROVED BY],[VERIFICATION APPROVED DATE],[MS/PHD COURSE] from [dbo].[vw_RCTSTEChagofprojectReport] where  [VERIFICATION APPROVED DATE] between '" + strFrom + "' and '" + strTo + "'";
                     var adapter7 = new SqlDataAdapter(command);
                     adapter7 = new SqlDataAdapter(command);
                     adapter7.Fill(dataset7);
                     dt7 = dataset7.Tables[0].Copy();
                     dt7.TableName = "CHANGE OF PROJECT";
 
-                    command.CommandText = "select ROW_NUMBER() OVER(ORDER BY [EMPLOYEE ID]) AS [S. No.],* from [dbo].[vw_RCTSTEHRA] where LOG_TIME between '" + strFrom + "' and '" + strTo + "'";
+                    command.CommandText = "select ROW_NUMBER() OVER(ORDER BY [EMPLOYEE ID]) AS [S. No.],* from [dbo].[vw_RCTSTEHRA] where [COMMITMENT BOOKING DATE] between '" + strFrom + "' and '" + strTo + "'";
                     var adapter8 = new SqlDataAdapter(command);
                     adapter8 = new SqlDataAdapter(command);
                     adapter8.Fill(dataset8);
                     dt8 = dataset8.Tables[0].Copy();
                     dt8.TableName = "HRA";
 
-                    command.CommandText = "select ROW_NUMBER() OVER(ORDER BY [EMPLOYEE ID]) AS [S. No.],[EMPLOYEE ID],[NAME],[DESIGNATION],[APPOINTMENT START DATE],[END DATE],[SALARY],[HRA],[PROJECT NO.],[DEPARTMENT],[APPOINTMENT TYPE],[ARREARS TO BE PROCESSED W.E.F],[LOG_TIME],[Requested by],[Request Reference],[Request Reference Number],[REQUEST RECEIVED DATE], [INITIATED BY],[INITIATED DATE],[APPROVED BY],[APPROVED DATE],[COMMITMENT WITHDRAWAL BY],[COMMITMENT WITHDRAWAL DATE],[MS/PHD COURSE] from [dbo].[vw_RCTSTEAmendmentReport] where  LOG_TIME between '" + strFrom + "' and '" + strTo + "'";
+                    command.CommandText = "select ROW_NUMBER() OVER(ORDER BY [EMPLOYEE ID]) AS [S. No.],[EMPLOYEE ID],[NAME],[DESIGNATION],[APPOINTMENT START DATE],[END DATE],[SALARY],[HRA],[PROJECT NO.],[DEPARTMENT],[APPOINTMENT TYPE],[ARREARS TO BE PROCESSED W.E.F],[Requested by],[Request Reference],[Request Reference Number],[REQUEST RECEIVED DATE], [INITIATED BY],[INITIATED DATE],[APPROVED BY],[APPROVED DATE],[COMMITMENT WITHDRAWAL BY],[COMMITMENT WITHDRAWAL DATE],[MS/PHD COURSE] from [dbo].[vw_RCTSTEAmendmentReport] where  [APPROVED DATE] between '" + strFrom + "' and '" + strTo + "'";
                     var adapter9 = new SqlDataAdapter(command);
                     adapter9 = new SqlDataAdapter(command);
                     adapter9.Fill(dataset9);
                     dt9 = dataset9.Tables[0].Copy();
                     dt9.TableName = "AMENDMENT";
 
-                    command.CommandText = "select ROW_NUMBER() OVER(ORDER BY [EMPLOYEE ID]) AS [S. No.],* from [dbo].[vw_RCTSTEMaternity] where LOG_TIME between '" + strFrom + "' and '" + strTo + "'";
+                    command.CommandText = "select ROW_NUMBER() OVER(ORDER BY [EMPLOYEE ID]) AS [S. No.],* from [dbo].[vw_RCTSTEMaternity] where [REJOIN APPROVED DATE] between '" + strFrom + "' and '" + strTo + "'";
                     var adapter10 = new SqlDataAdapter(command);
                     adapter10 = new SqlDataAdapter(command);
                     adapter10.Fill(dataset10);
                     dt10 = dataset10.Tables[0].Copy();
                     dt10.TableName = "Maternity";
 
-                    command.CommandText = "select ROW_NUMBER() OVER(ORDER BY [EMPLOYEE ID]) AS [S. No.],* from [dbo].[vw_RCTSTEStoppayment] where LOG_TIME between '" + strFrom + "' and '" + strTo + "'";
+                    command.CommandText = "select ROW_NUMBER() OVER(ORDER BY [EMPLOYEE ID]) AS [S. No.],* from [dbo].[vw_RCTSTEStoppayment] where [VERIFICATION APPROVED DATE] between '" + strFrom + "' and '" + strTo + "'";
                     var adapter11 = new SqlDataAdapter(command);
                     adapter11 = new SqlDataAdapter(command);
                     adapter11.Fill(dataset11);
@@ -2018,7 +2018,7 @@ namespace IOAS.Controllers
                     dt2 = dataset2.Tables[0].Copy();
                     dt2.TableName = "EXTENSION";
 
-                    command.CommandText = "select ROW_NUMBER() OVER(ORDER BY [EMPLOYEE ID]) AS [S. No.],[EMPLOYEE ID],[NAME],[EMPL TYPE],[DESIGNATION],[EXISTING FROM],[EXISTING TO],[PREVIOUS BASIC PAY],[PREVIOUS GROSS PAY],[PROJECT NO.],[PROJECT DETAILS],[COMMITMENT NO.],[FROM],[TO],[DATE OF INCREMENT],[YEARLY INCREMENT],[CURRENT BASIC SALARY],[CURRENT GROSS PAY],[PF Eligiblity],[ESIC Eligiblity],[Requested by],[Request Reference],[Request Reference Number],[REQUEST RECEIVED DATE],[INITIATED_BY],[INITIATED_DATE],[APPROVED_BY],[APPROVED_DATE],[COMMITMENT BOOKED BY],[COMMITMENT BOOKED DATE],[COMMITEE APPROVED DATE],[VERFIFICATION_INITIATED_BY],[VERFIFICATION_INITIATED_DATE],[VERFIFICATION_APPROVED_BY],[VERFIFICATION_APPROVED_DATE],[MS/PHD COURSE] FROM [dbo].[vw_RCTOSGExtensionEnhancementReport] where OrderType = 2 and APPROVED_DATE between '" + strFrom + "' and '" + strTo + "'";
+                    command.CommandText = "select ROW_NUMBER() OVER(ORDER BY [EMPLOYEE ID]) AS [S. No.],[EMPLOYEE ID],[NAME],[EMPL TYPE],[DESIGNATION],[EXISTING FROM],[EXISTING TO],[PREVIOUS BASIC PAY],[PREVIOUS GROSS PAY],[PROJECT NO.],[PROJECT DETAILS],[COMMITMENT NO.],[FROM],[TO],[DATE OF INCREMENT],[YEARLY INCREMENT],[CURRENT BASIC SALARY],[CURRENT GROSS PAY],[PF Eligiblity],[ESIC Eligiblity],[Requested by],[Request Reference],[Request Reference Number],[REQUEST RECEIVED DATE],[INITIATED_BY],[INITIATED_DATE],[APPROVED_BY],[APPROVED_DATE],[COMMITMENT BOOKED BY],[COMMITMENT BOOKED DATE],[COMMITEE APPROVED DATE],[VERFIFICATION_INITIATED_BY],[VERFIFICATION_INITIATED_DATE],[VERFIFICATION_APPROVED_BY],[VERFIFICATION_APPROVED_DATE],[MS/PHD COURSE] FROM [dbo].[vw_RCTOSGExtensionEnhancementReport] where OrderType = 2 and VERFIFICATION_APPROVED_DATE between '" + strFrom + "' and '" + strTo + "'";
                     var adapter3 = new SqlDataAdapter(command);
                     adapter3 = new SqlDataAdapter(command);
                     adapter3.Fill(dataset3);
@@ -2047,7 +2047,7 @@ namespace IOAS.Controllers
                     dt6.TableName = "RELIEVING";
 
 
-                    command.CommandText = "select ROW_NUMBER() OVER(ORDER BY [EMPLOYEE ID]) AS [S. No.],[EMPLOYEE ID],[NAME],[EMPL TYPE],[DESIGNATION],[EXISTING FROM],[EXISTING TO],[PREVIOUS BASIC PAY],[PREVIOUS GROSS PAY],[PROJECT NO.],[PROJECT DETAILS],[COMMITMENT NO.],[FROM],[TO],[DATE OF INCREMENT],[YEARLY INCREMENT],[CURRENT BASIC SALARY],[CURRENT GROSS PAY],[PF Eligiblity],[ESIC Eligiblity],[LOG_TIME],[Requested by],[Request Reference],[Request Reference Number],[REQUEST RECEIVED DATE],[INITIATED BY],[INITIATED DATE],[APPROVED_BY],[APPROVED_DATE],[COMMITMENT BOOKED BY],[COMMITMENT BOOKING DATE],[VERIFICATION INITIATED BY],[VERIFICATION INITIATED DATE],[VERIFICATION APPROVED BY],[VERIFICATION APPROVED DATE],[MS/PHD COURSE] FROM [dbo].[vw_RCTOSGChagofprojectReport] where LOG_TIME between '" + strFrom + "' and '" + strTo + "'";
+                    command.CommandText = "select ROW_NUMBER() OVER(ORDER BY [EMPLOYEE ID]) AS [S. No.],[EMPLOYEE ID],[NAME],[EMPL TYPE],[DESIGNATION],[EXISTING FROM],[EXISTING TO],[PREVIOUS BASIC PAY],[PREVIOUS GROSS PAY],[PROJECT NO.],[PROJECT DETAILS],[COMMITMENT NO.],[FROM],[TO],[DATE OF INCREMENT],[YEARLY INCREMENT],[CURRENT BASIC SALARY],[CURRENT GROSS PAY],[PF Eligiblity],[ESIC Eligiblity],[Requested by],[Request Reference],[Request Reference Number],[REQUEST RECEIVED DATE],[INITIATED BY],[INITIATED DATE],[APPROVED_BY],[APPROVED_DATE],[COMMITMENT BOOKED BY],[COMMITMENT BOOKING DATE],[VERIFICATION INITIATED BY],[VERIFICATION INITIATED DATE],[VERIFICATION APPROVED BY],[VERIFICATION APPROVED DATE],[MS/PHD COURSE] FROM [dbo].[vw_RCTOSGChagofprojectReport] where [VERIFICATION APPROVED DATE] between '" + strFrom + "' and '" + strTo + "'";
                     var adapter7 = new SqlDataAdapter(command);
                     adapter7 = new SqlDataAdapter(command);
                     adapter7.Fill(dataset7);
@@ -2056,7 +2056,7 @@ namespace IOAS.Controllers
 
 
 
-                    command.CommandText = "select ROW_NUMBER() OVER(ORDER BY [EMPLOYEE ID]) AS [S. No.],[EMPLOYEE ID],[NAME],[EMPL TYPE],[DESIGNATION],[EXISTING FROM],[EXISTING TO],[PREVIOUS BASIC PAY],[PREVIOUS GROSS PAY],[PROJECT NO.],[PROJECT DETAILS],[COMMITMENT NO.],[FROM],[TO],[DATE OF INCREMENT],[YEARLY INCREMENT],[CURRENT BASIC SALARY],[CURRENT GROSS PAY],[PF Eligiblity],[ESIC Eligiblity],[LOG_TIME],[INITIATED BY],[INITIATED DATE],[APPROVED_BY],[APPROVED_DATE], [COMMITMENT WITHDRAWAL BY],[COMMITMENT WITHDRAWAL DATE] FROM [dbo].[vw_RCTOSGAmendmentReport] where LOG_TIME between '" + strFrom + "' and '" + strTo + "'";
+                    command.CommandText = "select ROW_NUMBER() OVER(ORDER BY [EMPLOYEE ID]) AS [S. No.],[EMPLOYEE ID],[NAME],[EMPL TYPE],[DESIGNATION],[EXISTING FROM],[EXISTING TO],[PREVIOUS BASIC PAY],[PREVIOUS GROSS PAY],[PROJECT NO.],[PROJECT DETAILS],[COMMITMENT NO.],[FROM],[TO],[DATE OF INCREMENT],[YEARLY INCREMENT],[CURRENT BASIC SALARY],[CURRENT GROSS PAY],[PF Eligiblity],[ESIC Eligiblity],[REQUEST RECEIVED DATE],[INITIATED BY],[INITIATED DATE],[APPROVED_BY],[APPROVED_DATE], [COMMITMENT WITHDRAWAL BY],[COMMITMENT WITHDRAWAL DATE] FROM [dbo].[vw_RCTOSGAmendmentReport] where [APPROVED_DATE] between '" + strFrom + "' and '" + strTo + "'";
                     var adapter8 = new SqlDataAdapter(command);
                     adapter8 = new SqlDataAdapter(command);
                     adapter8.Fill(dataset8);
@@ -2064,21 +2064,21 @@ namespace IOAS.Controllers
                     dt8.TableName = "AMENDMENT";
 
 
-                    command.CommandText = "select ROW_NUMBER() OVER(ORDER BY [EMPLOYEE ID]) AS [S. No.],* from [dbo].[vw_RCTOSGLOPReport] where LOG_TIME between '" + strFrom + "' and '" + strTo + "'";
+                    command.CommandText = "select ROW_NUMBER() OVER(ORDER BY [EMPLOYEE ID]) AS [S. No.],* from [dbo].[vw_RCTOSGLOPReport] where [APPROVED_DATE] between '" + strFrom + "' and '" + strTo + "'";
                     var adapter9 = new SqlDataAdapter(command);
                     adapter9 = new SqlDataAdapter(command);
                     adapter9.Fill(dataset9);
                     dt9 = dataset9.Tables[0].Copy();
                     dt9.TableName = "LOSS OF PAY";
 
-                    command.CommandText = "select ROW_NUMBER() OVER(ORDER BY [EMPLOYEE ID]) AS [S. No.],* from [dbo].[vw_RCTOSGMaternity] where LOG_TIME between '" + strFrom + "' and '" + strTo + "'";
+                    command.CommandText = "select ROW_NUMBER() OVER(ORDER BY [EMPLOYEE ID]) AS [S. No.],* from [dbo].[vw_RCTOSGMaternity] where [REJOIN APPROVED DATE] between '" + strFrom + "' and '" + strTo + "'";
                     var adapter10 = new SqlDataAdapter(command);
                     adapter10 = new SqlDataAdapter(command);
                     adapter10.Fill(dataset10);
                     dt10 = dataset10.Tables[0].Copy();
                     dt10.TableName = "Maternity";
 
-                    command.CommandText = "select ROW_NUMBER() OVER(ORDER BY [EMPLOYEE ID]) AS [S. No.],* from [dbo].[vw_RCTOSGStoppayment] where LOG_TIME between '" + strFrom + "' and '" + strTo + "'";
+                    command.CommandText = "select ROW_NUMBER() OVER(ORDER BY [EMPLOYEE ID]) AS [S. No.],* from [dbo].[vw_RCTOSGStoppayment] where [VERIFICATION APPROVED DATE] between '" + strFrom + "' and '" + strTo + "'";
                     var adapter11 = new SqlDataAdapter(command);
                     adapter11 = new SqlDataAdapter(command);
                     adapter11.Fill(dataset11);

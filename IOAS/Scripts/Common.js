@@ -266,6 +266,10 @@ function applyPaymentBUAutoComplete(ele, url, setId) {
                 $(ele).closest('tr').find("input[name$='.UserId']").val('0');
                 $(ele).closest('tr').find("input[name$='.Name']").val(ui.item.label);
             }
+            if (ui.item.desc) {
+                $('#alert').html(ui.item.desc);
+                $('#Validation').modal('toggle');
+            }
         },
         focus: function (event, ui) {
             event.preventDefault();

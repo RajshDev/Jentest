@@ -78,13 +78,19 @@
                         <div class="col-md-2">
                             <div class="form-group custom-form-group">
                                 <label>Clearance agency</label>
-                                @Html.CheckBoxFor(m => m.ClearanceAgency_f, new { @id = "ClearanceAgency_f" })
+                                @Html.CheckBoxFor(m => m.ClearanceAgency_f, new { @id = "ClearanceAgency_f"})
                             </div>
                         </div>
                         <div class="col-md-2">
                             <div class="form-group custom-form-group">
                                 <label>Travel agency</label>
                                 @Html.CheckBoxFor(m => m.TravelAgency_f, new { @id = "TravelAgency_f" })
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group custom-form-group">
+                                <label>GST Default Vendors</label>
+                                @Html.CheckBoxFor(m => m.isGSTVendor, new { @id = "isGSTVendor" })
                             </div>
                         </div>
                     </div>
@@ -685,7 +691,7 @@ new { @class = "form-control", @id = "tdsdoctype" })
                     <input type="button" onclick="window.location.href='@Url.Action("RevisedVendor", "Master")';" class="btn btn-default" value="Close" name="Button" id="btnReset" />
                 </div>
             </div>
-           
+
         </div>
         <div class="row mt30" id="gridlist">
 
@@ -824,9 +830,34 @@ new { @class = "form-control", @id = "tdsdoctype" })
         });
 
     });
+
+    function CheckIEmployeestate() {
+        var stateid = $('#ddlstate').val();
+        if (stateid != null && stateid != "" ) {
+            $.ajax({
+                type: "Post",
+                url: '@Url.Action("GetStateCode", "Account")',
+                data: { StateId: stateid },
+                dataType: "json",
+                success: function (result) {
+                    if (result != "") {
+                        $('#txtStateCode').val(result);
+                    }
+                    else {
+                        $('#FailedAlert').html("Somthing went to worng please contact Admin!.");
+                        $('#Failed').modal('toggle');
+                    }
+                }
+            });
+        }
+        else {
+            $('#txtStateCode').val('');
+        }
+    }
+
     $(document).ready(function () {
         $('input[type=radio][name=GSTExempted]').change(function () {
-           
+
             if (this.value == 'True') {
                 $('#divGST').hide();
                 $('#divReson').show();
@@ -1019,17 +1050,17 @@ new { @class = "form-control", @id = "tdsdoctype" })
         var docnamevalues = [];
         var attachfile = [];
         var doclink = [];
-        
+
 
         var doctypevendor = [];
         var docnamevendor = [];
         var attachvendorfile = [];
-        
+
 
         var doctypetds = [];
         var docnametds = [];
         var attachtdsfile = [];
-        
+
 
         var tdssection = [];
         var tdsNatureOfIncome = [];
@@ -1037,7 +1068,7 @@ new { @class = "form-control", @id = "tdsdoctype" })
         $('select[name="GSTDocumentType"]').each(function (idx, val) { doctypevalues.push($(val).val()); });
         $('input[name="GSTAttachName"]').each(function (idx, val) { docnamevalues.push($(val).val()); });
         $('input[name="GSTFile"]').each(function (idx, val) { attachfile.push($(val).val()); });
-        
+
 
         $('div[id="gstdoclink"]').each(function () {
             if ($(this).hasClass('dis-none'))
@@ -1050,12 +1081,12 @@ new { @class = "form-control", @id = "tdsdoctype" })
         $('select[name="VendorDocumentType"]').each(function (idx, val) { doctypevendor.push($(val).val()); });
         $('input[name="VendorAttachName"]').each(function (idx, val) { docnamevendor.push($(val).val()); });
         $('input[name="VendorFile"]').each(function (idx, val) { attachvendorfile.push($(val).val()); });
-        
+
 
         $('select[name="TDSDocumentType"]').each(function (idx, val) { doctypetds.push($(val).val()); });
         $('input[name="TDSAttachName"]').each(function (idx, val) { docnametds.push($(val).val()); });
         $('input[name="TDSFile"]').each(function (idx, val) { attachtdsfile.push($(val).val()); });
-        
+
 
         $('select[name="Section"]').each(function (idx, val) { tdssection.push($(val).val()); });
         $('input[name="NatureOfIncome"]').each(function (idx, val) { tdsNatureOfIncome.push($(val).val()); });
@@ -1065,17 +1096,17 @@ new { @class = "form-control", @id = "tdsdoctype" })
         docnamevalues.sort();
         attachfile.sort();
         doclink.sort();
-        
+
 
         doctypevendor.sort();
         docnamevendor.sort();
         attachvendorfile.sort();
-        
+
 
         doctypetds.sort();
         docnametds.sort();
         attachtdsfile.sort();
-        
+
 
         tdssection.sort();
         tdsNatureOfIncome.sort();

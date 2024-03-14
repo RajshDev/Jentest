@@ -42,6 +42,9 @@ namespace IOAS.Models
         public Nullable<int> id { get; set; }
         public string name { get; set; }
         public string code { get; set; }
+        public Nullable<bool> isGstVendor { get; set; }
+        public string desc { get; set; }
+
     }
 
     public class ProjectlistviewModel
