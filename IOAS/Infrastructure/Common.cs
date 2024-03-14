@@ -2600,9 +2600,7 @@ namespace IOAS.Infrastructure
                 {
                     return projectnumber;
                 }
-
             }
-
             catch (Exception ex)
             {
                 Infrastructure.IOASException.Instance.HandleMe(
@@ -7544,6 +7542,7 @@ namespace IOAS.Infrastructure
                 return false;
             }
         }
+
         public static bool ValidateVendorOnEdit(int vendorId, string status)
         {
             try
@@ -17101,6 +17100,46 @@ namespace IOAS.Infrastructure
             }
 
         }
+
+        public static List<MasterlistviewModel> GetReceiptNumberList(int? OHId = 0)
+        {
+            try
+            {
+
+                List<MasterlistviewModel> list = new List<MasterlistviewModel>();
+
+                using (var context = new IOASDBEntities())
+                {                 
+                        list = (from oh in context.tblReceiptOverheadBreakup
+                                join R in context.tblReceipt on oh.ReceiptId equals R.ReceiptId
+                                join P in context.tblProject on R.ProjectId equals P.ProjectId
+                                where R.Status == "Completed" && (oh.IsPosted_f == false || oh.IsPosted_f == null) //&& !context.tblOverheadsPostingDetails.Any(m => m.ReceiptId == R.ReceiptId)
+                                && P.ProjectType == 1
+                                orderby R.ReceiptNumber
+                                group R by R.ReceiptId into g
+                                select new
+                                {
+                                    ReceiptId = g.Key,
+                                    ReceiptNumber = g.Select(m => m.ReceiptNumber).FirstOrDefault()
+                                })
+                                .AsEnumerable()
+                                .Select((x, index) => new MasterlistviewModel()
+                                {
+                                //id = x.ReceiptId,
+                                name = x.ReceiptNumber,
+                                    id = x.ReceiptId
+                                }).ToList();
+                }
+                return list;
+            }
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+    (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                return new List<MasterlistviewModel>();
+            }
+
+        }
         public static List<MasterlistviewModel> GetInvoiceNoList(string RefNo)
         {
             List<MasterlistviewModel> model = new List<MasterlistviewModel>();
@@ -17124,37 +17163,59 @@ namespace IOAS.Infrastructure
                 return model;
             }
         }
-        public static List<MasterlistviewModel> GetOHPAutoCompleteProjectList()
+        public static List<MasterlistviewModel> GetOHPAutoCompleteProjectList(int? OHId = 0)
         {
             try
             {
-
                 List<MasterlistviewModel> list = new List<MasterlistviewModel>();
 
                 using (var context = new IOASDBEntities())
                 {
-                    list = (from oh in context.tblReceiptOverheadBreakup
-                            join R in context.tblReceipt on oh.ReceiptId equals R.ReceiptId
-                            join P in context.tblProject on R.ProjectId equals P.ProjectId
-                            join U in context.vwFacultyStaffDetails on P.PIName equals U.UserId
-                            where P.ProjectType == 1 && P.Status == "Active" && (oh.IsPosted_f == false || oh.IsPosted_f == null) && !context.tblOverheadsPostingDetails.Any(m => m.ProjectId == P.ProjectId)
-                            orderby P.ProjectNumber
-                            group new { P.ProjectId, P.ProjectNumber, U.FirstName } by P.ProjectId into g
-                            select new
-                            {
-                                ProjectId = g.Key,
-                                ProjectNumber = g.Select(m => m.ProjectNumber).FirstOrDefault(),
-                                PIName = g.Select(m => m.FirstName).FirstOrDefault()
-                            })
+                    if (OHId > 0)
+                    {
+                        list = (from oh in context.tblReceiptOverheadBreakup
+                                join R in context.tblReceipt on oh.ReceiptId equals R.ReceiptId
+                                join P in context.tblProject on R.ProjectId equals P.ProjectId
+                                join U in context.vwFacultyStaffDetails on P.PIName equals U.UserId
+                                where P.ProjectType == 1 && P.Status == "Active" && (oh.IsPosted_f == false || oh.IsPosted_f == null) && (context.tblOverheadsPostingDetails.Any(m => m.ProjectId == P.ProjectId) && context.tblOverheadsPosting.Any(m=>m.Status=="Open"))
+                                orderby P.ProjectNumber
+                                group new { P.ProjectId, P.ProjectNumber, U.FirstName,R.ReceiptNumber } by P.ProjectId into g
+                                select new
+                                {
+                                    ProjectId = g.Key,
+                                    ProjectNumber = g.Select(m => m.ProjectNumber).FirstOrDefault(),
+                                    PIName = g.Select(m => m.FirstName).FirstOrDefault()
+                                })
+                                .AsEnumerable()
+                                .Select((x, index) => new MasterlistviewModel()
+                                {
+                                    id = x.ProjectId,
+                                    name = x.ProjectNumber + " - " + x.PIName,
+                                }).ToList();
+                    }
+                    else
+                    {
+                        list = (from oh in context.tblReceiptOverheadBreakup
+                                join R in context.tblReceipt on oh.ReceiptId equals R.ReceiptId
+                                join P in context.tblProject on R.ProjectId equals P.ProjectId
+                                join U in context.vwFacultyStaffDetails on P.PIName equals U.UserId
+                                where P.ProjectType == 1 && P.Status == "Active" && (oh.IsPosted_f == false || oh.IsPosted_f == null) && !context.tblOverheadsPostingDetails.Any(m => m.ProjectId == P.ProjectId)
+                                orderby P.ProjectNumber
+                                group new { P.ProjectId, P.ProjectNumber, U.FirstName } by P.ProjectId into g
+                                select new
+                                {
+                                    ProjectId = g.Key,
+                                    ProjectNumber = g.Select(m => m.ProjectNumber).FirstOrDefault(),
+                                    PIName = g.Select(m => m.FirstName).FirstOrDefault()
+                                })
                             .AsEnumerable()
                             .Select((x, index) => new MasterlistviewModel()
                             {
                                 id = x.ProjectId,
                                 name = x.ProjectNumber + " - " + x.PIName
                             }).ToList();
-
+                    }
                 }
-
                 return list;
             }
             catch (Exception ex)
@@ -20437,7 +20498,7 @@ namespace IOAS.Infrastructure
                 return codevaldetails;
             }
         }
-        public static List<MasterlistviewModel> GetAutoCompleteReceiptNo(int? ProjectId = null)
+        public static List<MasterlistviewModel> GetAutoCompleteReceiptNo(int?OHId=0,int? ProjectId = null)
         {
             try
             {
@@ -20445,17 +20506,33 @@ namespace IOAS.Infrastructure
                 List<MasterlistviewModel> listWF = new List<MasterlistviewModel>();
 
                 using (var context = new IOASDBEntities())
-                {
+                    if (OHId > 0)
+                    {
+                        listWF = (from oh in context.tblReceiptOverheadBreakup
+                                join R in context.tblReceipt on oh.ReceiptId equals R.ReceiptId
+                                join P in context.tblProject on R.ProjectId equals P.ProjectId
+                                join U in context.vwFacultyStaffDetails on P.PIName equals U.UserId
+                                where P.ProjectType == 1 && P.Status == "Active" && (oh.IsPosted_f == false || oh.IsPosted_f == null) && (context.tblOverheadsPostingDetails.Any(m => m.ProjectId == P.ProjectId) && context.tblOverheadsPosting.Any(m => m.Status == "Open"))
+                                orderby P.ProjectNumber
+                                group new { R.ProjectId , R.ReceiptNumber } by P.ProjectId into g
+                                select new MasterlistviewModel
+                                {
+                                    id = g.Key,
+                                    name = g.Select(m => m.ReceiptNumber).FirstOrDefault(),                                    
+                                }).ToList();
 
-                    listWF = (from C in context.tblReceipt
+                    }
+                    else
+                    {
+                           listWF = (from C in context.tblReceipt
                               where C.ProjectId == ProjectId && C.Status == "Completed"
                               orderby C.ReceiptNumber
                               select new MasterlistviewModel()
                               {
                                   id = C.ReceiptId,
                                   name = C.ReceiptNumber
-                              }).ToList();
-                }
+                              }).ToList();                                                                          
+                     }
                 return listWF;
             }
             catch (Exception ex)
@@ -22624,6 +22701,27 @@ namespace IOAS.Infrastructure
                 using (var context = new IOASDBEntities())
                 {
                     var query = context.tblTDSPayment.FirstOrDefault(m => m.tblTDSPaymentId == id && m.Status == status);
+                    if (query != null)
+                        isValid = true;
+                }
+                return isValid;
+            }
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+    (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                return false;
+            }
+        }
+
+        public static bool OverheadsStatus(int id, string status)
+        {
+            try
+            {
+                bool isValid = false;
+                using (var context = new IOASDBEntities())
+                {
+                    var query = context.tblOverheadsPosting.FirstOrDefault(m => m.OverheadsPostingId == id && m.Status == status);
                     if (query != null)
                         isValid = true;
                 }

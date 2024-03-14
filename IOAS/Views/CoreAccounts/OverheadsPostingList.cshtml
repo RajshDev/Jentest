@@ -277,23 +277,27 @@
             { type: "text", name: "OverheadsPostingNumber", title: "Overheads Posting Number", editing: false },
             { name: "PostedDate", title: "Posted Date", type: "date" },
             { type:"text",name: "TotalAmount", title: "Amount", editing: false },
-            { type: "text", name: "Status", title: "Status", editing: false },
+            //{ type: "text", name: "Status", title: "Status", editing: false },
+            {
+                type: "text", name: "Status", title: "Status", editing: false,
+                cellRenderer: function (item, value) {
+                    if (value.BillProcessingStatus == true) {
+                        return $("<td>").addClass("bg-green").append(value.Status);
+                    }
+                    else {
+                        return $("<td>").append(value.Status);
+                    }
+                }
+            },
              {
                  type: "control", editButton: false, deleteButton: false, width: 120, title: "Action",
 
                  itemTemplate: function (value, item) {
                      var $result = jsGrid.fields.control.prototype.itemTemplate.apply(this, arguments);
-                     if (item.Status == "Approval Pending") {
-                         statusList = [{ id: "", name: "Select Action" }, { id: "Approve", name: "Approve" }, { id: "View", name: "View" }]
+                     if (item.Status == "Open") {
+                         statusList = [{ id: "", name: "Select Action" }, { id: "Edit", name: "Edit" },{ id: "Submit for approval", name: "Submit for approval" }, { id: "View", name: "View" }]
                      }
-                     //if (item.Status == "Open") {
-                     //    statusList = [{ id: "", name: "Select Action" }, { id: "Edit", name: "Edit" }, { id: "Approve", name: "Approve" }, { id: "View", name: "View" }]
-                     //}
-                     //else if (item.Status == "Approved") {
-                     //    statusList = [{ id: "", name: "Select Action" }, { id: "Close", name: "Close" }, { id: "View", name: "View" }]
-                     //}
-                     else
-                     {
+                     else {
                          statusList = [{ id: "", name: "Select Action" }, { id: "View", name: "View" }]
                      }
                      var $customSelect = $("<select>")
@@ -332,36 +336,41 @@
                              });
                          }
                              else*@
-                                 if (selVal == "Approve") {                            
-                                     var approveurl = 'ApproveOverheadsPosting';
-                                     var choice = confirm("Are you sure, Do you want to approve this Overheads Posting?");
-                                     if (choice === true) {                                     
-                                         $.ajax({
-                                             type: "GET",
-                                             url: approveurl,
-                                             data: { ohpid: item.OverheadsPostingId },
-                                             contentType: "application/json; charset=utf-8",
-                                             success: function (result) {
-                                                 if (result.status == true) {
-                                                     $('#alertSuccess').html("Overheads Posting has been approved successfully.");
-                                                     $('#Success').modal('toggle');
-                                                     loadDetails();
-                                                 } else if (result.status == false) {
-                                                     $('#FailedAlert').html("Something went wrong please contact administrator");
-                                                     $('#Failed').modal('toggle');
-                                                 }
-                                             },
-                                             error: function (err) {
-                                                 console.log("error1 : " + err);
-                                             }
-                                         });
-                                   
+                           
+                          if (selVal == "View") {
+                             var url = '@Url.Action("OverheadsPostingView", "CoreAccounts")?OHId=' + item.OverheadsPostingId;
+                             window.location.href = url;
+                         }
+                         else if (selVal == "Edit") {
+                             var url = '@Url.Action("EditOverheadsPosting", "CoreAccounts")?OHId=' + item.OverheadsPostingId;
+                             window.location.href = url;
+                         }
+                           else if (selVal == "Submit for approval") {
+                             var choice = confirm("Are you sure, Do you want to submit this bill for approval process?");
+                             if (choice === true) {
+                                 $.ajax({
+                                     type: "POST",
+                                     url: '@Url.Action("OverheadsPostingWFInit", "CoreAccounts")',
+                                     data: {
+                                         OHId: item.OverheadsPostingId
+                                     },
+                                     success: function (result) {
+                                         if (result.status == true) {
+                                             $('#alertSuccess').html("Overheads has been submitted for approval process successfully.");
+                                             $('#Success').modal('toggle');
+                                             loadDetails();
+                                         } else if (result.status == false) {
+                                             $('#FailedAlert').html(result.msg);
+                                             $('#Failed').modal('toggle');
+                                         }
+                                     },
+                                     error: function (err) {
+                                         console.log("error1 : " + err);
                                      }
-                                 }
-                                 else if (selVal == "View") {
-                                     var url = '@Url.Action("OverheadsPostingView", "CoreAccounts")?OHId=' + item.OverheadsPostingId;
-                                         window.location.href = url;
-                                     }
+                                 });
+                             }
+                         }
+
                          $(this).val("");
                          return false;
                          e.stopPropagation();

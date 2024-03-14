@@ -3832,7 +3832,7 @@ namespace IOAS.Models
         public Nullable<int> ProjectId { get; set; }
         public Nullable<int> ReceiptId { get; set; }
         public string ReceiptNumber { get; set; }
-        public List<MasterlistviewModel> ProjectNumber { get; set; } = new List<MasterlistviewModel>();
+        public List<MasterlistviewModel> ProjectNumber { get; set; } = new List<MasterlistviewModel>();    
         public List<MasterlistviewModel> Bank { get; set; } = new List<MasterlistviewModel>();
         public string NameofPI { get; set; }
         public Nullable<int> PIId { get; set; }
@@ -3851,7 +3851,7 @@ namespace IOAS.Models
         public Nullable<int> ProjectId { get; set; }
         public Nullable<int> ReceiptId { get; set; }
         public string ReceiptNumber { get; set; }
-        public List<MasterlistviewModel> ProjectNumber { get; set; }
+        public List<MasterlistviewModel> ProjectNumber { get; set; } = new List<MasterlistviewModel>();
         public List<MasterlistviewModel> Bank { get; set; } = new List<MasterlistviewModel>();
         public Nullable<int> BankId { get; set; }
         public string NameofPI { get; set; }
@@ -3887,7 +3887,7 @@ namespace IOAS.Models
         public Nullable<int> ProjectId { get; set; }
         public Nullable<int> ReceiptId { get; set; }
         public string ReceiptNumber { get; set; }
-        public List<MasterlistviewModel> ProjectNumber { get; set; }
+        public List<MasterlistviewModel> ProjectNumber { get; set; } = new List<MasterlistviewModel>();
         public List<MasterlistviewModel> Bank { get; set; } = new List<MasterlistviewModel>();
         public Nullable<int> BankId { get; set; }
         public string NameofPI { get; set; }
@@ -3905,7 +3905,7 @@ namespace IOAS.Models
         public Nullable<int> ProjectId { get; set; }
         public Nullable<int> ReceiptId { get; set; }
         public string ReceiptNumber { get; set; }
-        public List<MasterlistviewModel> ProjectNumber { get; set; }
+        public List<MasterlistviewModel> ProjectNumber { get; set; } = new List<MasterlistviewModel>();
         public List<MasterlistviewModel> Bank { get; set; } = new List<MasterlistviewModel>();
         public Nullable<int> BankId { get; set; }
         public string NameofPI { get; set; }
@@ -3923,7 +3923,7 @@ namespace IOAS.Models
         public Nullable<int> ProjectId { get; set; }
         public Nullable<int> ReceiptId { get; set; }
         public string ReceiptNumber { get; set; }
-        public List<MasterlistviewModel> ProjectNumber { get; set; }
+        public List<MasterlistviewModel> ProjectNumber { get; set; } = new List<MasterlistviewModel>();
         public List<MasterlistviewModel> Bank { get; set; } = new List<MasterlistviewModel>();
         public Nullable<int> BankId { get; set; }
         public string NameofPI { get; set; }
