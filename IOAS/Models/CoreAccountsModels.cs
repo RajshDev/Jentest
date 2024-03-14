@@ -4823,6 +4823,13 @@ namespace IOAS.Models
         public string AccountGroupName { get; set; }
         public string AccountHeadName { get; set; }
     }
+
+    public class ProjectReceiptDetails
+    {
+        public int? ProjectId { get; set; }
+        public int? ReceiptId { get; set; }
+    }
+
     public class BillExpenseDetailModel
     {
         public Nullable<Int32> BillExpenseDetailId { get; set; }
@@ -7581,4 +7588,7 @@ namespace IOAS.Models
     //}
 
     #endregion
+
+
+
 }
