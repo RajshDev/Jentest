@@ -64,6 +64,7 @@ namespace IOAS.Controllers
         private static readonly Object LCRetWFInitlockObj = new Object();
         private static readonly Object HONWFInitlockObj = new Object();
         private static readonly Object TDSWFInitlockObj = new Object();
+        private static readonly Object OverheadsWFInitlockobj = new Object();
         private static readonly Object FSSWFInitlockObj = new Object();
         private static readonly Object MDYWFInitlockObj = new Object();
         private static readonly Object OHARWFInitlockObj = new Object();
@@ -1661,6 +1662,20 @@ namespace IOAS.Controllers
             }
         }
         [HttpGet]
+        public JsonResult GetSponType(int projectid = 0 )
+        {
+            try
+            {
+                object output = coreAccountService.GetSponCategory(projectid);
+                return Json(output, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+       (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                throw new Exception(ex.Message);
+            }
+        }     
         public JsonResult GetAddNewExpenseDetails(string typeCode, string tSubCode = "1")
         {
             try
@@ -14268,6 +14283,33 @@ namespace IOAS.Controllers
                 return Json(new { status = false, msg = "Something went wrong please contact administrator" }, JsonRequestBehavior.AllowGet);
             }
         }
+
+        [HttpPost]
+        public ActionResult OverheadsPostingWFInit(int OHId)
+        {
+            try
+            {
+                lock (OverheadsWFInitlockobj)
+                {
+                    if (Common.OverheadsStatus(OHId, "Open"))
+                    {
+                        int userId = Common.GetUserid(User.Identity.Name);
+                        var result = coreAccountService.OverheadsPostingWFInit(OHId, userId);
+                        return Json(new { status = result.Item1, msg = !result.Item1 ? result.Item2 : "" }, JsonRequestBehavior.AllowGet);
+
+                    }
+                    else
+                        return Json(new { status = false, msg = "This bill already approved" }, JsonRequestBehavior.AllowGet);
+                }
+            }
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+       (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                return Json(new { status = false, msg = "Something went wrong please contact administrator" }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
         [HttpGet]
         public JsonResult SearchTDSPaymentList(TDSPaymentSearchFieldModel model)
         {
@@ -15833,26 +15875,7 @@ namespace IOAS.Controllers
             }
         }
 
-        [HttpGet]
-        public ActionResult ApproveOverheadsPosting(int ohpid)
-        {
-            try
-            {
-                int userId = Common.GetUserid(User.Identity.Name);
-
-                //bool cStatus = coreAccountService.ForeignRemittanceCommitmentBalanceUpdate(foreignRemitId, false, false, userId, "FRM");
-                //if (!cStatus)
-                //    return Json(new { status = false, msg = "There is a mismatch between the allocated available value and allocated commitment value." }, JsonRequestBehavior.AllowGet);
-                bool status = coreAccountService.OverheadsPostingBillApproved(ohpid, userId);
-                return Json(new { status = status, msg = !status ? "Something went wrong please contact administrator" : "" }, JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception ex)
-            {
-                Infrastructure.IOASException.Instance.HandleMe(
-       (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
-                return Json(new { status = false, msg = "Something went wrong please contact administrator" }, JsonRequestBehavior.AllowGet);
-            }
-        }
+      
         public ActionResult OverheadsPosting(int ProjectId = 0, int ReceiptId = 0, string ReceiptToDate = null)
         {
             try
@@ -15867,20 +15890,14 @@ namespace IOAS.Controllers
                 ViewBag.ProjectNumber = emptyList;
                 // ViewBag.ContraAccountGroupList = Common.GetOHPostingBankAccountGroup();
                 ViewBag.Projecttype = Common.GetCodeControlList("Projecttype");
-                ViewBag.ReceiptList = Common.GetReceiptList();
-                ViewBag.ProjectList = Common.GetOHPAutoCompleteProjectList();
+                ViewBag.ReceiptList = Common.GetReceiptList();                
+                ViewBag.ProjectList = Common.GetOHPAutoCompleteProjectList();                                           
                 OverheadsPostingModel model = new OverheadsPostingModel();
-                //if (projecttype > 0)
-                //{
-                //    model = coreAccountService.GetOverheadsDetails(projecttype);
-                //}
-                //model.FromDate = String.Format("{0:ddd dd-MMM-yyyy}", DateTime.Now);
-
                 if (ProjectId > 0 || ReceiptId > 0 || ReceiptToDate != null)
                 {
                     model = coreAccountService.GetOverheadsDetails(ProjectId, ReceiptId, ReceiptToDate);
                 }
-                model.ProjectNumber = Common.getprojectnumber(ProjectId);
+                model.ProjectNumber = Common.getprojectnumber(ProjectId);                
                 model.ToDate = String.Format("{0:ddd dd-MMM-yyyy}", DateTime.Now);
                 model.SrchProjectId = ProjectId;
                 model.ReceiptId = ReceiptId;
@@ -15933,7 +15950,22 @@ namespace IOAS.Controllers
                 throw new Exception(ex.Message);
             }
         }
-
+        [HttpGet]
+        public JsonResult GetOverheadsrecprojdetails(int ohId = 0)
+        {
+            try
+            {
+                
+                var model = coreAccountService.GetOverheadsrecprojdetails(ohId);
+                return Json(model, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+       (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                throw new Exception(ex.Message);
+            }
+        }
         [HttpPost]
         public ActionResult OverheadsPosting(OverheadsPostingModel model)
         {
@@ -15949,24 +15981,25 @@ namespace IOAS.Controllers
                 ViewBag.ReceiptList = Common.GetReceiptList();
                 ViewBag.Projecttype = Common.GetCodeControlList("Projecttype");
                 ViewBag.ProjectList = Common.GetOHPAutoCompleteProjectList();
+                
                 if (ModelState.IsValid)
                 {
-
                     int logged_in_user = Common.GetUserid(User.Identity.Name);
                     int result = coreAccountService.OverheadsPostingIU(model, logged_in_user);
+                    var OHId = model.OverheadsPostingId;
+                    
                     if (model.OverheadsPostingId == null && result > 0)
                     {
                         TempData["succMsg"] = "Overheads Posting has been done successfully.";
                         return RedirectToAction("OverheadsPostingList");
                     }
-                    //else if (model.OverheadsPostingId > 0 && result > 0)
-                    //{
-                    //    TempData["succMsg"] = "Credit note has been updated successfully.";
-                    //    return RedirectToAction("CreditNoteList");
-                    //}
-                    else
+                    else if (model.OverheadsPostingId > 0 && result == 1)
+                    {
+                        TempData["succMsg"] = "Overheads Posting has been done successfully.";
+                        return RedirectToAction("OverheadsPostingList");
+                    }
+                    else if(result == -1)
                         TempData["errMsg"] = "Something went wrong please contact administrator.";
-
                 }
                 else
                 {
@@ -15987,7 +16020,7 @@ namespace IOAS.Controllers
             }
         }
 
-        public ActionResult _OverheadsPostingPIRMFShare(int Projectid, decimal RMFValue, int ReceiptId, string Todate, int srchPjctId)
+        public ActionResult _OverheadsPostingPIRMFShare(int Projectid, decimal RMFValue, int ReceiptId, string Todate, int srchPjctId, int oHId)
         {
             CoreAccountsService _cs = new CoreAccountsService();
             OverheadsPostingModel model = new OverheadsPostingModel();
@@ -15995,9 +16028,10 @@ namespace IOAS.Controllers
             model.ReceiptId = ReceiptId;
             model.ToDate = Todate;
             model.SrchProjectId = srchPjctId;
+            model.OverheadsPostingId = oHId;
             return PartialView(model);
         }
-        public ActionResult _OverheadsPostingPIPCFShare(int Projectid, decimal PCFValue, int ReceiptId, string Todate, int srchPjctId)
+        public ActionResult _OverheadsPostingPIPCFShare(int Projectid, decimal PCFValue, int ReceiptId, string Todate, int srchPjctId, int oHId)
         {
             CoreAccountsService _cs = new CoreAccountsService();
             OverheadsPostingModel model = new OverheadsPostingModel();
@@ -16005,6 +16039,7 @@ namespace IOAS.Controllers
             model.ReceiptId = ReceiptId;
             model.ToDate = Todate;
             model.SrchProjectId = srchPjctId;
+            model.OverheadsPostingId = oHId;
             return PartialView(model);
         }
         [HttpPost]
@@ -16013,7 +16048,14 @@ namespace IOAS.Controllers
             var UserId = Common.GetUserid(User.Identity.Name);
             CoreAccountsService _CS = new CoreAccountsService();
             object output = _CS.SavePIPCFShare(model, UserId, true);
-            return RedirectToAction("OverheadsPosting", new { ProjectId = model.SrchProjectId, ReceiptId = model.ReceiptId, ReceiptToDate = model.ToDate });
+            if (model.OverheadsPostingId > 0)
+            {
+                return RedirectToAction("EditOverheadsPosting", new { OHId = model.OverheadsPostingId, ProjectId = model.ProjectId, ReceiptId = model.ReceiptId, ReceiptToDate = model.ToDate });
+            }
+            else
+            {
+                return RedirectToAction("OverheadsPosting", new { ProjectId = model.ProjectId, ReceiptId = model.ReceiptId, ReceiptToDate = model.ToDate });
+            }
         }
         [HttpPost]
         public ActionResult _SavePIRMFShare(OverheadsPostingModel model)
@@ -16021,9 +16063,17 @@ namespace IOAS.Controllers
             var UserId = Common.GetUserid(User.Identity.Name);
             CoreAccountsService _CS = new CoreAccountsService();
             object output = _CS.SavePIRMFShare(model, UserId, true);
-            return RedirectToAction("OverheadsPosting", new { ProjectId = model.SrchProjectId, ReceiptId = model.ReceiptId, ReceiptToDate = model.ToDate });
+           
+            if (model.OverheadsPostingId > 0) 
+            {
+                return RedirectToAction("EditOverheadsPosting", new { OHId = model.OverheadsPostingId, ProjectId = model.ProjectId, ReceiptId = model.ReceiptId, ReceiptToDate = model.ToDate });
+            }
+            else
+            {
+                return RedirectToAction("OverheadsPosting", new { ProjectId = model.ProjectId, ReceiptId = model.ReceiptId, ReceiptToDate = model.ToDate });
+            }
         }
-        public ActionResult EditOverheadsPosting(int OHId = 0)
+        public ActionResult EditOverheadsPosting(int OHId = 0, int ProjectId = 0, int ReceiptId = 0, string ReceiptToDate = null)
         {
             try
             {
@@ -16031,25 +16081,28 @@ namespace IOAS.Controllers
                 ViewBag.SourceList = Common.GetSourceList();
                 ViewBag.SourceRefNumberList =
                 ViewBag.AccountGroupList =
-                // ViewBag.ContraAccountHeadList =
                 ViewBag.Bank =
                 ViewBag.AccountHeadList = emptyList;
                 ViewBag.ProjectNumber = emptyList;
-                // ViewBag.ContraAccountGroupList = Common.GetOHPostingBankAccountGroup();
+                ViewBag.ReceiptNumber = emptyList;
+                ViewBag.SourceName = emptyList;
                 ViewBag.Projecttype = Common.GetCodeControlList("Projecttype");
-                ViewBag.ReceiptList = Common.GetReceiptList();
+                ViewBag.ReceiptNumber = Common.GetReceiptNumberList(OHId);
+                ViewBag.ProjectNumber = Common.GetOHPAutoCompleteProjectList(OHId);
+                //ViewBag.SourceName=Common.GetSourceList()
                 OverheadsPostingModel model = new OverheadsPostingModel();
-                //if (projecttype > 0)
-                //{
-                //    model = coreAccountService.GetOverheadsDetails(projecttype);
-                //}
-                //model.FromDate = String.Format("{0:ddd dd-MMM-yyyy}", DateTime.Now);
-
                 if (OHId > 0)
                 {
                     model = coreAccountService.GetOverheadsDetailsbyId(OHId);
                 }
+
+                //if (ProjectId > 0 || ReceiptId > 0 || ReceiptToDate != null)
+                //{
+                //    model = coreAccountService.GetOverheadsDetails(ProjectId, ReceiptId, ReceiptToDate,OHId);
+                //}
+
                 //model.ProjectNumber = Common.getprojectnumber(ProjectId);
+                model.OverheadsPostingId = OHId;
                 model.ToDate = String.Format("{0:ddd dd-MMM-yyyy}", DateTime.Now);
                 model.ProjectType = 1;
                 model.NeedUpdateTransDetail = true;
@@ -16064,41 +16117,35 @@ namespace IOAS.Controllers
                 return RedirectToAction("Home", "Dashboard");
             }
         }
+       
         public ActionResult OverheadsPostingView(int OHId = 0)
         {
             try
             {
                 var emptyList = new List<MasterlistviewModel>();
                 ViewBag.SourceList = Common.GetSourceList();
-                ViewBag.SourceRefNumberList =
-                ViewBag.AccountGroupList =
-                // ViewBag.ContraAccountHeadList =
+                ViewBag.SourceRefNumberList = Common.GetSourceList();
+                ViewBag.AccountGroupList = Common.GetAccountGroupList();
                 ViewBag.Bank =
                 ViewBag.AccountHeadList = emptyList;
                 ViewBag.ProjectNumber = emptyList;
-                // ViewBag.ContraAccountGroupList = Common.GetOHPostingBankAccountGroup();
+                ViewBag.AccountGroupList= emptyList;
                 ViewBag.Projecttype = Common.GetCodeControlList("Projecttype");
                 ViewBag.ReceiptList = Common.GetReceiptList();
-                ViewBag.ProjectList = Common.GetOHPAutoCompleteProjectList();
+                ViewBag.ProjectList = Common.GetOHPAutoCompleteProjectList();                
                 OverheadsPostingModel model = new OverheadsPostingModel();
-                //if (projecttype > 0)
-                //{
-                //    model = coreAccountService.GetOverheadsDetails(projecttype);
-                //}
-                //model.FromDate = String.Format("{0:ddd dd-MMM-yyyy}", DateTime.Now);
-
                 if (OHId > 0)
                 {
                     model = coreAccountService.GetOverheadsViewDetailsbyId(OHId);
                 }
-                //model.ProjectNumber = Common.getprojectnumber(ProjectId);
                 model.ToDate = String.Format("{0:ddd dd-MMM-yyyy}", DateTime.Now);
                 model.ProjectType = 1;
                 model.NeedUpdateTransDetail = true;
                 model.CreditorType = "PI";
                 model.ProjectType = 1;
+                model.OverheadsPostingId = OHId;
+                ViewBag.processGuideLineId = 255;
                 ViewBag.disabled = "Disabled";
-                ViewBag.processGuideLineId = 1;
                 TempData["viewMode"] = "ViewOnly";
                 return View(model);
             }
@@ -16109,6 +16156,9 @@ namespace IOAS.Controllers
                 return RedirectToAction("Home", "Dashboard");
             }
         }
+       
+
+
 
         //[HttpGet]
         //public JsonResult LoadOHProjectList(string term)
@@ -22363,7 +22413,7 @@ TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             }
         }
 
-
+      
         #region backendprocess
         public ActionResult TestImprestEnhancement()
         {
