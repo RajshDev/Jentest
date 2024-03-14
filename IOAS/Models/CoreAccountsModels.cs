@@ -5930,9 +5930,12 @@ namespace IOAS.Models
         public bool IsBudgetHeadPosting { get; set; }
         public string ReceiptNumber { get; set; }
         public Nullable<int> ReceiptId { get; set; }
-        [Required]
-        [Display(Name = "Category")]
+        //[Required]
+        //[Display(Name = "Category")]
         public Nullable<int> Category { get; set; }
+        //[RequiredIf("Category", 16, ErrorMessage = "CategoryType  field is required")]
+        //[Display(Name = "CategoryType")]
+        public Nullable<int> CategoryType { get; set; }
         public string Remarks { get; set; }
 
         [RequiredIfNot("Category", 18, ErrorMessage = "Bank field is required")]
@@ -5959,6 +5962,7 @@ namespace IOAS.Models
         [RequiredIf("ProjectValidation", true, ErrorMessage = "Project field is required")]
         public Nullable<int> ProjectId { get; set; }
         public bool IsProject { get; set; }
+        [RequiredIf("Category", 18, ErrorMessage = "Negative No. field is required")]
         public Nullable<int> ModeOfReceipt { get; set; }
         public string RefNo { get; set; }
         public Nullable<DateTime> RefDate { get; set; }
@@ -5988,6 +5992,7 @@ namespace IOAS.Models
         public string ModeofPayment { get; set; }
         public string BankName { get; set; }
         public string ReceiptDate { get; set; }
+        public Nullable<Decimal> ReceiptAmount { get; set; }
         public bool PFInit { get; set; }
         public string InvoiceNo { get; set; }
         public Nullable<int> InvoiceId { get; set; }
