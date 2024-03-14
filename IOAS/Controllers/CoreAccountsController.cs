@@ -12064,6 +12064,14 @@ namespace IOAS.Controllers
                 return View();
             }
         }
+
+
+        public string LCOpeningCancel(int LCdraftId = 0)
+        {
+            string val = "";
+            val = coreAccountService.UpdateLCCancel(LCdraftId);
+            return val;
+        }
         [HttpPost]
         public ActionResult LCOpening(LCOpeningModel model, string content = null, string addconditions = null)
         {
