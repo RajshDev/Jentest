@@ -20,6 +20,8 @@ namespace IOAS.DataModel
         public IOASDBEntities()
             : base("name=IOASDBEntities")
         {
+            //this.Database.CommandTimeout = 360;
+            //this.Database.ExecuteSqlCommand("SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;");
         }
     
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
@@ -483,7 +485,6 @@ namespace IOAS.DataModel
         public virtual DbSet<tblImprestBankStatementRec> tblImprestBankStatementRec { get; set; }
         public virtual DbSet<tblProjectSummaryChart> tblProjectSummaryChart { get; set; }
         public virtual DbSet<tblLogin> tblLogin { get; set; }
-        public virtual DbSet<tblProject> tblProject { get; set; }
         public virtual DbSet<tblNegativeApprovalOffsetLog> tblNegativeApprovalOffsetLog { get; set; }
         public virtual DbSet<tblImprestClose> tblImprestClose { get; set; }
         public virtual DbSet<tblImprestCloseDocumentDetail> tblImprestCloseDocumentDetail { get; set; }
@@ -512,7 +513,6 @@ namespace IOAS.DataModel
         public virtual DbSet<tblDepartment> tblDepartment { get; set; }
         public virtual DbSet<vw_Oustanding> vw_Oustanding { get; set; }
         public virtual DbSet<vw_ProjectExpenditureReport> vw_ProjectExpenditureReport { get; set; }
-        public virtual DbSet<vwCommitmentSpentBalance> vwCommitmentSpentBalance { get; set; }
         public virtual DbSet<vw_PaymentsandReceipt> vw_PaymentsandReceipt { get; set; }
         public virtual DbSet<tblUTRDetail> tblUTRDetail { get; set; }
         public virtual DbSet<tblUTRMaster> tblUTRMaster { get; set; }
@@ -731,7 +731,6 @@ namespace IOAS.DataModel
         public virtual DbSet<vw_HeadwiseExpenditure> vw_HeadwiseExpenditure { get; set; }
         public virtual DbSet<vw_HeadwisefundTransfer> vw_HeadwisefundTransfer { get; set; }
         public virtual DbSet<vw_HeadWiseOpeningBalance> vw_HeadWiseOpeningBalance { get; set; }
-        public virtual DbSet<vw_HonorariumDetails> vw_HonorariumDetails { get; set; }
         public virtual DbSet<vw_ICSRB2B> vw_ICSRB2B { get; set; }
         public virtual DbSet<vw_ICSRB2CL> vw_ICSRB2CL { get; set; }
         public virtual DbSet<vw_ICSRB2CS> vw_ICSRB2CS { get; set; }
@@ -820,13 +819,8 @@ namespace IOAS.DataModel
         public virtual DbSet<vw_RCTMSPHDEmployees> vw_RCTMSPHDEmployees { get; set; }
         public virtual DbSet<vw_RCTOngoingRelieving> vw_RCTOngoingRelieving { get; set; }
         public virtual DbSet<vw_RCTOSGAgencyMasterReport> vw_RCTOSGAgencyMasterReport { get; set; }
-        public virtual DbSet<vw_RCTOSGAmendmentReport> vw_RCTOSGAmendmentReport { get; set; }
         public virtual DbSet<vw_RCTOSGAttendanceReport> vw_RCTOSGAttendanceReport { get; set; }
-        public virtual DbSet<vw_RCTOSGChagofprojectReport> vw_RCTOSGChagofprojectReport { get; set; }
-        public virtual DbSet<vw_RCTOSGExtensionEnhancementReport> vw_RCTOSGExtensionEnhancementReport { get; set; }
         public virtual DbSet<vw_RCTOSGPayroll> vw_RCTOSGPayroll { get; set; }
-        public virtual DbSet<vw_RCTOSGRelievingReport> vw_RCTOSGRelievingReport { get; set; }
-        public virtual DbSet<vw_RCTOTHPayDeductionReport> vw_RCTOTHPayDeductionReport { get; set; }
         public virtual DbSet<vw_RCTOutsourcingFullTime> vw_RCTOutsourcingFullTime { get; set; }
         public virtual DbSet<vw_RCTOutsourcingParttime> vw_RCTOutsourcingParttime { get; set; }
         public virtual DbSet<vw_RCTOverAllApplicationEntry> vw_RCTOverAllApplicationEntry { get; set; }
@@ -837,9 +831,6 @@ namespace IOAS.DataModel
         public virtual DbSet<vw_RCTProjectTypeCount> vw_RCTProjectTypeCount { get; set; }
         public virtual DbSet<vw_RCTRelievedEmployees> vw_RCTRelievedEmployees { get; set; }
         public virtual DbSet<vw_RCTSalaryAgencyComponentLog> vw_RCTSalaryAgencyComponentLog { get; set; }
-        public virtual DbSet<vw_RCTSTEExtensionEnhancementReport> vw_RCTSTEExtensionEnhancementReport { get; set; }
-        public virtual DbSet<vw_RCTSTELOPReport> vw_RCTSTELOPReport { get; set; }
-        public virtual DbSet<vw_RCTSTERelievingReport> vw_RCTSTERelievingReport { get; set; }
         public virtual DbSet<vw_ReceiptDetails> vw_ReceiptDetails { get; set; }
         public virtual DbSet<vw_ReceiptExclInterest> vw_ReceiptExclInterest { get; set; }
         public virtual DbSet<vw_ReceiptOB> vw_ReceiptOB { get; set; }
@@ -920,8 +911,31 @@ namespace IOAS.DataModel
         public virtual DbSet<vw_Projectoverallreport> vw_Projectoverallreport { get; set; }
         public virtual DbSet<vw_vendorsCategoryId> vw_vendorsCategoryId { get; set; }
         public virtual DbSet<vw_getPaymentBillTransactionType> vw_getPaymentBillTransactionType { get; set; }
+        public virtual DbSet<tblAllocationFreezeLog> tblAllocationFreezeLog { get; set; }
+        public virtual DbSet<vw_ProjectAllocationAllHeadList> vw_ProjectAllocationAllHeadList { get; set; }
+        public virtual DbSet<vw_ProjectAllocationHeadList> vw_ProjectAllocationHeadList { get; set; }
+        public virtual DbSet<tblVendorStatusModifierLog> tblVendorStatusModifierLog { get; set; }
+        public virtual DbSet<vw_RCTOSGAmendmentReport> vw_RCTOSGAmendmentReport { get; set; }
+        public virtual DbSet<vw_RCTOSGChagofprojectReport> vw_RCTOSGChagofprojectReport { get; set; }
+        public virtual DbSet<vw_RCTOSGExtensionEnhancementReport> vw_RCTOSGExtensionEnhancementReport { get; set; }
+        public virtual DbSet<vw_RCTOSGLOPReport> vw_RCTOSGLOPReport { get; set; }
+        public virtual DbSet<vw_RCTOSGMaternity> vw_RCTOSGMaternity { get; set; }
         public virtual DbSet<vw_RCTOSGNewJoineeReport> vw_RCTOSGNewJoineeReport { get; set; }
+        public virtual DbSet<vw_RCTOSGRelievingReport> vw_RCTOSGRelievingReport { get; set; }
+        public virtual DbSet<vw_RCTOSGStoppayment> vw_RCTOSGStoppayment { get; set; }
+        public virtual DbSet<vw_RCTOTHPayDeductionReport> vw_RCTOTHPayDeductionReport { get; set; }
+        public virtual DbSet<vw_RCTSTEAmendmentReport> vw_RCTSTEAmendmentReport { get; set; }
+        public virtual DbSet<vw_RCTSTEChagofprojectReport> vw_RCTSTEChagofprojectReport { get; set; }
+        public virtual DbSet<vw_RCTSTEExtensionEnhancementReport> vw_RCTSTEExtensionEnhancementReport { get; set; }
+        public virtual DbSet<vw_RCTSTEHRA> vw_RCTSTEHRA { get; set; }
+        public virtual DbSet<vw_RCTSTELOPReport> vw_RCTSTELOPReport { get; set; }
+        public virtual DbSet<vw_RCTSTEMaternity> vw_RCTSTEMaternity { get; set; }
         public virtual DbSet<vw_RCTSTENewJoineeReport> vw_RCTSTENewJoineeReport { get; set; }
+        public virtual DbSet<vw_RCTSTERelievingReport> vw_RCTSTERelievingReport { get; set; }
+        public virtual DbSet<vw_RCTSTEStoppayment> vw_RCTSTEStoppayment { get; set; }
+        public virtual DbSet<tblProject> tblProject { get; set; }
+        public virtual DbSet<vw_HonorariumDetails> vw_HonorariumDetails { get; set; }
+        public virtual DbSet<vwCommitmentSpentBalance> vwCommitmentSpentBalance { get; set; }
     
         public virtual int AnnualAccounts(Nullable<System.DateTime> date, Nullable<System.DateTime> date2)
         {

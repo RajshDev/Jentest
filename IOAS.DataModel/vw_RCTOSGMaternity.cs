@@ -24,13 +24,17 @@ namespace IOAS.DataModel
         public string PROJECT_NO_ { get; set; }
         public string DEPARTMENT { get; set; }
         public string APPOINTMENT_TYPE { get; set; }
-        public Nullable<System.DateTime> LOG_TIME { get; set; }
-        public string CREATED_BY { get; set; }
         public string Requested_by { get; set; }
         public string Request_Reference { get; set; }
         public string Request_Reference_Number { get; set; }
         public Nullable<System.DateTime> REQUEST_RECEIVED_DATE { get; set; }
-        public Nullable<System.DateTime> COMPLETED__DATE { get; set; }
-        public string COMPLETED_BY { get; set; }
+        public string INITIATED_BY { get; set; }
+        public Nullable<System.DateTime> INITIATED_DATE { get; set; }
+        public string APPROVED_BY { get; set; }
+        public Nullable<System.DateTime> APPROVED_DATE { get; set; }
+        public string REJOIN_INITIATED_BY { get; set; }
+        public Nullable<System.DateTime> REJOIN_INITIATED_DATE { get; set; }
+        public string REJOIN_APPROVED_BY { get; set; }
+        public Nullable<System.DateTime> REJOIN_APPROVED_DATE { get; set; }
     }
 }
