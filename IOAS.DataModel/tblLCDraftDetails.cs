@@ -87,6 +87,5 @@ namespace IOAS.DataModel
         public string ChargesDetails { get; set; }
         public string AdditionalConditions { get; set; }
         public string RemittanceAmountinWords { get; set; }
-        public Nullable<bool> Cancelled_f { get; set; }
     }
 }

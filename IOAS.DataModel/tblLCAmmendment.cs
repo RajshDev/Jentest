@@ -29,6 +29,5 @@ namespace IOAS.DataModel
         public string Status { get; set; }
         public Nullable<int> CheckListVerifiedBy { get; set; }
         public string TransactionTypeCode { get; set; }
-        public Nullable<bool> Cancelled_f { get; set; }
     }
 }
