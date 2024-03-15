@@ -36,9 +36,26 @@
                 <tbody>
                     <tr>
                         <td>
-                            <label>Category</label>
-                            <h4>@Model.CategoryName</h4>
-                            @Html.HiddenFor(m => m.Category, new { @id = "categorydropdown" })
+
+                            @if (Model.Category != 16)
+                            {
+                                <label>Category</label>
+                                <h4>@Model.CategoryName</h4>
+                                @Html.HiddenFor(m => m.Category, new { @id = "categorydropdown" })
+                            }
+                            else
+                            {
+
+                                <label>Category</label>
+                                <h4>@Model.CategoryName</h4>
+                                @Html.HiddenFor(m => m.Category, new { @id = "categorydropdown" })
+                                @Html.HiddenFor(m => m.CategoryType, new { @id = "categorydropdowns" })
+
+
+                            }
+
+
+
                         </td>
                         <td>
                             <label>Mode Of Receipt</label>
@@ -313,6 +330,7 @@
         var ttlDrVal = parseFloat($('#BankAmount').val()) || 0;
         var ttlExpVal = 0;
         var category = $('#categorydropdown').val();
+        var categorytype = $('#categorydropdowns').val(); 
         $('#tbodyExpenseList input[name$=".TransactionType"]').each(function (i, rowEle) {
             if ($(this).val() == 'Credit') {
                 var parseVal = parseFloat($(this).closest('tr').find("input[name$='.Amount']").val());
@@ -333,7 +351,7 @@
             if (!isNaN(parseVal))
                 ttlExpVal = ttlExpVal + parseVal;
         });
-        if (category == "15" || category == "18") {
+        if ((category == "15" || category == "18") || (category == "16" && categorytype == 1)) {
             ttlDrVal = ttlDrVal - bankamount + deductionAmt;
             $('#DebitAmount').val(ttlDrVal);
             ttlExpVal = ttlExpVal + bankamount - deductionAmt;

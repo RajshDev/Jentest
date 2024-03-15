@@ -18181,6 +18181,7 @@ namespace IOAS.Controllers
                 ViewBag.AccountHeadList = emptyList;
                 ViewBag.TransactionTypeList = Common.GetCodeControlList("Transaction Type");
                 ViewBag.CategoryList = Common.GetCodeControlList("ReceiptCategory", "Adhoc");
+                ViewBag.CategoryTypeList = Common.GetCodeControlList("InterestCategory", "Adhoc");
                 ViewBag.AccountGroupList = Common.GetAccountGroup(false);
                 ViewBag.BankList = Common.GetBankAccountHeadList(true);
                 ViewBag.ModeOfReceiptList = Common.GetCodeControlList("ModeofReceipt");
@@ -18224,6 +18225,7 @@ namespace IOAS.Controllers
                 ViewBag.NegReceiptList = emptyList;
                 ViewBag.TransactionTypeList = Common.GetCodeControlList("Transaction Type");
                 ViewBag.CategoryList = Common.GetCodeControlList("ReceiptCategory", "Adhoc");
+                ViewBag.CategoryTypeList = Common.GetCodeControlList("InterestCategory", "Adhoc");
                 ViewBag.AccountGroupList = Common.GetAccountGroup(false);
                 ViewBag.BankList = Common.GetBankAccountHeadList(true);
                 ViewBag.ModeOfReceiptList = Common.GetCodeControlList("ModeofReceipt");
@@ -18284,6 +18286,11 @@ namespace IOAS.Controllers
                     else if (result == -3)
                     {
                         TempData["errMsg"] = "Not a valid entry. Credit and Debit value are not equal.";
+                        return RedirectToAction("OtherReceiptList");
+                    }
+                    else if (result == -4)
+                    {
+                        TempData["errMsg"] = "Total receipts amount should not be greater than Reversable value of the project.";
                         return RedirectToAction("OtherReceiptList");
                     }
                     else
@@ -18371,6 +18378,26 @@ namespace IOAS.Controllers
                 var taxableAmt = Math.Round(crAmt - ttlTax, 2, MidpointRounding.AwayFromZero);
                 if (taxableAmt > projectData.NetBalance)
                     msg = "Negative Receipt Amount Should not be greater than NetBalance.";
+            }
+            else if (model.CategoryType == 1 && model.Category == 16)
+            {
+
+                drAmt = drAmt + ttlTax;
+                decimal bankAmt = model.BankAmount ?? 0;
+
+
+                crAmt = crAmt + bankAmt;
+                string ctype = model.CategoryType.ToString();
+
+                var ah = model.ExpenseDetail.Where(m => m.IsJV != true).ToList();
+                var gAH = ah.GroupBy(v => v.AccountHeadId);
+                if (ah.Count() != gAH.Count())
+                    msg = msg == "Valid" ? "Duplicate account head exist in expense details. Please select a different head." : msg + "<br />Duplicate account head exist in expense details. Please select a different head.";
+                ProjectService _PS = new ProjectService();
+                var projectData = _PS.getProjectSummary(Convert.ToInt32(model.ProjectId));
+                var taxableAmt = Math.Round(crAmt - ttlTax, 2, MidpointRounding.AwayFromZero);
+                if (drAmt > projectData.TotalInterest)
+                    msg = "Interest Reversable Amount Should not be Greater  than Receipt Amount.";
             }
             else
             {
