@@ -135,7 +135,7 @@ namespace IOAS.GenericServices
                 return false;
             }
         }
-        public bool DTVWFInitSuccess(int travelBillId, int logged_in_user)
+public bool DTVWFInitSuccess(int travelBillId, int logged_in_user)
         {
             try
             {
@@ -3086,6 +3086,153 @@ namespace IOAS.GenericServices
                 return false;
             }
         }
+        public bool OverheadsPostingWFInitSuccess(Int32 id, int loggedInUser)
+        {
+            try
+            {
+                using (var context = new IOASDBEntities())
+                {
+                    if (!coreAccountService.ValidateOverheadsPostingBillApproved(id))
+                        return false;
+                    var billQuery = context.tblOverheadsPosting.FirstOrDefault(m => m.OverheadsPostingId == id && m.Status == "Submit for approval" && m.TransactionTypeCode == "OHP");
+                    if (billQuery != null)
+                    {
+                        var ohdetails = (from o in context.tblOverheadsPostingDetails
+                                         where o.OverheadsPostingId == id
+                                         select o).ToList();
 
+                        for (int i = 0; i < ohdetails.Count(); i++)
+                        {
+                            int ProjectId = ohdetails[i].ProjectId ?? 0;
+                            decimal newOHamt = ohdetails[i].TotalOverheadsAmount ?? 0;
+                            int ReceiptId = ohdetails[i].ReceiptId ?? 0;
+                            decimal OHamt = context.tblReceipt.Where(m => m.ReceiptId == ReceiptId).Select(m => m.ReceiptOverheadValue).FirstOrDefault() ?? 0;
+                            if (!Common.ValidateProjectSummary(ProjectId, 6, OHamt, true, newOHamt))
+                                return false;
+                        }
+
+                        if (!coreAccountService.getOHPostingBOAmodeldetails(id))
+                        {
+                            return false;
+                        }
+                        else
+                        {
+                            var expensedet = (from c in context.tblOverheadsPostingCorpusDetails
+                                              where c.OverheadsPostingId == id
+                                              select c).ToList();
+                            for (int i = 0; i < expensedet.Count(); i++)
+                            {
+                                var rcvid = expensedet[i].ReceiptId ?? 0;
+                                var rcv = context.tblReceipt.FirstOrDefault(m => m.ReceiptId == rcvid);
+                                tblCorpusLog clog = new tblCorpusLog();
+                                clog.ProjectId = rcv.ProjectId;
+                                clog.RefId = id;
+                                clog.RefNo = billQuery.OverheadsPostingNumber;
+                                clog.Amount = expensedet[i].CorpusAmount;
+                                clog.TransactionDate = DateTime.Now;
+                                clog.TransactionType = "Credit";
+                                clog.Pmt_f = true;
+                                clog.TypeCode = "OHP";
+                                clog.Status = "Active";
+                                context.tblCorpusLog.Add(clog);
+                                context.SaveChanges();
+                            }
+                            if (!coreAccountService.getOtherReceiptIUdetails(id, loggedInUser))
+                            {
+                                return false;
+                            }
+                            else
+                            {
+
+                                for (int i = 0; i < ohdetails.Count(); i++)
+                                {
+                                    var ohreceiptid = ohdetails[i].ReceiptId;
+                                    decimal? ohvalue = ohdetails[i].TotalOverheadsAmount;
+                                    decimal? rcvoriginalohvalue = ohdetails[i].ReceiptOriginalOverheadsValue;
+                                    var rcvohbreakquery = (from o in context.tblReceiptOverheadBreakup
+                                                           where o.ReceiptId == ohreceiptid
+                                                           select o).ToList();
+                                    var receipt = (from o in context.tblReceipt
+                                                   where o.ReceiptId == ohreceiptid
+                                                   select o).FirstOrDefault();
+                                    decimal? pcfamount = ohdetails[i].PCFAmount;
+                                    decimal? rmfamount = ohdetails[i].RMFAmount;
+                                    decimal? icsrohamount = ohdetails[i].ICSROHAmount;
+                                    decimal? corpusamount = ohdetails[i].CorpousAmount;
+                                    decimal? ddfamount = ohdetails[i].DDFAmount;
+                                    decimal? staffwelfareamount = ohdetails[i].StaffWelfareAmount;
+
+                                    for (int j = 0; j < rcvohbreakquery.Count(); j++)
+                                    {
+                                        if (rcvohbreakquery[j].ReceiptId == ohreceiptid && rcvohbreakquery[j].ReceiptOverheadTypeId == 1)
+                                        {
+                                            rcvohbreakquery[j].ReceiptOverheadAmount = corpusamount;
+                                            rcvohbreakquery[j].IsPosted_f = true;
+                                            rcvohbreakquery[j].UpdtTS = DateTime.Now;
+                                            rcvohbreakquery[j].UpdtUserId = loggedInUser;
+                                            context.SaveChanges();
+                                        }
+                                        if (rcvohbreakquery[j].ReceiptId == ohreceiptid && rcvohbreakquery[j].ReceiptOverheadTypeId == 2)
+                                        {
+                                            rcvohbreakquery[j].ReceiptOverheadAmount = rmfamount;
+                                            rcvohbreakquery[j].IsPosted_f = true;
+                                            rcvohbreakquery[j].UpdtTS = DateTime.Now;
+                                            rcvohbreakquery[j].UpdtUserId = loggedInUser;
+                                            context.SaveChanges();
+                                        }
+                                        if (rcvohbreakquery[j].ReceiptId == ohreceiptid && rcvohbreakquery[j].ReceiptOverheadTypeId == 3)
+                                        {
+                                            rcvohbreakquery[j].ReceiptOverheadAmount = icsrohamount;
+                                            rcvohbreakquery[j].IsPosted_f = true;
+                                            rcvohbreakquery[j].UpdtTS = DateTime.Now;
+                                            rcvohbreakquery[j].UpdtUserId = loggedInUser;
+                                            context.SaveChanges();
+                                        }
+                                        if (rcvohbreakquery[j].ReceiptId == ohreceiptid && rcvohbreakquery[j].ReceiptOverheadTypeId == 4)
+                                        {
+                                            rcvohbreakquery[j].ReceiptOverheadAmount = ddfamount;
+                                            rcvohbreakquery[j].IsPosted_f = true;
+                                            rcvohbreakquery[j].UpdtTS = DateTime.Now;
+                                            rcvohbreakquery[j].UpdtUserId = loggedInUser;
+                                            context.SaveChanges();
+                                        }
+                                        if (rcvohbreakquery[j].ReceiptId == ohreceiptid && rcvohbreakquery[j].ReceiptOverheadTypeId == 5)
+                                        {
+                                            rcvohbreakquery[j].ReceiptOverheadAmount = staffwelfareamount;
+                                            rcvohbreakquery[j].IsPosted_f = true;
+                                            rcvohbreakquery[j].UpdtTS = DateTime.Now;
+                                            rcvohbreakquery[j].UpdtUserId = loggedInUser;
+                                            context.SaveChanges();
+                                        }
+                                        if (rcvohbreakquery[j].ReceiptId == ohreceiptid && rcvohbreakquery[j].ReceiptOverheadTypeId == 6)
+                                        {
+                                            rcvohbreakquery[j].ReceiptOverheadAmount = pcfamount;
+                                            rcvohbreakquery[j].IsPosted_f = true;
+                                            rcvohbreakquery[j].UpdtTS = DateTime.Now;
+                                            rcvohbreakquery[j].UpdtUserId = loggedInUser;
+                                            context.SaveChanges();
+                                        }
+                                        receipt.ReceiptOverheadValue = ohvalue;
+                                    }
+
+                                }
+                                billQuery.Status = "Completed";
+                                billQuery.UPTD_By = loggedInUser;
+                                billQuery.UPTD_TS = DateTime.Now;
+                                context.SaveChanges();
+                                return true;
+                            }
+                        }
+                    }
+                    else
+                        return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(this, ex);
+                return false;
+            }
+        }
     }
 }

@@ -55,6 +55,18 @@
                                             </div>
                                         </div>
                                     </div>
+                                        <div class="row">
+                                            <div id="divCategoryType" class="col-md-6">
+                                                <div class="form-group custom-form-group">
+                                                    <label class="required">CategoryType</label>
+                                                    @Html.DropDownListFor(m => m.CategoryType, new SelectList(ViewBag.CategoryTypeList, "id", "name"), "Select any", new { @class = "form-control", @id = "categorydropdowns" })
+                                                    @Html.ValidationMessageFor(m => m.CategoryType)
+                                                </div>
+                                            </div>
+
+                                        </div>
+
+                                    
                                     <div class="row">
                                         <div class="col-md-6">
                                             <div class="form-group custom-form-group">
@@ -173,8 +185,10 @@
                                         <div class="col-md-6">
                                             <div class="form-group custom-form-group">
                                                 <label class="required">Amount</label>
+                                                @Html.HiddenFor(m => m.ReceiptAmount)
                                                 @Html.TextBoxFor(m => m.BankAmount, new { @class = "form-control", @onkeypress = "return ValidateDecimalOnly(event)", @onblur = "CalculateTxTotal()", @autocomplete = "off" })
                                                 @Html.ValidationMessageFor(m => m.BankAmount)
+
                                             </div>
                                         </div>
                                     </div>
@@ -533,6 +547,7 @@
         var ttlDrVal = parseFloat($('#BankAmount').val()) || 0;
         var ttlExpVal = 0;
         var category = $('#categorydropdown').val();
+        var categorytype = $('#categorydropdowns').val(); 
         $('#tbodyExpenseList select[name$=".TransactionType"]').each(function (i, rowEle) {
             if ($(this).val() == 'Credit') {
                 var parseVal = parseFloat($(this).closest('tr').find("input[name$='.Amount']").val()) || 0;
@@ -555,7 +570,7 @@
             if (!isNaN(parseVal))
                 ttlExpVal = ttlExpVal + parseVal;
         });
-        if (category == "15" || category == "18") {
+        if ((category == "15" || category == "18")||(category == "16" && categorytype == 1)) {
             ttlDrVal = ttlDrVal - bankamount + deductionAmt;
             $('#DebitAmount').val(ttlDrVal);
             ttlExpVal = ttlExpVal + bankamount - deductionAmt;
@@ -570,7 +585,7 @@
     function ValidateTransaction() {
         var msg = 'valid';
 
-        var ttlCrAmt = parseFloat($('#CreditAmount').val()) || 0; 0
+        var ttlCrAmt = parseFloat($('#CreditAmount').val()) || 0;
         var ttlDrAmt = parseFloat($('#DebitAmount').val()) || 0;
         if (ttlCrAmt != ttlDrAmt) {
             msg = 'Not a valid entry. Credit and Debit value are not equal.';
@@ -588,7 +603,8 @@
         return msg;
     }
     $('#btnSave').click(function (e) {
-        e.preventDefault();
+        e.preventDefault();  
+          
         formSave();
         })
 
@@ -597,6 +613,7 @@
             if ($('#categorydropdown').val() != "18")
                 validationMsg = ValidateTransaction();
 
+      
             if (validationMsg != 'valid') {
                 $("#alert").text(validationMsg);
                 $('#Validation').modal('show');
@@ -612,9 +629,46 @@
             //}
 
             var isValid = $('#formRCV').valid();
+
+            var CategoryVal = $('#categorydropdown').val();
+            if (CategoryVal == 0 || CategoryVal == null || CategoryVal == "") {
+                isValid = false;
+                $('#alert').html("Please Enter Category");
+                $('#Validation').modal('toggle');
+                return false;
+            }
+
+
+            var CategoryTypeVal = $('#categorydropdowns').val();
+            if (CategoryVal ==16 ) {
+
+                if ( CategoryTypeVal == null || CategoryTypeVal == "") {
+                    isValid = false;
+                    $('#alert').html("Please Enter CategoryType");
+                    $('#Validation').modal('toggle');
+                    return false;
+                }
+            }
+            var code = $('#ModeOfReceipt').val();
+            if (code == 0 || code == null || code == "") {
+                isValid = false;
+                $('#alert').html("Please Enter ModeOfReceipt");
+                $('#Validation').modal('toggle');
+                return false;
+            }
+
+            var Proj = $('#Project').val();
+
+            if (Proj == null || Proj == "") {
+                isValid = false;
+                $('#alert').html("Please Enter Project");
+                $('#Validation').modal('toggle');
+                return false;
+            }
             if (isValid) {
                 var FreezeValidation = $("#FreezeValidation").val();
-                if (FreezeValidation == "False") {
+                if (FreezeValidation == "False")
+                {
                     validationMsg = "Allocation Head Freezed";
                     
                     $('#FailedAlert').html(validationMsg);
@@ -622,7 +676,7 @@
 
                     return false;
                 }
-                else {
+                else {                                     
                     $('#formRCV').submit();
                 }
             }
@@ -717,7 +771,7 @@
             });
             $('#NegativeReceiptNo').val('');
         }
-        var ttlExpVal = 0; var ttlDrVal = 0;
+        
         $('#BankAmount').val(0);
         $('#DebitAmount').val(0);
         $('#CreditAmount').val(0);
@@ -728,9 +782,45 @@
         $('#BankAmount,#Bank').val('');
         resetForm();
         previous = this.value;
-    });
+            });
+
+        var previous1;
+        $("#categorydropdowns").on('focus', function () {
+            // Store the current value on focus and on change
+            previous1 = this.value;
+        }).change(function () {
+            if (previous1 == 18) {
+                var selectGroups = $('select[name="ExpenseDetail[0].AccountGroupId"]');
+                selectGroups.empty();
+                $("#AccountGroupListDisabled > option").each(function () {
+                    selectGroups.append($('<option/>', {
+                        value: this.value,
+                        text: this.text,
+                    }));
+                });
+                $('#NegativeReceiptNo').val('');
+            }
+            $('#BankAmount').val(0);
+            $('#DebitAmount').val(0);
+            $('#CreditAmount').val(0);
+            $('#tbodyDeductionList tr td').find('input[name$=".Amount"]').val('');
+            $('#tbodyExpenseList tr').not(':first').remove();
+            $('select[name="ExpenseDetail[0].AccountHeadId"]').empty();
+            $('#tbodyExpenseList tr td').find("select,input[name!='ExpenseDetail.Index']").val('');
+            $('#BankAmount,#Bank').val('');
+            resetForm();
+            previous1 = this.value;
+        });
+   
     function resetForm() {
         var category = $('#categorydropdown').val() || 0;
+
+        if (category == "16") {
+            $('#divCategoryType').removeClass('dis-none');
+        }
+        else {
+            $('#divCategoryType').addClass('dis-none');
+        }
         if (category == "18") {
             $('#modediv,#btnAddExpense,.removeExpense').addClass('dis-none');
             $('#divInv,#divNegativeRecp').removeClass('dis-none');
