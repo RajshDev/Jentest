@@ -1856,7 +1856,7 @@ namespace IOAS.Controllers
             // return new FileStreamResult(workStream, "application/vnd.ms-excel");
             //return new FileStreamResult(workStream, "application/vnd.openxmlformats - officedocument.spreadsheetml.sheet");
         }
-        public FileStreamResult CashBook(string fdate, string tdate, int BankId)
+        public FileStreamResult CashBook(string fdate, string tdate, int BankId,bool Cosolidated)
         {
             try
             {
@@ -1875,7 +1875,7 @@ namespace IOAS.Controllers
                     todate = todate.AddDays(1).AddTicks(-2001);
                     var Frm = fromdate.ToString("yyyy-MM-dd HH:mm");
                     var Todate = todate.ToString("yyyy-MM-dd HH:mm");
-                    DataSet dsReport = db.getCashBook(Frm, Todate, BankId);
+                    DataSet dsReport = db.getCashBook(Frm, Todate, BankId, Cosolidated);
                     dtResult0 = dsReport.Tables.Count > 0 ? dsReport.Tables[0] : new DataTable();
                     dtResult1 = dsReport.Tables.Count > 0 ? dsReport.Tables[1] : new DataTable();
                     dtResult2 = dsReport.Tables.Count > 0 ? dsReport.Tables[2] : new DataTable();
@@ -1908,7 +1908,7 @@ namespace IOAS.Controllers
                         ws.Cell(7, 2).Value = row["ClosingBal"].ToString();
                     }
                     ws.Cell(9, 2).Value = "Receipt";
-                    ws.Cell(9, 8).Value = "Payment";
+                    ws.Cell(9, 9).Value = "Payment";
 
                     int firstrow = 11; int secondrow = 11;
 
@@ -1919,6 +1919,7 @@ namespace IOAS.Controllers
                     dt.Columns["ChequeNumber"].SetOrdinal(3);
                     dt.Columns["VoucherPayee"].SetOrdinal(4);
                     dt.Columns["Amount"].SetOrdinal(5);
+                    dt.Columns["BankName"].SetOrdinal(6);
 
 
                     ws.Cell(firstrow, 1).InsertTable(dt);
@@ -1929,9 +1930,10 @@ namespace IOAS.Controllers
                     dt2.Columns["TempVoucherNumber"].SetOrdinal(2);
                     dt2.Columns["VoucherPayee"].SetOrdinal(3);
                     dt2.Columns["Amount"].SetOrdinal(4);
+                    dt2.Columns["BankName"].SetOrdinal(5);
 
 
-                    ws.Cell(secondrow, 8).InsertTable(dt2);
+                    ws.Cell(secondrow, 9).InsertTable(dt2);
 
 
                     var rngTitle = ws.Range("D1:D1");

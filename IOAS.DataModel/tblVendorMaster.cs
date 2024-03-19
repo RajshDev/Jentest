@@ -64,5 +64,6 @@ namespace IOAS.DataModel
         public string Pincode { get; set; }
         public string City { get; set; }
         public Nullable<int> BankCountry { get; set; }
+        public Nullable<bool> isGstVendor { get; set; }
     }
 }

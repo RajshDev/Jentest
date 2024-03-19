@@ -3437,7 +3437,7 @@ namespace DataAccessLayer
                 throw ex;
             }
         }
-        public DataSet getCashBook(string FromDate, string ToDate, int BankId)
+        public DataSet getCashBook(string FromDate, string ToDate, int BankId,bool Cosolidated)
         {
             var connection = getConnection();
             //SqlParameter[] ReportParam = new SqlParameter[3];
@@ -3454,16 +3454,33 @@ namespace DataAccessLayer
                 DataSet ds = new DataSet();
                 using (SqlConnection conn = getConnection())
                 {
-                    SqlCommand sqlComm = new SqlCommand("CashBook", conn);
-                    sqlComm.Parameters.AddWithValue("@FromDate", FromDate);
-                    sqlComm.Parameters.AddWithValue("@ToDate", ToDate);
-                    sqlComm.Parameters.AddWithValue("@BankId", BankId);
-                    sqlComm.CommandType = CommandType.StoredProcedure;
-                    sqlComm.CommandTimeout = 2000;
-                    SqlDataAdapter da = new SqlDataAdapter();
-                    da.SelectCommand = sqlComm;
-                    da.SelectCommand.CommandTimeout = 1800;
-                    da.Fill(ds);
+                    if (Cosolidated == true)
+                    {
+                        SqlCommand sqlComm = new SqlCommand("ConsolidatedCashBook", conn);
+                        sqlComm.Parameters.AddWithValue("@FromDate", FromDate);
+                        sqlComm.Parameters.AddWithValue("@ToDate", ToDate);
+                        sqlComm.Parameters.AddWithValue("@BankId", BankId);
+                        sqlComm.CommandType = CommandType.StoredProcedure;
+                        sqlComm.CommandTimeout = 2000;
+                        SqlDataAdapter da = new SqlDataAdapter();
+                        da.SelectCommand = sqlComm;
+                        da.SelectCommand.CommandTimeout = 1800;
+                        da.Fill(ds);
+                    }
+                    else
+                    {
+                        SqlCommand sqlComm = new SqlCommand("CashBook", conn);
+                        sqlComm.Parameters.AddWithValue("@FromDate", FromDate);
+                        sqlComm.Parameters.AddWithValue("@ToDate", ToDate);
+                        sqlComm.Parameters.AddWithValue("@BankId", BankId);
+                        sqlComm.CommandType = CommandType.StoredProcedure;
+                        sqlComm.CommandTimeout = 2000;
+                        SqlDataAdapter da = new SqlDataAdapter();
+                        da.SelectCommand = sqlComm;
+                        da.SelectCommand.CommandTimeout = 1800;
+                        da.Fill(ds);
+                    }
+                    
                     return ds;
                 }
             }

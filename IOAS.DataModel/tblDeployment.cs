@@ -12,14 +12,10 @@ namespace IOAS.DataModel
     using System;
     using System.Collections.Generic;
     
-    public partial class tblPreviousFinYear
+    public partial class tblDeployment
     {
-        public int FinYearId { get; set; }
-        public string Year { get; set; }
-        public Nullable<System.DateTime> StartDate { get; set; }
-        public Nullable<System.DateTime> EndDate { get; set; }
-        public Nullable<bool> CurrentYearFlag { get; set; }
-        public Nullable<decimal> InterestPct { get; set; }
-        public Nullable<bool> CommitmentInclForInterest_f { get; set; }
+        public int Deploymentid { get; set; }
+        public string DeploymentStatus { get; set; }
+        public string DeploymentMessenge { get; set; }
     }
 }

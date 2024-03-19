@@ -63,5 +63,6 @@ namespace IOAS.DataModel
         public string SanctionOrderNo { get; set; }
         public Nullable<System.DateTime> SanctionOrderDate { get; set; }
         public Nullable<bool> IsBudgetHeadPosting { get; set; }
+        public Nullable<int> CategoryType { get; set; }
     }
 }
