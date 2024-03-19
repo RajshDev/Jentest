@@ -20,8 +20,6 @@ namespace IOAS.DataModel
         public IOASDBEntities()
             : base("name=IOASDBEntities")
         {
-            //this.Database.CommandTimeout = 360;
-            //this.Database.ExecuteSqlCommand("SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;");
         }
     
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
@@ -128,7 +126,6 @@ namespace IOAS.DataModel
         public virtual DbSet<tblForeignRemitDeductionDetail> tblForeignRemitDeductionDetail { get; set; }
         public virtual DbSet<tblForeignRemitDocumentDetail> tblForeignRemitDocumentDetail { get; set; }
         public virtual DbSet<tblForeignRemitExpenseDetail> tblForeignRemitExpenseDetail { get; set; }
-        public virtual DbSet<tblForeignRemittance> tblForeignRemittance { get; set; }
         public virtual DbSet<tblFunctionCheckList> tblFunctionCheckList { get; set; }
         public virtual DbSet<tblFunctionDocument> tblFunctionDocument { get; set; }
         public virtual DbSet<tblFunctionStatus> tblFunctionStatus { get; set; }
@@ -622,7 +619,6 @@ namespace IOAS.DataModel
         public virtual DbSet<tblOrderDetailPILog> tblOrderDetailPILog { get; set; }
         public virtual DbSet<tblOrderPILog> tblOrderPILog { get; set; }
         public virtual DbSet<tblOverallAnnualAccountsWithOpenRecExp> tblOverallAnnualAccountsWithOpenRecExp { get; set; }
-        public virtual DbSet<tblPreviousFinYear> tblPreviousFinYear { get; set; }
         public virtual DbSet<tblProjectAdhocStaffDetails> tblProjectAdhocStaffDetails { get; set; }
         public virtual DbSet<tblProjectInvoice> tblProjectInvoice { get; set; }
         public virtual DbSet<tblProjectNotConsiderForMailRpt> tblProjectNotConsiderForMailRpt { get; set; }
@@ -936,6 +932,8 @@ namespace IOAS.DataModel
         public virtual DbSet<tblProject> tblProject { get; set; }
         public virtual DbSet<vw_HonorariumDetails> vw_HonorariumDetails { get; set; }
         public virtual DbSet<vwCommitmentSpentBalance> vwCommitmentSpentBalance { get; set; }
+        public virtual DbSet<tblDeployment> tblDeployment { get; set; }
+        public virtual DbSet<tblForeignRemittance> tblForeignRemittance { get; set; }
     
         public virtual int AnnualAccounts(Nullable<System.DateTime> date, Nullable<System.DateTime> date2)
         {
