@@ -56,11 +56,14 @@
                                                                 <label class="required">Bank</label><br />
                                                                 @Html.TextBoxFor(m => m.BankHeadName, new { @class = "form-control", @id = "BankHeadName", @autocomplete = "off" })
                                                                 @Html.TextBoxFor(m => m.BankId, new { @class = "form-control dis-none", @id = "Bankid" })
-
-
-  </div>
+                                                            </div>
                                                         </div>
-
+                                                        <div class="col-md-3" style="text-align: left;">
+                                                            <div class="form-group custom-form-group  ">
+                                                                <label>Consolidated Report</label><br />
+                                                                @Html.CheckBoxFor(m => m.ConsolidatedReport, new { @id = "ConsolidatedReport" })
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -81,7 +84,7 @@
             <div class="col-md-12 mt-md mb-lg text-center">
                 <input type="submit" value="Generate Report" class="btn btn-primary" id="btnSubmit" />
                 @*<input type="submit" value="Generate Report to Excel" class="btn btn-primary" id="btnSubmit1" />*@
-             </div>
+            </div>
         </div>
     </div>
 
@@ -112,7 +115,6 @@
 <script>
 
     $(document).on('click', '#BankHeadName', function () {
-
         applyAutoComplete($('#BankHeadName'), $('#Bankid'), "../CoreAccounts/LoadBankAccountHead", undefined, undefined, undefined);
     });
     $('#FromDate,#ToDate').datepicker({ dateFormat: 'dd-MM-yy', changeYear: true });
@@ -151,14 +153,35 @@
         var fdate = $('#FromDate').val();
         var tdate = $('#ToDate').val();
         var BankId = $("#Bankid").val();
+        var Cosolidated = $('#ConsolidatedReport').is(":checked");
         @*var url = "@Url.Action("CashBook", "Reports")?fdate=" + fdate + "&tdate=" + tdate + "&BankId=" + BankId;
         window.location.href = url;*@
-        if (fdate != "" && tdate != "" && BankId != "") {
-          var url = "@Url.Action("CashBook", "Reports")?fdate=" + fdate + "&tdate=" + tdate + "&BankId=" + BankId;
+        if (Cosolidated == true) {
+            if (fdate != "" && tdate != "") {
+                var url = "@Url.Action("CashBook", "Reports")?fdate=" + fdate + "&tdate=" + tdate +  "&BankId=" + "0" +"&Cosolidated=" + Cosolidated;
+                window.location.href = url;
+            }
+            else {
+                $('#FailedAlert').html("From Date,To Date fields are required");
+                $('#Failed').modal('toggle');
+            }
+        }
+        else if (fdate != "" && tdate != "" && BankId != "") {
+            var url = "@Url.Action("CashBook", "Reports")?fdate=" + fdate + "&tdate=" + tdate + "&BankId=" + BankId + "&Cosolidated=" + false;
         window.location.href = url;
         } else {
             $('#FailedAlert').html("Bank,From Date,To Date fields are required");
             $('#Failed').modal('toggle');
         }
+    });
+    $('input[name="ConsolidatedReport"]').on('click', function () {
+            if ($('#ConsolidatedReport').is(":checked")) {
+                $('#BankHeadName').prop('readonly', true);
+                $('#BankHeadName').val('');
+            } else {
+                $('#BankHeadName').prop('readonly', false);
+            }
+
+        
     });
 </script>

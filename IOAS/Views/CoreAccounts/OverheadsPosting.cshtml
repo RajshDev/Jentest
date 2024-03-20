@@ -24,6 +24,10 @@
                     @Html.ValidationMessageFor(m => m.Source)
                     @Html.HiddenFor(m => m.OverheadsPostingId)
                     @Html.HiddenFor(m => m.NeedUpdateTransDetail)
+                    @Html.Hidden("varProjectClearingPayable")
+                    @Html.Hidden("varProjectExpenseCorpus")
+                    @Html.Hidden("varBank")
+                    @Html.Hidden("varSponCategory")
                     @Html.Hidden("TransactionTypeCode", "OHP")
                 </div>
             </div>
@@ -101,26 +105,42 @@
                                 </div>
                                 <div class="col-md-3">
                                     <div class="form-group custom-form-group">
-                                        <label>Project Number</label>
-                                        @*@Html.TextBoxFor(m => m.ProjectNumber, new { @class = "form-control", @id = "txtProjectNumber" })
-                                            @Html.TextBoxFor(m => m.SrchProjectId, new { @class = "form-control dis-none", @id = "txtProjectId" })
-                                            @Html.ValidationMessageFor(m => m.ProjectNumber)*@
-                                        @Html.DropDownListFor(m => m.SrchProjectId, new SelectList(ViewBag.ProjectList, "id", "name"), "Select any", new { @class = "form-control selectpicker", @id = "txtsrchProjectid" })
-                                        @Html.ValidationMessageFor(m => m.SrchProjectId)
+                                        <label>Project Number</label>                                       
+                                        @if (Model.OverheadsPostingId > 0) /*Edit*/
+                                        {
+                                            @Html.DropDownListFor(m => m.SrchProjectId, new SelectList(ViewBag.ProjectNumber, "id", "name", Model.SrchProjectId), "Select any", new { @class = "form-control", @id = "txtsrchProjectid" })
+                                            @Html.ValidationMessageFor(m => m.SrchProjectId)
+                                        }
+                                        else /*new*/
+                                        {
+                                            @Html.DropDownListFor(m => m.SrchProjectId, new SelectList(ViewBag.ProjectList, "id", "name"), "Select any", new { @class = "form-control", @id = "txtsrchProjectid" })
+                                            @Html.ValidationMessageFor(m => m.SrchProjectId)
+                                        }
+
                                     </div>
                                 </div>
                                 <div class="col-md-3">
                                     <div class="form-group custom-form-group">
                                         <label>Receipt Number</label>
-                                        @Html.DropDownListFor(m => m.ReceiptId, new SelectList(ViewBag.ReceiptList, "id", "name"), "Select any", new { @class = "form-control selectpicker", @id = "txtreceiptid" })
-                                        @Html.ValidationMessageFor(m => m.ReceiptId)
-                                        @*@Html.TextBoxFor(m => m.ReceiptNumber, new { @class = "form-control", @id = "txtReceiptNumber" })*@
-                                        @*@Html.TextBoxFor(m => m.ReceiptId, new { @class = "form-control dis-none", @id = "txtReceiptId" })*@
-                                        @Html.ValidationMessageFor(m => m.ReceiptId)
+                                        @if (Model.OverheadsPostingId > 0) /*Edit*/
+                                        {
+                                            if (ViewBag.ReceiptNumber != null)
+                                            {
+                                                @Html.DropDownListFor(m => m.ReceiptId, new SelectList(ViewBag.ReceiptNumber, "id", "name", Model.ReceiptId), "Select any", new { @class = "form-control", @id = "txtreceiptid" })
+                                                @Html.ValidationMessageFor(m => m.ReceiptId)
+                                            }
+                                        }
+                                        else
+                                        {
+                                            @Html.DropDownListFor(m => m.ReceiptId, new SelectList(ViewBag.ReceiptList, "id", "name"), "Select any", new { @class = "form-control", @id = "txtreceiptid", @disabled = true })
+                                            @Html.ValidationMessageFor(m => m.ReceiptId)
+                                        }
                                     </div>
                                 </div>
                                 <div class="col-md-1 mt20">
                                     <button id="btnSearch" type="button" class="btn btn-primary">Search</button>
+                                    @Html.Hidden("ProjectID")
+                                    @Html.Hidden("ReceiptID")
                                 </div>
                                 <div class="col-md-3">
                                     <div class="form-group custom-form-group">
@@ -132,9 +152,14 @@
                                 <div class="col-md-3">
                                     <div class="form-group custom-form-group">
                                         <label>Attachment</label>
-                                        <label class="required">Attachment: </label>
-                                        <input type="file" class="required" name="Document" />
-                                        @Html.ValidationMessageFor(m => m.Document)
+                                        @if (Model.OverheadsPostingId > 0)
+                                        {
+                                            <input type="file" name="Document" />
+                                        }
+                                        else
+                                        {
+                                            <input type="file" class="required" name="Document" />
+                                        }
                                     </div>
                                     <div class="form-group">
                                         <a href="@Url.Action("ShowDocument","Project",new { file = Model.DocumentName, filepath = Model.DocumentPath })" target="_blank">@Model.DocumentActualName</a>
@@ -371,7 +396,7 @@
                             <div class="col-md-2 pull-right">
                                 <div class="form-group custom-form-group">
                                     <label>Total PCF Amount</label>
-                                    @Html.TextBoxFor(m => m.TotalPCFAmount, new { @class = "form-control", @id = "txtTotalPCFValue" })
+                                    @Html.TextBoxFor(m => m.TotalPCFAmount, new { @class = "form-control", @id = "txtTotalPCFValue", @readonly = true })
                                     @Html.ValidationMessageFor(m => m.TotalPCFAmount)
                                 </div>
                             </div>
@@ -543,7 +568,7 @@
                             <div class="col-md-2 pull-right">
                                 <div class="form-group custom-form-group">
                                     <label>Total RMF Amount</label>
-                                    @Html.TextBoxFor(m => m.TotalRMFAmount, new { @class = "form-control", @id = "txtTotalRMFValue" })
+                                    @Html.TextBoxFor(m => m.TotalRMFAmount, new { @class = "form-control", @id = "txtTotalRMFValue", @readonly = true })
                                     @Html.ValidationMessageFor(m => m.TotalRMFAmount)
                                 </div>
                             </div>
@@ -714,7 +739,7 @@
                             <div class="col-md-2 pull-right">
                                 <div class="form-group custom-form-group">
                                     <label>Total Corpus Amount</label>
-                                    @Html.TextBoxFor(m => m.TotalCorpusAmount, new { @class = "form-control", @id = "txtTotalCorpusValue" })
+                                    @Html.TextBoxFor(m => m.TotalCorpusAmount, new { @class = "form-control", @id = "txtTotalCorpusValue", @readonly = true })
                                     @Html.ValidationMessageFor(m => m.TotalCorpusAmount)
                                 </div>
                             </div>
@@ -821,7 +846,7 @@
                             <div class="col-md-2 pull-right">
                                 <div class="form-group custom-form-group">
                                     <label>Total ICSR Overhead Amount</label>
-                                    @Html.TextBoxFor(m => m.TotalICSROHAmount, new { @class = "form-control", @id = "txtTotalICSROHValue" })
+                                    @Html.TextBoxFor(m => m.TotalICSROHAmount, new { @class = "form-control", @id = "txtTotalICSROHValue", @readonly = true })
                                     @Html.ValidationMessageFor(m => m.TotalICSROHAmount)
                                 </div>
                             </div>
@@ -927,7 +952,7 @@
                             <div class="col-md-2 pull-right">
                                 <div class="form-group custom-form-group">
                                     <label>Total DDF Amount</label>
-                                    @Html.TextBoxFor(m => m.TotalDDFAmount, new { @class = "form-control", @id = "txtTotalDDFValue" })
+                                    @Html.TextBoxFor(m => m.TotalDDFAmount, new { @class = "form-control", @id = "txtTotalDDFValue", @readonly = true })
                                     @Html.ValidationMessageFor(m => m.TotalDDFAmount)
                                 </div>
                             </div>
@@ -1039,7 +1064,7 @@
                             <div class="col-md-2 pull-right">
                                 <div class="form-group custom-form-group">
                                     <label>Total Staff Welfare Amount</label>
-                                    @Html.TextBoxFor(m => m.TotalStaffWelfareAmount, new { @class = "form-control", @id = "txtTotalStaffwelfareamt" })
+                                    @Html.TextBoxFor(m => m.TotalStaffWelfareAmount, new { @class = "form-control", @id = "txtTotalStaffwelfareamt", @readonly = true })
                                     @Html.ValidationMessageFor(m => m.TotalStaffWelfareAmount)
                                 </div>
                             </div>
@@ -1312,8 +1337,19 @@
             }
         });
     $('#txtsrchProjectid').change(function () {
-        debugger;            
-        var ProjectId = $('#txtsrchProjectid').val();
+        debugger;
+        var ProjectId = Number($('#txtsrchProjectid').val());
+        if (ProjectId != 0) {
+            $('#txtreceiptid').prop('disabled', false);
+
+        } else {
+            $('#txtreceiptid').prop('disabled', true);
+            $('#txtreceiptid').empty();
+            $('#txtreceiptid').append($('<option/>', {
+                value: 0,
+                text: "Select Receipt"
+            }));
+        }
         $.getJSON("../CoreAccounts/GetReceiptListbyProject", { ProjectId: ProjectId },
                     function (data) {
                         var select = $("select[name='ReceiptId']");
@@ -1327,13 +1363,39 @@
                                 value: itemData.id,
                                 text: itemData.name
                             })).selectpicker('refresh');;
-                        });                     
-                            
-                    });     
+                        });
+                        var enabledReceiptId = select.val();
+                        console.log("ID of the enabled receipt:", enabledReceiptId);
+                    });
     });
         $('#btnSearch').on('click', function () {
             // var token = $("input[name=__RequestVerificationToken]").val();
             $(".loading-bg").removeClass('dis-none');
+            var OHId = $("#OverheadsPostingId").val() || 0;
+            $.ajax({
+                type: "GET",
+                url: "@Url.Action("GetOverheadsrecprojdetails", "CoreAccounts")",
+                data: { "ohId": OHId },
+                traditional: true,
+                dataType: "json",
+                success: function (data) {
+                    for (var i = 0; i < data.length; i++) {
+                        $("#ProjectID").val(data[i].ProjectId);
+                        $("#ReceiptID").val(data[i].ReceiptId);
+                    }
+                    $(".loading-bg").addClass('dis-none');
+                },
+                error: function (err) {
+                    console.log("error : " + err);
+                    $(".loading-bg").addClass('dis-none');
+                }
+            });
+            var selReceiptId = Number($("#txtreceiptid").val());
+            var selProjectId = Number($('#txtsrchProjectid').val());
+            var projId = Number($("#ProjectID").val());
+            var receiptId = Number($("#ReceiptID").val());
+
+            if (!(selReceiptId == receiptId) && !(selProjectId == projId))
             GetOverheadsDetails();
         });
         function GetOverheadsDetails() {
@@ -2165,9 +2227,38 @@
             }
         });
     }
+
+        var interstate_f = false;
         function GetTransactionDetails() {
             var interstate_f = false;
-            //var typecode = $('#transtypecode').val();
+            var amt = Number($('input[name="TotalAmount"]').val());
+            var corpusAmt = Number($('#txtTotalCorpusValue').val());
+            var bankAmt = amt - corpusAmt;
+            $("#varBank").val(bankAmt.toFixed(2));
+            $("#varProjectClearingPayable").val((amt).toFixed(2));
+            $("#varProjectExpenseCorpus").val((corpusAmt).toFixed(2));
+            var ProjectId = Number($('#txtsrchProjectid').val());
+            console.log(ProjectId);
+            if (!isNaN(ProjectId)) {
+                $.ajax({
+                    url: "GetSponType",
+                    type: "GET",
+                    data: {
+                        projectId: ProjectId
+                    },
+                    success: function (result) {
+                        //console.log('result ' + result.value);
+                        $("#varSponCategory").val(result);
+                    },
+                    error: function (err) {
+                        console.log("error : " + err);
+                    }
+                });
+            }
+            FillTransactionDetails();
+    }
+    @* function GetTransactionDetails() {
+        var interstate_f = false;
             //EmptyExpenseDeductionDetails();
             $.ajax({
                 type: "GET",
@@ -2186,7 +2277,7 @@
                     //});
                     if (i == 0) {
                         var trEle = $('#tbodyExpenseList tr:first');
-                        $(trEle).find('input[name$=".Amount"]').val('');
+                        //$(trEle).find('input[name$=".Amount"]').val('');
                         $(trEle).find('input[name$=".TransactionType"]').val(item.TransactionType);
                         $(trEle).find('#lblTransType').text(item.TransactionType);
                         $(trEle).find('input[name$=".IsJV"]').val(item.IsJV);
@@ -2211,7 +2302,7 @@
                         });
                     } else {
                         var trEleNew = $('#tbodyExpenseList tr:first').clone().find('input').val('').end();
-                        $(trEleNew).find('input[name$=".Amount"]').val('');
+                        //$(trEleNew).find('input[name$=".Amount"]').val('');
                         $(trEleNew).find("input[name='ExpenseDetail.Index']").val(i);
                         $(trEleNew).find('input[name$=".TransactionType"]').val(item.TransactionType);
                         $(trEleNew).find('#lblTransType').text(item.TransactionType);
@@ -2288,7 +2379,7 @@
             }
         });
         //}
-        }
+        }*@
         function CalculateContraTotal() {
             var ttlCrVal = 0, ttlDrVal = 0;
             $('#tbodyDr input[name$=".Amount"]').each(function (i, rowEle) {
@@ -2509,12 +2600,13 @@
             var receiptid = $('select[name="ReceiptId"]').val() || 0;
             var todate = $('input[name="ToDate"]').val();
             var prjctid = $("#txtsrchProjectid").val() || 0;
+            var OHId = $("#OverheadsPostingId").val() || 0;
             // var tdsvalue = parseFloat($(this).closest('tr').find('input[name$=".TDSValue"]').val() || 0);
             $.ajax({
                 type: "GET",
                 url: '@Url.Action("_OverheadsPostingPIRMFShare", "CoreAccounts")',
                 data: {
-                    Projectid: projectid, RMFValue: rmfvalue, ReceiptId: receiptid, Todate: todate, srchPjctId: prjctid
+                    Projectid: projectid, RMFValue: rmfvalue, ReceiptId: receiptid, Todate: todate, srchPjctId: prjctid, oHId: OHId
                 },
                 contentType: "application/x-www-form-urlencoded",
                 success: function (data) {
@@ -2531,11 +2623,12 @@
             var receiptid = $('select[name="ReceiptId"]').val() || 0;
             var todate = $('input[name="ToDate"]').val();
             var prjctid = $("#txtsrchProjectid").val() || 0;
+            var OHId = $("#OverheadsPostingId").val() || 0;
             $.ajax({
                 type: "GET",
                 url: '@Url.Action("_OverheadsPostingPIPCFShare", "CoreAccounts")',
                 data: {
-                    Projectid: projectid, PCFValue: pcfvalue, ReceiptId: receiptid, Todate: todate, srchPjctId: prjctid
+                    Projectid: projectid, PCFValue: pcfvalue, ReceiptId: receiptid, Todate: todate, srchPjctId: prjctid, oHId: OHId
                 },
                 contentType: "application/x-www-form-urlencoded",
                 success: function (data) {
@@ -2703,7 +2796,7 @@
                     $('#Validation').modal('show');
                 }
             }
-           
+
             //var availablebalance = $("input[name='PjctAvailableBalanceAmount']").val();
             //var distributiontype = $('#txtdistributiontype').val();
             //var distributionamount = $('#txtDistributionAmount').val();
@@ -2836,7 +2929,7 @@
             //    }
             //});
 
-
+            $('#NeedUpdateTransDetail').val('true');
             if ($('#NeedUpdateTransDetail').val().toLowerCase() == 'true') {
                 GetTransactionDetails();
             }
@@ -2874,13 +2967,13 @@
             data: { "ProjectId": ProjectId },
             dataType: "json",
             success: function (result) {
-                isFreezeDataValid = result;               
+                isFreezeDataValid = result;
             }
         });
         console.log(isFreezeDataValid);
         return isFreezeDataValid;
     }
-        
+
 </script>
 <script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
 <script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
