@@ -56,7 +56,7 @@
                                     <th style="width:200px;" class="required">Amount</th>
                                 </tr>
                             </thead>
-                            <tbody id="tbodyExpenseList">
+                            <tbody id="tbodyExpenseList">   
                                 @if (Model.ExpenseDetail != null && Model.ExpenseDetail.Count() > 0)
                                 {
                                     var count = 0;
@@ -347,6 +347,7 @@
         var tCode = $('#TransactionTypeCode').val();
         var rcm = $('#RCM_f').is(':checked') || false;
         var stateCode = $('#lblStateCode').html() || null;
+        
         var interstate = null
         if (stateCode != null)
             interstate = IsInterState(stateCode);
@@ -354,6 +355,7 @@
         if (typeof TDSObj != 'undefined')
             cpyTDSObj = TDSObj;
         EmptyExpenseDeductionDetails();
+        debugger;
         $.ajax({
             type: "GET",
             url: "@Url.Action("GetTransactionDetails", "CoreAccounts")",
@@ -414,8 +416,7 @@
                         variableValue = parseFloat($('#varRoundoffDebit').val()) || 0;
                     else if (variableName.indexOf('varRoundoffCredit') != -1 && variableValue == 0)
                         variableValue = parseFloat($('#varRoundoffCredit').val()) || 0;
-                    if (i == 0)
-                    {
+                    if (i == 0) {
                         var trEle = $('#tbodyExpenseList tr:first');
                         $(trEle).find('input[name$=".Amount"]').val(variableValue);
                         $(trEle).find('input[name$=".TransactionType"]').val(item.TransactionType);
@@ -458,7 +459,32 @@
                             });
                             $(trEle).find('input[name$=".Amount"]').val($("#varBank").val());
                         }
-                    } else {
+                        if (grpId == 18 && $("#varProjectExpenseCorpus").val() > 1) {
+                            $(trEle).find('input[name$=".Amount"]').val($("#varProjectExpenseCorpus").val());
+                        }
+                        var sponCate = Number($("#varSponCategory").val()); 
+                        console.log('grpId :' + grpId + 'item.AccountHeadList.length : ' + item.AccountHeadList.length + 'sponCate : ' + sponCate);
+                        if (grpId == 38 && sponCate >= 0) {
+                            $.each(item.AccountHeadList, function (idx, itemData) {
+                               
+                                if (sponCate == 0 || sponCate == 2) {
+                                    if (itemData.id == 20) {
+                                        $(trEle).find('input[name$=".Amount"]').val(variableValue);
+                                    } else {
+                                        $(trEle).find('input[name$=".Amount"]').val(0);
+                                    }
+                                }
+                                else if (sponCate == 1) {
+                                    if (itemData.id == 148) {
+                                        $(trEle).find('input[name$=".Amount"]').val(variableValue);
+                                    } else {
+                                        $(trEle).find('input[name$=".Amount"]').val(0);
+                                    }
+                                } 
+                            });
+                        }
+                    }
+                        else {
                         var trEleNew = $('#tbodyExpenseList tr:first').clone().find('input').val('').end();
                         var index = $('#tbodyExpenseList tr:last').find("input[name='ExpenseDetail.Index']").val();
                         index = parseInt(index) + 1;
@@ -511,6 +537,37 @@
 
                             });
                             $(trEle).find('input[name$=".Amount"]').val($("#varBank").val());
+                        }
+                       
+                        if (grpId == 18  && $("#varProjectExpenseCorpus").val() > 1) {
+                            var corpus = Number($("#varProjectExpenseCorpus").val());
+                            $(trEleNew).find('input[name$=".Amount"]').val(corpus);
+                            
+                        }
+                        var sponCate = Number($("#varSponCategory").val()); 
+                        console.log('grpId :' + grpId + 'item.AccountHeadList.length : ' + item.AccountHeadList.length + 'sponCate : ' + sponCate);
+                        if (grpId == 38  && sponCate >= 0) {
+                           
+                            $.each(item.AccountHeadList, function (idx, itemData) {                                    
+                                if (itemData.id == 20) {
+                                    if (sponCate == 0 || sponCate == 2) {
+                                        console.log('sponCate1 : ' + sponCate);
+                                        $(trEleNew).find('input[name$=".Amount"]').val(variableValue);
+                                    }
+                                    else
+                                        $(trEleNew).find('input[name$=".Amount"]').val(0);
+                                }
+                                else 
+                                if (itemData.id == 148) {
+                                    if (sponCate == 1) {
+                                        console.log('sponCate2 : ' + sponCate);
+                                        $(trEleNew).find('input[name$=".Amount"]').val(variableValue);
+                                    }
+                                    else {
+                                        $(trEleNew).find('input[name$=".Amount"]').val(0);
+                                    }
+                                } 
+                            });
                         }
                         if (isHaveTdsArry) {
                             var indxTds = 0;

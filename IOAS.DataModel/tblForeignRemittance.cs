@@ -82,5 +82,17 @@ namespace IOAS.DataModel
         public string FOTTReferenceNumber { get; set; }
         public string UserReferenceNumber { get; set; }
         public string RemittanceCurrencyCode { get; set; }
+        public Nullable<int> ForeignRemittance_ITTDSType { get; set; }
+        public string ForeignRemittance_ITTDSDate { get; set; }
+        public Nullable<int> ForeignRemittance_ITTDSPercentage { get; set; }
+        public Nullable<int> RCMCategory { get; set; }
+        public Nullable<int> RCM_GSTINPercentage { get; set; }
+        public Nullable<int> RCMType { get; set; }
+        public Nullable<int> IT_TDS_Value { get; set; }
+        public Nullable<decimal> Vendor_Payable_Amt { get; set; }
+        public Nullable<decimal> RCM_Value_Per { get; set; }
+        public Nullable<decimal> IT_TDS_Value_INR { get; set; }
+        public Nullable<decimal> Vendor_Payable_Value_INR { get; set; }
+        public Nullable<decimal> RCM_Value_Per_INR { get; set; }
     }
 }

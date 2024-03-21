@@ -294,34 +294,34 @@ namespace IOAS.GenericServices
                 List<ProcessGuidelineWorkflowDocument> model = new List<ProcessGuidelineWorkflowDocument>();
                 using (var context = new IOASDBEntities())
                 {
-                    var records = (from PGD in context.tblProcessGuidelineDetail
-                                   join WF in context.tblProcessGuidelineWorkFlow on PGD.ProcessGuidelineDetailId equals WF.ProcessGuidelineDetailId
-                                   join WFD in context.tblProcessGuidelineWorkflowDocument on WF.ProcessGuidelineWorkFlowId equals WFD.ProcessGuidelineWorkflowId
-                                   where PGD.ProcessGuidelineId == processGuideLineId && WF.ApproverId == userId
-                                   select new
-                                   {
-                                       WFD.ProcessGuidelineWorkflowDocumentId,
-                                       WFD.ProcessGuidelineWorkflowId,
-                                       WFD.DocumentId,
-                                       WFD.DocumentName,
-                                       WFD.DocumentType,
-                                       WFD.IsRequired
-                                   }).ToList();
-                    if (records != null && records.Count > 0)
-                    {
-                        for (int i = 0; i < records.Count; i++)
-                        {
-                            model.Add(new ProcessGuidelineWorkflowDocument
-                            {
-                                ProcessGuidelineWorkflowId = Convert.ToInt32(records[i].ProcessGuidelineWorkflowId),
-                                ProcessGuidelineWorkflowDocumentId = Convert.ToInt32(records[i].ProcessGuidelineWorkflowDocumentId),
-                                DocumentId = Convert.ToInt32(records[i].DocumentId),
-                                DocumentName = records[i].DocumentName,
-                                DocumentType = records[i].DocumentType,
-                                IsRequired = Convert.ToBoolean(records[i].IsRequired)
-                            });
-                        }
-                    }
+                    //var records = (from PGD in context.tblProcessGuidelineDetail
+                    //               join WF in context.tblProcessGuidelineWorkFlow on PGD.ProcessGuidelineDetailId equals WF.ProcessGuidelineDetailId
+                    //               join WFD in context.tblProcessGuidelineWorkflowDocument on WF.ProcessGuidelineWorkFlowId equals WFD.ProcessGuidelineWorkflowId
+                    //               where PGD.ProcessGuidelineId == processGuideLineId && WF.ApproverId == userId
+                    //               select new
+                    //               {
+                    //                   WFD.ProcessGuidelineWorkflowDocumentId,
+                    //                   WFD.ProcessGuidelineWorkflowId,
+                    //                   WFD.DocumentId,
+                    //                   WFD.DocumentName,
+                    //                   WFD.DocumentType,
+                    //                   WFD.IsRequired
+                    //               }).ToList();
+                    //if (records != null && records.Count > 0)
+                    //{
+                    //    for (int i = 0; i < records.Count; i++)
+                    //    {
+                    //        model.Add(new ProcessGuidelineWorkflowDocument
+                    //        {
+                    //            ProcessGuidelineWorkflowId = Convert.ToInt32(records[i].ProcessGuidelineWorkflowId),
+                    //            ProcessGuidelineWorkflowDocumentId = Convert.ToInt32(records[i].ProcessGuidelineWorkflowDocumentId),
+                    //            DocumentId = Convert.ToInt32(records[i].DocumentId),
+                    //            DocumentName = records[i].DocumentName,
+                    //            DocumentType = records[i].DocumentType,
+                    //            IsRequired = Convert.ToBoolean(records[i].IsRequired)
+                    //        });
+                    //    }
+                    //}
                 }
 
                 return model;
@@ -842,8 +842,11 @@ namespace IOAS.GenericServices
                 }
 
                 this.record = InsertProcessTransaction(model);
-                if (model.Validatestatus== "")
-                return this;
+                if (model.Validatestatus == "WarningStatus")
+                {
+                    this.errorMsg = "Bill is Duplicate";
+                    return this;
+                }
                 else
                 {
                     this.errorMsg = "";
@@ -935,7 +938,7 @@ namespace IOAS.GenericServices
                         join pglh in context.tblProcessGuidelineHeader on pgld.ProcessGuidelineId equals pglh.ProcessGuidelineId
                         join tf in context.tblFunction on pglh.FunctionId equals tf.FunctionId
                         join tm in context.tblModules on tf.ModuleID equals tm.ModuleID
-                        where pt.RefNumber == refNumber && pt.Closed_F == true && pt.ProcessGuidelineDetailId == ProcessGuidelineDetailId
+                        where pt.RefNumber == refNumber && pt.ProcessGuidelineDetailId == ProcessGuidelineDetailId
                         && valuesToCheck.Contains(tm.ModuleID)
                         select pt.RefNumber).FirstOrDefault();
 

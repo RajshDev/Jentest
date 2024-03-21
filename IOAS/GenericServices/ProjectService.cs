@@ -4392,7 +4392,13 @@ namespace IOAS.GenericServices
 
 
                     }
-
+                    var Freezelist = (from cc in context.tblAllocationFreezeLog
+                                      where cc.ProjectId == projectid && cc.IsFreeze == 1 && cc.Status == "Active"
+                                      select new { cc.AllocationHead }).ToList();
+                    if (Freezelist.Count!=0)
+                    {
+                        Projectdetails.Freezelist = Freezelist.Select(item => (int?)item.GetType().GetProperty("AllocationHead").GetValue(item)).ToList();
+                    }
 
                     var enhanceallocation = (from C in context.tblProjectEnhancementAllocation
                                              where C.ProjectId == projectid && C.IsCurrentVersion == true

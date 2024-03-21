@@ -54,5 +54,6 @@ namespace IOAS.DataModel
         public Nullable<int> StateCode { get; set; }
         public Nullable<int> StateId { get; set; }
         public Nullable<bool> IsTravelAgency { get; set; }
+        public Nullable<bool> isGstVendor { get; set; }
     }
 }

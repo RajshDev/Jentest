@@ -21,6 +21,7 @@ namespace IOAS.Models
         public int BOAId { get; set; }
         public string TransactionType { get; set; }
         public int BankHeadName { get; set; }
+        public bool ConsolidatedReport { get; set; }
         public int BankHeadID { get; set; }
         public string PayeeName { get; set; }
         public string TransactionTypeCode { get; set; }

@@ -1666,7 +1666,7 @@ new { @class = "form-control", @id = "txtprocategory",@required = "required" })
 
                                                 <div name="primaryAllocateDiv" class="row m-b-sm">
                                                     <div class="col-md-3">
-                                                        @Html.DropDownList("YearWiseHead[0].AllocationHeadYW", new SelectList(ViewBag.allocatehead, "id", "name"), "Select Allocation head", new { @class = "form-control" })
+                                                        @Html.DropDownList("YearWiseHead[0].AllocationHeadYW", new SelectList(ViewBag.allocatehead, "id", "name"), "Select Allocation head", new { @class = "form-control", @onchange = "BudgetHeadChange(this);" })
                                                     </div>
                                                     <div class="col-md-3">
                                                         <div>
@@ -1750,7 +1750,7 @@ new { @class = "form-control", @id = "txtprocategory",@required = "required" })
 
                                 <div id="primaryAllocateDiv" class="row m-b-sm">
                                     <div class="col-md-3">
-                                        @Html.DropDownList("Allocationhead", new SelectList(ViewBag.allocatehead, "id", "name"), "Select Allocation head", new { @class = "form-control", @id = "allocatehead" })
+                                        @Html.DropDownList("Allocationhead", new SelectList(ViewBag.allocatehead, "id", "name"), "Select Allocation head", new { @class = "form-control", @id = "allocatehead", @onchange = "BudgetHeadChange(this);" })
                                         <div> @Html.ValidationMessageFor(m => m.Allocationhead)</div>
                                     </div>
                                     <div class="col-md-3">
@@ -1864,7 +1864,7 @@ new { @class = "form-control", @id = "txtprocategory",@required = "required" })
                                     <div class="col-md-4">
                                         <div class="form-group custom-form-group" id="staffcategory">
                                             @Html.DropDownList("CategoryofStaffs", new SelectList(ViewBag.staffcategory, "id", "name"), "Select staff category",
-                   new { @class = "form-control", @id = "allocatehead" })
+                   new { @class = "form-control", @id = "allocatehead", @onchange = "BudgetHeadChange(this);" })
                                             <div> @Html.ValidationMessageFor(m => m.CategoryofStaffs)</div>
                                         </div>
                                     </div>
@@ -2140,7 +2140,7 @@ new { @class = "form-control", @id = "txtprocategory",@required = "required" })
     <script>
         $(document).ready(function () {
             $('#myModal').modal('show');
-            console.log(FreezeHeadList);
+            console.log(FreezeHeadList);            
         });
 
     </script>
@@ -2303,7 +2303,7 @@ new { @class = "form-control", @id = "txtprocategory",@required = "required" })
                 $('#AIDescription').val("");
             }
 
-        });
+        });        
     });
 
     //karthi
@@ -2387,7 +2387,7 @@ new { @class = "form-control", @id = "txtprocategory",@required = "required" })
                    origin: ["top", "left"]
                }
            });
-
+        
     });
     $('#IsYearWiseAllocation').click(function () {
         if ($(this).is(":checked")) {
@@ -2779,9 +2779,12 @@ new { @class = "form-control", @id = "txtprocategory",@required = "required" })
     $('#btnAddAllocationhead').click(function () {
         $(".select2-subhead").select2("destroy");
         var cln = $("#primaryAllocateDiv:first").clone().find("input").val("").end();
+        cln.find("select,input").removeAttr('disabled');
+        cln.find("select,input").prop('disabled', false);
         cln.find(".select2-subhead").empty();
         var indx = Math.random().toString(36).substring(2) + (new Date()).getTime().toString(36);
         cln.find(".select2-subhead").attr("id", "subhead_" + indx)
+        cln.find("a.disabled").removeClass("disabled"); 
         //cln.find(".select2-subhead").select2({
         //    tags: true,
         //    width: '100%',
@@ -2794,7 +2797,7 @@ new { @class = "form-control", @id = "txtprocategory",@required = "required" })
             tags: true,
             width: '100%',
             placeholder: "Enter subhead"
-        });
+        });       
     });
     //function to initialize select2
     function initializeSelect2(selectElementObj) {
@@ -3217,21 +3220,21 @@ new { @class = "form-control", @id = "txtprocategory",@required = "required" })
             isValid = true;
         }
 
-         //  allocation head freeze 
+        // //  allocation head freeze 
 
-        var allocateheads = [];
-        $('select[name="Allocationhead"]').each(function (idx, val) { allocateheads.push($(val).val()); });
+        //var allocateheads = [];
+        //$('select[name="Allocationhead"]').each(function (idx, val) { allocateheads.push($(val).val()); });
         
-        for (var k = 1; k < allocateheads.length; ++k) {
+        //for (var k = 1; k < allocateheads.length; ++k) {
         
-            if (allocateheads[k] == allocateheads[k - 1]) {
-                $('#MsgValidation').html("Allocation head already exist. Please select a different allocation.");
-                $('#ValidationModal').modal('toggle');
-                return false;
-            }
+        //    if (allocateheads[k] == allocateheads[k - 1]) {
+        //        $('#MsgValidation').html("Allocation head already exist. Please select a different allocation.");
+        //        $('#ValidationModal').modal('toggle');
+        //        return false;
+        //    }
             
-            isValid = true;
-        }
+        //    isValid = true;
+        //}
         if (totalstaffs != sumofstaffs) {
             $('#MsgValidation').html("The project staffs total is not equal to the categorywise total.");
             $('#ValidationModal').modal('toggle');
@@ -4693,13 +4696,17 @@ new { @class = "form-control", @id = "txtprocategory",@required = "required" })
             return true;                 // this can be used to perform other action if there are no steps
         }
         else if (currentTab == 0) {
+            var CreateProject = $('input[name="ProjectID"]').val();
+            if (CreateProject != "") {
+                freezelistcheck();
+            }
             if ($('#finyear').val() == 0 || $('#finyear').val() == null) {
                 hadError = true;
                 $('#MsgValidation').html("The Financial Year field is required.");
                 $('#ValidationModal').modal('toggle');
             }
         }
-        else if (currentTab == 3) {
+        else if (currentTab == 3) {            
             if ($("#typeofproject").val() == 2) {
                 var validationMsg = CollaborativeShareValidation();
                 if (validationMsg != 'valid') {
@@ -4727,7 +4734,7 @@ new { @class = "form-control", @id = "txtprocategory",@required = "required" })
             }
             
         } else if (currentTab == 4) {
-            freezelistcheck();
+            
             if ($('#IsYearWiseAllocation').is(":checked")) {
                 var validationMsg = validateYWAllocation()
                 if (validationMsg != 'valid') {
@@ -4768,7 +4775,7 @@ new { @class = "form-control", @id = "txtprocategory",@required = "required" })
                     return false;
                 }
             }
-            if (projecttype == 2 && taxtype == 3) {
+            if (projecttype == 2 && taxtype == 3) {                
                 if (taxdocname == "" && existsDocPath == '') {
                     isValid = false;
                     $('#MsgValidation').html("Please attach document proof for tax exemption");
@@ -4877,23 +4884,7 @@ new { @class = "form-control", @id = "txtprocategory",@required = "required" })
         }
     });
 
-
-     function GetFreezeValueData(AccHead) {
-        var ProjectId = $("#ProjectId").val();        
-        var isFreezeDataValid = 0;
-        $.ajax({
-            type: "GET",
-            async: false,
-            url: '@Url.Action("GetFreezeAndAllocationData", "Project")',
-            data: {
-                "ProjectId": ProjectId, "AllocationId": AccHead},
-            dataType: "json",
-            success: function (result) {
-                isFreezeDataValid = result;                
-                }
-        });
-        return isFreezeDataValid;
-    }
+    
 
     function freezelistcheck() {
 
@@ -4911,12 +4902,25 @@ new { @class = "form-control", @id = "txtprocategory",@required = "required" })
                 var txtamt = parentElement1.find('input[name="Allocationvalue"]');
                 $(txtamt).prop("disabled", true);
 
+            } else {
+                
             }
 
             console.log(selectedValue);
         });
+        
 
     }
+    function BudgetHeadChange(ele) {
+
+        var firstmessfreeze = (FreezeList.indexOf(parseInt(ele.value)));
+        if (firstmessfreeze >= 0) {
+            //var selectedText = ele.options[ele.selectedIndex].text;
+            messageBox('Allocation Head Freezed', "warning");
+            ele.selectedIndex = -1;
+        }
+    }
+
 </script>
 <link href="@Url.Content("~/Content/IOASContent/assets/bootstrap-select/css/bootstrap-select.min.css")" rel="stylesheet" />
 <script src="@Url.Content("~/Content/IOASContent/assets/bootstrap-select/js/bootstrap-select.min.js")"></script>

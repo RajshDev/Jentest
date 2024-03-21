@@ -1791,6 +1791,28 @@ namespace IOAS.Controllers
             return Json(output, JsonRequestBehavior.AllowGet);
         }
 
+        public ActionResult _LoginPartial()
+        {
+            DeployeModels model = new DeployeModels();
+            return View();
+        }
+
+        [HttpGet]
+        public JsonResult TulaGlobalAlert()
+        {
+            try
+            {
+                
+                var data = Common.GetDevelopmentMessage();
+                return Json(data, JsonRequestBehavior.AllowGet);               
+            }
+            catch (Exception ex)
+            {
+                
+                return Json("", JsonRequestBehavior.AllowGet);
+            }
+        }
+
 
         #region UserManual
         [HttpGet]

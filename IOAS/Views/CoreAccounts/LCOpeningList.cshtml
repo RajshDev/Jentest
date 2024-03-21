@@ -251,19 +251,22 @@
                  itemTemplate: function (value, item) {
                      var $result = jsGrid.fields.control.prototype.itemTemplate.apply(this, arguments);
                      if (item.Status == "Draft LC") {
-                         statusList = [{ id: "", name: "Select Action" }, { id: "Edit", name: "Edit" }, { id: "Establish", name: "Establish" }, { id: "View", name: "View" }, { id: "PrintLCDraft", name: "Print LC Draft" }]
+                         statusList = [{ id: "", name: "Select Action" }, { id: "Edit", name: "Edit" }, { id: "Establish", name: "Establish" }, { id: "View", name: "View" }, { id: "PrintLCDraft", name: "Print LC Draft" }, { id:"Cancel",name:"Cancel"}]
                      }                     
                      else if (item.Status == "Established") {
-                         statusList = [{ id: "", name: "Select Action" }, { id: "ViewEstablish", name: "View" }, { id: "PrintEstablishLCWithoutChange", name: "Print LC Without Changes" }, { id: "PrintEstablishLCWithChange", name: "Print LC With Changes" }]
+                         statusList = [{ id: "", name: "Select Action" }, { id: "ViewEstablish", name: "View" }, { id: "PrintEstablishLCWithoutChange", name: "Print LC Without Changes" }, { id: "PrintEstablishLCWithChange", name: "Print LC With Changes" }, { id: "Cancel", name: "Cancel" }]
                      }
                      else if (item.Status == "Establish LC Open") {
-                         statusList = [{ id: "", name: "Select Action" }, { id: "EditEstablish", name: "Edit Establish LC" }, { id: "ViewEstablish", name: "View" }, { id: "PrintEstablishLCWithoutChange", name: "Print LC Without Changes" }, { id: "PrintEstablishLCWithChange", name: "Print LC With Changes" }, { id: "Submit for Approval", name: "Submit for Approval" }]
+                         statusList = [{ id: "", name: "Select Action" }, { id: "EditEstablish", name: "Edit Establish LC" }, { id: "ViewEstablish", name: "View" }, { id: "PrintEstablishLCWithoutChange", name: "Print LC Without Changes" }, { id: "PrintEstablishLCWithChange", name: "Print LC With Changes" }, { id: "Submit for Approval", name: "Submit for Approval" }, { id: "Cancel", name: "Cancel" }]
                      }
                      //else if (item.Status == "Establish LC Open") {
                      //    statusList = [{ id: "", name: "Select Action" }, { id: "EditEstablish", name: "Edit Establish" }, { id: "View", name: "View" }, { id: "Print", name: "Print" }, { id: "Submit for Approval", name: "Submit for Approval" }]
                      //}
                      else if (item.Status == "Establish LC Approval Pending") {
-                         statusList = [{ id: "", name: "Select Action" }, { id: "ViewEstablish", name: "View" },  { id: "PrintEstablishLCWithoutChange", name: "Print LC Without Changes" }, { id: "PrintEstablishLCWithChange", name: "Print LC With Changes" }]
+                         statusList = [{ id: "", name: "Select Action" }, { id: "ViewEstablish", name: "View" }, { id: "PrintEstablishLCWithoutChange", name: "Print LC Without Changes" }, { id: "PrintEstablishLCWithChange", name: "Print LC With Changes" },  { id: "Cancel", name: "Cancel" }]
+                     }
+                     else if (item.Status == "LC Amended") {
+                         statusList = [{ id: "", name: "Select Action" }, { id: "ViewEstablish", name: "View" }, { id: "PrintEstablishLCWithoutChange", name: "Print LC Without Changes" }, { id: "PrintEstablishLCWithChange", name: "Print LC With Changes" }, { id: "Cancel", name: "Cancel" }]
                      }
                      else
                      {
@@ -413,6 +416,34 @@
                          else if (selVal == "ViewEstablish") {
                              var url = '@Url.Action("LCOpeningEstablishView", "CoreAccounts")?LCdraftId=' + item.LCOpeningId;
                              window.location.href = url;
+                         }
+                         else if (selVal == "Cancel") {                                                 
+                             var approveurl = 'LCOpeningCancel';
+                             var choice = confirm("Are you sure, Do you want to Cancel?");
+                             if (choice === true) {
+
+                                 $.ajax({
+                                     type: "GET",
+                                     url: approveurl,
+                                     data: { LCdraftId: item.LCOpeningId },
+                                     contentType: "application/json; charset=utf-8",
+                                     success: function (result) {
+                                         var reslt = result;
+                                         if (result == "Success") {
+                                             $('#alertSuccess').html("LC has been Cancelled successfully.");
+                                             $('#Success').modal('toggle');
+                                             $("#LCOpeningList").jsGrid("search");
+                                         } else  {
+                                             $('#FailedAlert').html("Something went wrong please contact administrator");
+                                             $('#Failed').modal('toggle');
+                                             $("#LCOpeningList").jsGrid("search");
+                                         }
+                                     },
+                                     error: function (err) {
+                                         console.log("error1 : " + err);
+                                     }
+                                 });
+                             }
                          }
                          $(this).val("");
                          return false;

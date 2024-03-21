@@ -3073,6 +3073,8 @@ namespace IOAS.Models
         [Range(0, 9999999999999999.99)]
         public Nullable<decimal> Amount { get; set; }
         public string BudgetHeadName { get; set; }
+
+        public Nullable<int> Freezeval { get; set; }
     }
 
     public class ProjectTransferModel
@@ -3836,7 +3838,7 @@ namespace IOAS.Models
         public Nullable<int> ProjectId { get; set; }
         public Nullable<int> ReceiptId { get; set; }
         public string ReceiptNumber { get; set; }
-        public List<MasterlistviewModel> ProjectNumber { get; set; } = new List<MasterlistviewModel>();
+        public List<MasterlistviewModel> ProjectNumber { get; set; } = new List<MasterlistviewModel>();    
         public List<MasterlistviewModel> Bank { get; set; } = new List<MasterlistviewModel>();
         public string NameofPI { get; set; }
         public Nullable<int> PIId { get; set; }
@@ -3855,7 +3857,7 @@ namespace IOAS.Models
         public Nullable<int> ProjectId { get; set; }
         public Nullable<int> ReceiptId { get; set; }
         public string ReceiptNumber { get; set; }
-        public List<MasterlistviewModel> ProjectNumber { get; set; }
+        public List<MasterlistviewModel> ProjectNumber { get; set; } = new List<MasterlistviewModel>();
         public List<MasterlistviewModel> Bank { get; set; } = new List<MasterlistviewModel>();
         public Nullable<int> BankId { get; set; }
         public string NameofPI { get; set; }
@@ -3891,7 +3893,7 @@ namespace IOAS.Models
         public Nullable<int> ProjectId { get; set; }
         public Nullable<int> ReceiptId { get; set; }
         public string ReceiptNumber { get; set; }
-        public List<MasterlistviewModel> ProjectNumber { get; set; }
+        public List<MasterlistviewModel> ProjectNumber { get; set; } = new List<MasterlistviewModel>();
         public List<MasterlistviewModel> Bank { get; set; } = new List<MasterlistviewModel>();
         public Nullable<int> BankId { get; set; }
         public string NameofPI { get; set; }
@@ -3909,7 +3911,7 @@ namespace IOAS.Models
         public Nullable<int> ProjectId { get; set; }
         public Nullable<int> ReceiptId { get; set; }
         public string ReceiptNumber { get; set; }
-        public List<MasterlistviewModel> ProjectNumber { get; set; }
+        public List<MasterlistviewModel> ProjectNumber { get; set; } = new List<MasterlistviewModel>();
         public List<MasterlistviewModel> Bank { get; set; } = new List<MasterlistviewModel>();
         public Nullable<int> BankId { get; set; }
         public string NameofPI { get; set; }
@@ -3927,7 +3929,7 @@ namespace IOAS.Models
         public Nullable<int> ProjectId { get; set; }
         public Nullable<int> ReceiptId { get; set; }
         public string ReceiptNumber { get; set; }
-        public List<MasterlistviewModel> ProjectNumber { get; set; }
+        public List<MasterlistviewModel> ProjectNumber { get; set; } = new List<MasterlistviewModel>();
         public List<MasterlistviewModel> Bank { get; set; } = new List<MasterlistviewModel>();
         public Nullable<int> BankId { get; set; }
         public string NameofPI { get; set; }
@@ -4555,6 +4557,14 @@ namespace IOAS.Models
     //    public List<PaymentBreakUpDetailModel> PaymentBreakDetail { get; set; }
     //}
     #region Bill Status
+
+    public class DeployeModels
+    {
+        public int Deploymentid { get; set; }
+        public string DeploymentStatus { get; set; }
+        public string DeploymentMessenge { get; set; }
+       
+    }
     public class BillStatusModel
     {
         public int BillId { get; set; }
@@ -4813,6 +4823,13 @@ namespace IOAS.Models
         public string AccountGroupName { get; set; }
         public string AccountHeadName { get; set; }
     }
+
+    public class ProjectReceiptDetails
+    {
+        public int? ProjectId { get; set; }
+        public int? ReceiptId { get; set; }
+    }
+
     public class BillExpenseDetailModel
     {
         public Nullable<Int32> BillExpenseDetailId { get; set; }
@@ -5920,9 +5937,12 @@ namespace IOAS.Models
         public bool IsBudgetHeadPosting { get; set; }
         public string ReceiptNumber { get; set; }
         public Nullable<int> ReceiptId { get; set; }
-        [Required]
-        [Display(Name = "Category")]
+        //[Required]
+        //[Display(Name = "Category")]
         public Nullable<int> Category { get; set; }
+        //[RequiredIf("Category", 16, ErrorMessage = "CategoryType  field is required")]
+        //[Display(Name = "CategoryType")]
+        public Nullable<int> CategoryType { get; set; }
         public string Remarks { get; set; }
 
         [RequiredIfNot("Category", 18, ErrorMessage = "Bank field is required")]
@@ -5949,6 +5969,7 @@ namespace IOAS.Models
         [RequiredIf("ProjectValidation", true, ErrorMessage = "Project field is required")]
         public Nullable<int> ProjectId { get; set; }
         public bool IsProject { get; set; }
+        [RequiredIf("Category", 18, ErrorMessage = "Negative No. field is required")]
         public Nullable<int> ModeOfReceipt { get; set; }
         public string RefNo { get; set; }
         public Nullable<DateTime> RefDate { get; set; }
@@ -5978,6 +5999,7 @@ namespace IOAS.Models
         public string ModeofPayment { get; set; }
         public string BankName { get; set; }
         public string ReceiptDate { get; set; }
+        public Nullable<Decimal> ReceiptAmount { get; set; }
         public bool PFInit { get; set; }
         public string InvoiceNo { get; set; }
         public Nullable<int> InvoiceId { get; set; }
@@ -7571,4 +7593,7 @@ namespace IOAS.Models
     //}
 
     #endregion
+
+
+
 }

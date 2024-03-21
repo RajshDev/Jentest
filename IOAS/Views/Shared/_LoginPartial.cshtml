@@ -1,10 +1,15 @@
-﻿@using IOAS.Infrastructure
+﻿@*@model IOAS.Models.DeployeModels*@
+
+@using IOAS.Infrastructure
 @{
     var username = User.Identity.Name;
 
     var userRoles = Common.GetRoleId(username);
 
+    //var isDeploy = Common.GetDevelopmentMessage();
+
 }
+
 @if (Request.IsAuthenticated)
 {
     using (Html.BeginForm("LogOff", "Account", FormMethod.Post, new { id = "logoutForm" }))
@@ -13,12 +18,11 @@
         <div class="row">
 
             <div class="navbar navbar-hd-bg ">
-                @*<div class="navbar-header">
-                        <h3 class="text-red">Testing site</h3>
-                    </div>*@
-                <div class="col-md-offset-2 ts-st-bg">
-                    <h2>Financial Year 2020-2021</h2>
+                <div class="col-md-offset-1 ts-st-bg">
+                    <h2>Financial Year 2020-2021 </h2>
                 </div>
+                <div id="TulaAlert" class="text-dark bg-warning"></div>
+
                 <ul class="nav navbar-right">
 
                     <li class="dropdown pull-right user-pr-icon">
@@ -57,6 +61,29 @@
                     </li>
                 </ul>
             </div>
+       
         </div>
     }
 }
+<script>
+    $(document).ready(function () {
+        ReadyDeployment();
+    });
+
+    function ReadyDeployment() {
+
+            var Isdeploye = 0;
+            $.ajax({
+                type: "GET",
+                async: false,
+                url: '@Url.Action("TulaGlobalAlert", "Account")',
+                dataType: "json",
+                success: function (result) {
+                    Isdeploye = result;
+                    $('#TulaAlert').html (result);
+                }
+            });
+            return Isdeploye;
+    };
+    
+</script>
