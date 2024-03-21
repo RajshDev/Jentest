@@ -126,7 +126,7 @@
                                         {
                                             if (ViewBag.ReceiptNumber != null)
                                             {
-                                                @Html.DropDownListFor(m => m.ReceiptId, new SelectList(ViewBag.ReceiptNumber, "id", "name", Model.ReceiptId), "Select any", new { @class = "form-control", @id = "txtreceiptid" })
+                                                @Html.DropDownListFor(m => m.ReceiptId, new SelectList(ViewBag.ReceiptNumber, "id", "name"), "Select any", new { @class = "form-control", @id = "txtreceiptid", @disabled = true })
                                                 @Html.ValidationMessageFor(m => m.ReceiptId)
                                             }
                                         }
@@ -145,13 +145,20 @@
                                 <div class="col-md-3">
                                     <div class="form-group custom-form-group">
                                         <label>Remarks</label>
+                                        @if(Model.OverheadsPostingId > 0)
+                                        {
+                                        <textarea class="form-control" name="remarks">@Model.Remarks</textarea>
+                                        }
+                                        else
+                                        {
                                         @Html.TextAreaFor(m => m.Remarks, new { @class = "form-control" })
+                                        }
                                     </div>
 
                                 </div>
                                 <div class="col-md-3">
                                     <div class="form-group custom-form-group">
-                                        <label>Attachment</label>
+                                        <label class="required">Attachment</label>
                                         @if (Model.OverheadsPostingId > 0)
                                         {
                                             <input type="file" name="Document" />
@@ -160,6 +167,7 @@
                                         {
                                             <input type="file" class="required" name="Document" />
                                         }
+                                        @Html.ValidationMessageFor(m => m.Document)
                                     </div>
                                     <div class="form-group">
                                         <a href="@Url.Action("ShowDocument","Project",new { file = Model.DocumentName, filepath = Model.DocumentPath })" target="_blank">@Model.DocumentActualName</a>
@@ -2702,11 +2710,23 @@
             //... and run a function that will display the correct step indicator:
             //fixStepIndicator(n)
         }
-
-        function nextPrev(n) {
-            // This function will figure out which tab to display
+        function validateDropdown() {
+            var validationElement = document.querySelector('[data-valmsg-for="Source"]');
+            if (validationElement) {
+                $("#alert").text("Request Reference field is required.");
+                $('#Validation').modal('show');                
+                return true;
+            }
+        }
+    function nextPrev(n) {
+            debugger;
             var x = document.getElementsByClassName("tab");
-            // Exit the function if any field in the current tab is invalid:
+            if ($('#Source').val() == '') {
+                if (validateDropdown()) {
+                    console.log("Validation passed");
+                    return false;
+                }
+            }
             if (n > 0 && !validateForm(n)) return false;
             if (currentTab + n < x.length) {
                 // Hide the current tab:
@@ -2717,6 +2737,7 @@
                 formSave();
                 return false;
             }
+
             // Increase or decrease the current tab by 1:
             currentTab = currentTab + n;
 
@@ -2779,9 +2800,9 @@
                 var totalrmfpercent = parseFloat($(this).closest('tr').find('input[name$=".TtlRMFPercent"]').val()) || 0;
                 var inputRecNo = $(this).closest('tr').find('input[name$=".ReceiptNumber"]').val();
 
-                if (totalrmfpercent != 100 || totalpcfpercent != 100) {
-                    msg = "The PCF and RMF share is not equal to 100 %. Please check and update this receipt number " + inputRecNo;
-                }
+                //if (totalrmfpercent != 100 || totalpcfpercent != 100) {
+                //    msg = "The PCF and RMF share is not equal to 100 %. Please check and update this receipt number " + inputRecNo;
+                //}
             });
             if (msg != 'valid') {
                 hadError = true;
@@ -2973,6 +2994,8 @@
         console.log(isFreezeDataValid);
         return isFreezeDataValid;
     }
+
+
 
 </script>
 <script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
