@@ -18379,7 +18379,7 @@ namespace IOAS.Controllers
                 if (taxableAmt > projectData.NetBalance)
                     msg = "Negative Receipt Amount Should not be greater than NetBalance.";
             }
-            else if (model.CategoryType == 1 && model.Category == 16)
+            else if (model.CategoryType == 2 && model.Category == 16)
             {
 
                 drAmt = drAmt + ttlTax;
