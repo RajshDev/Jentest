@@ -31285,7 +31285,7 @@ namespace IOAS.Infrastructure
                 using (var context = new IOASDBEntities())
                 {
                     list = (from P in context.tblRCTConsultantEntry
-                            where P.Consultant_ServiceNo.Contains(term) && P.Consultant_Status == "Active"
+                            where P.Consultant_ServiceNo.Contains(term) && P.Consultant_Status == "Completed"
 
 
                             orderby P.Consultant_ServiceNo

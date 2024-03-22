@@ -55,7 +55,7 @@
 
                                         <div class="col-md-3">
                                             <div class="form-group custom-form-group  ">
-                                                <label>Consultant Name</label>                                                
+                                                <label>Consultant Name</label>
                                                 <h4 id="lblConsultantEmpName">@Html.DisplayFor(m => m.ConsultantName)</h4>
                                             </div>
                                         </div>
@@ -73,12 +73,12 @@
                                                 <h4 id="lblConsultantEmail">@Html.DisplayFor(m => m.Email)</h4>
                                             </div>
                                         </div>
-                                        <div class="col-md-3">
-                                            <div class="form-group custom-form-group mb-sm ">
-                                                <label>Contact No</label>
-                                                <h4 id="lblConsultantContactNo">@Html.DisplayFor(m => m.Consultant_ContactNumber)</h4>
-                                            </div>
-                                        </div>
+                                        @*<div class="col-md-3">
+                                                <div class="form-group custom-form-group mb-sm ">
+                                                    <label>Contact No</label>
+                                                    <h4 id="lblConsultantContactNo">@Html.DisplayFor(m => m.Consultant_ContactNumber)</h4>
+                                                </div>
+                                            </div>*@
                                         <div class="col-md-3">
                                             <div class="form-group custom-form-group ">
                                                 <label>Consultant_Type</label>
@@ -87,20 +87,21 @@
                                         </div>
                                         <div class="col-md-3">
                                             <div class="form-group custom-form-group ">
-                                                <label>Appointment Start</label>
+                                                <label>Service Start Date</label>
                                                 <h4 id="lblConsultantAppStart">@Html.DisplayFor(m => m.Appointment_Start)</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group ">
+                                                <label>Service End Date</label>
+                                                <h4 id="lblConsultantAppEnd">@Html.DisplayFor(m => m.Appointment_End)</h4>
+                                                @Html.HiddenFor(M => M.Appointment_End, new { @id = "txtAppointmentEnd" })
                                             </div>
                                         </div>
 
                                     </div>
                                     <div class="row">
-                                        <div class="col-md-3">
-                                            <div class="form-group custom-form-group ">
-                                                <label>Appointment End</label>
-                                                <h4 id="lblConsultantAppEnd">@Html.DisplayFor(m => m.Appointment_End)</h4>
-                                                @Html.HiddenFor(M => M.Appointment_End, new { @id = "txtAppointmentEnd" })
-                                            </div>
-                                        </div>
+
                                         <div class="col-md-3">
                                             <div class="form-group custom-form-group ">
                                                 <label>Payment Type</label>
@@ -120,13 +121,23 @@
                                                 <h4 id="lblConsultantBookedCommit">@Html.DisplayFor(m => m.Booked_Commitment)</h4>
                                             </div>
                                         </div>
-
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group ">
+                                                <label>Commitment No</label>
+                                                <h4 id="lblCommitmentno">@Html.DisplayFor(m => m.CommitmentNo)</h4>
+                                                @Html.HiddenFor(m => m.CommitmentNo, new { @class = "form-control", @readonly = "readonly" })
+                                                @Html.HiddenFor(m => m.Consultant_CommitmentID, new { @class = "form-control", @readonly = "readonly" })
+                                            </div>
+                                        </div>
                                     </div>
                                     <div class="row ">
                                         <div class="col-md-3">
+
                                             <div class="form-group custom-form-group mb-sm ">
                                                 <label>Commitment Balance</label>
                                                 <h4 id="lblConsultantCommitBala">@Html.DisplayFor(m => m.Commitment_Balance)</h4>
+                                                @Html.HiddenFor(m => m.Commitment_Balance, new { @class = "form-control", @readonly = "readonly" })
+                                                @Html.HiddenFor(m => m.Commitment_FinalBalance, new { @id = "hdnCommitmentFinalBalance", @class = "form-control", @readonly = "readonly" })
                                             </div>
                                         </div>
                                         <div class="col-md-3">
@@ -166,9 +177,9 @@
                                                     <table class="table alter-table mb-null">
                                                         <thead>
                                                             <tr>
-                                                                <th class="required">Other</th>
-                                                                <th class="required">Payment / Deduction</th>
-                                                                <th class="required">Amount</th>
+                                                                <th>Other</th>
+                                                                <th>Payment / Deduction</th>
+                                                                <th>Amount</th>
                                                                 <th>Remarks</th>
                                                                 <th></th>
                                                             </tr>
@@ -221,18 +232,18 @@
                                                                 <tr>
                                                                     <td>
                                                                         @Html.DropDownList("CONOTHDetail[0].OtherType", new SelectList(ViewBag.OtherType, "id", "name"), "Select Other",
-                         new { @class = "form-control", @id = "othdectype_0", @required = "required", @title = "Other type field is required." })
+                                                                        new { @class = "form-control", @id = "othdectype_0" })
                                                                         @Html.ValidationMessage("CONOTHDetail[0].OtherType")
                                                                         @Html.Hidden("CONOTHDetail.Index", 0)
 
                                                                     </td>
                                                                     <td>
                                                                         @Html.DropDownList("CONOTHDetail[0].PaymentDeductionType", new SelectList(ViewBag.List, "id", "name"), "Select",
-                                                                 new { @class = "form-control", @id = "paydec", @required = "required", @title = "Payment / Deduction field is required." })
+                                                                 new { @class = "form-control", @id = "paydec" })
                                                                         @Html.ValidationMessage("CONOTHDetail[0].PaymentDeductionType")
                                                                     </td>
                                                                     <td>
-                                                                        @Html.TextBox("CONOTHDetail[0].Amount", "", new { @class = "form-control", @id = "othAmount_", @onkeypress = "return isNumberKey(event)", @autocomplete = "off", @required = "required", @title = "Amount field is required." })
+                                                                        @Html.TextBox("CONOTHDetail[0].Amount", "", new { @class = "form-control", @id = "othAmount_", @onkeypress = "return isNumberKey(event)", @autocomplete = "off" })
                                                                         @Html.ValidationMessage("CONOTHDetail[0].Amount")
                                                                     </td>
                                                                     <td>
@@ -245,7 +256,7 @@
                                                                 </tr>
                                                             }
 
-                                                            </tbody>
+                                                        </tbody>
 
                                                     </table>
 
@@ -269,8 +280,8 @@
                                             <div class="row">
                                                 <div class="col-md-4">
                                                     <div class="form-group custom-form-group">
-                                                        @Html.RadioButtonFor(M => M.FeeType, "Old Employee", new { @id = "IsOld", @checked = "checked" })&nbsp;<label>Current Fee</label>
-                                                        @Html.RadioButtonFor(M => M.FeeType, "New Employee", new { @id = "IsNew"  })&nbsp;<label>Arrear Fee</label> <br>
+                                                        @Html.RadioButtonFor(M => M.FeeType, "Old Employee", new { @id = "IsOld", @checked = "checked" })&nbsp;<label id="lblcurrentfee">Current Fee</label>
+                                                        @Html.RadioButtonFor(M => M.FeeType, "New Employee", new { @id = "IsNew" })&nbsp;<label id="lblarrearfee">Arrear Fee</label> <br>
                                                     </div>
                                                 </div>
 
@@ -343,83 +354,177 @@
                                                 </div>
                                             </div>
 
+
+
+                                            <div class="col-md-4 mt30">
+                                                <div class="bl-lg-panel-box   pb-null">
+                                                    <div class="form-group custom-form-group mb-s-md">
+                                                        <label class="col-md-6">GST Percentage:</label>
+                                                        <span class="col-md-6 " id="spanGSTPer"> @Html.DisplayFor(m => m.GSTPercentage) </span> @*(@Model.GSTPercentage)*@
+                                                        @Html.HiddenFor(m => m.GSTPercentage)
+                                                        @Html.HiddenFor(m => m.GSTStatusType, new { @id = "hdnGSTStatusType" })
+
+                                                    </div>
+
+                                                    <div class="form-group custom-form-group mb-s-md">
+                                                        <label class="col-md-6">GST Value:</label>
+                                                        <span class="col-md-6 " id="spanGstnewValue"> @Html.DisplayFor(m => m.GSTValue) </span>@*@Model.GSTValue</span>*@
+                                                        @Html.HiddenFor(m => m.GSTValue)
+                                                    </div>
+
+                                                    <div class="form-group custom-form-group mb-s-md">
+                                                        <label class="col-md-6">ITC Eligibility:</label>
+                                                        <span class="col-md-6 " id="spanITCEligi"> </span>
+                                                        @Html.HiddenFor(m => m.GSTEligibility, new { @id = "hdnGSTEligibility" })
+                                                    </div>
+
+                                                    <div class="form-group custom-form-group mb-s-md" id="divitcper">
+                                                        <label class="col-md-6">ITC Percentage:</label>
+                                                        <span class="col-md-6 " id="spanITCPer"> @Html.DisplayFor(m => m.ITCPercentage) </span> @*(@Model.GSTPercentage)*@
+                                                        @Html.HiddenFor(m => m.ITCPercentage)
+                                                    </div>
+
+                                                    <div class="form-group custom-form-group mb-s-md" id="divitcvalue">
+                                                        <label class="col-md-6">ITC Value:</label>
+                                                        <span class="col-md-6 " id="spanITCValue"> @Html.DisplayFor(m => m.ITCValue) </span>@*@Model.GSTValue</span>*@
+                                                        @Html.HiddenFor(m => m.ITCValue)
+                                                    </div>
+                                                    <div class="form-group custom-form-group mb-s-md">
+                                                        <label class="col-md-6">RCM Eligibility:</label>
+                                                        <span class="col-md-6 " id="spanRCMEligi"> </span>
+                                                        @Html.HiddenFor(m => m.RCMEligibility, new { @id = "hdnrcmEligibility" })
+                                                        @Html.HiddenFor(m => m.RCMType, new { @id = "hdnrcmRCMType" })
+                                                    </div>
+                                                    <div class="form-group custom-form-group mb-s-md" id="divRcmpay">
+                                                        <label class="col-md-6">RCM Payable:</label>
+                                                        <span class="col-md-6 " id="spanRCMPa"> @Html.DisplayFor(m => m.RCMPayable) </span>@*@Model.ITTDSValue</span>*@
+                                                        @Html.HiddenFor(m => m.RCMPayable)
+                                                    </div>
+
+                                                    <div class="form-group custom-form-group mb-s-md" id="divRCMPayRec">
+                                                        <label class="col-md-6">RCM Payable/Receivable:</label>
+                                                        <span class="col-md-6 " id="spanRCMPR"> @Html.DisplayFor(m => m.RCMPayableReceivable) </span>@*@Model.ITTDSValue</span>*@
+                                                        @Html.HiddenFor(m => m.RCMPayableReceivable)
+                                                    </div>
+
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-4 mt30">
+                                                <div class="bl-lg-panel-box   pb-null">
+
+                                                    <div class="form-group custom-form-group mb-s-md">
+                                                        <label class="col-md-6">ITTDSPercentage:</label>
+                                                        <span class="col-md-6 " id="spanITTDS"> @Html.DisplayFor(m => m.ITTDSPercentage) </span>@*@Model.ITTDSValue</span>*@
+                                                        @Html.HiddenFor(m => m.ITTDSPercentage)
+                                                    </div>
+
+                                                    <div class="form-group custom-form-group mb-s-md">
+                                                        <label class="col-md-6">ITTDSValue:</label>
+                                                        <span class="col-md-6 " id="spannewITTDSValue"> @Html.DisplayFor(m => m.ITTDSValue) </span>@*@Model.ITTDSValue</span>*@
+                                                        @Html.HiddenFor(m => m.ITTDSValue)
+                                                    </div>
+                                                    <div class="form-group custom-form-group">
+                                                        <label class="col-md-6">GSTTDSPercentage:</label>
+                                                        <span class="col-md-6" id="spanGSTTDS"> @Html.DisplayFor(m => m.GSTTDSPercentage) </span>@*@Model.GSTTDSValue</span>*@
+                                                        @Html.HiddenFor(m => m.GSTTDSPercentage)
+                                                        @Html.HiddenFor(m => m.GSTTDSStatusType, new { @id = "hdnGSTTDSType" })
+                                                    </div>
+                                                    <div class="form-group custom-form-group">
+                                                        <label class="col-md-6">GSTTDSValue:</label>
+                                                        <span class="col-md-6" id="spannewGSTTDSValue"> @Html.DisplayFor(m => m.GSTTDSValue) </span>@*@Model.GSTTDSValue</span>*@
+                                                        @Html.HiddenFor(m => m.GSTTDSValue)
+                                                    </div>
+
+                                                </div>
+                                            </div>
+
                                         </div>
                                     </div>
+
+
 
                                     <div class="col-md-4 mt30">
                                         <div class="bl-lg-panel-box   pb-null">
                                             <div id="prjDetails">
                                                 <div class="form-group custom-form-group mb-s-md">
-                                                    <label class="col-md-6">Basic Amount</label>
+                                                    <label class="col-md-6">Basic Amount:</label>
                                                     <span id="span_basicamt" class="col-md-6"> @Html.DisplayFor(m => m.BasicAmount)</span>
                                                     @*(@Model.BasicAmount)*@
                                                     @Html.HiddenFor(m => m.BasicAmount)
                                                 </div>
                                                 <div class="form-group custom-form-group mb-s-md">
-                                                    <label class="col-md-6">Deduction</label>
-                                                    <span class="col-md-6" id="spanDeduction"> @Html.DisplayFor(m => m.Deduction) </span> @*(@Model.GSTPercentage)*@
+                                                    <label class="col-md-6">Deduction:</label>
+                                                    <span class="col-md-6" id="spanDeduction"> @Html.DisplayFor(m => m.Deduction) </span>
                                                     @Html.HiddenFor(m => m.Deduction)
-                                                </div>
-                                                <div class="form-group custom-form-group mb-s-md">
-                                                    <label class="col-md-6">GST Percentage</label>
-                                                    <span class="col-md-6 " id="spanGSTPer"> @Html.DisplayFor(m => m.GSTPercentage) </span> @*(@Model.GSTPercentage)*@
-                                                    @Html.HiddenFor(m => m.GSTPercentage)
                                                 </div>
 
                                                 <div class="form-group custom-form-group mb-s-md">
-                                                    <label class="col-md-6">GST Value</label>
+                                                    <label class="col-md-6">OtherPayment:</label>
+                                                    <span class="col-md-6 " id="spanOtherPayment"> @Html.DisplayFor(m => m.OtherPayment) </span>@*@Model.OtherPayment</span>*@
+                                                    @Html.HiddenFor(m => m.OtherPayment)
+                                                </div>
+                                                <div class="form-group custom-form-group mb-s-md">
+                                                    <label class="col-md-6">GST Value:</label>
                                                     <span class="col-md-6 " id="spanGstValue"> @Html.DisplayFor(m => m.GSTValue) </span>@*@Model.GSTValue</span>*@
                                                     @Html.HiddenFor(m => m.GSTValue)
                                                 </div>
 
                                                 <div class="form-group custom-form-group mb-s-md">
-                                                    <label class="col-md-6">Invoice Value</label>
+                                                    <label class="col-md-6">Invoice Value:</label>
                                                     <span class="col-md-6 " id="spanIncValue">  @Html.DisplayFor(m => m.InvoiceValue) </span> @*@Model.InvoiceValue</span>*@
                                                     @Html.HiddenFor(m => m.InvoiceValue)
                                                 </div>
 
-                                                <div class="form-group custom-form-group mb-s-md">
-                                                    <label class="col-md-6">OtherPayment</label>
-                                                    <span class="col-md-6 " id="spanOtherPayment"> @Html.DisplayFor(m => m.OtherPayment) </span>@*@Model.OtherPayment</span>*@
-                                                    @Html.HiddenFor(m => m.OtherPayment)
-                                                </div>
+                                                @*<div class="form-group custom-form-group mb-s-md">
+                                                        <label class="col-md-6">GrossPay:</label>
+                                                        <span class="col-md-6 " id="spanGrossPay"> @Html.DisplayFor(m => m.GrossPay) </span>
+                                                        @Html.HiddenFor(m => m.GrossPay)
+                                                    </div>*@
+
+                                                @*<div class="form-group custom-form-group mb-s-md">
+                                                        <label class="col-md-6">ITTDSPercentage</label>
+                                                        <span class="col-md-6 " id="spanITTDS"> @Html.DisplayFor(m => m.ITTDSPercentage) </span>
+                                                        @Html.HiddenFor(m => m.ITTDSPercentage)
+                                                    </div>*@
 
                                                 <div class="form-group custom-form-group mb-s-md">
-                                                    <label class="col-md-6">GrossPay</label>
-                                                    <span class="col-md-6 " id="spanGrossPay"> @Html.DisplayFor(m => m.GrossPay) </span>@*@Model.GrossPay</span>*@
-                                                    @Html.HiddenFor(m => m.GrossPay)
-                                                </div>
-
-                                                <div class="form-group custom-form-group mb-s-md">
-                                                    <label class="col-md-6">ITTDSPercentage</label>
-                                                    <span class="col-md-6 " id="spanITTDS"> @Html.DisplayFor(m => m.ITTDSPercentage) </span>@*@Model.ITTDSValue</span>*@
-                                                    @Html.HiddenFor(m => m.ITTDSPercentage)
-                                                </div>
-
-                                                <div class="form-group custom-form-group mb-s-md">
-                                                    <label class="col-md-6">ITTDSValue</label>
+                                                    <label class="col-md-6">ITTDSValue:</label>
                                                     <span class="col-md-6 " id="spanITTDSValue"> @Html.DisplayFor(m => m.ITTDSValue) </span>@*@Model.ITTDSValue</span>*@
                                                     @Html.HiddenFor(m => m.ITTDSValue)
                                                 </div>
+
                                                 <div class="form-group custom-form-group">
-                                                    <label class="col-md-6">GSTTDSPercentage</label>
-                                                    <span class="col-md-6" id="spanGSTTDS"> @Html.DisplayFor(m => m.GSTTDSPercentage) </span>@*@Model.GSTTDSValue</span>*@
-                                                    @Html.HiddenFor(m => m.GSTTDSPercentage)
-                                                </div>
-                                                <div class="form-group custom-form-group">
-                                                    <label class="col-md-6">GSTTDSValue</label>
+                                                    <label class="col-md-6">GSTTDSValue:</label>
                                                     <span class="col-md-6" id="spanGSTTDSValue"> @Html.DisplayFor(m => m.GSTTDSValue) </span>@*@Model.GSTTDSValue</span>*@
                                                     @Html.HiddenFor(m => m.GSTTDSValue)
                                                 </div>
                                                 <div class="form-group custom-form-group">
-                                                    <label class="col-md-6 hgt-txt">Net Balance</label>
+                                                    <label class="col-md-6 hgt-txt">Net Pay:</label>
                                                     <span class="col-md-6 hgt-txt" id="spanNetBal"> @Html.DisplayFor(m => m.NetAmount) </span> @*@Model.NetAmount</span>*@
                                                     @Html.HiddenFor(m => m.NetAmount)
                                                 </div>
 
                                             </div>
                                         </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group">
+                                                <label>DA Comments</label><br>
+                                                @Html.TextAreaFor(m => m.PRDAComments, new { @class = "form-control" })
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 reg-no custom-reg-no">
+                                            <div class="form-group custom-form-group">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Commitment Deduction Value</label><br>
+                                                    @Html.TextBoxFor(m => m.CommitmentDeductionValue, new { @class = "form-control", @readonly = "readonly", @id = "txtcdv" })
+                                                </div>
+                                            </div>
+                                        </div>
+
                                     </div>
+
+
 
                                 </div>
                             </div>
@@ -435,6 +540,7 @@
                                         <div class="row">
                                             <div class="col-md-12">
                                                 <h4>Other Documents:</h4>
+
                                                 <div class="">
                                                     <table class="table alter-table mb-null">
                                                         <thead>
@@ -446,56 +552,56 @@
                                                         </thead>
                                                         <tbody id="OtherDoc">
                                                             @{
-                                                                @*if (Model.OtherDocList != null)
+                                                                if (Model.OtherDocList != null)
+                                                                {
+                                                                    foreach (var item in Model.OtherDocList)
                                                                     {
-                                                                        foreach (var item in Model.OtherDocList)
-                                                                        {
-                                                                            var docName = "OtherDocList[" + doccount + "].DocumentName";
-                                                                            var doc = "OtherDocList[" + doccount + "].Document";
-                                                                            <tr>
-                                                                                <td>
-                                                                                    <h4>@item.DocumentName</h4>
-                                                                                    @Html.TextBoxFor(m => m.OtherDocList[doccount].DocumentName, new { @class = "form-control dis-none" })
-                                                                                </td>
-                                                                                <td>
-                                                                                    @if (!string.IsNullOrEmpty(item.DocumentPath))
+                                                                        var docName = "OtherDocList[" + doccount + "].DocumentName";
+                                                                        var doc = "OtherDocList[" + doccount + "].Document";
+                                                                        <tr>
+                                                                            <td>
+                                                                                <h4>@item.DocumentName</h4>
+                                                                                @Html.TextBoxFor(m => m.OtherDocList[doccount].DocumentName, new { @class = "form-control dis-none" })
+                                                                            </td>
+                                                                            <td>
+                                                                                @if (!string.IsNullOrEmpty(item.DocumentPath))
+                                                                                {
+                                                                                    if (!string.IsNullOrEmpty(item.DocumentName))
                                                                                     {
-                                                                                        if (!string.IsNullOrEmpty(item.DocumentName))
-                                                                                        {
-                                                                                            @Html.ActionLink(item.DocumentName, "ShowDocument", new { Controller = "Account", filepath = "Requirement", file = item.DocumentPath }, new { @name = "DocDownload", @target = "_blank" })
-                                                                                        }
-                                                                                        else
-                                                                                        {
-                                                                                            @Html.ActionLink(item.DocumentFileName, "ShowDocument", new { Controller = "Account", filepath = "Requirement", file = item.DocumentPath }, new { @name = "DocDownload", @target = "_blank" })
-                                                                                        }
+                                                                                        @Html.ActionLink(item.DocumentName, "ShowDocument", new { Controller = "Account", filepath = "Requirement", file = item.DocumentPath }, new { @name = "DocDownload", @target = "_blank" })
                                                                                     }
-                                                                                    <input type="file" class="dis-none" name="@doc" />&nbsp; &nbsp; &nbsp;
-                                                                                </td>
-                                                                                <td>
-                                                                                    <a href="javascript:void(0)" class="btn-sm btn btn-danger removeOtherDoc dis-none"><i class="ion-android-close"></i></a>
-                                                                                </td>
-                                                                            </tr>
-                                                                            doccount++;
-                                                                        }
+                                                                                    else
+                                                                                    {
+                                                                                        @Html.ActionLink(item.DocumentFileName, "ShowDocument", new { Controller = "Account", filepath = "Requirement", file = item.DocumentPath }, new { @name = "DocDownload", @target = "_blank" })
+                                                                                    }
+                                                                                }
+                                                                                <input type="file" class="dis-none" name="@doc" />&nbsp; &nbsp; &nbsp;
+                                                                            </td>
+                                                                            <td>
+                                                                                <a href="javascript:void(0)" class="btn-sm btn btn-danger removeOtherDoc dis-none"><i class="ion-android-close"></i></a>
+                                                                            </td>
+                                                                        </tr>
+                                                                        doccount++;
                                                                     }
-                                                                    else
-                                                                    {*@
-                                                                var docName = "OtherDocList[0].DocumentName";
-                                                                var doc = "OtherDocList[0].Document";
-                                                                <tr>
-                                                                    <td>
-                                                                        @Html.TextBox(@docName, null, new { @class = "form-control" })
-                                                                        @Html.ValidationMessage(@docName)
-                                                                    </td>
-                                                                    <td>
-                                                                        <input type="file" class="" name="@doc" />&nbsp; &nbsp; &nbsp;
-                                                                        @Html.ValidationMessage(@doc)
-                                                                    </td>
-                                                                    <td>
-                                                                        <a href="javascript:void(0)" class="btn-sm btn btn-danger removeOtherDoc"><i class="ion-android-close"></i></a>
-                                                                    </td>
-                                                                </tr>
-                                                                @*}*@
+                                                                }
+                                                                else
+                                                                {
+                                                                    var docName = "OtherDocList[0].DocumentName";
+                                                                    var doc = "OtherDocList[0].Document";
+                                                                    <tr>
+                                                                        <td>
+                                                                            @Html.TextBox(@docName, null, new { @class = "form-control" })
+                                                                            @Html.ValidationMessage(@docName)
+                                                                        </td>
+                                                                        <td>
+                                                                            <input type="file" class="" name="@doc" />&nbsp; &nbsp; &nbsp;
+                                                                            @Html.ValidationMessage(@doc)
+                                                                        </td>
+                                                                        <td>
+                                                                            <a href="javascript:void(0)" class="btn-sm btn btn-danger removeOtherDoc"><i class="ion-android-close"></i></a>
+                                                                        </td>
+                                                                    </tr>
+                                                                }
                                                             }
                                                         </tbody>
                                                     </table>
@@ -520,20 +626,23 @@
             <input type="button" onclick="window.location.href='@Url.Action("RCTConsultantPaymentRelease", "Requirement")';" class="btn btn-default" value="Close" name="Button" id="btnReset" />
             @*<a href='@Url.Action("RCTConsultantPaymentRelease", "Requirement")' class="btn btn-default">Close</a>*@
             @*@if (Model.VerifyProfile != true)
-        {
-            <a href='@Url.Action("STEEmployeeMaster", "Requirement")' class="btn btn-default">Close</a>
-        }
-        else
-        {
-            <a href='@Url.Action("EmployeeverificationList", "Requirement")' class="btn btn-default">Close</a>
-        }*@
+                {
+                    <a href='@Url.Action("STEEmployeeMaster", "Requirement")' class="btn btn-default">Close</a>
+                }
+                else
+                {
+                    <a href='@Url.Action("EmployeeverificationList", "Requirement")' class="btn btn-default">Close</a>
+                }*@
         </div>
     </div>
 
 
 }
 
-    <script type="text/javascript">
+<script type="text/javascript">
+        var errMsg = '@TempData["errMsg"]';
+    var succMsg = '@TempData["succMsg"]';
+    var alertMsg = '@TempData["alertMsg"]';
     $(document).ready(function () {
         applyAutoComplete($('#Consultant_ServiceNo'), $('#Consultant_AppointmentId'), '@Url.Action("LoadConsultantServiceList", "Requirement")', 'ProjectSummary', true);
 
@@ -552,18 +661,22 @@
                 data: data,
                 success: function (result) {
                     if (result != "") {
+                        cleardata();
                         $('#Consultant_MasterId').val(result.Consultant_MasterId);
                         $('#lblConsultantEmpName').text(result.ConsultantName);
                         $('#ConsultantName').val(result.ConsultantName);
                         $('#lblConsultantEmail').text(result.Email);
                         //$('#Email').val(result.Email);
-                        $('#lblConsultantDesignation').text(result.co);
+                        $('#lblConsultantDesignation').text(result.Consultant_Title);
                         //$('#Consultant_ContactNumber').val(result.Consultant_ContactNumber);
-                        $('#lblConsultantContactNo').text(result.Consultant_ContactNumber);
+                        //$('#lblConsultantContactNo').text(result.Consultant_ContactNumber);
                         $('#lblConsultantType').text(result.Consultant_EmpType);
+                        $('#lblCommitmentno').text(result.CommitmentNo);
+                        $('#CommitmentNo').val(result.CommitmentNo);
+                        $('#Consultant_CommitmentID').val(result.Consultant_CommitmentID);
                         //$('#Consultant_EmpType').val(result.Consultant_EmpType);
                         $('#lblConsultantAppStart').text(result.Appointment_Start);
-                        $('#Appointment_Start').val(result.Appointment_Start);
+                        $('#Appointment_Start').text(result.Appointment_Start);
                         $('#Appointment_End').val(result.Appointment_End);
                         $('#lblConsultantAppEnd').text(result.Appointment_End);
                         $('#lblConsultantPayType').text(result.Payment_Type);
@@ -573,141 +686,413 @@
                         //$('#lblConsultantRetainerFee').text(result.Consultant_RetainerFee);
                         $('#lblConsultantBookedCommit').text(result.Booked_Commitment);
                         $('#Booked_Commitment').val(parseFloat(result.Booked_Commitment).toFixed(2));
-                        $('#Commitment_Balance').val(parseFloat(result.Commitment_Balance).toFixed(2));
                         $('#lblConsultantCommitBala').text(result.Commitment_Balance);
+                        $('#Commitment_Balance').val(parseFloat(result.Commitment_Balance).toFixed(2));
+
                         $('#lblConsultantCurrType').text(result.Currency_Type);
                         $('#lblConsultantCurrValue').text(result.Currency_Value);
                         $('#Currency_Value').html(parseFloat(result.Currency_Value).toFixed(2));
                         $('#lblConsultantConRate').text(result.Conversion_rate);
                         $('#Conversion_rate').val(result.Conversion_rate);
+                        var GSTTDSPer = "2.00";
                         //html(parseFloat(TaxAmount).toFixed(2));
-                        $('#spanGSTPer').html(parseFloat(result.GSTPercentage).toFixed(2));
-                        $('#GSTPercentage').val(parseFloat(result.GSTPercentage).toFixed(2));
-                        $('#ITTDSPercentage').val(parseFloat(result.ITTDSPercentage).toFixed(2));
-                        $('#GSTTDSPercentage').val(parseFloat(result.GSTTDSPercentage).toFixed(2));
-                        $('#spanITTDS').html(parseFloat(result.ITTDSPercentage).toFixed(2));
-                        $('#spanGSTTDS').html(parseFloat(result.GSTTDSPercentage).toFixed(2));
-                        //GSTTDSPercentage
-
-                        //$('#PICode').text(result);
+                        if (result.GSTPercentage != null) {
 
 
+                            $('#spanGSTPer').html(parseFloat(result.GSTPercentage).toFixed(2));
+                            $('#GSTPercentage').val(parseFloat(result.GSTPercentage).toFixed(2));
+                        } else {
+                            $('#spanGSTPer').html(parseFloat("0.00"));
+                            $('#GSTPercentage').val(parseFloat("0.00"));
+                        }
+                        if (result.GSTTDSStatusType != null) {
 
-                        var EmployeeType = $("input[name='FeeType']:checked").val();
-                        if (EmployeeType == "Old Employee") {
-
-
-                            var currentTime = new Date();
-                            // First Date Of the month
-                            var startDateFrom = new Date(currentTime.getFullYear(), currentTime.getMonth(), 1);
-                            // Last Date Of the Month
-                            var startDateTo = new Date(currentTime.getFullYear(), currentTime.getMonth() + 1, 0);
-
-                            var applicationreceivedate = moment(startDateFrom).toDate();
-                            var applicationenddate = moment(startDateTo).toDate();
-
-                            $('#Fromdate').datepicker({
-                                dateFormat: 'dd-MM-yy',
-                                changeYear: true
-                            }).datepicker("option", "maxDate", applicationenddate).datepicker("option", "minDate", applicationreceivedate);
-
-                            $('#ToDate').datepicker({
-                                dateFormat: 'dd-MM-yy',
-                                changeYear: true
-                            }).datepicker("option", "maxDate", applicationenddate).datepicker("option", "minDate", applicationreceivedate)
-                            @*var currentdate = moment(new Date()).toDate();
-                            var setappstrdat = "";
-                            //$('#lblFromDate').text(result.Fromdate);
-                            //$('#lblToDate').text(result.ToDate);
-                            var strstartdt = result.Fromdate|| "";
-                            var strenddt = result.ToDate || "";
-                            var strstartdt1 = moment($('#Fromdate').val().split('-').join('/')).toDate();
-                            if (strstartdt != '' && strenddt != '') {
-                                //var strappointmentstartdt = $('#lblConsultantAppStart').text().split('-').join('/');
-                                //var strappointmentenddt = $('#lblConsultantAppEnd').text().split('-').join('/');
-                                var AppointmentStartDate = moment(strstartdt.split('-').join('/')).toDate();
-                                var AppointmentEndDate = moment(strenddt.split('-').join('/')).toDate();
-                                setappstrdat = AppointmentStartDate;
-                                var setappenddt = moment(AppointmentEndDate).toDate();
-                                var datepickerenddate = moment(AppointmentEndDate).toDate();
-                                //currentdate = moment(new Date()).add(-currentdate.getDate(), 'days').add(+1, 'days').toDate();
-                                //if (currentdate >= AppointmentStartDate && currentdate <= AppointmentEndDate)
-                                //    setappstrdat = currentdate;
-                                //else
-                                //    setappstrdat = AppointmentStartDate;
-                                datepickerenddate = moment(AppointmentEndDate).add(+1, 'days').toDate();
-                                //var defaultappstrToDate = moment($('#txtAppointmentEnd').text().split('-').join('/')).add(-1, 'days').toDate();
-                                //if (currentdate != '' && setappstrdat != '') {
-                                //    if (setappstrdat <= currentdate) {
-                                //        //setappstrdat = moment(new Date()).add(-currentdate.getDate(), 'days').add(+1,'days').toDate();
-                                //        var BeginDate = moment(new Date()).add(-currentdate.getDate(), 'days').add(+1, 'days').toDate();
-                                //        if (setappstrdat <= BeginDate && BeginDate <= setappenddt)
-                                //            setappstrdat = BeginDate;
-                                //    }
-                                //}
+                            if (result.GSTTDSStatusType == 1) {
+                                //$('#spanGSTTDS').html(parseFloat(result.GSTPercentage).toFixed(2));
+                                $('#spanGSTTDS').html(parseFloat(GSTTDSPer).toFixed(2));
+                                $('#GSTTDSPercentage').val(parseFloat(GSTTDSPer).toFixed(2));
                             }
                             else {
-            @*var strappointmentstartdt = @Html.Raw(Json.Encode(Model.Appointment_Start)) || "";
-            var strappointmentenddt = @Html.Raw(Json.Encode(Model.Appointment_End)) || "";*@
-                                @*var strappointmentstartdt = $('#lblConsultantAppStart').text().split('-').join('/');
+                                $('#spanGSTTDS').html(parseFloat("0.00"));
+                                $('#GSTTDSPercentage').val(parseFloat("0.00"));
+                            }
+                        }
+
+                        $('#ITTDSPercentage').val(parseFloat(result.ITTDSPercentage).toFixed(2));
+
+                        $('#spanITTDS').html(parseFloat(result.ITTDSPercentage).toFixed(2));
+                        //$('#GSTTDSPercentage').val(parseFloat(result.GSTTDSPercentage).toFixed(2));
+                        //$('#spanGSTTDS').html(parseFloat(result.GSTTDSPercentage).toFixed(2));
+                        $('#hdnGSTStatusType').val(result.GSTStatusType);
+                        $('#hdnGSTEligibility').val(result.GSTEligibility);
+                        $('#hdnGSTTDSType').val(result.GSTTDSStatusType);
+                        $('#hdnrcmEligibility').val(result.RCMEligibility);
+                        $('#hdnrcmRCMType').val(result.RCMType);
+                        if (result.GSTStatusType != null) {
+                            if (result.GSTStatusType == 1) {
+                                if (result.GSTEligibility != null) {
+                                    if (result.GSTEligibility == 1) {
+
+                                        $('#spanITCEligi').html("Applicable");
+                                        $('#spanRCMEligi').html("Not Applicable");
+                                        //$('#ITCPercentage').val(parseFloat(result.GSTPercentage).toFixed(2));
+                                        //$('#spanITCPer').val(parseFloat(result.GSTPercentage).toFixed(2));
+                                        $('#ITCPercentage').html(parseFloat(result.GSTPercentage).toFixed(2));
+                                        $('#spanITCPer').html(parseFloat(result.GSTPercentage).toFixed(2));
+                                        $('#divRcmpay').hide();
+                                        $('#divRCMPayRec').hide();
+
+                                    }
+                                    else {
+                                        $('#spanITCEligi').html("Not Applicable");
+                                        $('#divitcper').hide();
+                                        $('#divitcvalue').hide();
+
+                                        $('#spanRCMEligi').html("Not Applicable");
+                                        $('#divRcmpay').hide();
+                                        $('#divRCMPayRec').hide();
+                                    }
+
+                                }
+                                else {
+                                    $('#spanITCEligi').html("Not Applicable");
+                                    $('#divitcper').hide();
+                                    $('#divitcvalue').hide();
+                                    //$('#spanITCPer').val("0.00");
+                                    //$('#ITCValue').val("0.00");
+                                }
+                            }
+                            else if (result.GSTStatusType == 2) {
+                                $('#spanITCEligi').html("Not Applicable");
+                                $('#divitcper').hide();
+                                $('#divitcvalue').hide();
+
+                                $('#spanRCMEligi').html("Not Applicable");
+                                $('#divRcmpay').hide();
+                                $('#divRCMPayRec').hide();
+                            }
+                            else if (result.GSTStatusType == 3) {
+                                $('#spanITCEligi').html("Not Applicable");
+                                $('#divitcper').hide();
+                                $('#divitcvalue').hide();
+
+                                $('#spanRCMEligi').html("Not Applicable");
+                                $('#divRcmpay').hide();
+                                $('#divRCMPayRec').hide();
+                            }
+                            else if (result.GSTStatusType == 4) {
+
+                                if (result.RCMEligibility != null) {
+
+                                    $('#spanITCEligi').html("Not Applicable");
+                                    $('#divitcper').hide();
+                                    $('#divitcvalue').hide();
+                                    if (result.RCMEligibility == 1) {
+                                        $('#spanRCMEligi').html("Applicable");
+                                        if (result.RCMType == 1) {
+
+                                            $('#divRcmpay').show();
+                                            $('#divRCMPayRec').hide();
+                                        }
+                                        else if (result.RCMType == 2) {
+
+                                            $('#divRcmpay').hide();
+                                            $('#divRCMPayRec').show();
+                                        }
+                                        else {
+                                            $('#spanRCMEligi').html("Not Applicable");
+                                            $('#divRcmpay').hide();
+                                            $('#divRCMPayRec').hide();
+                                        }
+                                    }
+                                    else if (result.RCMEligibility == 2) {
+                                        $('#spanRCMEligi').html("Not Applicable");
+                                        $('#divRcmpay').hide();
+                                        $('#divRCMPayRec').hide();
+                                    }
+                                    //else {
+                                    //    $('#spanRCMEligi').html("Not Applicable");
+                                    //    $('#divRcmpay').hide();
+                                    //    $('#divRCMPayRec').hide();
+                                    //}
+
+
+                                }
+                                else {
+                                    $('#hdnrcmEligibility').val(result.RCMEligibility);
+                                }
+                            }
+                            else {
+                                $('#spanRCMEligi').html("Not Applicable");
+                                $('#divRcmpay').hide();
+                                $('#divRCMPayRec').hide();
+                            }
+
+                        }
+                        else {
+                                //if (result.GSTStatusType == 4) {
+                                    if (result.RCMEligibility != null) {
+
+                                        $('#spanITCEligi').html("Not Applicable");
+                                        $('#divitcper').hide();
+                                        $('#divitcvalue').hide();
+                                        if (result.RCMEligibility == 1) {
+                                            $('#spanRCMEligi').html("Applicable");
+                                            if (result.RCMType == 1) {
+
+                                                $('#divRcmpay').show();
+                                                $('#divRCMPayRec').hide();
+                                            }
+                                            else if (result.RCMType == 2) {
+
+                                                $('#divRcmpay').hide();
+                                                $('#divRCMPayRec').show();
+                                            }
+                                            else {
+                                                $('#spanRCMEligi').html("Not Applicable");
+                                                $('#divRcmpay').hide();
+                                                $('#divRCMPayRec').hide();
+                                            }
+                                        }
+                                        else if (result.RCMEligibility == 2) {
+                                            $('#spanRCMEligi').html("Not Applicable");
+                                            $('#divRcmpay').hide();
+                                            $('#divRCMPayRec').hide();
+                                        }
+                                        //else {
+                                        //    $('#spanRCMEligi').html("Not Applicable");
+                                        //    $('#divRcmpay').hide();
+                                        //    $('#divRCMPayRec').hide();
+                                        //}
+
+
+                                    }
+                                    else {
+                                        $('#hdnrcmEligibility').val(result.RCMEligibility);
+                                    }
+                                //}
+                                //else {
+                                //    $('#spanRCMEligi').html("Not Applicable");
+                                //    $('#divRcmpay').hide();
+                                //    $('#divRCMPayRec').hide();
+                                //}
+
+                        }
+
+
+
+                        var fromdate = result.Fromdate;
+                        var todate = result.ToDate;
+
+                        if (fromdate != "" && todate != "") {
+
+                        }
+
+                        var payment_type = result.Payment_Type;
+                        if ($('#lblConsultantPayType').text() == 'Monthly') {
+                            $('#ToDate').val('');
+                            $('#Fromdate').val('');
+                            $('#TaxAmount').val('');
+                            $("#IsOld").show();
+                            $("#IsNew").show();
+                            $('#TaxAmount').attr('readonly', 'readonly');
+                            document.getElementById('lblcurrentfee').innerHTML = 'Current Fee';
+                            document.getElementById('lblarrearfee').innerHTML = 'Arrear Fee';
+
+                            var EmployeeType = $("input[name='FeeType']:checked").val();
+                            if (EmployeeType == "Old Employee") {
+                                var beginDate = moment(new Date()).toDate();
+                                var enddate = moment(new Date()).toDate();
+                                var currentdate = moment(new Date()).toDate();
+                                var currentTime = new Date();
+                                // First Date Of the month
+                                var startDateFrom = new Date(currentTime.getFullYear(), currentTime.getMonth(), 1);
+                                // Last Date Of the Month
+                                var startDateTo = new Date(currentTime.getFullYear(), currentTime.getMonth() + 1, 0);
+
+                                var applicationreceivedate = moment(startDateFrom).toDate();
+                                var applicationenddate = moment(startDateTo).toDate();
+
+
+                                var strappointmentstartdt = $('#lblConsultantAppStart').text().split('-').join('/');
                                 var strappointmentenddt = $('#lblConsultantAppEnd').text().split('-').join('/');
                                 var AppointmentStartDate = moment(strappointmentstartdt.split('-').join('/')).toDate();
                                 var AppointmentEndDate = moment(strappointmentenddt.split('-').join('/')).toDate();
-                                setappstrdat = AppointmentStartDate;
-                                var setappenddt = moment(AppointmentEndDate).toDate();
+                                var datepickerstartdate = moment(AppointmentStartDate).toDate();
                                 var datepickerenddate = moment(AppointmentEndDate).toDate();
-                                //currentdate = moment(new Date()).add(-currentdate.getDate(), 'days').add(+1, 'days').toDate();
-                                //if (currentdate >= AppointmentStartDate && currentdate <= AppointmentEndDate)
-                                //    setappstrdat = currentdate;
-                                //else
-                                //    setappstrdat = AppointmentStartDate;
-                                datepickerenddate = moment(AppointmentEndDate).add(+1, 'days').toDate();
-                                //var defaultappstrToDate = moment($('#txtAppointmentEnd').text().split('-').join('/')).add(-1, 'days').toDate();
-                                if (currentdate != '' && setappstrdat != '') {
-                                    if (setappstrdat <= currentdate) {
-                                        //setappstrdat = moment(new Date()).add(-currentdate.getDate(), 'days').add(+1,'days').toDate();
-                                        var BeginDate = moment(new Date()).add(-currentdate.getDate(), 'days').add(+1, 'days').toDate();
-                                        if (setappstrdat <= BeginDate && BeginDate <= setappenddt)
-                                            setappstrdat = BeginDate;
+
+                                if (applicationreceivedate < datepickerstartdate)
+                                    beginDate = datepickerstartdate;
+                                else
+                                    beginDate = applicationreceivedate;
+
+                                if (applicationenddate < datepickerenddate)
+                                    enddate = applicationenddate;
+                                else
+                                    enddate = datepickerenddate;
+
+
+                                $('#Fromdate').datepicker({
+                                    dateFormat: 'dd-MM-yy',
+                                    changeYear: true
+                                }).datepicker("option", "maxDate", enddate).datepicker("option", "minDate", beginDate);
+
+                                $('#ToDate').datepicker({
+                                    dateFormat: 'dd-MM-yy',
+                                    changeYear: true
+                                }).datepicker("option", "maxDate", enddate).datepicker("option", "minDate", beginDate);
+                                @*var currentdate = moment(new Date()).toDate();
+                                var setappstrdat = "";
+                                //$('#lblFromDate').text(result.Fromdate);
+                                //$('#lblToDate').text(result.ToDate);
+                                var strstartdt = result.Fromdate || "";
+                                var strenddt = result.ToDate || "";
+                                var strstartdt1 = moment($('#Fromdate').val().split('-').join('/')).toDate();
+                                if (strstartdt != '' && strenddt != '') {
+                                    //var strappointmentstartdt = $('#lblConsultantAppStart').text().split('-').join('/');
+                                    //var strappointmentenddt = $('#lblConsultantAppEnd').text().split('-').join('/');
+                                    var AppointmentStartDate = moment(strstartdt.split('-').join('/')).toDate();
+                                    var AppointmentEndDate = moment(strenddt.split('-').join('/')).toDate();
+                                    setappstrdat = AppointmentStartDate;
+                                    var setappenddt = moment(AppointmentEndDate).toDate();
+                                    var datepickerenddate = moment(AppointmentEndDate).toDate();
+                                    //currentdate = moment(new Date()).add(-currentdate.getDate(), 'days').add(+1, 'days').toDate();
+                                    //if (currentdate >= AppointmentStartDate && currentdate <= AppointmentEndDate)
+                                    //    setappstrdat = currentdate;
+                                    //else
+                                    //    setappstrdat = AppointmentStartDate;
+                                    datepickerenddate = moment(AppointmentEndDate).add(+1, 'days').toDate();
+                                    //var defaultappstrToDate = moment($('#txtAppointmentEnd').text().split('-').join('/')).add(-1, 'days').toDate();
+                                    //if (currentdate != '' && setappstrdat != '') {
+                                    //    if (setappstrdat <= currentdate) {
+                                    //        //setappstrdat = moment(new Date()).add(-currentdate.getDate(), 'days').add(+1,'days').toDate();
+                                    //        var BeginDate = moment(new Date()).add(-currentdate.getDate(), 'days').add(+1, 'days').toDate();
+                                    //        if (setappstrdat <= BeginDate && BeginDate <= setappenddt)
+                                    //            setappstrdat = BeginDate;
+                                    //    }
+                                    //}
+                                }
+                                else {
+                                    @*var strappointmentstartdt = @Html.Raw(Json.Encode(Model.Appointment_Start)) || "";
+                                    var strappointmentenddt = @Html.Raw(Json.Encode(Model.Appointment_End)) || "";*@
+                                @*var strappointmentstartdt = $('#lblConsultantAppStart').text().split('-').join('/');
+                                    var strappointmentenddt = $('#lblConsultantAppEnd').text().split('-').join('/');
+                                    var AppointmentStartDate = moment(strappointmentstartdt.split('-').join('/')).toDate();
+                                    var AppointmentEndDate = moment(strappointmentenddt.split('-').join('/')).toDate();
+                                    setappstrdat = AppointmentStartDate;
+                                    var setappenddt = moment(AppointmentEndDate).toDate();
+                                    var datepickerenddate = moment(AppointmentEndDate).toDate();
+                                    //currentdate = moment(new Date()).add(-currentdate.getDate(), 'days').add(+1, 'days').toDate();
+                                    //if (currentdate >= AppointmentStartDate && currentdate <= AppointmentEndDate)
+                                    //    setappstrdat = currentdate;
+                                    //else
+                                    //    setappstrdat = AppointmentStartDate;
+                                    datepickerenddate = moment(AppointmentEndDate).add(+1, 'days').toDate();
+                                    //var defaultappstrToDate = moment($('#txtAppointmentEnd').text().split('-').join('/')).add(-1, 'days').toDate();
+                                    if (currentdate != '' && setappstrdat != '') {
+                                        if (setappstrdat <= currentdate) {
+                                            //setappstrdat = moment(new Date()).add(-currentdate.getDate(), 'days').add(+1,'days').toDate();
+                                            var BeginDate = moment(new Date()).add(-currentdate.getDate(), 'days').add(+1, 'days').toDate();
+                                            if (setappstrdat <= BeginDate && BeginDate <= setappenddt)
+                                                setappstrdat = BeginDate;
+                                        }
                                     }
                                 }
+
+                                $('#Fromdate').datepicker({
+                                    dateFormat: 'dd-MM-yy',
+                                    changeYear: true
+                                }).datepicker("option", "minDate", setappstrdat).datepicker("option", "maxDate", datepickerenddate);
+                                $('#ToDate').datepicker({
+                                    dateFormat: 'dd-MM-yy',
+                                    changeYear: true
+                                }).datepicker("option", "minDate", setappstrdat).datepicker("option", "maxDate", datepickerenddate) *@
+                                //  .datepicker("option", "minDate", setappstrdat).datepicker("option", "maxDate", defaultappstrToDate)
                             }
+                            else {
+                                var CurrDate = moment(new Date()).toDate();
+                                //$("#Fromdate").datepicker({
+                                //    dateFormat: 'dd-MM-yy',
+                                //    minDate: Appointment_Start,
+                                //    maxDate: Appointment_End
+                                //});
+                                //$("#ToDate").datepicker({
+                                //    dateFormat: 'dd-MM-yy',
+                                //    minDate: Appointment_Start,
+                                //    maxDate: Appointment_End
+                                //});
+
+                                //$("#Fromdate").datepicker({
+                                //    dateFormat: 'dd-MM-yy',
+                                //    changeYear: true,
+                                //    yearRange: '-100:+0',
+                                //}).datepicker("option", "maxDate", CurrDate);
+
+                                //$("#ToDate").datepicker({
+                                //    dateFormat: 'dd-MM-yy',
+                                //    changeYear: true,
+                                //    yearRange: '-100:+0',
+                                //}).datepicker("option", "maxDate", CurrDate);
+
+
+                                $('#ToDate').val('');
+                                $('#Fromdate').val('');
+                                $('#TaxAmount').val('');
+
+                                var strappointmentstartdt = $('#lblConsultantAppStart').text().split('-').join('/');
+                                var strappointmentenddt = $('#lblConsultantAppEnd').text().split('-').join('/');
+                                var AppointmentStartDate = moment(strappointmentstartdt.split('-').join('/')).toDate();
+                                var AppointmentEndDate = moment(strappointmentenddt.split('-').join('/')).toDate();
+                                var datepickerstartdate = moment(AppointmentStartDate).toDate();
+                                var datepickerenddate = moment(AppointmentEndDate).toDate();
+
+
+                                $('#Fromdate').datepicker({
+                                    dateFormat: 'dd-MM-yy',
+                                    changeYear: true
+                                }).datepicker("option", "maxDate", datepickerenddate).datepicker("option", "minDate", datepickerstartdate);
+
+                                $('#ToDate').datepicker({
+                                    dateFormat: 'dd-MM-yy',
+                                    changeYear: true
+                                }).datepicker("option", "maxDate", datepickerenddate).datepicker("option", "minDate", datepickerstartdate);
+                            }
+                        }
+                        else {
+                            $('#ToDate').val('');
+                            $('#Fromdate').val('');
+                            $('#TaxAmount').val('');
+                            $("input[name='FeeType']").val('');
+                            $('#TaxAmount').removeAttr('readonly');
+                            $("#IsOld").hide();
+                            $("#IsNew").hide();
+                            document.getElementById('lblcurrentfee').innerHTML = 'Consultant Fee';
+                            document.getElementById('lblarrearfee').innerHTML = '';
+                            //$("#lblcurrentfee").innerHTML = 'FES';
+
+
+                            //$("#IsNew").text = 'Installment Fee';
+                            var strappointmentstartdt = $('#lblConsultantAppStart').text().split('-').join('/');
+                            var strappointmentenddt = $('#lblConsultantAppEnd').text().split('-').join('/');
+                            var AppointmentStartDate = moment(strappointmentstartdt.split('-').join('/')).toDate();
+                            var AppointmentEndDate = moment(strappointmentenddt.split('-').join('/')).toDate();
+                            var datepickerstartdate = moment(AppointmentStartDate).toDate();
+                            var datepickerenddate = moment(AppointmentEndDate).toDate();
+
 
                             $('#Fromdate').datepicker({
                                 dateFormat: 'dd-MM-yy',
                                 changeYear: true
-                            }).datepicker("option", "minDate", setappstrdat).datepicker("option", "maxDate", datepickerenddate);
+                            }).datepicker("option", "maxDate", datepickerenddate).datepicker("option", "minDate", datepickerstartdate);
+
                             $('#ToDate').datepicker({
                                 dateFormat: 'dd-MM-yy',
                                 changeYear: true
-                            }).datepicker("option", "minDate", setappstrdat).datepicker("option", "maxDate", datepickerenddate)*@
-                            //  .datepicker("option", "minDate", setappstrdat).datepicker("option", "maxDate", defaultappstrToDate)
-                        }
-                        else {
-                            var CurrDate = moment(new Date()).toDate();
-                            //$("#Fromdate").datepicker({
-                            //    dateFormat: 'dd-MM-yy',
-                            //    minDate: Appointment_Start,
-                            //    maxDate: Appointment_End
-                            //});
-                            //$("#ToDate").datepicker({
-                            //    dateFormat: 'dd-MM-yy',
-                            //    minDate: Appointment_Start,
-                            //    maxDate: Appointment_End
-                            //});
+                            }).datepicker("option", "maxDate", datepickerenddate).datepicker("option", "minDate", datepickerstartdate);
 
-                            $("#Fromdate").datepicker({
-                                dateFormat: 'dd-MM-yy',
-                                changeYear: true,
-                                yearRange: '-100:+0',
-                            }).datepicker("option", "maxDate", CurrDate);
-
-                            $("#ToDate").datepicker({
-                                dateFormat: 'dd-MM-yy',
-                                changeYear: true,
-                                yearRange: '-100:+0',
-                            }).datepicker("option", "maxDate", CurrDate);
                         }
+
+
 
                     }
                 }
@@ -715,11 +1100,89 @@
 
         }
 
-    }
+        }
+        function cleardata()
+        {
+            $('#span_basicamt').text('');
+            $('#spanDeduction').val('');
+            $('#spanOtherPayment').val('');
+            $('#spanGstValue').text('');
+            $('#spanIncValue').text('');
+            $('#spanITTDSValue').text('');
+            $('#spanGSTTDSValue').text('');
+            $('#spanNetBal').text('');
+            //$('#spanGSTPer').val('');
+            $('#spanGstnewValue').text('');
+            //$('#spanITCEligi').text('');
+            //$('#spanITCPer').val('');
+            //$('#spanITCValue').text('');
+            $('#spanRCMEligi').text('');
+            $('#spanRCMPa').text('');
+            $('#spanRCMPR').text('');
+            //$('#spanITTDS').text('');
+            $('#spannewITTDSValue').text('');
+            //$('#spanGSTTDS').text('');
+            $('#spannewGSTTDSValue').text('');
+            $('#txtcdv').val('');
+            $('#TaxAmount').val('');
+            $('#spanITCValue').text('');
+
+
+
+        }
 
     $('input[name="FeeType"]').on('change', function () {
         var value = $("input[name='FeeType']:checked").val();
         if (value == "Old Employee") {
+            $('#ToDate').val('');
+            $('#Fromdate').val('');
+            $('#TaxAmount').val('');
+            //var currentTime = new Date();
+            //// First Date Of the month
+            //var startDateFrom = new Date(currentTime.getFullYear(), currentTime.getMonth(), 1);
+            //// Last Date Of the Month
+            //var startDateTo = new Date(currentTime.getFullYear(), currentTime.getMonth() + 1, 0);
+
+            //var applicationreceivedate = moment(startDateFrom).toDate();
+            //var applicationenddate = moment(startDateTo).toDate();
+
+            //$('#Fromdate').datepicker({
+            //    dateFormat: 'dd-MM-yy',
+            //    changeYear: true
+            //}).datepicker("option", "maxDate", applicationenddate).datepicker("option", "minDate", applicationreceivedate);
+
+            //$('#ToDate').datepicker({
+            //    dateFormat: 'dd-MM-yy',
+            //    changeYear: true
+            //}).datepicker("option", "maxDate", applicationenddate).datepicker("option", "minDate", applicationreceivedate)
+
+            //var currentdate = moment(new Date()).toDate();
+            //var setappstrdat = "";
+            @*var strappointmentstartdt = @Html.Raw(Json.Encode(Model.Appointment_Start)) || "";
+            var strappointmentenddt = @Html.Raw(Json.Encode(Model.Appointment_End)) || "";*@
+            //var strappointmentstartdt = $('#lblConsultantAppStart').text().split('-').join('/');
+            //var strappointmentenddt = $('#lblConsultantAppEnd').text().split('-').join('/');
+            //var AppointmentStartDate = moment(strappointmentstartdt.split('-').join('/')).toDate();
+            //var AppointmentEndDate = moment(strappointmentenddt.split('-').join('/')).toDate();
+            //currentdate = moment(new Date()).add(-currentdate.getDate(), 'days').add(+1, 'days').toDate();
+            //if (currentdate >= AppointmentStartDate && currentdate <= AppointmentEndDate)
+            //    setappstrdat = currentdate;
+            //else
+            //    setappstrdat = AppointmentStartDate;
+            //var defaultappstrToDate = moment($('#lblConsultantAppEnd').text().split('-').join('/')).add(-1, 'days').toDate();
+            //$('#Fromdate').datepicker({
+            //    dateFormat: 'dd-MM-yy',
+            //    changeYear: true
+            //}).datepicker("option", "minDate", setappstrdat).datepicker("option", "maxDate", defaultappstrToDate);
+            //$('#ToDate').datepicker({
+            //    dateFormat: 'dd-MM-yy',
+            //    changeYear: true
+            //}).datepicker("option", "minDate", setappstrdat).datepicker("option", "maxDate", defaultappstrToDate);
+
+
+            var beginDate = moment(new Date()).toDate();
+            var enddate = moment(new Date()).toDate();
+            var currentdate = moment(new Date()).toDate();
             var currentTime = new Date();
             // First Date Of the month
             var startDateFrom = new Date(currentTime.getFullYear(), currentTime.getMonth(), 1);
@@ -729,16 +1192,41 @@
             var applicationreceivedate = moment(startDateFrom).toDate();
             var applicationenddate = moment(startDateTo).toDate();
 
+
+            var strappointmentstartdt = $('#lblConsultantAppStart').text().split('-').join('/');
+            var strappointmentenddt = $('#lblConsultantAppEnd').text().split('-').join('/');
+            var AppointmentStartDate = moment(strappointmentstartdt.split('-').join('/')).toDate();
+            var AppointmentEndDate = moment(strappointmentenddt.split('-').join('/')).toDate();
+            var datepickerstartdate = moment(AppointmentStartDate).toDate();
+            var datepickerenddate = moment(AppointmentEndDate).toDate();
+
+            if (applicationreceivedate < datepickerstartdate)
+                beginDate = datepickerstartdate;
+            else
+                beginDate = applicationreceivedate;
+
+            if (applicationenddate < datepickerenddate)
+                enddate = applicationenddate;
+            else
+                enddate = datepickerenddate;
+
+
             $('#Fromdate').datepicker({
                 dateFormat: 'dd-MM-yy',
                 changeYear: true
-            }).datepicker("option", "maxDate", applicationenddate).datepicker("option", "minDate", applicationreceivedate);
+            }).datepicker("option", "maxDate", enddate).datepicker("option", "minDate", beginDate);
 
             $('#ToDate').datepicker({
                 dateFormat: 'dd-MM-yy',
                 changeYear: true
-            }).datepicker("option", "maxDate", applicationenddate).datepicker("option", "minDate", applicationreceivedate)
+            }).datepicker("option", "maxDate", enddate).datepicker("option", "minDate", beginDate);
 
+
+
+
+
+        }
+        else {
             @*var currentdate = moment(new Date()).toDate();
             var setappstrdat = "";
             var strappointmentstartdt = @Html.Raw(Json.Encode(Model.Appointment_Start)) || "";
@@ -759,28 +1247,27 @@
                 dateFormat: 'dd-MM-yy',
                 changeYear: true
             }).datepicker("option", "minDate", setappstrdat).datepicker("option", "maxDate", defaultappstrToDate)*@
-        }
-        else {
-            var currentdate = moment(new Date()).toDate();
-            var setappstrdat = "";
-            var strappointmentstartdt = @Html.Raw(Json.Encode(Model.Appointment_Start)) || "";
-            var strappointmentenddt = @Html.Raw(Json.Encode(Model.Appointment_End)) || "";
+
+            $('#ToDate').val('');
+            $('#Fromdate').val('');
+            $('#TaxAmount').val('');
+            var strappointmentstartdt = $('#lblConsultantAppStart').text().split('-').join('/');
+            var strappointmentenddt = $('#lblConsultantAppEnd').text().split('-').join('/');
             var AppointmentStartDate = moment(strappointmentstartdt.split('-').join('/')).toDate();
             var AppointmentEndDate = moment(strappointmentenddt.split('-').join('/')).toDate();
-            currentdate = moment(new Date()).add(-currentdate.getDate(), 'days').add(+1, 'days').toDate();
-            if (currentdate >= AppointmentStartDate && currentdate <= AppointmentEndDate)
-                setappstrdat = currentdate;
-            else
-                setappstrdat = AppointmentStartDate;
-            var defaultappstrToDate = moment($('#txtAppointmentEnd').text().split('-').join('/')).add(-1, 'days').toDate();
+            var datepickerstartdate = moment(AppointmentStartDate).toDate();
+            var datepickerenddate = moment(AppointmentEndDate).toDate();
+
+
             $('#Fromdate').datepicker({
                 dateFormat: 'dd-MM-yy',
                 changeYear: true
-            }).datepicker("option", "minDate", setappstrdat).datepicker("option", "maxDate", defaultappstrToDate);
+            }).datepicker("option", "maxDate", datepickerenddate).datepicker("option", "minDate", datepickerstartdate);
+
             $('#ToDate').datepicker({
                 dateFormat: 'dd-MM-yy',
                 changeYear: true
-            }).datepicker("option", "minDate", setappstrdat).datepicker("option", "maxDate", defaultappstrToDate)
+            }).datepicker("option", "maxDate", datepickerenddate).datepicker("option", "minDate", datepickerstartdate);
 
 
 
@@ -793,12 +1280,57 @@
 
     $("#Fromdate, #ToDate").change(function () {
         //$('#ToDate').val('');
-        var endDate = moment($('#txtAppointmentEnd').text().split('-').join('/')).toDate();
+        var endappDate = moment($('#lblConsultantAppEnd').text().split('-').join('/')).toDate();
         var defaultstartDateDate = moment($('#Fromdate').val().split('-').join('/')).toDate();
-        $('#ToDate').datepicker({
-            dateFormat: 'dd-MM-yy',
-            changeYear: true
-        }).datepicker("option", "minDate", defaultstartDateDate).datepicker("option", "maxDate", endDate);
+
+        var beginDate = moment(new Date()).toDate();
+        var enddate = moment(new Date()).toDate();
+        var currentdate = moment(new Date()).toDate();
+        var currentTime = new Date();
+        // First Date Of the month
+        var startDateFrom = new Date(currentTime.getFullYear(), currentTime.getMonth(), 1);
+        // Last Date Of the Month
+        var startDateTo = new Date(currentTime.getFullYear(), currentTime.getMonth() + 1, 0);
+
+        var applicationreceivedate = moment(startDateFrom).toDate();
+        var applicationenddate = moment(startDateTo).toDate();
+
+
+        var strappointmentstartdt = $('#lblConsultantAppStart').text().split('-').join('/');
+        var strappointmentenddt = $('#lblConsultantAppEnd').text().split('-').join('/');
+        var AppointmentStartDate = moment(strappointmentstartdt.split('-').join('/')).toDate();
+        var AppointmentEndDate = moment(strappointmentenddt.split('-').join('/')).toDate();
+        var datepickerstartdate = moment(AppointmentStartDate).toDate();
+        var datepickerenddate = moment(AppointmentEndDate).toDate();
+
+        if (applicationreceivedate < datepickerstartdate)
+            beginDate = datepickerstartdate;
+        else
+            beginDate = applicationreceivedate;
+
+        if (applicationenddate < datepickerenddate)
+            enddate = applicationenddate;
+        else
+            enddate = datepickerenddate;
+
+
+        var value = $("input[name='FeeType']:checked").val();
+        if (value == "Old Employee") {
+            $('#ToDate').datepicker({
+                dateFormat: 'dd-MM-yy',
+                changeYear: true
+            }).datepicker("option", "minDate", defaultstartDateDate).datepicker("option", "maxDate", enddate);
+        }
+        else {
+            $('#ToDate').datepicker({
+                dateFormat: 'dd-MM-yy',
+                changeYear: true
+            }).datepicker("option", "minDate", defaultstartDateDate).datepicker("option", "maxDate", endappDate);
+        }
+
+
+
+
         calculatetaxTotal();
     });
     //$('#ToDate').change(function () {
@@ -807,38 +1339,39 @@
     //    }
     //});
 
-    function calculatetaxTotal(isarrearpay) {
-        var fromdate = $('#Fromdate').val();
-        var todate = $('#ToDate').val();
-        var Am = $('#Consultant_RetainerFee').val();
+        function calculatetaxTotal(isarrearpay) {
+            cleardata();
+            var fromdate = $('#Fromdate').val();
+            var todate = $('#ToDate').val();
+            var Am = $('#Consultant_RetainerFee').val();
 
-        //if (isarrearpay == true)
-        //    todate = $('#ArrearOrDeductionTillDate').val();
-        var isNotHighSalary = false;
-        var months = 0, days = 0;
-        var starttotaldays = 0, endtotaldays = 0, startworingdays = 0, endworkingdays = 0;
-        var startyear = 0, endyear = 0, startmonth = 0, endmonth = 0;
-        if (fromdate != "" && todate != "") {
-            var objData = getCalDateDetails(fromdate, todate);
-            starttotaldays = objData.starttotaldays;
-            endtotaldays = objData.endtotaldays;
-            startworingdays = objData.startworkingdays;
-            endworkingdays = objData.endworkingdays;
-            months = objData.monthcount;
-            startyear = objData.startdateyear
-            endyear = objData.enddateyear;
-            startmonth = objData.startdatemonth;
-            endmonth = objData.enddatemonth;
-            days = startworingdays + endworkingdays;
+            //if (isarrearpay == true)
+            //    todate = $('#ArrearOrDeductionTillDate').val();
+            var isNotHighSalary = false;
+            var months = 0, days = 0;
+            var starttotaldays = 0, endtotaldays = 0, startworingdays = 0, endworkingdays = 0;
+            var startyear = 0, endyear = 0, startmonth = 0, endmonth = 0;
+            if (fromdate != "" && todate != "") {
+                var objData = getCalDateDetails(fromdate, todate);
+                starttotaldays = objData.starttotaldays;
+                endtotaldays = objData.endtotaldays;
+                startworingdays = objData.startworkingdays;
+                endworkingdays = objData.endworkingdays;
+                months = objData.monthcount;
+                startyear = objData.startdateyear
+                endyear = objData.enddateyear;
+                startmonth = objData.startdatemonth;
+                endmonth = objData.enddatemonth;
+                days = startworingdays + endworkingdays;
 
-        }
-        else {
-            return;
-        }
+            }
+            else {
+                return;
+            }
 
-        var hravalue = 0, ttlVal = 0, medicalamount = 0;
-        var InvoiceValue = 0;
-        var salary = parseFloat($('#Consultant_RetainerFee').val()) || 0;
+            var hravalue = 0, ttlVal = 0, medicalamount = 0;
+            var InvoiceValue = 0;
+            var salary = parseFloat($('#Consultant_RetainerFee').val()) || 0;
 
 
             var total = 0;
@@ -859,117 +1392,674 @@
             if (isarrearpay == true)
                 return total;
 
+            $('#TaxAmount').val(Math.round(total));
+            var TaxAmount = parseFloat($('#TaxAmount').val()) || 0;
+            $('#Consultant_RetainerFee').val(Math.round(salary));//Trigger keyup event
+            //$('#BasicAmount').val(salary);
+            $('#BasicAmount').val(TaxAmount);
+            //$('#span_basicamt').html(parseFloat(salary).toFixed(2));
+            $('#span_basicamt').html(parseFloat(TaxAmount).toFixed(2));
+            var Basic = parseFloat($('#BasicAmount').val()) || 0;
+            var GSTPercen = $('#GSTPercentage').val();
+            //parseFloat((pcfamount * ohpercent) / 100);
+
+            var Deduction = parseFloat($('#Deduction').val()) || 0;
+            var Addition = parseFloat($('#OtherPayment').val()) || 0;
+
+            var BDAValue = parseFloat(Basic - Deduction);
+            var GSTTDSPer = "2.00";
+
+            if ($('#hdnGSTStatusType').val() != null) {
+                if ($('#hdnGSTStatusType').val() == 1) {
+                    if ($('#hdnGSTEligibility').val() != null) {
+                        if ($('#hdnGSTEligibility').val() == 1) {
+                            var TotalBasicValue = parseFloat(Basic - Deduction) + Addition;
+                            var TotalGstValue = parseFloat((TotalBasicValue * GSTPercen) / 100);
+                            $('#spanITCEligi').html("Applicable");
+
+                            $('#spanRCMEligi').html("Not Applicable");
+                            $('#spanGstnewValue').html(Math.round(TotalGstValue).toFixed(2));
+                            $('#divRcmpay').hide();
+                            $('#divRCMPayRec').hide();
+
+                            $('#spanITCPer').val(GSTPercen);
+                            $('#spanGstValue').html(Math.round(TotalGstValue).toFixed(2));
+                            $('#GSTValue').val(Math.round(TotalGstValue).toFixed(2));
+                            InvoiceValue = TotalBasicValue + TotalGstValue;
+                            $('#spanIncValue').html(Math.round(InvoiceValue).toFixed(2));
+                            $('#InvoiceValue').val(Math.round(InvoiceValue).toFixed(2));
+                            var TotalInvoice = parseFloat($('#spanIncValue').text()) || 0;
+                            var ITCValue = 0;
+                            ITCValue = parseFloat((TotalBasicValue * GSTPercen) / 100);
+                            //ITCValue = TotalInvoice - TotalGstValue;
+                            $('#spanITCValue').html(Math.round(ITCValue).toFixed(2));
+                            $('#ITCValue').val(Math.round(ITCValue).toFixed(2));
+                            $('#divitcvalue').show();
+
+                            var NetPay = 0;
+                            var ITTDSInvoice = 0;
+                            ITTDSInvoice = TotalInvoice - TotalGstValue;
+                            var ITTDS = parseFloat($('#spanITTDS').text()) || 0;
+                            var TotalITTDS = parseFloat((ITTDSInvoice * ITTDS) / 100);
+                            //var ITCPer = parseFloat($('#spanITCPer').text()) || 0;
+                            $('#spanITTDSValue').html(Math.round(TotalITTDS).toFixed(2));
+                            $('#spannewITTDSValue').html(Math.round(TotalITTDS).toFixed(2));
+                            $('#ITTDSValue').val(Math.round(TotalITTDS).toFixed(2));
+                            var TotalGSTTDS = 0;
 
 
-        $('#TaxAmount').val(Math.round(total));
-        var TaxAmount = parseFloat($('#TaxAmount').val()) || 0;
-        $('#Consultant_RetainerFee').val(Math.round(salary));//Trigger keyup event
-        //$('#BasicAmount').val(salary);
-        $('#BasicAmount').val(TaxAmount);
-        //$('#span_basicamt').html(parseFloat(salary).toFixed(2));
-        $('#span_basicamt').html(parseFloat(TaxAmount).toFixed(2));
-        var Basic = parseFloat($('#BasicAmount').val()) || 0;
-        var GSTPercen = $('#GSTPercentage').val();
-        //parseFloat((pcfamount * ohpercent) / 100);
+                            //var GSTTDSValue = parseFloat($('#spanGSTTDS').text()) || 0;
+                            if ($('#hdnGSTTDSType').val() == 1) {
 
-        var Deduction = parseFloat($('#Deduction').val()) || 0;
+                                TotalGSTTDS = parseFloat((TotalBasicValue * GSTTDSPer) / 100);
+                                $('#spanGSTTDS').val(GSTTDSPer);
+                                $('#spanGSTTDSValue').html(Math.round(TotalGSTTDS).toFixed(2));
+                                $('#spannewGSTTDSValue').html(Math.round(TotalGSTTDS).toFixed(2));
+                            }
+                            NetPay = TotalInvoice - TotalITTDS - TotalGSTTDS;
+                            $('#NetAmount').val(NetPay);
+                            $('#spanNetBal').html(Math.round(NetPay).toFixed(2));
 
-        var GstValue = parseFloat(Basic - Deduction);
+                            var CommitmentDeductionValue = 0;
+
+                            CommitmentDeductionValue = TotalInvoice - ITCValue;
+                            $('#txtcdv').val(Math.round(CommitmentDeductionValue).toFixed(2));
+
+                        }
+                        else {
+                            $('#spanITCEligi').html("Not Applicable");
+                            $('#divitcper').hide();
+                            $('#divitcvalue').hide();
+
+                            $('#spanRCMEligi').html("Not Applicable");
+                            $('#divRcmpay').hide();
+                            $('#divRCMPayRec').hide();
+
+                            var TotalBasicValue = parseFloat(Basic - Deduction) + Addition;
+                            var TotalGstValue = parseFloat((TotalBasicValue * GSTPercen) / 100);
+
+                            $('#spanGstnewValue').html(Math.round(TotalGstValue).toFixed(2));
+
+                            $('#spanITCPer').val(GSTPercen);
+                            $('#spanGstValue').html(Math.round(TotalGstValue).toFixed(2));
+                            $('#GSTValue').val(Math.round(TotalGstValue).toFixed(2));
+                            InvoiceValue = TotalBasicValue + TotalGstValue;
+                            $('#spanIncValue').html(Math.round(InvoiceValue).toFixed(2));
+                            $('#InvoiceValue').val(Math.round(InvoiceValue).toFixed(2));
+                            var TotalInvoice = parseFloat($('#spanIncValue').text()) || 0;
+                            //var ITCValue = 0;
+                            //ITCValue = parseFloat((GstValue * GSTPercen) / 100);
+                            //ITCValue = TotalInvoice - TotalGstValue;
+                            //$('#spanITCValue').html(Math.round(ITCValue).toFixed(2));
+                            //$('#ITCValue').val(Math.round(ITCValue).toFixed(2));
+
+                            var NetPay = 0;
+                            var ITTDSInvoice = 0;
+                            ITTDSInvoice = TotalInvoice - TotalGstValue;
+                            var ITTDS = parseFloat($('#spanITTDS').text()) || 0;
+                            var TotalITTDS = parseFloat((ITTDSInvoice * ITTDS) / 100);
+                            //var ITCPer = parseFloat($('#spanITCPer').text()) || 0;
+                            $('#spanITTDSValue').html(Math.round(TotalITTDS).toFixed(2));
+                            $('#spannewITTDSValue').html(Math.round(TotalITTDS).toFixed(2));
+                            $('#ITTDSValue').val(Math.round(TotalITTDS).toFixed(2));
+                            var TotalGSTTDS = 0;
+                            //var GSTTDSValue = parseFloat($('#spanGSTTDS').text()) || 0;
+                            if ($('#hdnGSTTDSType').val() == 1) {
+
+                                TotalGSTTDS = parseFloat((TotalBasicValue * GSTTDSPer) / 100);
+                                $('#spanGSTTDS').val(GSTTDSPer);
+                                $('#spanGSTTDSValue').html(Math.round(TotalGSTTDS).toFixed(2));
+                                $('#spannewGSTTDSValue').html(Math.round(TotalGSTTDS).toFixed(2));
+                            }
+                            NetPay = TotalInvoice - TotalITTDS - TotalGSTTDS;
+                            $('#NetAmount').val(NetPay);
+                            $('#spanNetBal').html(Math.round(NetPay).toFixed(2));
+
+                            CommitmentDeductionValue = TotalInvoice;
+                            $('#txtcdv').val(Math.round(CommitmentDeductionValue).toFixed(2));
+                        }
+                    }
+                    else {
+                        $('#spanITCEligi').html("Not Applicable");
+                        $('#divitcper').hide();
+                        $('#divitcvalue').hide();
+                        $('#spanGstnewValue').html(Math.round(TotalGstValue).toFixed(2));
+                        //$('#spanITCPer').val("0.00");
+                        //$('#ITCValue').val("0.00");
+                    }
+                }
+                else if ($('#hdnGSTStatusType').val() == 2) {
+                    $('#spanITCEligi').html("Not Applicable");
+
+                    $('#divitcper').hide();
+                    $('#divitcvalue').hide();
+                    $('#spanRCMEligi').html("Not Applicable");
+                    $('#spanGstnewValue').html(Math.round(TotalGstValue).toFixed(2));
+                    $('#divRcmpay').hide();
+                    $('#divRCMPayRec').hide();
+
+                    var TotalBasicValue = parseFloat(Basic - Deduction) + Addition;
+                    var TotalGstValue = parseFloat((TotalBasicValue * GSTPercen) / 100);
+
+                    InvoiceValue = TotalBasicValue;
+                    $('#spanIncValue').html(Math.round(InvoiceValue).toFixed(2));
+                    $('#InvoiceValue').val(Math.round(InvoiceValue).toFixed(2));
+                    var TotalInvoice = parseFloat($('#spanIncValue').text()) || 0;
+                    var NetPay = 0;
+                    var ITTDSInvoice = 0;
+                    ITTDSInvoice = TotalInvoice;
+                    var ITTDS = parseFloat($('#spanITTDS').text()) || 0;
+                    var TotalITTDS = parseFloat((ITTDSInvoice * ITTDS) / 100);
+                    //var ITCPer = parseFloat($('#spanITCPer').text()) || 0;
+                    $('#spanITTDSValue').html(Math.round(TotalITTDS).toFixed(2));
+                    $('#spannewITTDSValue').html(Math.round(TotalITTDS).toFixed(2));
+                    $('#ITTDSValue').val(Math.round(TotalITTDS).toFixed(2));
+
+                    if ($('#hdnGSTTDSType').val() == 1) {
+                        $('#spanGSTTDS').val(GSTTDSPer);
+                        var TotalGSTTDS = parseFloat((TotalBasicValue * GSTTDSPer) / 100);
+                        $('#spanGSTTDSValue').html(Math.round(TotalGSTTDS).toFixed(2));
+                        $('#spannewGSTTDSValue').html(Math.round(TotalGSTTDS).toFixed(2));
+                    }
+                    NetPay = TotalInvoice - TotalITTDS;
+                    $('#NetAmount').val(NetPay);
+                    $('#spanNetBal').html(Math.round(NetPay).toFixed(2));
+                    CommitmentDeductionValue = TotalInvoice;
+                    $('#txtcdv').val(Math.round(CommitmentDeductionValue).toFixed(2));
+
+                }
+                else if ($('#hdnGSTStatusType').val() == 3) {
+                    $('#spanITCEligi').html("Not Applicable");
+                    $('#spanITCPer').val(GSTPercen);
+                    $('#spanGstValue').html(Math.round(TotalGstValue).toFixed(2));
+
+                    $('#divitcper').hide();
+                    $('#divitcvalue').hide();
+
+                    $('#spanRCMEligi').html("Not Applicable");
+                    $('#spanGstnewValue').html(Math.round(TotalGstValue).toFixed(2));
+                    $('#divRcmpay').hide();
+                    $('#divRCMPayRec').hide();
 
 
-        var TotalGstValue = parseFloat((GstValue * GSTPercen) / 100);
-        $('#spanGstValue').html(Math.round(TotalGstValue).toFixed(2));
-        $('#GSTValue').val(Math.round(TotalGstValue).toFixed(2));
-        //var GstValue = parseFloat($('#GSTValue').val()) || 0;
+                    var TotalBasicValue = parseFloat(Basic - Deduction) + Addition;
+                    var TotalGstValue = parseFloat((TotalBasicValue * GSTPercen) / 100);
 
-        InvoiceValue = (Basic - Deduction) + TotalGstValue;
-        $('#spanIncValue').html(Math.round(InvoiceValue).toFixed(2));
-        $('#InvoiceValue').val(Math.round(InvoiceValue).toFixed(2));
-        var Addition = parseFloat($('#OtherPayment').val()) || 0;
-        var BDAValue = parseFloat(Basic - Deduction) + Addition;
-        //var GrossPay = parseFloat($('#spanGrossPay').val()) || 0;
-        var TotalInvoice = parseFloat($('#spanIncValue').text()) || 0;
-        var TotalGrossPay = 0;
-        TotalGrossPay = TotalInvoice + Addition;
-        //$('#spanGrossPay').val(TotalGrossPay);
-        $('#GrossPay').val(Math.round(TotalGrossPay).toFixed(2));
-        $('#spanGrossPay').html(Math.round(TotalGrossPay).toFixed(2));
-        var NetPay = 0;
-        var ITTDS = parseFloat($('#spanITTDS').text()) || 0;
-        var TotalITTDS = parseFloat((BDAValue * ITTDS) / 100);
-        //var ITTDSPercentage = parseFloat($('#ITTDSPercentage').val()) || 0;
+                    $('#divitcper').hide();
+                    $('#divitcvalue').hide();
 
-        $('#spanITTDSValue').html(Math.round(TotalITTDS).toFixed(2));
-        $('#ITTDSValue').val(Math.round(TotalITTDS).toFixed(2));
-        var GSTTDSValue = parseFloat($('#spanGSTTDS').text()) || 0;
-        var TotalGSTTDS = parseFloat((BDAValue * GSTTDSValue) / 100);
-        $('#spanGSTTDSValue').html(Math.round(TotalGSTTDS).toFixed(2));
-        $('#GSTTDSValue').val(Math.round(TotalGSTTDS).toFixed(2));
-        NetPay = TotalGrossPay - TotalITTDS - TotalGSTTDS;
-        $('#NetAmount').val(NetPay);
-        $('#spanNetBal').html(Math.round(NetPay).toFixed(2));
-    }
+                    InvoiceValue = TotalBasicValue;
+                    $('#spanIncValue').html(Math.round(InvoiceValue).toFixed(2));
+                    $('#InvoiceValue').val(Math.round(InvoiceValue).toFixed(2));
+                    var TotalInvoice = parseFloat($('#spanIncValue').text()) || 0;
+                    var NetPay = 0;
+                    var ITTDSInvoice = 0;
+                    ITTDSInvoice = TotalInvoice;
+                    var ITTDS = parseFloat($('#spanITTDS').text()) || 0;
+                    var TotalITTDS = parseFloat((ITTDSInvoice * ITTDS) / 100);
+                    //var ITCPer = parseFloat($('#spanITCPer').text()) || 0;
+                    $('#spanITTDSValue').html(Math.round(TotalITTDS).toFixed(2));
+                    $('#spannewITTDSValue').html(Math.round(TotalITTDS).toFixed(2));
+                    $('#ITTDSValue').val(Math.round(TotalITTDS).toFixed(2));
 
+                    if ($('#hdnGSTTDSType').val() == 1) {
+                        $('#spanGSTTDS').val(GSTTDSPer);
+                        var TotalGSTTDS = parseFloat((TotalBasicValue * GSTTDSPer) / 100);
+                        $('#spanGSTTDSValue').html(Math.round(TotalGSTTDS).toFixed(2));
+                        $('#spannewGSTTDSValue').html(Math.round(TotalGSTTDS).toFixed(2));
+                    }
+                    NetPay = TotalInvoice - TotalITTDS;
+                    $('#NetAmount').val(NetPay);
+                    $('#spanNetBal').html(Math.round(NetPay).toFixed(2));
 
-
-    var innc = @doccount;
-    function isNumberKey(evt) {
-        var charCode = (evt.which) ? evt.which : evt.keyCode;
-        if (charCode != 46 && charCode > 31
-            && (charCode < 48 || charCode > 57))
-            return false;
-
-        return true;
-    }
-
-    $("#btnAddOtherDoc").click(function () {
-        //var cln = $('#OtherDoc tr:first').clone().find("input").val("").end();
-        //$(cln).find(".dis-none").each(function () {
-        //    $(this).removeClass('dis-none');
-        //});
-
-        //$(cln).find("input").each(function () {
-        //    if ($(this).attr("name") != undefined)
-        //        $(this).attr("name", $(this).attr("name").replace(/\d+/, innc));
-        //    console.log($(this).attr("id"));
-        //    var letters = /^[0-9a-zA-Z]+$/;
-        //    if ($(this).attr("id") != undefined)
-        //        $(this).attr("id", $(this).attr("id").replace(/\d+/, innc));
-        //});
-        //$(cln).find("span[data-valmsg-for]").each(function () {
-        //    $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, innc));
-        //});
-        //$(cln).find("a[name='DocDownload'],h4").each(function () {
-        //    $(this).remove();
-        //});
-        //$(cln).insertAfter("#OtherDoc tr:last");
-        //innc++;
+                    CommitmentDeductionValue = TotalInvoice;
+                    $('#txtcdv').val(Math.round(CommitmentDeductionValue).toFixed(2));
 
 
-        var cln = $('#OtherDoc tr:first').clone().find("select,input,textarea").val("").end();
-        var index = $('#OtherDoc tr:last').find("input[name='OtherDetail.Index']").val();
-        index = parseInt(index) + 1;
-        $(cln).find('b').parent('a').remove();
-        $(cln).find('b').remove();
-        $(cln).find('a[name="DocDownload"]').remove();
-        $(cln).find("input[name='OtherDetail.Index']").val(index);
-        $(cln).find("input[name='OtherDetail[0].Verify']").prop('checked', false);
-        $(cln).find(".lbl-rv").each(function () {
-            $(this).remove();
-        })
-        $(cln).find("input, select,textarea").each(function () {
-            $(this).attr("name", $(this).attr("name").replace(/\d+/, index));
-            if ($(this).attr("id"))
-                $(this).attr("id", $(this).attr("id").replace(/\d+/, index));
+                }
+                else if ($('#hdnGSTStatusType').val() == 4) {
+                    if ($('#hdnrcmEligibility').val() != null) {
+
+                        if ($('#hdnrcmEligibility').val() == 1) {
+                            $('#spanRCMEligi').html("Applicable");
+                            $('#spanITCEligi').html("Not Applicable");
+                            $('#divitcper').hide();
+                            $('#divitcvalue').hide();
+                            if ($('#hdnrcmRCMType').val() == 1) {
+                                $('#divRcmpay').show();
+                                var TotalBasicValue = parseFloat(Basic - Deduction) + Addition;
+                                var TotalGstValue = parseFloat((TotalBasicValue * GSTPercen) / 100);
+                                var TotalRcm = 0;
+                                TotalRcm = parseFloat(TotalBasicValue * (GSTPercen / 100));
+                                $('#spanRCMPa').html(Math.round(TotalRcm).toFixed(2));
+                                $('#RCMPayable').val(Math.round(TotalRcm).toFixed(2));
+
+                                $('#divRCMPayRec').hide();
+
+
+
+                                InvoiceValue = TotalBasicValue;
+                                $('#spanIncValue').html(Math.round(InvoiceValue).toFixed(2));
+                                $('#InvoiceValue').val(Math.round(InvoiceValue).toFixed(2));
+                                var TotalInvoice = parseFloat($('#spanIncValue').text()) || 0;
+                                var NetPay = 0;
+                                var ITTDSInvoice = 0;
+                                ITTDSInvoice = TotalInvoice;
+                                var ITTDS = parseFloat($('#spanITTDS').text()) || 0;
+                                var TotalITTDS = parseFloat((ITTDSInvoice * ITTDS) / 100);
+                                //var ITCPer = parseFloat($('#spanITCPer').text()) || 0;
+                                $('#spanITTDSValue').html(Math.round(TotalITTDS).toFixed(2));
+                                $('#spannewITTDSValue').html(Math.round(TotalITTDS).toFixed(2));
+                                $('#ITTDSValue').val(Math.round(TotalITTDS).toFixed(2));
+
+                                if ($('#hdnGSTTDSType').val() == 1) {
+                                    $('#spanGSTTDS').val(GSTTDSPer);
+                                    var TotalGSTTDS = parseFloat((TotalBasicValue * GSTTDSPer) / 100);
+                                    $('#spanGSTTDSValue').html(Math.round(TotalGSTTDS).toFixed(2));
+                                    $('#spannewGSTTDSValue').html(Math.round(TotalGSTTDS).toFixed(2));
+                                }
+                                NetPay = TotalInvoice - TotalITTDS;
+                                $('#NetAmount').val(NetPay);
+                                $('#spanNetBal').html(Math.round(NetPay).toFixed(2));
+                                CommitmentDeductionValue = TotalInvoice + TotalRcm;
+                                $('#txtcdv').val(Math.round(CommitmentDeductionValue).toFixed(2));
+
+                            }
+                            else if ($('#hdnrcmRCMType').val() == 2) {
+
+                                $('#divRcmpay').hide();
+                                $('#divRCMPayRec').show();
+                                var TotalBasicValue = parseFloat(Basic - Deduction) + Addition;
+                                var TotalGstValue = parseFloat((TotalBasicValue * GSTPercen) / 100);
+                                var TotalRcmPay = 0;
+                                TotalRcmPay = parseFloat(TotalBasicValue * (GSTPercen / 100));
+                                $('#spanRCMPR').html(Math.round(TotalRcmPay).toFixed(2));
+                                $('#RCMPayableReceivable').val(Math.round(TotalRcmPay).toFixed(2));
+
+
+
+                                InvoiceValue = TotalBasicValue;
+                                $('#spanIncValue').html(Math.round(InvoiceValue).toFixed(2));
+                                $('#InvoiceValue').val(Math.round(InvoiceValue).toFixed(2));
+                                var TotalInvoice = parseFloat($('#spanIncValue').text()) || 0;
+                                var NetPay = 0;
+                                var ITTDSInvoice = 0;
+                                ITTDSInvoice = TotalInvoice;
+                                var ITTDS = parseFloat($('#spanITTDS').text()) || 0;
+                                var TotalITTDS = parseFloat((ITTDSInvoice * ITTDS) / 100);
+                                //var ITCPer = parseFloat($('#spanITCPer').text()) || 0;
+                                $('#spanITTDSValue').html(Math.round(TotalITTDS).toFixed(2));
+                                $('#spannewITTDSValue').html(Math.round(TotalITTDS).toFixed(2));
+                                $('#ITTDSValue').val(Math.round(TotalITTDS).toFixed(2));
+
+                                if ($('#hdnGSTTDSType').val() == 1) {
+                                    $('#spanGSTTDS').val(GSTTDSPer);
+                                    var TotalGSTTDS = parseFloat((TotalBasicValue * GSTTDSPer) / 100);
+                                    $('#spanGSTTDSValue').html(Math.round(TotalGSTTDS).toFixed(2));
+                                    $('#spannewGSTTDSValue').html(Math.round(TotalGSTTDS).toFixed(2));
+                                }
+                                NetPay = TotalInvoice - TotalITTDS;
+                                $('#NetAmount').val(NetPay);
+                                $('#spanNetBal').html(Math.round(NetPay).toFixed(2));
+                                CommitmentDeductionValue = TotalInvoice - TotalRcmPay;
+                                $('#txtcdv').val(Math.round(CommitmentDeductionValue).toFixed(2));
+
+                            }
+                            else {
+                                $('#spanRCMEligi').html("Not Applicable");
+                                $('#spanGstnewValue').html(Math.round(TotalGstValue).toFixed(2));
+                                $('#divRcmpay').hide();
+                                $('#divRCMPayRec').hide();
+                            }
+
+                        }
+                        else if ($('#hdnrcmEligibility').val() == 2) {
+                            $('#spanRCMEligi').html("Not Applicable");
+                            $('#spanGstnewValue').html(Math.round(TotalGstValue).toFixed(2));
+                            $('#divRcmpay').hide();
+                            $('#divRCMPayRec').hide();
+                        }
+                    }
+
+                }
+
+                else {
+                    //$('#spanITCEligi').html("Not Applicable");
+                    //$('#divitcper').hide();
+                    //$('#divitcvalue').hide();
+                    //$('#spanGstnewValue').html(Math.round(TotalGstValue).toFixed(2));
+
+                    if ($('#hdnrcmEligibility').val() != null) {
+
+                        if ($('#hdnrcmEligibility').val() == 1) {
+                            $('#spanRCMEligi').html("Applicable");
+                            $('#spanITCEligi').html("Not Applicable");
+                            $('#divitcper').hide();
+                            $('#divitcvalue').hide();
+                            if ($('#hdnrcmRCMType').val() == 1) {
+                                $('#divRcmpay').show();
+                                var TotalBasicValue = parseFloat(Basic - Deduction) + Addition;
+                                var TotalGstValue = parseFloat((TotalBasicValue * GSTPercen) / 100);
+                                var TotalRcm = 0;
+                                TotalRcm = parseFloat(TotalBasicValue * (GSTPercen / 100));
+                                $('#spanRCMPa').html(Math.round(TotalRcm).toFixed(2));
+                                $('#RCMPayable').val(Math.round(TotalRcm).toFixed(2));
+
+                                $('#divRCMPayRec').hide();
+
+
+
+                                InvoiceValue = TotalBasicValue;
+                                $('#spanIncValue').html(Math.round(InvoiceValue).toFixed(2));
+                                $('#InvoiceValue').val(Math.round(InvoiceValue).toFixed(2));
+                                var TotalInvoice = parseFloat($('#spanIncValue').text()) || 0;
+                                var NetPay = 0;
+                                var ITTDSInvoice = 0;
+                                ITTDSInvoice = TotalInvoice;
+                                var ITTDS = parseFloat($('#spanITTDS').text()) || 0;
+                                var TotalITTDS = parseFloat((ITTDSInvoice * ITTDS) / 100);
+                                //var ITCPer = parseFloat($('#spanITCPer').text()) || 0;
+                                $('#spanITTDSValue').html(Math.round(TotalITTDS).toFixed(2));
+                                $('#spannewITTDSValue').html(Math.round(TotalITTDS).toFixed(2));
+                                $('#ITTDSValue').val(Math.round(TotalITTDS).toFixed(2));
+
+                                if ($('#hdnGSTTDSType').val() == 1) {
+                                    $('#spanGSTTDS').val(GSTPercen);
+                                    var TotalGSTTDS = parseFloat((TotalBasicValue * GSTPercen) / 100);
+                                    $('#spanGSTTDSValue').html(Math.round(TotalGSTTDS).toFixed(2));
+                                    $('#spannewGSTTDSValue').html(Math.round(TotalGSTTDS).toFixed(2));
+                                }
+                                NetPay = TotalInvoice - TotalITTDS;
+                                $('#NetAmount').val(NetPay);
+                                $('#spanNetBal').html(Math.round(NetPay).toFixed(2));
+                                CommitmentDeductionValue = TotalInvoice + TotalRcm;
+                                $('#txtcdv').val(Math.round(CommitmentDeductionValue).toFixed(2));
+
+                            }
+                            else if ($('#hdnrcmRCMType').val() == 2) {
+
+                                $('#divRcmpay').hide();
+                                $('#divRCMPayRec').show();
+                                var TotalBasicValue = parseFloat(Basic - Deduction) + Addition;
+                                var TotalGstValue = parseFloat((TotalBasicValue * GSTPercen) / 100);
+                                var TotalRcmPay = 0;
+                                TotalRcmPay = parseFloat(TotalBasicValue * (GSTPercen / 100));
+                                $('#spanRCMPR').html(Math.round(TotalRcmPay).toFixed(2));
+                                $('#RCMPayableReceivable').val(Math.round(TotalRcmPay).toFixed(2));
+
+
+
+                                InvoiceValue = TotalBasicValue;
+                                $('#spanIncValue').html(Math.round(InvoiceValue).toFixed(2));
+                                $('#InvoiceValue').val(Math.round(InvoiceValue).toFixed(2));
+                                var TotalInvoice = parseFloat($('#spanIncValue').text()) || 0;
+                                var NetPay = 0;
+                                var ITTDSInvoice = 0;
+                                ITTDSInvoice = TotalInvoice;
+                                var ITTDS = parseFloat($('#spanITTDS').text()) || 0;
+                                var TotalITTDS = parseFloat((ITTDSInvoice * ITTDS) / 100);
+                                //var ITCPer = parseFloat($('#spanITCPer').text()) || 0;
+                                $('#spanITTDSValue').html(Math.round(TotalITTDS).toFixed(2));
+                                $('#spannewITTDSValue').html(Math.round(TotalITTDS).toFixed(2));
+                                $('#ITTDSValue').val(Math.round(TotalITTDS).toFixed(2));
+
+                                if ($('#hdnGSTTDSType').val() == 1) {
+                                    $('#spanGSTTDS').val(GSTTDSPer);
+                                    var TotalGSTTDS = parseFloat((TotalBasicValue * GSTTDSPer) / 100);
+                                    $('#spanGSTTDSValue').html(Math.round(TotalGSTTDS).toFixed(2));
+                                    $('#spannewGSTTDSValue').html(Math.round(TotalGSTTDS).toFixed(2));
+                                }
+                                NetPay = TotalInvoice - TotalITTDS;
+                                $('#NetAmount').val(NetPay);
+                                $('#spanNetBal').html(Math.round(NetPay).toFixed(2));
+
+                                CommitmentDeductionValue = TotalInvoice - TotalRcmPay;
+                                $('#txtcdv').val(Math.round(CommitmentDeductionValue).toFixed(2));
+                            }
+                            else {
+                                $('#spanRCMEligi').html("Not Applicable");
+                                $('#spanGstnewValue').html(Math.round(TotalGstValue).toFixed(2));
+                                $('#divRcmpay').hide();
+                                $('#divRCMPayRec').hide();
+                            }
+
+                        }
+                        else if ($('#hdnrcmEligibility').val() == 2) {
+                            $('#spanRCMEligi').html("Not Applicable");
+                            $('#spanGstnewValue').html(Math.round(TotalGstValue).toFixed(2));
+                            $('#divRcmpay').hide();
+                            $('#divRCMPayRec').hide();
+                        }
+                    }
+                    //$('#spanITCPer').val("0.00");
+                    //$('#ITCValue').val("0.00");
+                }
+            }
+            else {
+                if ($('#hdnrcmEligibility').val() != null) {
+
+                    if ($('#hdnrcmEligibility').val() == 1) {
+                        $('#spanRCMEligi').html("Applicable");
+                        $('#spanITCEligi').html("Not Applicable");
+                        $('#divitcper').hide();
+                        $('#divitcvalue').hide();
+                        if ($('#hdnrcmRCMType').val() == 1) {
+                            $('#divRcmpay').show();
+                            var TotalBasicValue = parseFloat(Basic - Deduction) + Addition;
+                            var TotalGstValue = parseFloat((TotalBasicValue * GSTPercen) / 100);
+                            var TotalRcm = 0;
+                            TotalRcm = parseFloat(TotalBasicValue * (GSTPercen / 100));
+                            $('#spanRCMPa').html(Math.round(TotalRcm).toFixed(2));
+                            $('#RCMPayable').val(Math.round(TotalRcm).toFixed(2));
+
+                            $('#divRCMPayRec').hide();
+
+                            InvoiceValue = TotalBasicValue;
+                            $('#spanIncValue').html(Math.round(InvoiceValue).toFixed(2));
+                            $('#InvoiceValue').val(Math.round(InvoiceValue).toFixed(2));
+                            var TotalInvoice = parseFloat($('#spanIncValue').text()) || 0;
+                            var NetPay = 0;
+                            var ITTDSInvoice = 0;
+                            ITTDSInvoice = TotalInvoice;
+                            var ITTDS = parseFloat($('#spanITTDS').text()) || 0;
+                            var TotalITTDS = parseFloat((ITTDSInvoice * ITTDS) / 100);
+                            //var ITCPer = parseFloat($('#spanITCPer').text()) || 0;
+                            $('#spanITTDSValue').html(Math.round(TotalITTDS).toFixed(2));
+                            $('#spannewITTDSValue').html(Math.round(TotalITTDS).toFixed(2));
+                            $('#ITTDSValue').val(Math.round(TotalITTDS).toFixed(2));
+
+                            if ($('#hdnGSTTDSType').val() == 1) {
+                                $('#spanGSTTDS').val(GSTTDSPer);
+                                var TotalGSTTDS = parseFloat((TotalBasicValue * GSTTDSPer) / 100);
+                                $('#spanGSTTDSValue').html(Math.round(TotalGSTTDS).toFixed(2));
+                                $('#spannewGSTTDSValue').html(Math.round(TotalGSTTDS).toFixed(2));
+                            }
+                            NetPay = TotalInvoice - TotalITTDS;
+                            $('#NetAmount').val(NetPay);
+                            $('#spanNetBal').html(Math.round(NetPay).toFixed(2));
+                            CommitmentDeductionValue = TotalInvoice + TotalRcm;
+                            $('#txtcdv').val(Math.round(CommitmentDeductionValue).toFixed(2));
+
+                        }
+                        else if ($('#hdnrcmRCMType').val() == 2) {
+
+                            $('#divRcmpay').hide();
+                            $('#divRCMPayRec').show();
+                            var TotalBasicValue = parseFloat(Basic - Deduction) + Addition;
+                            var TotalGstValue = parseFloat((TotalBasicValue * GSTPercen) / 100);
+                            var TotalRcmPay = 0;
+                            TotalRcmPay = parseFloat(TotalBasicValue * (GSTPercen / 100));
+                            $('#spanRCMPR').html(Math.round(TotalRcmPay).toFixed(2));
+                            $('#RCMPayableReceivable').val(Math.round(TotalRcmPay).toFixed(2));
+
+                            InvoiceValue = TotalBasicValue;
+                            $('#spanIncValue').html(Math.round(InvoiceValue).toFixed(2));
+                            $('#InvoiceValue').val(Math.round(InvoiceValue).toFixed(2));
+                            var TotalInvoice = parseFloat($('#spanIncValue').text()) || 0;
+                            var NetPay = 0;
+                            var ITTDSInvoice = 0;
+                            ITTDSInvoice = TotalInvoice;
+                            var ITTDS = parseFloat($('#spanITTDS').text()) || 0;
+                            var TotalITTDS = parseFloat((ITTDSInvoice * ITTDS) / 100);
+                            //var ITCPer = parseFloat($('#spanITCPer').text()) || 0;
+                            $('#spanITTDSValue').html(Math.round(TotalITTDS).toFixed(2));
+                            $('#spannewITTDSValue').html(Math.round(TotalITTDS).toFixed(2));
+                            $('#ITTDSValue').val(Math.round(TotalITTDS).toFixed(2));
+
+                            if ($('#hdnGSTTDSType').val() == 1) {
+                                $('#spanGSTTDS').val(GSTTDSPer);
+                                var TotalGSTTDS = parseFloat((TotalBasicValue * GSTTDSPer) / 100);
+                                $('#spanGSTTDSValue').html(Math.round(TotalGSTTDS).toFixed(2));
+                                $('#spannewGSTTDSValue').html(Math.round(TotalGSTTDS).toFixed(2));
+                            }
+                            NetPay = TotalInvoice - TotalITTDS;
+                            $('#NetAmount').val(NetPay);
+                            $('#spanNetBal').html(Math.round(NetPay).toFixed(2));
+
+                            CommitmentDeductionValue = TotalInvoice + TotalRcmPay;
+                            $('#txtcdv').val(Math.round(CommitmentDeductionValue).toFixed(2));
+                        }
+                        else {
+                            $('#spanRCMEligi').html("Not Applicable");
+                            $('#spanGstnewValue').html(Math.round(TotalGstValue).toFixed(2));
+                            $('#divRcmpay').hide();
+                            $('#divRCMPayRec').hide();
+                        }
+
+                    }
+                    else if ($('#hdnrcmEligibility').val() == 2) {
+                        $('#spanRCMEligi').html("Not Applicable");
+                        $('#spanGstnewValue').html(Math.round(TotalGstValue).toFixed(2));
+                        $('#divRcmpay').hide();
+                        $('#divRCMPayRec').hide();
+                    }
+                }
+            }
+
+
+            if ($('#txtcdv').val() != null || 0) {
+                //$('#Commitment_Balance').val(parseFloat(result.Commitment_Balance).toFixed(2));
+                //$('#lblConsultantCommitBala').text(result.Commitment_Balance);
+                var Commitbala = parseFloat($('#lblConsultantCommitBala').text());
+                var CommitDedvalue = parseFloat($('#txtcdv').val());
+                var Commitment_Balance = 0;
+                Commitment_Balance = Commitbala - CommitDedvalue;
+                $('#hdnCommitmentFinalBalance').val(Math.round(Commitment_Balance).toFixed(2));
+                $('#Commitment_FinalBalance').val(Math.round(Commitment_Balance).toFixed(2));
+                if (Commitbala < 0) {
+                    if (CommitDedvalue > Commitbala) {
+                        $('#alert').html("Commitment Balance is less than the Commitment Deduction Value");
+                        return false;
+                    }
+
+                }
+                else {
+                    if (CommitDedvalue > Commitbala) {
+                        $.alert('Commitment Balance is less than the Commitment Deduction Value');
+                        cleardata();
+                        return;
+                    }
+                }
+            }
+            //var CommitmentDeductionValue = 0;
+
+            //CommitmentDeductionValue = TotalInvoice+
+
+
+
+
+        }
+
+
+
+
+        function isNumberKey(evt) {
+            var charCode = (evt.which) ? evt.which : evt.keyCode;
+            if (charCode != 46 && charCode > 31
+                && (charCode < 48 || charCode > 57))
+                return false;
+
+            return true;
+        }
+        var innc = 1;
+        $("#btnAddOtherDoc").click(function () {
+            var cln = $('#OtherDoc tr:first').clone().find("input").val("").end();
+            $(cln).find(".dis-none").each(function () {
+                $(this).removeClass('dis-none');
+            });
+
+            $(cln).find("input").each(function () {
+                if ($(this).attr("name") != undefined)
+                    $(this).attr("name", $(this).attr("name").replace(/\d+/, innc));
+                console.log($(this).attr("id"));
+                var letters = /^[0-9a-zA-Z]+$/;
+                if ($(this).attr("id") != undefined)
+                    $(this).attr("id", $(this).attr("id").replace(/\d+/, innc));
+            });
+            $(cln).find("span[data-valmsg-for]").each(function () {
+                $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, innc));
+            });
+            $(cln).find("a[name='DocDownload'],h4").each(function () {
+                $(this).remove();
+            });
+            $(cln).insertAfter("#OtherDoc tr:last");
+            innc++;
+
+
+            //var cln = $('#OtherDoc tr:first').clone().find("select,input,textarea").val("").end();
+            //var index = $('#OtherDoc tr:last').find("input[name='OtherDetail.Index']").val();
+            //index = parseInt(index) + 1;
+            //$(cln).find('b').parent('a').remove();
+            //$(cln).find('b').remove();
+            //$(cln).find('a[name="DocDownload"]').remove();
+            //$(cln).find("input[name='OtherDetail.Index']").val(index);
+            //$(cln).find("input[name='OtherDetail[0].Verify']").prop('checked', false);
+            //$(cln).find(".lbl-rv").each(function () {
+            //    $(this).remove();
+            //})
+            //$(cln).find("input, select,textarea").each(function () {
+            //    $(this).attr("name", $(this).attr("name").replace(/\d+/, index));
+            //    if ($(this).attr("id"))
+            //        $(this).attr("id", $(this).attr("id").replace(/\d+/, index));
+            //});
+            //$(cln).find(".dis-none").each(function () {
+            //    $(this).removeClass('dis-none');
+            //})
+            //$(cln).find("span[data-valmsg-for]").each(function () {
+            //    $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, index));
+            //});
+            //$('#OtherDoc').append(cln);
         });
-        $(cln).find(".dis-none").each(function () {
-            $(this).removeClass('dis-none');
-        })
-        $(cln).find("span[data-valmsg-for]").each(function () {
-            $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, index));
+
+        $(document).on('click', 'a.removeOtherDoc', function () {
+            if ($('#OtherDoc tr').length == 1) {
+                $(this).find("input,file").val("").end();
+                $(this).closest('tr').find('input[name$=".DocumentName"]').val('');
+                $(this).closest('tr').find('input[name$=".name"]').val('');
+                $(this).closest('tr').find('input[name$=".file"]').val('');
+                $(this).closest('tr').find('input[name$=".Document"]').val('');
+            }
+            else {
+                $(this).closest('tr').remove();
+                $(document).find('input[name$=".DocumentName"]').each(function (idx, ele) {
+                    $(this).attr("name", $(this).attr("name").replace(/\d+/, idx));
+                    if ($(this).attr("id"))
+                        $(this).attr("id", $(this).attr("id").replace(/\d+/, idx));
+                });
+                $(document).find('input[name$=".Document"]').each(function (idx, ele) {
+                    $(this).attr("name", $(this).attr("name").replace(/\d+/, idx));
+                    if ($(this).attr("id"))
+                        $(this).attr("id", $(this).attr("id").replace(/\d+/, idx));
+                });
+                $(document).find('span[data-valmsg-for$=".DocumentName"]').each(function (idx, ele) {
+                    $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, idx));
+                });
+                $(document).find('span[data-valmsg-for$=".Document"]').each(function (idx, ele) {
+                    $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, idx));
+                });
+                innc--;
+            }
         });
-        $('#OtherDoc').append(cln);
-    });
 
     $('#btnAddPaydec').click(function () {
         var cln = $('#tblbodyPaydeduction tr:first').clone().find("input,select").val("").end();
@@ -992,8 +2082,16 @@
     });
 
     $(document).on('click', 'a.removeOTHDetail', function () {
-        if ($('#tblbodyPaydeduction tr').length != 1) {
+        if ($('#tblbodyPaydeduction tr').length > 1) {
             $(this).closest('tr').remove();
+            UpdateTransactionDetails();
+        }
+        else {
+            $(this).closest('tr').find('input[name$=".Amount"]').val('');
+
+            $(this).closest('tr').find('select[name$=".OtherType"]').val("");
+            $(this).closest('tr').find('select[name$=".PaymentDeductionType"]').val("");
+            $(this).closest('tr').find('input[name$=".Remarks"]').val('');
             UpdateTransactionDetails();
         }
     });
@@ -1042,6 +2140,7 @@
 
 
         });
+
         $('#spanDeduction').text(parseFloat(totalDed).toFixed(2));
         $('#spanOtherPayment').text(parseFloat(totalPay).toFixed(2));
 
@@ -1053,83 +2152,17 @@
         var todate = $('#ToDate').val();
         if (fromdate != "" && todate != "") {
 
-            var months = 0, days = 0;
-            var starttotaldays = 0, endtotaldays = 0, startworingdays = 0, endworkingdays = 0;
-            var hravalue = 0, ttlVal = 0, medicalamount = 0;
-            var InvoiceValue = 0;
-            var salary = parseFloat($('#Consultant_RetainerFee').val()) || 0;
+            calculatetaxTotal();
 
-
-            //var total = 0;
-
-
-            //ttlVal = medicalamount + salary + hravalue;
-            //var startperday = ttlVal / starttotaldays;
-            //var endperday = ttlVal / endtotaldays;
-            //var monthlyamt = ttlVal;
-
-            //if (months > 0)
-            //    total += monthlyamt * months;
-            //if (days > 0) {
-            //    total += startworingdays * startperday;
-            //    total += endworkingdays * endperday;
-            //}
-
-            //if (isarrearpay == true)
-            //    return total;
-
-
-            //$('#TaxAmount').val(Math.round(total));
-            var TaxAmount = parseFloat($('#TaxAmount').val()) || 0;
-            $('#Consultant_RetainerFee').val(Math.round(salary));//Trigger keyup event
-            //$('#BasicAmount').val(salary);
-            $('#BasicAmount').val(TaxAmount);
-            //$('#span_basicamt').html(parseFloat(salary).toFixed(2));
-            $('#span_basicamt').html(parseFloat(TaxAmount).toFixed(2));
-            var Basic = parseFloat($('#BasicAmount').val()) || 0;
-            var GSTPercen = $('#GSTPercentage').val();
-            //parseFloat((pcfamount * ohpercent) / 100);
-
-            var Deduction = parseFloat($('#Deduction').val()) || 0;
-
-            var GstValue = parseFloat(Basic - Deduction);
-
-
-            var TotalGstValue = parseFloat((GstValue * GSTPercen) / 100);
-            $('#spanGstValue').html(Math.round(TotalGstValue).toFixed(2));
-            $('#GSTValue').val(Math.round(TotalGstValue).toFixed(2));
-            //var GstValue = parseFloat($('#GSTValue').val()) || 0;
-
-            InvoiceValue = (Basic - Deduction) + TotalGstValue;
-            $('#spanIncValue').html(Math.round(InvoiceValue).toFixed(2));
-            $('#InvoiceValue').val(Math.round(InvoiceValue).toFixed(2));
-            var Addition = parseFloat($('#OtherPayment').val()) || 0;
-            var BDAValue = parseFloat(Basic - Deduction) + Addition;
-            //var GrossPay = parseFloat($('#spanGrossPay').val()) || 0;
-            var TotalInvoice = parseFloat($('#spanIncValue').text()) || 0;
-            var TotalGrossPay = 0;
-            TotalGrossPay = TotalInvoice + Addition;
-            //$('#spanGrossPay').val(TotalGrossPay);
-            $('#GrossPay').val(Math.round(TotalGrossPay).toFixed(2));
-            $('#spanGrossPay').html(Math.round(TotalGrossPay).toFixed(2));
-            var NetPay = 0;
-            var ITTDS = parseFloat($('#spanITTDS').text()) || 0;
-            var TotalITTDS = parseFloat((BDAValue * ITTDS) / 100);
-            //var ITTDSPercentage = parseFloat($('#ITTDSPercentage').val()) || 0;
-
-            $('#spanITTDSValue').html(Math.round(TotalITTDS).toFixed(2));
-            $('#ITTDSValue').val(Math.round(TotalITTDS).toFixed(2));
-            var GSTTDSValue = parseFloat($('#spanGSTTDS').text()) || 0;
-            var TotalGSTTDS = parseFloat((BDAValue * GSTTDSValue) / 100);
-            $('#spanGSTTDSValue').html(Math.round(TotalGSTTDS).toFixed(2));
-            $('#GSTTDSValue').val(Math.round(TotalGSTTDS).toFixed(2));
-            NetPay = TotalGrossPay - TotalITTDS - TotalGSTTDS;
-            $('#NetAmount').val(NetPay);
-            $('#spanNetBal').html(Math.round(NetPay).toFixed(2));
 
         }
         else {
             //return;
+            $('#span_basicamt').val('');
+            //span_basicamt.text = '';
+            //span_basicamt.text = '';
+            //spanDeduction.text = '';
+
         }
 
 
@@ -1153,7 +2186,8 @@
     });
 
 
-    </script>
+</script>
+
 
 <script src="@Url.Content("~/Content/IOASContent/assets/bootstrap-select/js/bootstrap-select.min.js")"></script>
 <script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>

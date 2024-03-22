@@ -3432,6 +3432,9 @@ namespace IOAS.Models
 
         public int Consultant_AppointmentId { get; set; }
         public Nullable<decimal> Consultant_RetainerFee { get; set; }
+        public string CommitmentNo { get; set; }
+
+        public int Consultant_CommitmentID { get; set; }
         public string ConsultantName { get; set; }
 
         public string Consultant_Title { get; set; }
@@ -3446,6 +3449,7 @@ namespace IOAS.Models
         public string Booked_Commitment { get; set; }
 
         public string Commitment_Balance { get; set; }
+        public string Commitment_FinalBalance { get; set; }
         public string Currency_Type { get; set; }
         public string Currency_Value { get; set; }
         public string Conversion_rate { get; set; }
@@ -3472,7 +3476,22 @@ namespace IOAS.Models
         public Nullable<Decimal> ITTDSValue { get; set; }
         public Nullable<Decimal> GSTTDSPercentage { get; set; }
         public Nullable<Decimal> GSTTDSValue { get; set; }
+        public Nullable<int> GSTTDSStatusType { get; set; }
+        public Nullable<int> GSTStatusType { get; set; }
+        public Nullable<int> GSTEligibility { get; set; }
+
+        public Nullable<int> RCMEligibility { get; set; }
+        public Nullable<int> RCMType { get; set; }
+        public Nullable<decimal> ITCPercentage { get; set; }
+        public Nullable<decimal> ITCValue { get; set; }
+        public Nullable<decimal> RCMPayable { get; set; }
+        public Nullable<decimal> RCMPayableReceivable { get; set; }
+        public Nullable<decimal> CommitmentDeductionValue { get; set; }
+        public string PRDAComments { get; set; }
         public Nullable<Decimal> NetAmount { get; set; }
+
+
+
 
         public int Consultant_Nationality { get; set; }
 
@@ -3518,9 +3537,11 @@ namespace IOAS.Models
 
     public class OtherDocModels
     {
+        public Nullable<int> DocumentDetailId { get; set; }
         public string DocumentName { get; set; }
         public string DocumentFileName { get; set; }
         public string DocumentPath { get; set; }
+        public HttpPostedFileBase DocumentFile { get; set; }
         public string FormDate { get; set; }
         public string ToDate { get; set; }
         public string DocumentCatecory { get; set; }
@@ -3779,7 +3800,7 @@ namespace IOAS.Models
         public Nullable<decimal> Consultant_Commitvalue { get; set; }
         public Nullable<decimal> Consultant_Projectvalue { get; set; }
         public Nullable<int> Consultant_ITTDSType { get; set; }
-        public Nullable<decimal> Consultant_ITTDSPercentage { get; set; }
+        public Nullable<int> Consultant_ITTDSPercentage { get; set; }
         public Nullable<System.DateTime> Consultant_ITTDSExemptedDate { get; set; }
         public Nullable<int> Consultant_GSTTDSType { get; set; }
         public Nullable<int> Consultant_RCMType { get; set; }

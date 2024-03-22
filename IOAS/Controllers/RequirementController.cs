@@ -8259,6 +8259,7 @@ namespace IOAS.Controllers
             object output = Common.CheckConsultantEmployeePan(Panno, GST, EmpID);
             return Json(output, JsonRequestBehavior.AllowGet);
         }
+        
         #endregion
 
         #region VerficationUserApplicationCancel
@@ -10758,7 +10759,7 @@ namespace IOAS.Controllers
                     if (result.Item1 == 1)
                     {
                         TempData["succMsg"] = "Add Sucessfully";
-                        return RedirectToAction("RCTConsultantPaymentRelease", "Requirement");
+                        return RedirectToAction("ConsultantMaster", "Requirement");
                     }
                     //else if (model.Consultant_MasterId > 0 && status.Item1 == 2)
                     //{
@@ -10806,7 +10807,6 @@ namespace IOAS.Controllers
                 return View(model);
             }
         }
-
 
         [HttpGet]
         public JsonResult LoadConsultantServiceList(string term, int? type = null)
