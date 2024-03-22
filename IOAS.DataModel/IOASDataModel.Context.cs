@@ -934,7 +934,7 @@ namespace IOAS.DataModel
         public virtual DbSet<tblProject> tblProject { get; set; }
         public virtual DbSet<vw_HonorariumDetails> vw_HonorariumDetails { get; set; }
         public virtual DbSet<vwCommitmentSpentBalance> vwCommitmentSpentBalance { get; set; }
-        public virtual DbSet<tblRCTConsultantEntry> tblRCTConsultantEntry { get; set; }
+        public virtual DbSet<tblConsultantDocumentMaster> tblConsultantDocumentMaster { get; set; }
         public virtual DbSet<tblRCTConsultantEntryDocs> tblRCTConsultantEntryDocs { get; set; }
         public virtual DbSet<tblRCTConsultantMaster> tblRCTConsultantMaster { get; set; }
         public virtual DbSet<tblRCTConsultantMasterLog> tblRCTConsultantMasterLog { get; set; }
@@ -943,7 +943,9 @@ namespace IOAS.DataModel
         public virtual DbSet<tblRCTConsultantROP_Document> tblRCTConsultantROP_Document { get; set; }
         public virtual DbSet<tblRCTConsultantROP_OTHPay> tblRCTConsultantROP_OTHPay { get; set; }
         public virtual DbSet<vwConsultantMasterPanNo> vwConsultantMasterPanNo { get; set; }
-        public virtual DbSet<tblConsultantDocumentMaster> tblConsultantDocumentMaster { get; set; }
+        public virtual DbSet<tblRCTConsultantEntry> tblRCTConsultantEntry { get; set; }
+        public virtual DbSet<tblRCTConsultantStatuslog> tblRCTConsultantStatuslog { get; set; }
+        public virtual DbSet<tblDeployment> tblDeployment { get; set; }
     
         public virtual int AnnualAccounts(Nullable<System.DateTime> date, Nullable<System.DateTime> date2)
         {

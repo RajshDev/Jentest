@@ -45,9 +45,8 @@ namespace IOAS.DataModel
         public Nullable<decimal> Consultant_Commitvalue { get; set; }
         public Nullable<int> Consultant_CommitmentID { get; set; }
         public string Consultant_CommitmentNumber { get; set; }
-        public Nullable<decimal> Consultant_AvailableCommitvalue { get; set; }
         public Nullable<int> Consultant_ITTDSType { get; set; }
-        public Nullable<decimal> Consultant_ITTDSPercentage { get; set; }
+        public Nullable<int> Consultant_ITTDSPercentage { get; set; }
         public Nullable<System.DateTime> Consultant_ITTDSExemptedDate { get; set; }
         public Nullable<int> Consultant_GSTTDSType { get; set; }
         public Nullable<int> Consultant_RCMType { get; set; }
@@ -69,5 +68,7 @@ namespace IOAS.DataModel
         public int Consultant_SeqNbr { get; set; }
         public string Consultant_DAComments { get; set; }
         public string Consultant_FlowApprover { get; set; }
+        public Nullable<decimal> Consultant_Estimatedvalue { get; set; }
+        public Nullable<bool> Islegal_f { get; set; }
     }
 }

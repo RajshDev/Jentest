@@ -12,9 +12,14 @@ namespace IOAS.DataModel
     using System;
     using System.Collections.Generic;
     
-    public partial class Temp_1410brs
+    public partial class tblPreviousFinYear
     {
-        public string ReferenceNumber { get; set; }
-        public System.DateTime TransactionDate { get; set; }
+        public int FinYearId { get; set; }
+        public string Year { get; set; }
+        public Nullable<System.DateTime> StartDate { get; set; }
+        public Nullable<System.DateTime> EndDate { get; set; }
+        public Nullable<bool> CurrentYearFlag { get; set; }
+        public Nullable<decimal> InterestPct { get; set; }
+        public Nullable<bool> CommitmentInclForInterest_f { get; set; }
     }
 }

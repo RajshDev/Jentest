@@ -29,5 +29,6 @@ namespace IOAS.DataModel
         public Nullable<decimal> OpeningBalance { get; set; }
         public string TempVoucherNumber { get; set; }
         public string ChequeNumber { get; set; }
+        public string BankName { get; set; }
     }
 }

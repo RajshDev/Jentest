@@ -42,5 +42,13 @@ namespace IOAS.DataModel
         public Nullable<decimal> ConversionRate { get; set; }
         public Nullable<decimal> NewConversion_Rate { get; set; }
         public Nullable<decimal> CurrentandArrear_Aount { get; set; }
+        public Nullable<int> GSTITCEligibility { get; set; }
+        public Nullable<decimal> ITCValue { get; set; }
+        public Nullable<int> RCMType { get; set; }
+        public Nullable<decimal> RCMValue { get; set; }
+        public Nullable<decimal> CommitmentDeductionValue { get; set; }
+        public string DAComments { get; set; }
+        public string CommitmentNo { get; set; }
+        public string Consultant_ServiceNo { get; set; }
     }
 }
