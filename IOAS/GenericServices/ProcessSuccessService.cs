@@ -2899,6 +2899,62 @@ public bool DTVWFInitSuccess(int travelBillId, int logged_in_user)
             }
         }
 
+        public bool RCTConsWFInitSuccess(int CONSID, int loggedInUser)
+        {
+            try
+            {
+                lock (lockObj)
+                {
+                    using (var context = new IOASDBEntities())
+                    {
+                        var Query = (from c in context.tblRCTConsultantEntry
+                                     from e in context.tblRCTConsultantMaster
+                                     where c.Consultant_AppointmentId == CONSID && c.Consultant_MasterId == e.Consultant_MasterId
+                                     && c.Consultant_Status == "Sent for approval"
+                                     select new { c, e }).FirstOrDefault();
+                        if (Query != null)
+                        {
+                            Query.c.Consultant_Status = "Awaiting Commitment Booking";
+                            Query.c.Consultant_UptdUser = loggedInUser;
+                            Query.c.Consultant_UptdTs = DateTime.Now;
+                            tblRCTCommitmentRequest Commitment = new tblRCTCommitmentRequest();
+                            Commitment.ReferenceNumber = Query.c.Consultant_ApplicationNo;
+                            if (Query.e.Consultant_Nationality == 1)
+                            {
+                                Commitment.AppointmentType = "Consultant - Indian";
+                            }
+                            else
+                            {
+                                Commitment.AppointmentType = "Consultant - foreign";
+                            }
+                            Commitment.TypeCode = "CON";
+                            Commitment.CandidateName = Query.e.Consultant_Name;
+                            Commitment.CandidateDesignation = Query.c.Consultant_Title;
+                            Commitment.ProjectId = Query.c.Consultant_ProjectId;
+                            Commitment.ProjectNumber = Common.getprojectnumber(Query.c.Consultant_ProjectId ?? 0);
+                            Commitment.TotalSalary = Query.c.Consultant_RetainerFee;
+                            Commitment.RequestedCommitmentAmount = Query.c.Consultant_Commitvalue;
+                            Commitment.Status = "Awaiting Commitment Booking";
+                            Commitment.RequestType = "New Appointment";
+                            Commitment.EmpNumber = Query.e.Consultant_EmpId;
+                            Commitment.RefId = Query.c.Consultant_AppointmentId;
+                            Commitment.Crtd_TS = DateTime.Now;
+                            Commitment.Crtd_UserId = loggedInUser;
+                            context.tblRCTCommitmentRequest.Add(Commitment);
+                            context.SaveChanges();
+                            RequirementService.PostRCTCONSStatusLog(CONSID, "Sent for approval", Query.c.Consultant_Status, loggedInUser);
+                            return true;
+                        }
+                        return false;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
         public bool RecruitOTHPDWFInitSccess(int OthId, int loggedInUser)
         {
             try

@@ -1788,6 +1788,34 @@ namespace IOAS.GenericServices
             }
         }
 
+        public bool RCTConsWFInitClarify(int CONSID, int loggedInUser)
+        {
+            try
+            {
+                lock (lockObj)
+                {
+                    using (var context = new IOASDBEntities())
+                    {
+                        var query = context.tblRCTConsultantEntry.FirstOrDefault(m => m.Consultant_AppointmentId == CONSID && m.Consultant_Status == "Sent for approval");
+                        if (query != null)
+                        {
+                            query.Consultant_Status = "Clarified";
+                            query.Consultant_UptdUser = loggedInUser;
+                            query.Consultant_UptdTs = DateTime.Now;
+                            context.SaveChanges();
+                            RequirementService.PostRCTCONSStatusLog(CONSID, "Sent for approval", query.Consultant_Status, loggedInUser);
+                            return true;
+                        }
+                        return false;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
         public bool RecruitOTHPDWFInitClarify(int ID, int loggedInUser)
         {
             try

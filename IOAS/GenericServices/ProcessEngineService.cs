@@ -1113,7 +1113,7 @@ namespace IOAS.GenericServices
                                    join U in context.tblUser on PT.InitiatedUserId equals U.UserId
                                    join PGD in context.tblProcessGuidelineDetail on PT.ProcessGuidelineDetailId equals PGD.ProcessGuidelineDetailId
                                    where (PGD.ProcessGuidelineId == ProcessGuidelineId && PTD.Approverid == userId && PTD.RefId == refId
-                                   && PTD.Rejected == false && PTD.Clarified == false)
+                                   && PTD.Rejected == false && PTD.Clarified == false && PT.RefFieldName != "CONSID")
                                    orderby PTD.ProcessGuidelineDetailId descending
                                    select new
                                    {

@@ -5,7 +5,7 @@
 }
 <div class="row hd-tt-bg">
     <div class="col-md-4">
-        <h3>Consultant Appointment</h3>
+        <h3>Consultant Engagement</h3>
     </div>
     <div class="col-md-8 flt-nav-links">
         <a href="@Url.Action("RCTConsultantNewEntry")"> <i class="ion-plus"></i>Add New</a>
@@ -55,18 +55,20 @@
             loadData: function (filter) {
                 var searchData = [];
                 searchData = {
-                    Consultant_AppointmentId: filter.SE_Consultant_AppointmentId || null,
-                    Consultant_EmpNo: filter.SE_Consultant_EmpNo || null,
-                    Consultant_AppNo: filter.Consultant_AppNo || null,
-                    Consultant_Name: filter.SE_Consultant_Name || null,
-                    Consultant_EmpType: filter.SE_Consultant_EmpType || null,
-                    Consultant_ProjectNumber: filter.SE_Consultant_ProjectNumber || null,
-                    Consultant_ProjPI: filter.SE_Consultant_ProjPI || null,
-                    Consultant_ProjEmail: filter.SE_Consultant_ProjEmail || null,
-                    Consultant_Status: filter.SE_Consultant_Status || null
+                    SE_Consultant_AppointmentId: filter.Consultant_AppointmentId || null,
+                    SE_Consultant_EmpNo: filter.Consultant_EmpNo || null,
+                    SE_Consultant_AppNo: filter.Consultant_AppNo || null,
+                    SE_Consultant_Name: filter.Consultant_Name || null,
+                    SE_Consultant_EmpType: filter.Consultant_EmpType || null,
+                    SE_Consultant_ProjectNumber: filter.Consultant_ProjectNumber || null,
+                    SE_Consultant_ProjPI: filter.Consultant_ProjectPI || null,
+                    SE_Consultant_ProjEmail: filter.Consultant_ProjectPIEmail || null,
+                    SE_Consultant_Status: filter.Consultant_Status || null
                 },
                 filter.model = searchData;
                 var deferred = $.Deferred();
+                console.log("Filter:", filter);
+                console.log("Search Data:", searchData);
                 $.ajax({
                     type: "post",
                     url: "GetRCTConsultantList",
@@ -93,7 +95,7 @@
         fields: [
             { name: "SE_SNo", title: "S.No", editing: false, width: 50 },
             { type: "number", name: "Consultant_AppointmentId", title: "Id", visible: false },
-            { type: "text", name: "Consultant_EmpNo", title: "Employee Number", editing: false },
+            { type: "text", name: "Consultant_EmpNo", title: "Consultant ID", editing: false },
             { type: "text", name: "Consultant_AppNo", title: "Application Number", editing: false },
             { type: "text", name: "Consultant_Name", title: "Consultant Name", editing: false, width: 130 },
             { type: "text", name: "Consultant_EmpType", title: "Consultant Type", editing: false },
@@ -149,21 +151,21 @@
                  itemTemplate: function (value, item) {
                      var statusList = [];
                      var $result = jsGrid.fields.control.prototype.itemTemplate.apply(this, arguments);
-                     if (item.Consultant_Status == "Open") {
-                         statusList = [{ id: "", name: "Action" }, { id: "Edit", name: "Edit" }, { id: "View", name: "View" }]
+                     if (item.Consultant_Status == "Open" || item.Consultant_Status == "Clarified" ) {
+                         statusList = [{ id: "", name: "Action" }, { id: "Edit", name: "Edit" }, { id: "View", name: "View" }, { id: "Send for Approval", name: "Send for Approval" }]
                      }
-                     else if (item.Consultant_Status == "Open") {
-                         statusList = [{ id: "", name: "Action" }, { id: "View", name: "Commitment Booking" }, { id: "SendOffer", name: "Send Offer Letter" }]
-                     }
-                     else if (item.Consultant_Status == "Open") {
-                         statusList = [{ id: "", name: "Action" }, { id: "View", name: "Commitment Booking" }]
-                     }
-                     else if (item.Consultant_Status == "Committee Clarify") {
-                         statusList = [{ id: "", name: "Action" }, { id: "View", name: "Send for commitee approval" }]
-                     }
-                     else if (item.Consultant_Status == "Open") {
-                         statusList = [{ id: "", name: "Action" }, { id: "View", name: "Send for commitment booking" }]
-                     }
+                     //else if (item.Consultant_Status == "Open") {
+                     //    statusList = [{ id: "", name: "Action" }, { id: "View", name: "Commitment Booking" }, { id: "SendOffer", name: "Send Offer Letter" }]
+                     //}
+                     //else if (item.Consultant_Status == "Open") {
+                     //    statusList = [{ id: "", name: "Action" }, { id: "View", name: "Commitment Booking" }]
+                     //}
+                     //else if (item.Consultant_Status == "Committee Clarify") {
+                     //    statusList = [{ id: "", name: "Action" }, { id: "View", name: "Send for commitee approval" }]
+                     //}
+                     //else if (item.Consultant_Status == "Open") {
+                     //    statusList = [{ id: "", name: "Action" }, { id: "View", name: "Send for commitment booking" }]
+                     //}
                      else if (item.Consultant_Status == "Draft") {
                          statusList = [{ id: "", name: "Action" }, { id: "Edit", name: "Edit" }, { id: "View", name: "View" }]
                      }
@@ -180,8 +182,8 @@
                      //    }
 
                      //}
-                     else if (item.Status == "Awaiting Verification" && item.SendOffer_f) {
-                         statusList = [{ id: "", name: "Action" }, { id: "View", name: "View" }, { id: "SendOffer", name: "Send Offer Letter" }]
+                     else if (item.Consultant_Status == "Awaiting Verification" /*&& item.SendOffer_f*/) {
+                         statusList = [{ id: "", name: "Action" }, { id: "View", name: "View" }, { id: "Verify", name: "Verify" }/*,{ id: "SendOffer", name: "Send Offer Letter" }*/]
                      }
                      else {
                          statusList = [{ id: "", name: "Action" }, { id: "View", name: "View" }]
@@ -203,8 +205,11 @@
                          var selVal = $(this).val();
                          if (selVal == "Edit") {
                              var url = '@Url.Action("RCTConsultantNewEntry", "Requirement")?ConsultantServiceID=' + item.Consultant_AppointmentId;
-                             Editconsultant();
-                             window.location.href = url;                            
+                             window.location.href = url;
+                         }
+                         else if (selVal == "Verify") {
+                             var url = '@Url.Action("RCTConsultantNewEntry", "Requirement")?ConsultantServiceID=' + item.Consultant_AppointmentId;
+                             window.location.href = url;
                          }
                          else if (selVal == "EmailNf") {
                              if (item.EmailRemaindarCount == 2) {
@@ -371,22 +376,22 @@
                              $.confirm({
                                  title: 'Do you want to cancel application ?',
                                  content: '' +
-                                 '<form action=""  class="formName">' +
-                                    '<div class="form-group"><br/>' +
-                                        '<table>'+
-                                            '<tr><th>Application No</th><th>&nbsp;&nbsp;:&nbsp;&nbsp;</th><td>' + item.STEAppNo + '</td></tr><tr>' +
-                                            '<th><br/></th><th></th><td></td></tr>' +
-                                            '<th>Candidate Name</th><th>&nbsp;&nbsp;:&nbsp;&nbsp;</th><td>' + item.CandidateName + '</td></tr>' +
-                                        '</table><br/>' +
-                                        '<label class="required">Remarks</label>' +
-                                          '<textarea id="txtResonCancel" name="reason" class="form-control" row="2" required>'+
-                                          '</textarea><br/>' +
-                                        '<label>Attachment (optional)</label>' + '<br/>' +
-                                        '<input type="file" id="attachement" name="attachement" /> ' +
-                                        '<input type="hidden" name="appid" value=' + item.STEId + ' />' +
-                                        '<input type="hidden" name="apptype" value="STE" />' +
-                                    '</div>' +
-                                 '</form>',
+                                     '<form action=""  class="formName">' +
+                                     '<div class="form-group"><br/>' +
+                                     '<table>' +
+                                     '<tr><th>Application No</th><th>&nbsp;&nbsp;:&nbsp;&nbsp;</th><td>' + item.STEAppNo + '</td></tr><tr>' +
+                                     '<th><br/></th><th></th><td></td></tr>' +
+                                     '<th>Candidate Name</th><th>&nbsp;&nbsp;:&nbsp;&nbsp;</th><td>' + item.CandidateName + '</td></tr>' +
+                                     '</table><br/>' +
+                                     '<label class="required">Remarks</label>' +
+                                     '<textarea id="txtResonCancel" name="reason" class="form-control" row="2" required>' +
+                                     '</textarea><br/>' +
+                                     '<label>Attachment (optional)</label>' + '<br/>' +
+                                     '<input type="file" id="attachement" name="attachement" /> ' +
+                                     '<input type="hidden" name="appid" value=' + item.STEId + ' />' +
+                                     '<input type="hidden" name="apptype" value="STE" />' +
+                                     '</div>' +
+                                     '</form>',
                                  type: 'blue',
                                  typeAnimated: true,
                                  boxWidth: '450px',
@@ -485,13 +490,31 @@
                              });
                          }
                          else if (selVal == "View") {
-                             if (item.Status == "Committee Clarify" || (item.Status != "Cancellation Initiated" && (item.isGovAgencyFund || item.isCommitmentRejection))) {
-                                 var url = '@Url.Action("RCTOverAllView", "Requirement")?ApplicationId=' + item.STEId + '&AppType=STE&listf=AL';
-                                 window.location.href = url;
-                             }
-                             else {
-                                 var url = '@Url.Action("STEView", "Requirement")?STEID=' + item.STEId + '&listf=AL';
-                                 window.location.href = url;
+                             var url = '@Url.Action("RCTConsultantNewEntryView", "Requirement")?ConsultantServiceID=' + item.Consultant_AppointmentId;
+                             window.location.href = url;
+                         }
+                         else if (selVal == "Send for Approval") {
+                             var choice = confirm("Submit for approval?");
+                             if (choice === true) {
+                                 $.ajax({
+                                     type: "POST",
+                                     url: '@Url.Action("RCTConsultantNewEntryInit", "Requirement")',
+                                     data: {
+                                         ConsultantServiceID: item.Consultant_AppointmentId,
+                                     },
+                                     success: function (result) {
+                                         if (result == "Application submitted for approval") {
+                                             $('#alertSuccess').html("Application submitted for approval");
+                                             $('#Success').modal('toggle');
+                                             $("#gridConApp").jsGrid("search");
+                                         }
+                                         else {
+                                             $('#FailedAlert').html(result.msg);
+                                             $('#Failed').modal('toggle');
+                                             $("#gridConApp").jsGrid("search");
+                                         }
+                                     }
+                                 });
                              }
                          }
                          $(this).val("");
@@ -510,86 +533,4 @@
 
     });
     $("#gridConApp").jsGrid("option", "filtering", false);
-
-    /* Update Edit details */
-
-    function Editconsultant() {
-        $('#GetConsDetail1').attr("readonly", false);
-         $('#Consultant_WorkPlace').attr("readonly", true);
-         //$('#ServiceDes').attr("readonly", false);
-         //$('#Consultant_AoE').attr("readonly", false);
-         //$('#Consultant_SoW').attr("readonly", false);
-         //$('#Consultant_DAComments').attr("readonly", false);
-         //$('#Consultant_TandC').attr("readonly", false);
-         //$('#Consultant_PaymentTerms').attr("readonly", false);
-         //$('#Consultant_ProjectNumber').attr("readonly", false);
-         //$('#Consultant_AutofillReqInitBy').attr("readonly", false);
-         //parentdiv = $('#Consultant_Mode').parent();
-         //parentdiv.removeClass('disabled');
-         //$('#Consultant_Mode').removeAttr("disabled");
-         //$(parentdiv).find('button').each(function () {
-         //    $(this).removeClass("disabled");
-         //});
-         //var currentdate = moment(new Date()).toDate();
-         //$('#Consultant_ReqReceivedDate').datepicker({
-         //    dateFormat: 'dd-MM-yy',
-         //    changeYear: true
-         //}).datepicker("option", "maxDate", currentdate);
-         //$('#Consultant_ITTDSType').attr("readonly", false);
-         //$('#Consultant_ITTDSType').css('pointer-events', '');
-         //$('#Consultant_PayType').attr("readonly", false);
-         //$('#Consultant_PayType').css('pointer-events', '');
-         //$('#Consultant_RetainerFee').attr("readonly", false);
-         //if ($.trim(result.Consultant_EmpType) == "CFF" || $.trim(result.Consultant_EmpType) == "CIF") {
-         //    $('#CurrType').attr("readonly", false);
-         //    $('#CurrType').css('pointer-events', '');
-         //    $('#Consultant_CurrValue').attr("readonly", false);
-         //    $('#Consultant_CurrConvertionRate').attr("readonly", false);
-         //    $('#Consultant_RetainerFee').attr("readonly", true);
-         //    $('#Consultant_RCMCategoryy').attr("readonly", false);
-         //    $('#Consultant_RCMCategoryy').css('pointer-events', '');
-         //    $('#Consultant_RCMCategory').attr("disabled", false);
-         //}
-         //else {
-         //    $('#CurrType').attr("readonly", true);
-         //    $('#CurrType').css('pointer-events', 'none');
-         //    $('#CurrType').val('');
-         //    $('#Consultant_CurrValue').attr("readonly", true);
-         //    $('#Consultant_CurrValue').val('');
-         //    $('#Consultant_CurrConvertionRate').attr("readonly", true);
-         //    $('#Consultant_CurrConvertionRate').val('');
-         //    $('#Consultant_RetainerFee').val('');
-         //    $('#Consultant_CurrFlutuationvalue').val('');
-         //    $('#Consultant_RCMCategoryy').attr("readonly", true);
-         //    $('#Consultant_RCMCategoryy').css('pointer-events', 'none');
-         //    $('#Consultant_RCMCategoryy').val('');
-         //}
-         //if ($.trim(result.Consultant_EmpType) == "CID" || $.trim(result.Consultant_EmpType) == "CIF") {
-         //    $('#Consultant_Code').attr("readonly", false);
-         //}
-         //else {
-         //    $('#Consultant_Code').attr("readonly", true);
-         //    $('#Consultant_Code').val('');
-         //    $('#Consultant_Title').attr("readonly", true);
-         //    $('#Consultant_Title').val('');
-         //}
-         //if ($.trim(result.Consultant_EmpType) == "CFD" || $.trim(result.Consultant_EmpType) == "CID") {
-         //    $('#Consultant_GSTStatus').attr("readonly", false);
-         //    $('#Consultant_GSTStatus').css('pointer-events', '');
-         //}
-         //    else {
-         //    $('#Consultant_GSTStatus').attr("readonly", true);
-         //    $('#Consultant_GSTStatus').css('pointer-events', 'none');
-         //    $('#Consultant_GSTStatus').val('');
-         //    $('#Consultant_GSTINPercentagee').attr("readonly", true);
-         //    $('#Consultant_GSTINPercentagee').css('pointer-events', 'none');
-         //    $('#Consultant_GSTINPercentagee').val('');
-         //    $('#Consultant_GSTIN').attr("readonly", true);
-         //    $('#Consultant_GSTIN').val('');
-         //    $('#Consultant_GSTEligibilityy').attr("readonly", true);
-         //    $('#Consultant_GSTEligibilityy').css('pointer-events', 'none');
-         //    $('#Consultant_GSTEligibilityy').val('');
-         //}
-         
-                }
 </script>

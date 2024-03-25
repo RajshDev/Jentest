@@ -1010,6 +1010,7 @@ namespace IOAS.Models
         public string List_f { get; set; }
         public bool MailSent_f { get; set; }
         public string IITMExperience { get; set; }
+        public string TypeofEmp { get; set; }
 
     }
 
@@ -3108,18 +3109,18 @@ namespace IOAS.Models
 
     }
 
-    public class ConsultantSearchModel
-    {
-        public string ConsultantAppNo { get; set; }
-        public string PIName { get; set; }
-        public string PIEmail { get; set; }
-        public string CondidateName { get; set; }
-        public string Category { get; set; }
-        public string ProjectNumber { get; set; }
-        public string Status { get; set; }
-        public List<ConsultantAppointmentModel> conList { get; set; }
-        public int TotalRecords { get; set; }
-    }
+    //public class ConsultantSearchModel
+    //{
+    //    public string ConsultantAppNo { get; set; }
+    //    public string PIName { get; set; }
+    //    public string PIEmail { get; set; }
+    //    public string CondidateName { get; set; }
+    //    public string Category { get; set; }
+    //    public string ProjectNumber { get; set; }
+    //    public string Status { get; set; }
+    //    public List<ConsultantAppointmentModel> conList { get; set; }
+    //    public int TotalRecords { get; set; }
+    //}
 
     public class ConsultantMaster
     {
@@ -3798,6 +3799,8 @@ namespace IOAS.Models
         public Nullable<decimal> Consultant_GSTvalue { get; set; }
         public Nullable<int> Consultant_GSTEligibility { get; set; }
         public Nullable<decimal> Consultant_Commitvalue { get; set; }
+        public Nullable<decimal> Consultant_Commitwithdrawvalue { get; set; }
+        public Nullable<decimal> Consultant_Estimatedvalue { get; set; }
         public Nullable<decimal> Consultant_Projectvalue { get; set; }
         public Nullable<int> Consultant_ITTDSType { get; set; }
         public Nullable<int> Consultant_ITTDSPercentage { get; set; }
@@ -3830,6 +3833,7 @@ namespace IOAS.Models
         public string[] Consultant_DocumentRemarks { get; set; }
         public string[] Consultant_DocumentName { get; set; }
         public string[] Consultant_DocumentNameEncrypted { get; set; }
+        public bool Legal_f { get; set; }
         public HttpPostedFileBase Consultant_DocumentName1 { get; set; }
         public List<ConsultantMaster> ConsultantMasterList { get; set; }
     }

@@ -23,6 +23,7 @@ namespace IOAS.Controllers
     public class RequirementController : Controller
     {
         private static readonly Object lockObj = new Object();
+        private static readonly Object CONSWfInitlockObj = new Object();
         private static readonly Object lockCommitCloserequestObj = new Object();
         private static readonly Object lockCommitAddrequestObj = new Object();
         private static readonly Object lockCommitbookrequestObj = new Object();
@@ -11237,14 +11238,25 @@ namespace IOAS.Controllers
                         return View(model);
                     }
                 }
-                //else
-                //{
-                //    string messages = string.Join("<br />", ModelState.Values
-                //    .SelectMany(x => x.Errors)
-                //    .Select(x => x.ErrorMessage));
-                //    messages += Errormessages;
-                //    TempData["errMsg"] = messages;
-                //}
+                else if (model.Consultant_Status == "Awaiting Verification")
+                {
+                    var result = recruitmentService.PostConsultant(model, file, UserId);
+                    if (result.Item1 == 3)
+                    {
+                        TempData["succMsg"] = "Verification submitted for commitment update";
+                        return RedirectToAction("RCTConsultantList", "Requirement");
+                    }
+                    else if (result.Item1 == 4)
+                    {
+                        TempData["succMsg"] = "Verification Completed";
+                        return RedirectToAction("RCTConsultantList", "Requirement");
+                    }
+                    else
+                    {
+                        TempData["errMsg"] = "Something went wrong please contact administrator";
+                        return View(model);
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -11315,6 +11327,27 @@ namespace IOAS.Controllers
             }
         }
 
+        [HttpGet]
+        public ActionResult RCTConsultantEMPMasterList()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public JsonResult GetRCTConsultantEMPMasterList(RCTConsultantSearchModel model, int pageIndex, int pageSize)
+        {
+            try
+            {
+                object output = RequirementService.GetRCTConsultantList(model, pageIndex, pageSize);
+                return Json(output, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                WriteLog.SendErrorToText(ex);
+                throw ex;
+            }
+        }
+
         public ActionResult _ConsultantMasterView(int Vendorid = 0)
         {
             try
@@ -11328,6 +11361,107 @@ namespace IOAS.Controllers
             {
                 throw ex;
             }
+        }
+
+        public ActionResult RCTConsultantNewEntryView(HttpPostedFileBase[] file, int ConsultantServiceID = 0)
+        {
+            ConsultantEmployeeEntry model = new ConsultantEmployeeEntry();
+            try
+            {
+                ViewBag.List = new List<MasterlistviewModel>();
+                ViewBag.ConsultantGSTType = Common.GetCodeControlList("ConsultantGSTType");
+                ViewBag.TaxPctList = Common.GetCodeControlList("TaxPercentage");
+                ViewBag.Currency = Common.getCurrency(true);
+                ViewBag.ConsultantCommonTaxType1 = Common.GetCodeControlList("ConsultantCommonTaxType1");
+                ViewBag.ConsultantCommonTaxType2 = Common.GetCodeControlList("ConsultantCommonTaxType2");
+                ViewBag.ConsultantRCMTaxType = Common.GetCodeControlList("ConsultantRCMTaxType");
+                ViewBag.TDSSectionList = Common.GetTdsList();
+                ViewBag.ConsultantMode = Common.GetCodeControlList("ConsultantMode");
+                ViewBag.ConsultantPaymentType = Common.GetCodeControlList("ConsultantPaymentType");
+                ViewBag.ConsultantDocType = Common.GetCodeControlList("ConsultantDocType");
+                model = recruitmentService.GetRCTConsultantNewEntryView(ConsultantServiceID, file);
+                if (model.Consultant_FlowApprover == "CMAdmin")
+                    ViewBag.processGuideLineId = Common.GetProcessGuidelineId(241, "ConsAdminFlow", 0);
+                else if (model.Consultant_FlowApprover == "NDean")
+                    ViewBag.processGuideLineId = Common.GetProcessGuidelineId(241, "ConsDeanFlow", 0);
+                else
+                    ViewBag.processGuideLineId = Common.GetProcessGuidelineId(241, "ConsHRFlow", 0);
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public ActionResult _RCTConsultantNewEntryView(HttpPostedFileBase[] file, int ConsultantServiceID = 0)
+        {
+            ConsultantEmployeeEntry model = new ConsultantEmployeeEntry();
+            try
+            {
+                ViewBag.List = new List<MasterlistviewModel>();
+                ViewBag.ConsultantGSTType = Common.GetCodeControlList("ConsultantGSTType");
+                ViewBag.TaxPctList = Common.GetCodeControlList("TaxPercentage");
+                ViewBag.Currency = Common.getCurrency(true);
+                ViewBag.ConsultantCommonTaxType1 = Common.GetCodeControlList("ConsultantCommonTaxType1");
+                ViewBag.ConsultantCommonTaxType2 = Common.GetCodeControlList("ConsultantCommonTaxType2");
+                ViewBag.ConsultantRCMTaxType = Common.GetCodeControlList("ConsultantRCMTaxType");
+                ViewBag.TDSSectionList = Common.GetTdsList();
+                ViewBag.ConsultantMode = Common.GetCodeControlList("ConsultantMode");
+                ViewBag.ConsultantPaymentType = Common.GetCodeControlList("ConsultantPaymentType");
+                ViewBag.ConsultantDocType = Common.GetCodeControlList("ConsultantDocType");
+                model = recruitmentService.GetRCTConsultantNewEntryView(ConsultantServiceID, file);
+                if (model.Consultant_FlowApprover == "CMAdmin")
+                    ViewBag.processGuideLineId = Common.GetProcessGuidelineId(241, "ConsAdminFlow", 0);
+                else if (model.Consultant_FlowApprover == "NDean")
+                    ViewBag.processGuideLineId = Common.GetProcessGuidelineId(241, "ConsDeanFlow", 0);
+                else
+                    ViewBag.processGuideLineId = Common.GetProcessGuidelineId(241, "ConsHRFlow", 0);
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        [HttpPost]
+        public string RCTConsultantNewEntryInit(int ConsultantServiceID = 0, string status = "false")
+        {
+            ConsultantEmployeeEntry model = new ConsultantEmployeeEntry();
+            try
+            {
+                int userId = Common.GetUserid(User.Identity.Name);
+                var sts = recruitmentService.CONSWFInit(ConsultantServiceID, userId);
+                string retmsg = "";
+                if (sts.Item1 == true && (sts.Item2 == null || sts.Item2 == ""))
+                {
+                    retmsg = "Application submitted for approval";
+                }
+                else if (sts.Item2 != null)
+                {
+                    retmsg = sts.Item2;
+                }
+                return retmsg;
+            }
+            catch (Exception ex)
+            {
+                WriteLog.SendErrorToText(ex);
+                return ex.Message;
+            }
+        }
+        public JsonResult RCTGetTDSpercentage(String type = "")
+        {
+            try
+            {
+                object output = RequirementService.getRCTConsTDSdetail(type);
+                return Json(output, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
         }
 
         #endregion

@@ -1,0 +1,900 @@
+﻿@model IOAS.Models.ConsultantEmployeeEntry
+@using IOAS.GenericServices
+@{
+    ViewBag.Title = "RCTConsultantNewEntryView";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+    <link href="@Url.Content("~/Content/IOASContent/assets/bootstrap-select/css/bootstrap-select.min.css")" rel="stylesheet" />
+}
+@*<script src="@Url.Content("~/Scripts/Project/Project.js")"></script>*@
+
+
+<style>
+    .modal-dialog {
+        width: 850px;
+    }
+
+    .tab-cls-close {
+        float: right;
+        font-size: 24px;
+        margin-top: 18px;
+    }
+
+    .cls-a-wt {
+        color: #ffffff;
+    }
+
+    .rc-tb-scrl {
+        width: 100%;
+        overflow: auto;
+    }
+
+        .rc-tb-scrl table {
+            max-width: 2100px !important;
+            width: 2000px;
+        }
+
+    .reg-no {
+        z-index: 1 !important;
+    }
+
+    .error {
+        color: red;
+        margin-left: 5px;
+    }
+
+    .highlight {
+        background-color: yellow; /* Add your desired highlighting styles here */
+    }
+</style>
+
+
+<div class="row hd-tt-bg">
+    <div class="col-md-12">
+        <h4><b>Consultant New Entry</b></h4>
+        <ul class="nav nav-pills custom-nav-pills custom-spl-nav">
+            <li class="active"><a href="javascript:void(0)"><span>01</span>Application Entry</a></li>
+        </ul>
+        <a class="tab-cls-close" href="@Url.Action("RCTConsultantList", "Requirement")"><i class="ion-close-circled" style="color:white;"></i></a>
+    </div>
+</div>
+<div class=" row cust-tab">
+    <div class="page-wrapper mt30">
+        <div>
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="bl-lg-panel-box pb-null">
+                            <div class="cmn-panel-box">
+                                <h1 class="spl-title" style="font-size:25px">Consultant Details</h1>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-group custom-form-group">
+                                            <label>Consultant ID</label>
+                                            @Html.TextBoxFor(m => m.Consultant_EmpNo, new { @class = "form-control required", @id = "GetConsDetail1", @readonly = "readonly" })
+                                            @Html.HiddenFor(m => m.Consultant_MasterId, new { @id = "txtConMasterId" })
+                                            @Html.HiddenFor(m => m.Consultant_Status, new { @id = "consstatus" })
+                                            @Html.HiddenFor(m => m.Consultant_AppointmentId, new { @id = "AppID" })
+                                            @Html.HiddenFor(m => m.Consultant_AppNo, new { @id = "AppNo" })
+                                            <div>@Html.ValidationMessageFor(m => m.Consultant_EmpNo)</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group">
+                                            <label>Consultant Name</label>
+                                            @Html.TextBoxFor(m => m.Consultant_Name, new { @class = "form-control", @readonly = "readonly" })
+                                            <div>@Html.ValidationMessageFor(m => m.Consultant_Name)</div>
+                                            <h4 id="lblConsultantEmpName"></h4>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-group custom-form-group">
+                                            <input type="button" class="btn btn-success" value="View details" id="btnViewConsDetails">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group custom-form-group">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-8">
+                                        <div class="form-group custom-form-group">
+                                            <label class="required">Description of services</label>
+                                            @Html.TextAreaFor(m => m.Consultant_ServiceDescription, new { @class = "form-control", @style = "height : 80px", @id = "ServiceDes", @readonly = "readonly" })
+                                            <div>@Html.ValidationMessageFor(m => m.Consultant_ServiceDescription)</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3" style="font-size: 20px;">
+                                        <div class="form-group custom-form-group">
+                                            <div>
+                                                <br>
+                                            </div>
+                                            @Html.CheckBoxFor(m => m.Legal_f, new { disabled = "disabled" })
+                                            <span></span>
+                                            Is legal service
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group">
+                                            <label>Consultant Type</label>
+                                            @Html.TextBoxFor(m => m.Consultant_Type, new { @class = "form-control", @readonly = "readonly", @id = "ConsType" })
+                                            @Html.HiddenFor(m => m.ConsultantMasterList[0].Consultant_EmpType, new { @id = "consemptype" })
+                                            <div>@Html.ValidationMessageFor(m => m.Consultant_Type)</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group">
+                                            <label>Area of Expertise</label>
+                                            @Html.TextAreaFor(m => m.Consultant_AoE, new { @class = "form-control", @style = "height : 80px", @readonly = "readonly" })
+                                            <div>@Html.ValidationMessageFor(m => m.Consultant_AoE)</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group">
+                                            <label>Scope of Work</label>
+                                            @Html.TextAreaFor(m => m.Consultant_SoW, new { @class = "form-control", @style = "height : 80px", @readonly = "readonly" })
+                                            <div>@Html.ValidationMessageFor(m => m.Consultant_SoW)</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group">
+                                            <label class="required">Terms and Conditions</label>
+                                            @Html.TextAreaFor(m => m.Consultant_TandC, new { @class = "form-control", @style = "height : 80px", @readonly = "readonly" })
+                                            <div>@Html.ValidationMessageFor(m => m.Consultant_TandC)</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group custom-form-group">
+                                            <label class="required">Payment Terms</label>
+                                            @Html.TextAreaFor(m => m.Consultant_PaymentTerms, new { @class = "form-control", @style = "height : 80px", @readonly = "readonly" })
+                                            <div>@Html.ValidationMessageFor(m => m.Consultant_PaymentTerms)</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="bl-lg-panel-box pb-null">
+                            <div class="bl-lg-panel-box-hd mb-m-5 pd-null">
+                                <div class="cmn-panel-box">
+                                    <h1 class="spl-title" style="font-size:25px; color:white">Project details</h1>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group">
+                                                <label class="required">Project Number</label><br>
+                                                @Html.TextBoxFor(m => m.Consultant_ProjectNumber, new { @class = "form-control", @readonly = "readonly" })
+                                                @Html.HiddenFor(m => m.Consultant_ProjectId)
+                                                @Html.HiddenFor(m => m.Consultant_Projectvalue)
+                                                <div>@Html.ValidationMessageFor(m => m.Consultant_ProjectNumber)</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group custom-form-group">
+                                                <label>Project Title</label><br>
+                                                <h4 id="lblProjectTitle"></h4>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group">
+                                                <label>PI Name</label>
+                                                <h4 id="lblProjectPIName"></h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="form-group custom-form-group">
+                                                <label>PI ID</label>
+                                                <h4 id="lblProjectPIID"></h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group">
+                                                <label>PI Email</label>
+                                                <h4 id="lblProjectPIEmail"></h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="form-group custom-form-group">
+                                                <label>Tax %</label>
+                                                <h4 id="lblTaxPercentage"></h4>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-5">
+                                            <div class="form-group custom-form-group">
+                                                <label>Department Name</label>
+                                                <h4 id="lblProjectPIDepartment"></h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group">
+                                                <label>Department Code</label>
+                                                <h4 id="lblProjectPIDepartmentCode"></h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group">
+                                                <label class="required">Request Received Date</label>
+                                                @Html.TextBoxFor(m => m.Consultant_ReqReceivedDate, new { @class = "form-control", @readonly = "readonly" })
+                                                <div>@Html.ValidationMessageFor(m => m.Consultant_ReqReceivedDate)</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-5">
+                                            <div class="form-group custom-form-group">
+                                                <label>Project Start Date</label>
+                                                <h4 id="lblProjectStartDate"></h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group">
+                                                <label>Project End Date</label>
+                                                <h4 id="lblProjectEndDate"></h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group">
+                                                <label class="required">Requested By</label>
+                                                @Html.TextBoxFor(m => m.Consultant_AutofillReqInitBy, new { @class = "form-control", @readonly = "readonly" })
+                                                @Html.HiddenFor(m => m.Consultant_ReqInitBy)
+                                                @*<div>@Html.ValidationMessageFor(m => m.Consultant_AutofillReqInitBy)</div>*@
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group">
+                                                <br />
+                                                <input type="button" class="btn btn-success" value="Project Fund Availability" id="btnViewSummary" style="height : 60px;width : 250px">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group">
+                                                <label>Project Balance</label>
+                                                <h4 id="lblProjectBal"></h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group">
+                                                <label class="required">Workplace</label><br>
+                                                @Html.TextBoxFor(m => m.Consultant_WorkPlace, new { @class = "form-control", @readonly = "readonly" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group">
+                                                <br />
+                                                <input type="button" class="btn btn-success" value="View Staff Allocation" id="btnViewStaffAllocation" style="height : 60px;width : 250px">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-8">
+                                            <div class="form-group custom-form-group">
+                                                <label>DA Comments</label><br>
+                                                @Html.TextAreaFor(m => m.Consultant_DAComments, new { @class = "form-control", @readonly = "readonly" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="bl-lg-panel-box pb-null">
+                            <div class="cmn-panel-box">
+                                <h1 class="spl-title" style="font-size:25px">Payment / Tax Details</h1>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-group custom-form-group">
+                                            <label>Currency Type</label><br>
+                                            @Html.DropDownListFor(m => m.Consultant_CurrType, new SelectList(ViewBag.Currency, "id", "name"), "Select", new { @class = "form-control", @id = "CurrType", @name = "CurrType1", style = "pointer-events: none;", @readonly = "readonly" })
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group custom-form-group">
+                                            <label>Foreign Currency Value</label><br>
+                                            @Html.TextBoxFor(m => m.Consultant_CurrValue, new { @class = "form-control", @readonly = "readonly" })
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group custom-form-group">
+                                            <label>Additional Commitment <i class="ion-information-circled" data-toggle="tooltip" data-html="true" title="Exchange rate fluctuation"></i></label><br>
+                                            @Html.TextBoxFor(m => m.Consultant_CurrFlutuationvalue, new { @class = "form-control", @readonly = "readonly" })
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-group custom-form-group">
+                                            <label>GST Status</label><br>
+                                            @Html.DropDownListFor(m => m.Consultant_GSTStatus, new SelectList(ViewBag.ConsultantGSTType, "id", "name"), "Select", new { @class = "form-control", style = "pointer-events: none;", @readonly = "readonly" })
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group custom-form-group">
+                                            <label>GST Number</label>
+                                            @Html.TextBoxFor(m => m.Consultant_GSTIN, new { @class = "form-control", @readonly = "readonly" })
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group custom-form-group">
+                                            <label>GST / RCM %</label><br>
+                                            @Html.DropDownListFor(m => m.Consultant_GSTINPercentage, new SelectList(ViewBag.TaxPctList, "id", "name"), "Select", new { @id = "Consultant_GSTINPercentagee", @class = "form-control", style = "pointer-events: none;", @readonly = "readonly" })
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-group custom-form-group">
+                                            <label class="required">IT TDS</label><br>
+                                            @Html.DropDownListFor(m => m.Consultant_ITTDSType, new SelectList(ViewBag.ConsultantCommonTaxType1, "id", "name"), "Select", new { @class = "form-control", style = "pointer-events: none;", @readonly = "readonly" })
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group custom-form-group">
+                                            <label>IT TDS %</label><br>
+                                            @Html.DropDownListFor(m => m.Consultant_ITTDSPercentage, new SelectList(ViewBag.TDSSectionList, "id", "name"), "Select", new { @class = "form-control", style = "pointer-events: none;", @readonly = "readonly" })
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group custom-form-group">
+                                            <label>IT TDS Exempted Expiry Date</label>
+                                            @Html.TextBoxFor(m => m.Consultant_ITTDSExemptedDate, new { @class = "form-control", @readonly = "readonly" })
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="form-group custom-form-group">
+                                            <label>GST TDS</label>
+                                            @Html.DropDownListFor(m => m.Consultant_GSTTDSType, new SelectList(ViewBag.ConsultantCommonTaxType2, "id", "name"), "Select", new { @id = "Consultant_GSTTDSTypes", @class = "form-control", style = "pointer-events: none;", @readonly = "readonly" })
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group custom-form-group">
+                                            <label>RCM</label>
+                                            @Html.DropDownListFor(m => m.Consultant_RCMCategory, new SelectList(ViewBag.ConsultantCommonTaxType2, "id", "name"), "Select", new { @id = "Consultant_RCMCategoryy", @class = "form-control", style = "pointer-events: none;", @readonly = "readonly" })
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group custom-form-group">
+                                            <label>RCM Type</label>
+                                            @Html.DropDownListFor(m => m.Consultant_RCMType, new SelectList(ViewBag.ConsultantRCMTaxType, "id", "name"), "Select", new { @class = "form-control", style = "pointer-events: none;", @readonly = "readonly" })
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group custom-form-group">
+                                            <label>ITC Eligibility</label>
+                                            @Html.DropDownListFor(m => m.Consultant_GSTEligibility, new SelectList(ViewBag.ConsultantCommonTaxType2, "id", "name"), "Select", new { @id = "Consultant_GSTEligibilityy", @class = "form-control", style = "pointer-events: none;", @readonly = "readonly" })
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="bl-lg-panel-box pb-null">
+                            <div class="bl-lg-panel-box-hd mb-m-5 pd-null">
+                                <div class="cmn-panel-box">
+                                    <h1 class="spl-title" style="font-size:25px; color:white">Engagement Details</h1>
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group">
+                                                <label>Consultant Code</label>
+                                                @Html.TextBoxFor(m => m.Consultant_Code, new { @class = "form-control", @readonly = "readonly", @autocomplete = "off" })
+                                            </div>
+                                        </div>
+                                        <div class="col-md-5">
+                                            <div class="form-group custom-form-group">
+                                                <label>Consultant Title</label>
+                                                @Html.TextBoxFor(m => m.Consultant_Title, new { @class = "form-control", @readonly = "readonly" })
+                                                @Html.HiddenFor(M => M.Consultant_CodeId)
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group">
+                                                <label class="required">Consultant Mode</label><br>
+                                                @Html.DropDownListFor(m => m.Consultant_Mode, new SelectList(ViewBag.ConsultantMode, "id", "name"),
+                                               new { @class = "form-control selectpicker", @multiple = "multiple", @title = "Select any", @disabled = "disabled"})
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group">
+                                                <label class="required">Service Start date</label>
+                                                @Html.TextBoxFor(m => m.Consultant_AppStartDt, new { @class = "form-control", @readonly = "readonly" })
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group">
+                                                <label class="required">Service End date</label>
+                                                @Html.TextBoxFor(m => m.Consultant_AppEndDt, new { @class = "form-control", @readonly = "readonly" })
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group">
+                                                <label class="required">Payment Type</label><br>
+                                                @Html.DropDownListFor(m => m.Consultant_PayType, new SelectList(ViewBag.ConsultantPaymentType, "id", "name"), "Select", new { @class = "form-control", style = "pointer-events: none;", @readonly = "readonly" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group">
+                                                <label class="required">Retainer Fee in INR</label><br>
+                                                @Html.TextBoxFor(m => m.Consultant_RetainerFee, new { @class = "form-control", @readonly = "readonly" })
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group">
+                                                <label>GST / RCM Value</label><br>
+                                                @Html.TextBoxFor(m => m.Consultant_GSTvalue, new { @class = "form-control", @readonly = "readonly" })
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group">
+                                                <label>Conversion rate</label><br>
+                                                @Html.TextBoxFor(m => m.Consultant_CurrConvertionRate, new { @class = "form-control", @readonly = "readonly" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group">
+                                                <label class="required">Audit Approval</label><br>
+                                                @if (Model != null && Model.Consultant_AuditApproval == true)
+                                                {
+                                                    @Html.RadioButtonFor(M => M.Consultant_AuditApproval, true, new { @id = "IsAuditapprovalYes", @checked = "checked", @disabled = "disabled" })@:&nbsp;<label>Yes</label>
+                                                    @Html.RadioButtonFor(M => M.Consultant_AuditApproval, false, new { @id = "IsAuditapprovalNo", @disabled = "disabled" })@:&nbsp;<label>No</label>
+                                                }
+                                                else
+                                                {
+                                                    @Html.RadioButtonFor(M => M.Consultant_AuditApproval, true, new { @id = "IsAuditapprovalYes", @disabled = "disabled" })@:&nbsp;<label>Yes</label>
+                                                    @Html.RadioButtonFor(M => M.Consultant_AuditApproval, false, new { @id = "IsAuditapprovalNo", @checked = "checked", @disabled = "disabled" })@:&nbsp;<label>No</label>
+                                                }
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group">
+                                                <label class="required">Category</label><br>
+                                                @if (Model != null && Model.Consultant_WPCategory != null)
+                                                {
+                                                    @Html.RadioButtonFor(M => M.Consultant_WPCategory, 1, new { @id = "IsICSR", @checked = "checked", @disabled = "disabled" })@:&nbsp;<label>ICSR</label>
+                                                    @Html.RadioButtonFor(M => M.Consultant_WPCategory, 0, new { @id = "IsNonICSR", @disabled = "disabled" })@:&nbsp;<label>Non-ICSR</label>
+                                                }
+                                                else
+                                                {
+                                                    @Html.RadioButtonFor(M => M.Consultant_WPCategory, 1, new { @id = "IsICSR", @disabled = "disabled" })@:&nbsp;<label>ICSR</label>
+                                                    @Html.RadioButtonFor(M => M.Consultant_WPCategory, 0, new { @id = "IsNonICSR", @checked = "checked", @disabled = "disabled" })@:&nbsp;<label>Non-ICSR</label>
+                                                }
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Estimated Total value</label><br>
+                                                    @Html.TextBoxFor(m => m.Consultant_Estimatedvalue, new { @class = "form-control", @readonly = "readonly" })
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 reg-no custom-reg-no">
+                                            <div class="form-group custom-form-group">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Commitment Value</label><br>
+                                                    @Html.TextBoxFor(m => m.Consultant_Commitvalue, new { @class = "form-control", @readonly = "readonly" })
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="bl-lg-panel-box pb-null">
+                        <div class="cmn-panel-box">
+                            <div class="grey-bg-adj mb-lg">
+                                <div class="col-md-12">
+                                    <h3 class="spl-title">Supporting Documents</h3>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div id="DocdivContent">
+                                    <div class="col-md-11 mt10">
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group">
+                                                <label>Attachment type</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-group custom-form-group">
+                                                <label> Attachment Name </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group custom-form-group">
+                                                <label> Attachment (.pdf, .doc, .docx)</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-1">
+
+                                        </div>
+                                    </div>
+                                    <div id="DocprimaryDiv">
+                                        <div class="col-md-11">
+                                            <div class="col-md-4">
+                                                <div class="form-group custom-form-group">
+                                                    @Html.DropDownList("Consultant_DocumentType", new SelectList(ViewBag.ConsultantDocType, "id", "name"), "Select Document Type",
+                                                    new { @class = "form-control", @id = "doctype", @readonly = "readonly" })
+                                                    @Html.Hidden("Consultant_DocumentId")
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group">
+                                                    @*<input class="form-control" name="Consultant_DocumentName" id="ConsultantDocumentName" value="" type="text">*@
+                                                    @Html.TextBoxFor(m => m.Consultant_DocumentName, new { @class = "form-control", @readonly = "readonly", @name = "Consultant_DocumentName", @id = "ConsultantDocumentName" })
+                                                </div>
+                                            </div>
+                                            @*<div class="col-md-2" id="browsebtn">
+                                                    <div class="form-group custom-form-group mt5">
+                                                        <input type="file" name="file" id="Consultant_DocumentNameEncrypted" />&nbsp;&nbsp;&nbsp;
+                                                    </div>
+                                                </div>*@
+                                            <div class="col-md-2 doclink mt6" id="doclink">
+                                                @*<a href="@Url.Action("ShowDocument", new { Controller = "Manage", file = Model.DocPath, filepath = "~/Content/ProposalDocuments/", link=Model.DocPath })"> </a>*@
+                                                <a href="#" class="link1" target="_blank"></a>
+                                                @Html.Hidden("Consultant_DocumentNameEncrypted", "", new { @class = "HiddenDocPath" })
+                                            </div>
+                                            @*<div class="col-md-1 ml40 mt5">
+                                                    <input class="btn btn-default dis-none" type="button" value="remove" id="firstremoveButton" />
+                                                </div>
+                                                <div class="col-md-1 ml40 mt5">
+                                                    <button class="dis-none" type="button" id="idremoveButton" name="removeButton"><i class="ion-android-close"></i></button>
+                                                </div>*@
+                                        </div>
+                                    </div>
+                                </div>
+                                @*<div class="col-md-1">
+                                        <button type="button" id="btnAddDoc" class="btn-sm"><i class="ion-android-add"></i> </button>
+                                    </div>*@
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-6">
+    </div>
+    <div class="col-md-6" id="flowdiv">
+        <div class="bl-lg-panel-box pb-null">
+            <div class="bl-lg-panel-box-hd mb-m-5 pd-null">
+                <div class="cmn-panel-box">
+                    <div class="row">
+                        <div class="col-md-4" id="devCMAdmin">
+                            <div class="form-group custom-form-group">
+                                @Html.RadioButtonFor(m => m.Consultant_FlowApprover, "CMAdmin", new { @id = "IsNotetoCMAdmin", disabled = "disabled" }) <label class="ml-sm">Note to CM Admin</label>
+                            </div>
+                        </div>
+                        <div class="col-md-4" id="devNoteDean">
+                            <div class="form-group custom-form-group">
+                                @Html.RadioButtonFor(m => m.Consultant_FlowApprover, "NDean", new { @id = "IsNotetoDean", disabled = "disabled" }) <label class="ml-sm " id="lblNoteDean">Note to Dean</label>
+                            </div>
+                        </div>
+                        @*@if (string.IsNullOrEmpty(Model.Status) || Model.Status == "Draft")
+                            {*@
+                        @*<div class="col-md-4" id="">
+                                <div class="form-group custom-form-group">
+                                    <a id="clearFlow" style="color:#ffffff;" disabled = "disabled" >Clear</a>
+                                </div>
+                            </div>*@
+                        @*}*@
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6" id="withdraw">
+        <div class="bl-lg-panel-box pb-null">
+            <div class="bl-lg-panel-box-hd mb-m-5 pd-null">
+                <div class="cmn-panel-box">
+                    <div class="row">
+                        <div class="col-md-4" id="">
+                            <div class="form-group custom-form-group">
+                                <label>Withdrawal Commitment Value</label><br>
+                                @Html.TextBoxFor(m => m.Consultant_Commitwithdrawvalue, new { @class = "form-control", @readonly = "readonly" })
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="text-center" style="margin-bottom: 50px;">
+    @*@if (Model.Consultant_Status == "Draft" || string.IsNullOrEmpty(Model.Consultant_Status))
+        {
+            <input class="cancel btn btn-danger" type="submit" value="Save as draft" id="btnSave" />
+        }*@
+    @*<button type="submit" class="btn btn-primary pull-center" style="background-color:red;border-color:red" id="draftbtn" value="Draft" name="Button">Save as Draft</button>
+        <button type="submit" class="btn btn-primary pull-center" id="SFABtn" value="Open" name="Button">Submit</button>*@
+    <button type="button" onclick="window.location.href='@Url.Action("RCTConsultantList", "Requirement")';" class="btn btn-primary pull-center">Close</button>
+</div>
+
+@if (Model.Consultant_AppointmentId > 0)
+{
+    <input type="hidden" id="currentRefId" value="@Model.Consultant_AppointmentId" />
+    <input type="hidden" id="processGuideLineId" value="@ViewBag.processGuideLineId" />
+}
+<div class="" id="act-now">
+    @Html.Partial("_ProcessStatus")
+</div>
+
+<div id="ValidationModal" class="modal fade modal-warning" role="dialog">
+    <div class="modal-dialog modal-sm">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <i class="ion-android-warning"></i>
+                <h3 class="modal-title">Warning</h3>
+            </div>
+            <div class="modal-body">
+
+                <p id="MsgValidation"></p>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div id="popup">
+
+</div>
+
+<script>
+
+    $(document).ready(function ()
+    {
+
+        var arrayOfArrays = (@Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model?.Consultant_Mode, Newtonsoft.Json.Formatting.Indented)));
+        $('#Consultant_Mode').val(arrayOfArrays);
+
+        var ReqDate = $('#Consultant_ReqReceivedDate').val();
+        var ITTDSDate = $('#Consultant_ITTDSExemptedDate').val();
+        var Startdate = $('#Consultant_AppStartDt').val();
+        var Enddate1 = $('#Consultant_AppEndDt').val();
+        if (ReqDate != null && ReqDate != "") {
+            var formattedReqDate = moment(ReqDate, 'DD-MM-YYYY HH:mm:ss');
+            var outputReqDate1 = formattedReqDate.format('DD-MMMM-YYYY');
+            $('#Consultant_ReqReceivedDate').val(outputReqDate1);
+        }
+        if (ITTDSDate != null && ITTDSDate != "") {
+            var formattedITDate = moment(ITTDSDate, 'DD-MM-YYYY HH:mm:ss');
+            var outputITDate1 = formattedITDate.format('DD-MMMM-YYYY');
+            $('#Consultant_ITTDSExemptedDate').val(outputITDate1);
+        }
+        if (Startdate != null && Startdate != "") {
+            var formattedStartDate = moment(Startdate, 'DD-MM-YYYY HH:mm:ss');
+            var outputDate = formattedStartDate.format('DD-MMMM-YYYY');
+            $('#Consultant_AppStartDt').val(outputDate);
+        }
+        if (Enddate1 != null && Enddate1 != "") {
+            var formattedEndDate = moment(Enddate1, 'DD-MM-YYYY HH:mm:ss');
+            var outputDate1 = formattedEndDate.format('DD-MMMM-YYYY');
+            $('#Consultant_AppEndDt').val(outputDate1);
+        }
+
+        var Docname =@Html.Raw(Json.Encode(Model.Consultant_DocumentRemarks));
+        var Attachname = @Html.Raw(Json.Encode(Model.Consultant_DocumentName));
+        var Doctype =@Html.Raw(Json.Encode(Model.Consultant_DocumentType));
+        var Docpath =@Html.Raw(Json.Encode(Model.Consultant_DocumentNameEncrypted));
+        var DocID = @Html.Raw(Json.Encode(Model.Consultant_DocumentId));
+        var RCTconsID = @Html.Raw(Json.Encode(Model.Consultant_AppointmentId));
+        var verifystatus = @Html.Raw(Json.Encode(Model.Consultant_Status)) || '';
+        $.each(Docname, function (i, val) {
+            if(RCTconsID>0){
+                if (i == 0) {
+                    document.getElementsByName('Consultant_DocumentType')[0].value = Doctype[0];
+                    document.getElementsByName('Consultant_DocumentName')[0].value = Docname[0];
+                    document.getElementsByName('Consultant_DocumentId')[0].value = DocID[0];
+                    document.getElementsByName('Consultant_DocumentNameEncrypted')[0].value = Docpath[0];
+                    document.getElementsByClassName('link1')[0].text = Attachname[0];
+                    document.getElementsByClassName('link1')[0].href = "ShowDocument?file=" + Docpath[0] + "&filepath=~%2FContent%2FConsultant%2F";
+                } else {
+                    var cln = $("#DocprimaryDiv").clone().find("input").val("").end();
+                    $(cln).find('.dis-none').removeClass('dis-none');
+                    $('#DocdivContent').append(cln)
+                    document.getElementsByName('Consultant_DocumentType')[i].value = Doctype[i];
+                    document.getElementsByName('Consultant_DocumentName')[i].value = Docname[i];
+                    document.getElementsByName('Consultant_DocumentId')[i].value = DocID[i];
+                    document.getElementsByName('Consultant_DocumentNameEncrypted')[i].value = Docpath[0];
+                    document.getElementsByClassName('link1')[i].text = Attachname[i];
+                    document.getElementsByClassName('link1')[i].href = "ShowDocument?file=" + Docpath[i] + "&filepath=~%2FContent%2FConsultant%2F";
+                }
+            }
+        });
+        if (RCTconsID > 0 && verifystatus != "Awaiting Verification") {
+            $('#flowdiv').prop("disabled", false).show();
+            $('#withdraw').prop("disabled", true).hide();
+        }
+        if (RCTconsID > 0 && (verifystatus == "Awaiting Verification" || verifystatus == "Awaiting Verification - Pending commitment update")) {
+            $('#withdraw').prop("disabled", false).show();
+            $('#flowdiv').prop("disabled", true).hide();
+        }
+        /* Project Details and validations */
+
+        var projectId = $("#Consultant_ProjectId").val();
+        if (projectId != "" || projectId != 0) {
+            $(".loading-bg").removeClass('dis-none');
+            $.getJSON("@Url.Action("LoadProjectDetails", "Requirement")", { ProjectId: projectId },
+                function (result) {
+                    if (result.projectData.ProjectNumber != null || result.projectData.ProjectNumber != "") {
+                        $('#labelProjectNumber').text(result.projectData.ProjectNumber);
+                        $('#lblProjectTitle').text(result.projectData.ProjectTitle);
+                        $('#lblProjectPIName').text(result.projectData.PIName);
+                        $('#lblProjectStartDate').text(result.projectData.ProjectStartDate);
+                        $('#lblProjectEndDate').text(result.projectData.ProjectClosureDate);
+                        $('#lblProjectPIID').text(result.projectData.PICode);
+                        $('#lblProjectPIEmail').text(result.projectData.Email);
+                        $('#lblProjectPIDepartmentCode').text(result.projectData.PIDepartmentCode);
+                        $('#lblProjectPIDepartment').text(result.projectData.PIDepartmentName);
+                        $(".loading-bg").addClass('dis-none');
+                    }
+                    else {
+                        $(".loading-bg").addClass('dis-none');
+                    }
+                });
+
+            $.getJSON("@Url.Action("LoadProjectDetails", "Account")", { ProjectId: projectId },
+                function (result) {
+                    if (result.projectData.ProjectNumber != null || result.projectData.ProjectNumber != "") {
+                        $('#lblProjectBal').text(result.projectData.NetBalance);
+                        $('#lblTaxPercentage').text(result.projectData.ApplicableTax);
+                    }
+                    else {
+                        $(".loading-bg").addClass('dis-none');
+                    }
+                });
+        }
+
+
+        var designationid = $('#Consultant_CodeId').val();
+        if (designationid > 0 && designationid != "") {
+            //$(".loading-bg").removeClass('dis-none');
+            $.getJSON("@Url.Action("LoadDesignationDetails", "Requirement")", { DesignationID: designationid },
+                function (result) {
+                    if (result.DesignationData.DestinationID > 0) {
+                        $("#Consultant_Title").val(result.DesignationData.Designation);
+                        $('#Consultant_Code').val(result.DesignationData.DesignationCode);
+                        $(".loading-bg").addClass('dis-none');
+                    }
+                    //else
+                    //    $(".loading-bg").addClass('dis-none');
+                });
+        }
+        var reqinitby = $('#Consultant_ReqInitBy').val();
+        if (reqinitby != null && reqinitby != "") {
+            //$(".loading-bg").removeClass('dis-none');
+            $.getJSON("@Url.Action("LoadPIList", "Requirement")", { term: reqinitby },
+                function (data) {
+                    if (data[0].label != "") {
+                        $("#Consultant_AutofillReqInitBy").val(data[0].label);
+                        $("#Consultant_ReqInitBy").val(data[0].value);
+                    }
+                    //else
+                    //    $(".loading-bg").addClass('dis-none');
+                });
+        }
+
+
+    $(document).on('click', '#btnViewConsDetails', function () {
+        var empID = $('#txtConMasterId').val() || 0;
+        if (empID > 0) {
+            var searchData = { "Vendorid": empID };
+            $.ajax({
+                url: "@Url.Action("_ConsultantMasterView", "Requirement")",
+                type: "POST",
+                data: searchData,
+                contentType: "application/x-www-form-urlencoded",
+                beforeSend: function () {
+                    $(".loading-bg").removeClass('dis-none');
+                },
+                success: function (result) {
+                    $(".loading-bg").addClass('dis-none');
+                    $("#popup").html(result);
+                    $("#Consultantviewmodel").modal('toggle');
+                },
+                error: function (err) {
+                    console.log("error : " + err);
+                    $(".loading-bg").addClass('dis-none');
+                }
+            });
+        }
+    });
+
+/* Project Summary View */
+
+    $(document).on('click', '#btnViewSummary', function () {
+        var projNo = $('#Consultant_ProjectId').val() || 0;
+        if (projNo > 0) {
+            var searchData = { "ProjectId": projNo };
+            $.ajax({
+                url: "@Url.Action("_ProjectSummary", "CoreAccounts")",
+                type: "POST",
+                data: searchData,
+                contentType: "application/x-www-form-urlencoded",
+                beforeSend: function () {
+                    $(".loading-bg").removeClass('dis-none');
+                },
+                success: function (result) {
+                    $(".loading-bg").addClass('dis-none');
+                    $("#popup").html(result);
+                    $("#projectSummaryModal").modal('toggle');
+                },
+                error: function (err) {
+                    console.log("error : " + err);
+                }
+            });
+        }
+    });
+
+                /* Project Eligible Staff Category view */
+
+    $(document).on('click', '#btnViewStaffAllocation', function () {
+        var projNo = $('#Consultant_ProjectId').val() || 0;
+        if (projNo > 0) {
+            var searchData = { "ProjectId": projNo };
+            $.ajax({
+                url: "@Url.Action("_ViewStaffAllocation", "Requirement")",
+                type: "POST",
+                data: searchData,
+                contentType: "application/x-www-form-urlencoded",
+                beforeSend: function () {
+                    $(".loading-bg").removeClass('dis-none');
+                },
+                success: function (result) {
+                    $(".loading-bg").addClass('dis-none');
+                    $("#popup").html(result);
+                    $("#myModal1").modal('toggle');
+                },
+                error: function (err) {
+                    console.log("error : " + err);
+                    $(".loading-bg").addClass('dis-none');
+                }
+            });
+        }
+    });
+
+    });
+
+
+</script>

@@ -70,8 +70,10 @@
                                     <div class="row">
                                         <div class="col-md-4">
                                             <div class="form-group custom-form-group">
-                                                <label class="required">Enter Consultant Employee Number</label>
-                                                @Html.TextBoxFor(m => m.Consultant_EmpNo, new { @class = "form-control required", @onpaste = "return false", @id = "GetConsDetail1", @onchange = "Removedata()" })
+                                                <label class="required">Enter Consultant ID</label>
+                                                @Html.TextBoxFor(m => m.Consultant_EmpNo, new { @class = "form-control required", @*@onpaste = "return false",*@@id = "GetConsDetail1",
+                                                @onchange = "Removedata()"
+                                            })
                                                 @Html.HiddenFor(m => m.Consultant_MasterId, new { @id = "txtConMasterId" })
                                                 @Html.HiddenFor(m => m.Consultant_Status, new { @id = "consstatus" })
                                                 @Html.HiddenFor(m => m.Consultant_AppointmentId, new { @id = "AppID" })
@@ -105,6 +107,17 @@
                                                 <label class="required">Description of services</label>
                                                 @Html.TextAreaFor(m => m.Consultant_ServiceDescription, new { @class = "form-control", @style = "height : 80px", @id = "ServiceDes", @readonly = "readonly" })
                                                 <div>@Html.ValidationMessageFor(m => m.Consultant_ServiceDescription)</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4" style="font-size: 18px;">
+                                            <div class="form-group custom-form-group">
+                                                <div>
+                                                    <br>
+                                                </div>
+                                                @Html.CheckBoxFor(m => m.Legal_f, new { disabled = "disabled" })
+                                                <span></span>
+                                                <br>Is legal service
+
                                             </div>
                                         </div>
                                     </div>
@@ -176,7 +189,7 @@
                                             </div>
                                         </div>
                                         <div class="row">
-                                            <div class="col-md-5">
+                                            <div class="col-md-4">
                                                 <div class="form-group custom-form-group">
                                                     <label>PI Name</label>
                                                     <h4 id="lblProjectPIName"></h4>
@@ -188,10 +201,16 @@
                                                     <h4 id="lblProjectPIID"></h4>
                                                 </div>
                                             </div>
-                                            <div class="col-md-5">
+                                            <div class="col-md-4">
                                                 <div class="form-group custom-form-group">
                                                     <label>PI Email</label>
                                                     <h4 id="lblProjectPIEmail"></h4>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-2">
+                                                <div class="form-group custom-form-group">
+                                                    <label>Tax %</label>
+                                                    <h4 id="lblTaxPercentage"></h4>
                                                 </div>
                                             </div>
                                         </div>
@@ -299,7 +318,7 @@
                                         </div>
                                         <div class="col-md-4">
                                             <div class="form-group custom-form-group">
-                                                <label>Foreign Fluctuation Value</label><br>
+                                                <label>Additional Commitment <i class="ion-information-circled" data-toggle="tooltip" data-html="true" title="Exchange rate fluctuation at 15%"></i></label><br>
                                                 @Html.TextBoxFor(m => m.Consultant_CurrFlutuationvalue, new { @class = "form-control", @readonly = "readonly" })
                                             </div>
                                         </div>
@@ -308,7 +327,7 @@
                                         <div class="col-md-4">
                                             <div class="form-group custom-form-group">
                                                 <label>GST Status</label><br>
-                                                @Html.DropDownListFor(m => m.Consultant_GSTStatus, new SelectList(ViewBag.ConsultantGSTType, "id", "name"), "Select", new { @class = "form-control", style = "pointer-events: none;", @readonly = "readonly", @onchange = "Taxvalidation();calculateGSTTDS();calculatefee();commitment();retailerfeechange()" })
+                                                @Html.DropDownListFor(m => m.Consultant_GSTStatus, new SelectList(ViewBag.ConsultantGSTType, "id", "name"), "Select", new { @class = "form-control", style = "pointer-events: none;", @readonly = "readonly", @onchange = "Taxvalidation();calculatefee();calculateGSTTDS();commitment();retailerfeechange()" })
                                             </div>
                                         </div>
                                         <div class="col-md-4">
@@ -319,7 +338,7 @@
                                         </div>
                                         <div class="col-md-4">
                                             <div class="form-group custom-form-group">
-                                                <label>GST %</label><br>
+                                                <label>GST / RCM %</label><br>
                                                 @Html.DropDownListFor(m => m.Consultant_GSTINPercentage, new SelectList(ViewBag.TaxPctList, "id", "name"), "Select", new { @id = "Consultant_GSTINPercentagee", @class = "form-control", style = "pointer-events: none;", @readonly = "readonly", @onchange = "calculatefee();commitment();calculateGSTTDS()" })
                                             </div>
                                         </div>
@@ -377,7 +396,7 @@
                             <div class="bl-lg-panel-box pb-null">
                                 <div class="bl-lg-panel-box-hd mb-m-5 pd-null">
                                     <div class="cmn-panel-box">
-                                        <h1 class="spl-title" style="font-size:25px; color:white">Appointment Details</h1>
+                                        <h1 class="spl-title" style="font-size:25px; color:white">Engagement Details</h1>
                                         <div class="row">
                                             <div class="col-md-3">
                                                 <div class="form-group custom-form-group">
@@ -429,7 +448,7 @@
                                             </div>
                                             <div class="col-md-4">
                                                 <div class="form-group custom-form-group">
-                                                    <label>GST Value</label><br>
+                                                    <label>GST / RCM Value</label><br>
                                                     @Html.TextBoxFor(m => m.Consultant_GSTvalue, new { @class = "form-control", @readonly = "readonly" })
                                                 </div>
                                             </div>
@@ -471,7 +490,15 @@
                                                     }
                                                 </div>
                                             </div>
-                                            <div class="col-md-6 reg-no custom-reg-no">
+                                            <div class="col-md-3">
+                                                <div class="form-group custom-form-group">
+                                                    <div class="form-group custom-form-group">
+                                                        <label>Estimated Total value</label><br>
+                                                        @Html.TextBoxFor(m => m.Consultant_Estimatedvalue, new { @class = "form-control", @readonly = "readonly" })
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3 reg-no custom-reg-no">
                                                 <div class="form-group custom-form-group">
                                                     <div class="form-group custom-form-group">
                                                         <label>Commitment Value</label><br>
@@ -565,7 +592,7 @@
     <div class="row">
         <div class="col-md-6">
         </div>
-        <div class="col-md-6">
+        <div class="col-md-6" id="flowdiv">
             <div class="bl-lg-panel-box pb-null">
                 <div class="bl-lg-panel-box-hd mb-m-5 pd-null">
                     <div class="cmn-panel-box">
@@ -594,6 +621,22 @@
                 </div>
             </div>
         </div>
+        <div class="col-md-6" id="withdraw">
+            <div class="bl-lg-panel-box pb-null">
+                <div class="bl-lg-panel-box-hd mb-m-5 pd-null">
+                    <div class="cmn-panel-box">
+                        <div class="row">
+                            <div class="col-md-4" id="">
+                                <div class="form-group custom-form-group">
+                                    <label>Withdrawal Commitment Value</label><br>
+                                    @Html.TextBoxFor(m => m.Consultant_Commitwithdrawvalue, new { @class = "form-control", @readonly = "readonly" })
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
     <div class="text-center" style="margin-bottom: 50px;">
         @*@if (Model.Consultant_Status == "Draft" || string.IsNullOrEmpty(Model.Consultant_Status))
@@ -602,6 +645,7 @@
             }*@
         <button type="submit" class="btn btn-primary pull-center" style="background-color:red;border-color:red" id="draftbtn" value="Draft" name="Button">Save as Draft</button>
         <button type="submit" class="btn btn-primary pull-center" id="SFABtn" value="Open" name="Button">Submit</button>
+        <button type="submit" class="btn btn-primary pull-center" id="verify" value="Awaiting Verification" name="Button">Verify</button>
         <button type="button" onclick="window.location.href='@Url.Action("RCTConsultantList", "Requirement")';" class="btn btn-primary pull-center">Close</button>
     </div>
 }
@@ -652,11 +696,13 @@
     var arrayOfArrays = (@Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model?.Consultant_Mode, Newtonsoft.Json.Formatting.Indented)));
 
     var ApptId = @Model.Consultant_AppointmentId;
+    var verifystatus = @Html.Raw(Json.Encode(Model.Consultant_Status)) || '';
     var Startdate = $('#Consultant_AppStartDt').val();
     var Enddate1 = $('#Consultant_AppEndDt').val();
     var ITTDSDate = $('#Consultant_ITTDSExemptedDate').val();
     var ReqDate = $('#Consultant_ReqReceivedDate').val();
     var reqinitby = $('#Consultant_ReqInitBy').val();
+    var ITTDSvalue = $('#Consultant_ITTDSPercentage').val();
     if (ApptId > 0) {
         $('#Consultant_Mode').val(arrayOfArrays);
         var EmptId = $("#moddata").data("emptype");
@@ -671,6 +717,9 @@
         $('#Consultant_ProjectNumber').attr("readonly", false);
         $('#Consultant_AutofillReqInitBy').attr("readonly", false);
         $('#Consultant_RetainerFee').attr("readonly", false);
+        $('#withdraw').prop("disabled", true).hide();
+        $('#verify').prop("disabled", true).hide();
+        $('#flowdiv').prop("disabled", false).show();
         parentdiv = $('#Consultant_Mode').parent();
         parentdiv.removeClass('disabled');
         $('#Consultant_Mode').removeAttr("disabled");
@@ -754,6 +803,8 @@
         if (EmptId == "CFD" || EmptId == "CID") {
             $('#Consultant_GSTStatus').attr("readonly", false);
             $('#Consultant_GSTStatus').css('pointer-events', '');
+            var checkbox = document.getElementById('Legal_f');
+            checkbox.removeAttribute('disabled');
         }
         else {
             //$('#Consultant_GSTStatus').attr("readonly", true);
@@ -849,22 +900,23 @@
             //    $('#Consultant_GSTStatus').val('');
             //}
             //else {
-                $('#Consultant_GSTIN').attr("readonly", true);
-                //$('#Consultant_GSTIN').val('');
-                $('#Consultant_GSTINPercentagee').attr("readonly", true);
-                $("#Consultant_GSTINPercentagee").val("18");
-                $('#Consultant_GSTINPercentage').attr("disabled", true);
-                $('#Consultant_RCMCategoryy').attr("readonly", true);
-                $("#Consultant_RCMCategoryy").val("1");
-                $('#Consultant_RCMCategory').attr("disabled", true);
-                $('#Consultant_RCMType').attr("readonly", false);
-                $('#Consultant_RCMType').css('pointer-events', '');
-                $('#Consultant_RCMType').attr("disabled", false);
-                //$('#Consultant_RCMType').val('');
-                $('#Consultant_GSTEligibilityy').attr("readonly", true);
-                $("#Consultant_GSTEligibilityy").val("2");
-                $('#Consultant_GSTEligibility').attr("disabled", true);
-            }
+            $('#Consultant_GSTIN').attr("readonly", true);
+            //$('#Consultant_GSTIN').val('');
+            $('#Consultant_GSTINPercentagee').attr("readonly", true);
+            $("#Consultant_GSTINPercentagee").val("18");
+            $('#Consultant_GSTINPercentage').attr("disabled", true);
+            $('#Consultant_RCMCategoryy').attr("readonly", true);
+            $("#Consultant_RCMCategoryy").val("1");
+            $('#Consultant_RCMCategory').attr("disabled", true);
+            $('#Consultant_RCMType').attr("readonly", false);
+            $('#Consultant_RCMType').css('pointer-events', '');
+            $('#Consultant_RCMType').attr("disabled", false);
+            //$('#Consultant_RCMType').val('');
+            $('#Consultant_GSTEligibilityy').attr("readonly", true);
+            $('#Consultant_GSTEligibilityy').css('pointer-events', 'none');
+            $("#Consultant_GSTEligibilityy").val("2");
+            $('#Consultant_GSTEligibility').attr("disabled", true);
+        }
        // }
         else {
             //$('#Consultant_GSTINPercentagee').attr("readonly", true);
@@ -885,7 +937,81 @@
             //$('#Consultant_GSTTDSTypes').css('pointer-events', 'none');
             //$('#Consultant_GSTTDSTypes').val('');
         }
-
+        if ($('#Consultant_RCMCategoryy').val() == 1) {
+            $('#Consultant_RCMType').attr("readonly", false);
+            $('#Consultant_RCMType').css('pointer-events', '');
+            $('#Consultant_RCMType').attr("disabled", false);
+            $('#Consultant_RCMCategory').attr("disabled", false);
+            $('#Consultant_GSTINPercentagee').attr("readonly", true);
+            $("#Consultant_GSTINPercentagee").val("18");
+            $('#Consultant_GSTINPercentage').attr("disabled", true);
+        }
+        else {
+            $('#Consultant_RCMType').attr("readonly", true);
+            $('#Consultant_RCMType').css('pointer-events', 'none');
+            $('#Consultant_RCMType').val('');
+            $('#Consultant_GSTINPercentagee').attr("readonly", true);
+            $('#Consultant_GSTINPercentagee').css('pointer-events', 'none');
+            //$('#Consultant_GSTINPercentagee').val('');
+        }
+        if ($('#Consultant_ITTDSType').val() == 1) {
+            $('#Consultant_ITTDSPercentage').attr("readonly", false);
+            $('#Consultant_ITTDSPercentage').css('pointer-events', '');
+            $('#Consultant_ITTDSExemptedDate').attr("readonly", true);
+            $("#Consultant_ITTDSExemptedDate").datepicker("destroy");
+            $('#Consultant_ITTDSExemptedDate').val('');
+            if ($.trim(EmptId) == "CFD" || $.trim(EmptId) == "CID") {
+                var type = "Indian"
+                $.ajax({
+                    type: "GET",
+                    url: "@Url.Action("RCTGetTDSpercentage", "Requirement")",
+                    data: { type: type },
+                    dataType: "json",
+                    success: function (result) {
+                        var dropdown = $('#Consultant_ITTDSPercentage');
+                        dropdown.empty();
+                        $.each(result, function (key, value) {
+                            dropdown.append($('<option></option>').attr('value', value.id).text(value.name));
+                        });
+                        dropdown.val(ITTDSvalue);
+                    }
+                });
+            }
+            else if ($.trim(EmptId) == "CIF" || $.trim(EmptId) == "CFF") {
+                var type = "Foreign"
+                $.ajax({
+                    type: "GET",
+                    url: "@Url.Action("RCTGetTDSpercentage", "Requirement")",
+                    data: { type: type },
+                    dataType: "json",
+                    success: function (result) {
+                        var dropdown = $('#Consultant_ITTDSPercentage');
+                        dropdown.empty();
+                        $.each(result, function (key, value) {
+                            dropdown.append($('<option></option>').attr('value', value.id).text(value.name));
+                        });
+                        dropdown.val(ITTDSvalue);
+                    }
+                });
+            }
+        }
+        else if ($('#Consultant_ITTDSType').val() == 2 && (outputstrappointmentenddtDate != null && outputstrappointmentenddtDate != '')) {
+            $('#Consultant_ITTDSExemptedDate').datepicker({
+                dateFormat: "dd-MM-yy",
+                changeYear: true
+            }).datepicker("option", "maxDate", outputstrappointmentenddtDate).datepicker("option", "minDate", outputstrappointmentstartdtDate);
+            $('#Consultant_ITTDSPercentage').attr("readonly", true);
+            $('#Consultant_ITTDSPercentage').css('pointer-events', 'none');
+            $('#Consultant_ITTDSPercentage').val('');
+        }
+        else {
+            $('#Consultant_ITTDSPercentage').attr("readonly", true);
+            $('#Consultant_ITTDSPercentage').css('pointer-events', 'none');
+            $('#Consultant_ITTDSPercentage').val('');
+            $('#Consultant_ITTDSExemptedDate').attr("readonly", true);
+            $("#Consultant_ITTDSExemptedDate").datepicker("destroy");
+            $('#Consultant_ITTDSExemptedDate').val('');
+        }
 
         /* Edit Mode - Project Details Load */
 
@@ -918,8 +1044,7 @@
                                 origin: ["top", "left"]
                             },
                             beforeShowDay: function (date) {
-                                var day = date.getDay();
-                                return [day != 0, ''];
+                                return [true, ''];
                             }
                         });
 
@@ -946,30 +1071,7 @@
                         var strappointmentendtDate = moment(strappointmentenddt, 'DD-MMM-YYYY');
                         var outputstrappointmentenddtDate = strappointmentendtDate.format('DD-MMMM-YYYY');
 
-                        if ($('#Consultant_ITTDSType').val() == 1) {
-                            $('#Consultant_ITTDSPercentage').attr("readonly", false);
-                            $('#Consultant_ITTDSPercentage').css('pointer-events', '');
-                            $('#Consultant_ITTDSExemptedDate').attr("readonly", true);
-                            $("#Consultant_ITTDSExemptedDate").datepicker("destroy");
-                            $('#Consultant_ITTDSExemptedDate').val('');
-                        }
-                        else if ($('#Consultant_ITTDSType').val() == 2 && (outputstrappointmentenddtDate != null && outputstrappointmentenddtDate != '')) {
-                            $('#Consultant_ITTDSExemptedDate').datepicker({
-                                dateFormat: "dd-MM-yy",
-                                changeYear: true
-                            }).datepicker("option", "maxDate", outputstrappointmentenddtDate).datepicker("option", "minDate", outputstrappointmentstartdtDate);
-                            $('#Consultant_ITTDSPercentage').attr("readonly", true);
-                            $('#Consultant_ITTDSPercentage').css('pointer-events', 'none');
-                            $('#Consultant_ITTDSPercentage').val('');
-                        }
-                        else {
-                            $('#Consultant_ITTDSPercentage').attr("readonly", true);
-                            $('#Consultant_ITTDSPercentage').css('pointer-events', 'none');
-                            $('#Consultant_ITTDSPercentage').val('');
-                            $('#Consultant_ITTDSExemptedDate').attr("readonly", true);
-                            $("#Consultant_ITTDSExemptedDate").datepicker("destroy");
-                            $('#Consultant_ITTDSExemptedDate').val('');
-                        }
+
                     }
                     else {
                         $(".loading-bg").addClass('dis-none');
@@ -980,6 +1082,7 @@
                 function (result) {
                     if (result.projectData.ProjectNumber != null || result.projectData.ProjectNumber != "") {
                         $('#lblProjectBal').text(result.projectData.NetBalance);
+                        $('#lblTaxPercentage').text(result.projectData.ApplicableTax);
                     }
                     else {
                         $(".loading-bg").addClass('dis-none');
@@ -1073,12 +1176,333 @@
     }
 
 
+     /* Verify Mode */
 
+
+    if (ApptId > 0 && verifystatus == "Awaiting Verification")
+    {
+        $('#Consultant_Mode').val(arrayOfArrays);
+        var EmptId = $("#moddata").data("emptype");
+        $('#GetConsDetail1').attr("readonly", true);
+        $('#Consultant_WorkPlace').attr("readonly", false);
+        $('#ServiceDes').attr("readonly", false);
+        $('#Consultant_AoE').attr("readonly", false);
+        $('#Consultant_SoW').attr("readonly", false);
+        $('#Consultant_DAComments').attr("readonly", false);
+        $('#Consultant_TandC').attr("readonly", false);
+        $('#Consultant_PaymentTerms').attr("readonly", false);
+        $('#Consultant_ProjectNumber').attr("readonly", true);
+        $('#Consultant_AutofillReqInitBy').attr("readonly", false);
+        $('#Consultant_RetainerFee').attr("readonly", true);
+        $('#Consultant_AppEndDt').attr("disabled", true);
+        $('#Consultant_ReqReceivedDate').attr("disabled", true);
+        $('#IsNotetoCMAdmin').attr("disabled", true);
+        $('#IsNotetoDean').attr("disabled", true);
+        $('#draftbtn').prop("disabled", true).hide();
+        $('#withdraw').prop("disabled", false).show();
+        $('#verify').prop("disabled", false).show();
+        $('#SFABtn').prop("disabled", true).hide();
+        $('#flowdiv').prop("disabled", true).hide();
+        var checkbox = document.getElementById('Legal_f');
+        checkbox.disabled = true;
+        parentdiv = $('#Consultant_Mode').parent();
+        parentdiv.removeClass('disabled');
+        $('#Consultant_Mode').removeAttr("disabled");
+        $(parentdiv).find('button').each(function () {
+            $(this).removeClass("disabled");
+        });
+        if (Startdate != null && Startdate != "") {
+            var formattedStartDate = moment(Startdate, 'DD-MM-YYYY HH:mm:ss');
+            var outputDate = formattedStartDate.format('DD-MMMM-YYYY');
+            $('#Consultant_AppStartDt').val(outputDate);
+        }
+        if (Enddate1 != null && Enddate1 != "") {
+            var formattedEndDate = moment(Enddate1, 'DD-MM-YYYY HH:mm:ss');
+            var outputDate1 = formattedEndDate.format('DD-MMMM-YYYY');
+            $('#Consultant_AppEndDt').val(outputDate1);
+        }
+        if (ReqDate != null && ReqDate != "") {
+            var formattedReqDate = moment(ReqDate, 'DD-MM-YYYY HH:mm:ss');
+            var outputReqDate1 = formattedReqDate.format('DD-MMMM-YYYY');
+            $('#Consultant_ReqReceivedDate').val(outputReqDate1);
+        }
+
+        if (ITTDSDate != null && ITTDSDate != "") {
+            var formattedITDate = moment(ITTDSDate, 'DD-MM-YYYY HH:mm:ss');
+            var outputITDate1 = formattedITDate.format('DD-MMMM-YYYY');
+            $('#Consultant_ITTDSExemptedDate').val(outputITDate1);
+        }
+
+
+        //var currentDate = new Date();
+        //var day2 = ("0" + currentDate.getDate()).slice(-2);
+        //var month2 = currentDate.toLocaleString('en-US', { month: 'long' });
+        //var year2 = currentDate.getFullYear();
+        //var formattedDate2 = `${day2}-${month2}-${year2}`;
+        //$('#Consultant_ReqReceivedDate').datepicker({
+        //    dateFormat: 'dd-MM-yy',
+        //    changeYear: true
+        //}).datepicker("option", "maxDate", formattedDate2);
+
+        $('#Consultant_ITTDSType').attr("readonly", false);
+        $('#Consultant_ITTDSType').css('pointer-events', '');
+        $('#Consultant_PayType').attr("readonly", true);
+        $('#Consultant_PayType').css('pointer-events', 'none');
+
+
+        $('#Consultant_Code').attr("readonly", true);
+
+        $('#Consultant_GSTStatus').attr("readonly", true);
+        $('#Consultant_GSTStatus').css('pointer-events', 'none');
+        $('#Consultant_GSTINPercentagee').attr("readonly", true);
+        $('#Consultant_GSTINPercentagee').css('pointer-events', 'none');
+        $('#Consultant_GSTEligibilityy').attr("readonly", true);
+        $('#Consultant_GSTEligibilityy').css('pointer-events', 'none');
+        $('#CurrType').attr("readonly", true);
+        $('#CurrType').css('pointer-events', 'none');
+        $('#Consultant_RCMCategoryy').attr("readonly", true);
+        $('#Consultant_RCMCategoryy').css('pointer-events', 'none');
+        $('#Consultant_RCMType').attr("readonly", true);
+        $('#Consultant_RCMType').css('pointer-events', 'none');
+        $('#Consultant_CurrValue').attr("readonly", true);
+        $('#Consultant_CurrConvertionRate').attr("readonly", true);
+
+
+
+
+
+        var projectId = $("#Consultant_ProjectId").val();
+        if (projectId != "" || projectId != 0) {
+            $(".loading-bg").removeClass('dis-none');
+            $.getJSON("@Url.Action("LoadProjectDetails", "Requirement")", { ProjectId: projectId },
+                function (result) {
+                    if (result.projectData.ProjectNumber != null || result.projectData.ProjectNumber != "") {
+                        $('#labelProjectNumber').text(result.projectData.ProjectNumber);
+                        $('#lblProjectTitle').text(result.projectData.ProjectTitle);
+                        $('#lblProjectPIName').text(result.projectData.PIName);
+                        $('#lblProjectStartDate').text(result.projectData.ProjectStartDate);
+                        $('#lblProjectEndDate').text(result.projectData.ProjectClosureDate);
+                        $('#lblProjectPIID').text(result.projectData.PICode);
+                        $('#lblProjectPIEmail').text(result.projectData.Email);
+                        $('#lblProjectPIDepartmentCode').text(result.projectData.PIDepartmentCode);
+                        $('#lblProjectPIDepartment').text(result.projectData.PIDepartmentName);
+                        $(".loading-bg").addClass('dis-none');
+                        $('#Consultant_AppStartDt').datepicker({
+                            dateFormat: 'dd-MM-yy',
+                            showStatus: true,
+                            showWeeks: true,
+                            changeYear: true,
+                            yearRange: '1950:+30',
+                            highlightWeek: true,
+                            numberOfMonths: 1,
+                            showAnim: "scale",
+                            showOptions: {
+                                origin: ["top", "left"]
+                            },
+                            beforeShowDay: function (date) {
+                                return [true, ''];
+                            }
+                        });
+
+
+
+                        var strappointmentstartdt = $('#lblProjectStartDate').text().trim();
+                        var strappointmentenddt = $('#lblProjectEndDate').text().trim();
+
+                        var strappointmentstartdtDate = moment(strappointmentstartdt, 'DD-MMM-YYYY');
+                        var outputstrappointmentstartdtDate = strappointmentstartdtDate.format('DD-MMMM-YYYY');
+
+                        var strappointmentendtDate = moment(strappointmentenddt, 'DD-MMM-YYYY');
+                        var outputstrappointmentenddtDate = strappointmentendtDate.format('DD-MMMM-YYYY');
+
+                        if ($('#Consultant_ITTDSType').val() == 1) {
+                            $('#Consultant_ITTDSPercentage').attr("readonly", false);
+                            $('#Consultant_ITTDSPercentage').css('pointer-events', '');
+                            $('#Consultant_ITTDSExemptedDate').attr("readonly", true);
+                            $("#Consultant_ITTDSExemptedDate").datepicker("destroy");
+                            $('#Consultant_ITTDSExemptedDate').val('');
+                        }
+                        else if ($('#Consultant_ITTDSType').val() == 2 && (outputstrappointmentenddtDate != null && outputstrappointmentenddtDate != '')) {
+                            $('#Consultant_ITTDSExemptedDate').datepicker({
+                                dateFormat: "dd-MM-yy",
+                                changeYear: true
+                            }).datepicker("option", "maxDate", outputstrappointmentenddtDate).datepicker("option", "minDate", outputstrappointmentstartdtDate);
+                            $('#Consultant_ITTDSPercentage').attr("readonly", true);
+                            $('#Consultant_ITTDSPercentage').css('pointer-events', 'none');
+                            $('#Consultant_ITTDSPercentage').val('');
+                        }
+                        else {
+                            $('#Consultant_ITTDSPercentage').attr("readonly", true);
+                            $('#Consultant_ITTDSPercentage').css('pointer-events', 'none');
+                            $('#Consultant_ITTDSPercentage').val('');
+                            $('#Consultant_ITTDSExemptedDate').attr("readonly", true);
+                            $("#Consultant_ITTDSExemptedDate").datepicker("destroy");
+                            $('#Consultant_ITTDSExemptedDate').val('');
+                        }
+                    }
+                    else {
+                        $(".loading-bg").addClass('dis-none');
+                    }
+                });
+
+            $.getJSON("@Url.Action("LoadProjectDetails", "Account")", { ProjectId: projectId },
+                function (result) {
+                    if (result.projectData.ProjectNumber != null || result.projectData.ProjectNumber != "") {
+                        $('#lblProjectBal').text(result.projectData.NetBalance);
+                        $('#lblTaxPercentage').text(result.projectData.ApplicableTax);
+                    }
+                    else {
+                        $(".loading-bg").addClass('dis-none');
+                    }
+                });
+        }
+
+        var designationid = $('#Consultant_CodeId').val();
+        if (designationid > 0 && designationid != "") {
+            //$(".loading-bg").removeClass('dis-none');
+            $.getJSON("@Url.Action("LoadDesignationDetails", "Requirement")", { DesignationID: designationid },
+                function (result) {
+                    if (result.DesignationData.DestinationID > 0) {
+                        $("#Consultant_Title").val(result.DesignationData.Designation);
+                        $('#Consultant_Code').val(result.DesignationData.DesignationCode);
+                        $(".loading-bg").addClass('dis-none');
+                    }
+                    //else
+                    //    $(".loading-bg").addClass('dis-none');
+                });
+        }
+
+        if (reqinitby != null && reqinitby != "") {
+            //$(".loading-bg").removeClass('dis-none');
+            $.getJSON("@Url.Action("LoadPIList", "Requirement")", { term: reqinitby },
+                function (data) {
+                    if (data[0].label != "") {
+                        $("#Consultant_AutofillReqInitBy").val(data[0].label);
+                        $("#Consultant_ReqInitBy").val(data[0].value);
+                    }
+                    //else
+                    //    $(".loading-bg").addClass('dis-none');
+                });
+        }
+
+        var Docname =@Html.Raw(Json.Encode(Model.Consultant_DocumentRemarks));
+        var Attachname = @Html.Raw(Json.Encode(Model.Consultant_DocumentName));
+        var Doctype =@Html.Raw(Json.Encode(Model.Consultant_DocumentType));
+        var Docpath =@Html.Raw(Json.Encode(Model.Consultant_DocumentNameEncrypted));
+        var DocID = @Html.Raw(Json.Encode(Model.Consultant_DocumentId));
+        var RCTconsID = @Html.Raw(Json.Encode(Model.Consultant_AppointmentId));
+        $.each(Docname, function (i, val) {
+            if(RCTconsID>0){
+                if (i == 0) {
+                    document.getElementsByName('Consultant_DocumentType')[0].value = Doctype[0];
+                    document.getElementsByName('Consultant_DocumentName')[0].value = Docname[0];
+                    document.getElementsByName('Consultant_DocumentId')[0].value = DocID[0];
+                    document.getElementsByName('Consultant_DocumentNameEncrypted')[0].value = Docpath[0];
+                    document.getElementsByClassName('link1')[0].text = Attachname[0];
+                    document.getElementsByClassName('link1')[0].href = "ShowDocument?file=" + Docpath[0] + "&filepath=~%2FContent%2FConsultant%2F";
+                } else {
+                    var cln = $("#DocprimaryDiv").clone().find("input").val("").end();
+                    $(cln).find('.dis-none').removeClass('dis-none');
+                    $('#DocdivContent').append(cln)
+                    document.getElementsByName('Consultant_DocumentType')[i].value = Doctype[i];
+                    document.getElementsByName('Consultant_DocumentName')[i].value = Docname[i];
+                    document.getElementsByName('Consultant_DocumentId')[i].value = DocID[i];
+                    document.getElementsByName('Consultant_DocumentNameEncrypted')[i].value = Docpath[0];
+                    document.getElementsByClassName('link1')[i].text = Attachname[i];
+                    document.getElementsByClassName('link1')[i].href = "ShowDocument?file=" + Docpath[i] + "&filepath=~%2FContent%2FConsultant%2F";
+                }
+            }
+        });
+
+        var initialStrdate = $("#Consultant_AppStartDt").val();
+
+        function ValidateDateverifyDiff() {
+            var strdate = $("#Consultant_AppStartDt").val();
+            if (strdate != '' && verifystatus == "Awaiting Verification") {
+                if (new Date(strdate.split('-').join('/')) < new Date(initialStrdate.split('-').join('/'))) {
+                    $.alert('Appointment start date should not be lesser than the existing start date.');
+                    $("#Consultant_AppStartDt").val(initialStrdate)
+                    return;
+                }
+            }
+        }
+
+        function commitment() {
+            var retainerfee = parseFloat($('#Consultant_RetainerFee').val()) || 0;
+            var gstvalue = parseFloat($('#Consultant_GSTvalue').val()) || 0;
+            var foreignfluctuationvalue = parseFloat($('#Consultant_CurrFlutuationvalue').val()) || 0;
+            var startdate = $('#Consultant_AppStartDt').val();
+            var enddate = $('#Consultant_AppEndDt').val();
+            var ttl = 0;
+            var ttg = 0;
+            var objData = getCalDateDetails(startdate, enddate);
+            var months = objData.monthcount || 0;
+            var days = objData.startworkingdays + objData.endworkingdays;
+            if ($('#Consultant_PayType').val() == 1) {
+                var startperday = (retainerfee + foreignfluctuationvalue) / objData.starttotaldays;
+                var endperday = (retainerfee + foreignfluctuationvalue) / objData.endtotaldays;
+                var startgstperday = gstvalue / objData.starttotaldays;
+                var endgstperday = gstvalue / objData.endtotaldays;
+                var monthlyamt = retainerfee + foreignfluctuationvalue;
+                var monthlygstamt = gstvalue;
+                if (months > 0) {
+                    ttl += monthlyamt * months;
+                    ttg += monthlygstamt * months;
+                }
+                if (days > 0) {
+                    ttl += Math.round(objData.startworkingdays * startperday) || 0;
+                    ttl += Math.round(objData.endworkingdays * endperday) || 0;
+                    ttg += Math.round(objData.startworkingdays * startgstperday) || 0;
+                    ttg += Math.round(objData.endworkingdays * endgstperday) || 0;
+                }
+                retainerfee = ttl;
+                gstvalue = ttg;
+            }
+            else {
+                retainerfee = Math.ceil(retainerfee + foreignfluctuationvalue) || 0;
+                gstvalue = parseFloat($('#Consultant_GSTvalue').val()) || 0;
+                foreignfluctuationvalue = parseFloat($('#Consultant_CurrFlutuationvalue').val()) || 0;
+            }
+            if (($('#Consultant_GSTEligibilityy').val() == 1) || ($('#Consultant_RCMType').val() == 2)) {
+                var commitmentvalue = Math.ceil(retainerfee + gstvalue) || 0;
+                $('#Consultant_Commitvalue').val(retainerfee);
+                $('#Consultant_Estimatedvalue').val(commitmentvalue);
+            }
+            else {
+                var commitmentvalue = Math.ceil(retainerfee + gstvalue) || 0;
+                $('#Consultant_Commitvalue').val(commitmentvalue);
+                $('#Consultant_Estimatedvalue').val(commitmentvalue);
+            }
+
+        }
+
+
+        var initialcommitvalue = $("#Consultant_Commitvalue").val();
+        function calculatewithdrawvalue() {
+            var newcommitvalue = $("#Consultant_Commitvalue").val() || 0;
+            var withdrawalvalue = Math.ceil(initialcommitvalue - newcommitvalue) || 0;
+            $("#Consultant_Commitwithdrawvalue").val(withdrawalvalue);
+        }
+        $("#Consultant_AppStartDt").change(function () {
+            ValidateDateverifyDiff();
+            commitment();
+            calculatewithdrawvalue();
+        });
+    }
     var Status = @Html.Raw(Json.Encode(Model.Consultant_Status)) || '';
 
     /* Employee Details and validations */
 
+    if (ApptId == 0) {
+        $('#withdraw').prop("disabled", true).hide();
+        $('#flowdiv').prop("disabled", false).show();
+        $('#verify').prop("disabled", true).hide();
+    }
+
+
     applyAutoComplete($('#GetConsDetail1'), $('#txtConMasterId'), '@Url.Action("LoadRCTCONEmployeeList", "Requirement")?apptype=CON', 'AddConsDetail', true);
+
+
 
     function AddConsDetail() {
         Removedata();
@@ -1157,6 +1581,8 @@
                     if ($.trim(result.Consultant_EmpType) == "CFD" || $.trim(result.Consultant_EmpType) == "CID") {
                         $('#Consultant_GSTStatus').attr("readonly", false);
                         $('#Consultant_GSTStatus').css('pointer-events', '');
+                        var checkbox = document.getElementById('Legal_f');
+                        checkbox.removeAttribute('disabled');
                     }
                         else {
                         $('#Consultant_GSTStatus').attr("readonly", true);
@@ -1170,6 +1596,9 @@
                         $('#Consultant_GSTEligibilityy').attr("readonly", true);
                         $('#Consultant_GSTEligibilityy').css('pointer-events', 'none');
                         $('#Consultant_GSTEligibilityy').val('');
+                        $('#Legal_f').prop('checked', false);
+                        var checkbox = document.getElementById('Legal_f');
+                        checkbox.disabled = true;
                     }
                     console.log(result);
                 }
@@ -1198,11 +1627,12 @@
                         $('#lblProjectPIEmail').text(result.projectData.Email);
                         $('#lblProjectPIDepartmentCode').text(result.projectData.PIDepartmentCode);
                         $('#lblProjectPIDepartment').text(result.projectData.PIDepartmentName);
+
                         $(".loading-bg").addClass('dis-none');
                         $('#Consultant_AppStartDt').datepicker({
                             dateFormat: 'dd-MM-yy',
                             showStatus: true,
-                            showWeeks: true,
+                            //showWeeks: true,
                             changeYear: true,
                             yearRange: '1950:+30',
                             highlightWeek: true,
@@ -1212,8 +1642,7 @@
                                 origin: ["top", "left"]
                             },
                             beforeShowDay: function (date) {
-                                var day = date.getDay();
-                                return [day != 0, ''];
+                                return [true, ''];
                             }
                         });
 
@@ -1240,6 +1669,7 @@
                 function (result) {
                     if (result.projectData.ProjectNumber != null || result.projectData.ProjectNumber != "") {
                         $('#lblProjectBal').text(result.projectData.NetBalance);
+                        $('#lblTaxPercentage').text(result.projectData.ApplicableTax);
                     }
                     else {
                         $(".loading-bg").addClass('dis-none');
@@ -1248,6 +1678,7 @@
         }
 
     }
+    var initialStrdate = $("#Consultant_AppStartDt").val();
 
     function ValidateDateDiff() {
         var strdate = $("#Consultant_AppStartDt").val();
@@ -1264,7 +1695,7 @@
         }
         prjstartdate = new Date(prjstartdate.split('-').join('/'));
         prjenddate = new Date(prjenddate.split('-').join('/'));
-        if (strdate != '' && clsdate != '') {
+        if (strdate != '' && clsdate != '' && verifystatus != "Awaiting Verification") {
             if (!(prjstartdate <= appstartdate && appenddate <= prjenddate) ) {
                 $("#Consultant_AppStartDt").val('')
                 $("#Consultant_AppEndDt").val('')
@@ -1278,7 +1709,16 @@
                 return;
             }
         }
+        if (strdate != '' && clsdate != '' && verifystatus == "Awaiting Verification") {
+            if  (new Date(strdate.split('-').join('/')) < new Date(initialStrdate.split('-').join('/'))) {
+                $.alert('Appointment start date should not be lesser than the existing start date.');
+                $("#Consultant_AppStartDt").val(initialStrdate)
+                return;
+            }
+        }
     }
+
+
 
     $("#Consultant_AppStartDt, #Consultant_AppEndDt").change(function () {
         ValidateDateDiff();
@@ -1443,6 +1883,7 @@
             $('#Consultant_CurrFlutuationvalue').val('');
             $('#Consultant_GSTvalue').val('');
             $('#Consultant_Commitvalue').val('');
+            $('#Consultant_Estimatedvalue').val('');
             $('#Consultant_AppStartDt').val('');
             $('#Consultant_AppEndDt').val('');
         }
@@ -1487,6 +1928,7 @@
             $('#Consultant_CurrFlutuationvalue').val('');
             $('#Consultant_GSTvalue').val('');
             $('#Consultant_Commitvalue').val('');
+            $('#Consultant_Estimatedvalue').val('');
             $('#Consultant_WorkPlace').attr("readonly", true);
             $('#Consultant_WorkPlace').val('');
             $('#Consultant_GSTIN').attr("readonly", true);
@@ -1540,6 +1982,9 @@
             $('#Consultant_Mode').val('').trigger("change");
             $($('.dropdown-menu li')).siblings().removeClass("selected");
             $('#txtConMasterId').val('');
+            $('#Legal_f').prop('checked', false);
+            var checkbox = document.getElementById('Legal_f');
+            checkbox.disabled = true;
         }
     });
 
@@ -1572,6 +2017,7 @@
         $('#Consultant_CurrFlutuationvalue').val('');
         $('#Consultant_GSTvalue').val('');
         $('#Consultant_Commitvalue').val('');
+        $('#Consultant_Estimatedvalue').val('');
         $('#Consultant_WorkPlace').val('');
         //$('#Consultant_GSTIN').val('');
         $('#Consultant_GSTIN').attr("readonly", true);
@@ -1607,6 +2053,9 @@
         $("#Consultant_AppEndDt").datepicker("destroy");
         $('#Consultant_Mode').val('').trigger("change");
         $('#Consultant_DAComments').val('');
+        $('#Consultant_Mode').val('').trigger("change");
+        $($('.dropdown-menu li')).siblings().removeClass("selected");
+        $('#Legal_f').prop('checked', false);
     }
 
     function Clearconversionrate() {
@@ -1620,6 +2069,7 @@
         $('#Consultant_CurrFlutuationvalue').val('');
         $('#Consultant_GSTvalue').val('');
         $('#Consultant_Commitvalue').val('');
+        $('#Consultant_Estimatedvalue').val('');
         $('#Consultant_ReqReceivedDate').val('');
         $('#Consultant_AutofillReqInitBy').val('');
         $('#Consultant_AppStartDt').val('');
@@ -1632,6 +2082,7 @@
     /* ITTDS onclick event */
 
     function ITTDS() {
+        var ConsEmpID = $('#consemptype').val();
         var strappointmentstartdt = $('#lblProjectStartDate').text().split('-').join('/');
         var strappointmentenddt = $('#lblProjectEndDate').text().split('-').join('/');
         var AppointmentStartDate = moment(strappointmentstartdt.split('-').join('/')).toDate();
@@ -1644,6 +2095,38 @@
             $('#Consultant_ITTDSExemptedDate').attr("readonly", true);
             $("#Consultant_ITTDSExemptedDate").datepicker("destroy");
             $('#Consultant_ITTDSExemptedDate').val('');
+            if ($.trim(ConsEmpID) == "CFD" || $.trim(ConsEmpID) == "CID") {
+                var type = "Indian"
+                $.ajax({
+                    type: "GET",
+                    url: "@Url.Action("RCTGetTDSpercentage", "Requirement")",
+                    data: {type:type},
+                    dataType: "json",
+                    success: function (result) {
+                        var dropdown = $('#Consultant_ITTDSPercentage');
+                        dropdown.empty();
+                        $.each(result, function (key, value) {
+                            dropdown.append($('<option></option>').attr('value', value.id).text(value.name));
+                        });
+                    }
+                });
+            }
+            else if ($.trim(ConsEmpID) == "CIF" || $.trim(ConsEmpID) == "CFF") {
+                var type = "Foreign"
+                $.ajax({
+                    type: "GET",
+                    url: "@Url.Action("RCTGetTDSpercentage", "Requirement")",
+                    data: {type:type},
+                    dataType: "json",
+                    success: function (result) {
+                        var dropdown = $('#Consultant_ITTDSPercentage');
+                        dropdown.empty();
+                        $.each(result, function (key, value) {
+                            dropdown.append($('<option></option>').attr('value', value.id).text(value.name));
+                        });
+                    }
+                });
+            }
         }
         else if ($('#Consultant_ITTDSType').val() == 2 && (strappointmentenddt != null && strappointmentenddt != '')) {
             $('#Consultant_ITTDSExemptedDate').datepicker({
@@ -1655,7 +2138,7 @@
             $('#Consultant_ITTDSPercentage').val('');
         }
         else {
-            $('#Consultant_ITTDSPercentage').attr("readonly", true);
+            $('#Consultant_ITTDSPercentage').attr("readonly", false);
             $('#Consultant_ITTDSPercentage').css('pointer-events', 'none');
             $('#Consultant_ITTDSPercentage').val('');
             $('#Consultant_ITTDSExemptedDate').attr("readonly", true);
@@ -1747,22 +2230,23 @@
             //    $('#Consultant_GSTStatus').val('');
             //}
             //else {
-                $('#Consultant_GSTIN').attr("readonly", true);
-                //$('#Consultant_GSTIN').val('');
-                $('#Consultant_GSTINPercentagee').attr("readonly", true);
-                $("#Consultant_GSTINPercentagee").val("18");
-                $('#Consultant_GSTINPercentage').attr("disabled", true);
-                $('#Consultant_RCMCategoryy').attr("readonly", true);
-                $("#Consultant_RCMCategoryy").val("1");
-                $('#Consultant_RCMCategory').attr("disabled", true);
-                $('#Consultant_RCMType').attr("readonly", false);
-                $('#Consultant_RCMType').css('pointer-events', '');
-                $('#Consultant_RCMType').attr("disabled", false);
-                $('#Consultant_RCMType').val('');
-                $('#Consultant_GSTEligibilityy').attr("readonly", true);
-                $("#Consultant_GSTEligibilityy").val("2");
-                $('#Consultant_GSTEligibility').attr("disabled", true);
-            }
+            $('#Consultant_GSTIN').attr("readonly", true);
+            //$('#Consultant_GSTIN').val('');
+            $('#Consultant_GSTINPercentagee').attr("readonly", true);
+            $("#Consultant_GSTINPercentagee").val("18");
+            $('#Consultant_GSTINPercentage').attr("disabled", true);
+            $('#Consultant_RCMCategoryy').attr("readonly", true);
+            $("#Consultant_RCMCategoryy").val("1");
+            $('#Consultant_RCMCategory').attr("disabled", true);
+            $('#Consultant_RCMType').attr("readonly", false);
+            $('#Consultant_RCMType').css('pointer-events', '');
+            $('#Consultant_RCMType').attr("disabled", false);
+            $('#Consultant_RCMType').val('');
+            $('#Consultant_GSTEligibilityy').attr("readonly", true);
+            $("#Consultant_GSTEligibilityy").val("2");
+            $('#Consultant_GSTEligibilityy').css('pointer-events', 'none');
+            $('#Consultant_GSTEligibility').attr("disabled", true);
+        }
         //}
         else {
             $('#Consultant_GSTINPercentagee').attr("readonly", true);
@@ -1791,6 +2275,7 @@
         $('#Consultant_RetainerFee').val('');
         $('#Consultant_CurrFlutuationvalue').val('');
         $('#Consultant_Commitvalue').val('');
+        $('#Consultant_Estimatedvalue').val('');
         $('#Consultant_GSTvalue').val('');
     }
 
@@ -1800,7 +2285,7 @@
             var foreigncurrvalue = $('#Consultant_CurrValue').val() || 0;
             var foreignconversionrate = $('#Consultant_CurrConvertionRate').val() || 0;
             var retainerfeeforeign = Math.ceil(foreigncurrvalue * foreignconversionrate) || 0;
-            var foreignfluctuationvalue = Math.ceil((foreigncurrvalue * foreignconversionrate)*(10/100)) || 0;
+            var foreignfluctuationvalue = Math.ceil((foreigncurrvalue * foreignconversionrate)*(15/100)) || 0;
             $('#Consultant_RetainerFee').val(retainerfeeforeign);
             $('#Consultant_CurrFlutuationvalue').val(foreignfluctuationvalue);
         }
@@ -1930,11 +2415,14 @@
             foreignfluctuationvalue = parseFloat($('#Consultant_CurrFlutuationvalue').val()) || 0;
         }
         if (($('#Consultant_GSTEligibilityy').val() == 1) || ($('#Consultant_RCMType').val() == 2)) {
+            var commitmentvalue = Math.ceil(retainerfee + gstvalue) || 0;
             $('#Consultant_Commitvalue').val(retainerfee);
+            $('#Consultant_Estimatedvalue').val(commitmentvalue);
         }
         else {
             var commitmentvalue = Math.ceil(retainerfee + gstvalue) || 0;
             $('#Consultant_Commitvalue').val(commitmentvalue);
+            $('#Consultant_Estimatedvalue').val(commitmentvalue);
         }
 
     }
@@ -1951,6 +2439,7 @@
                 $.alert('Insufficient funds in the project');
                 $('#Consultant_RetainerFee').val('');
                 $('#Consultant_Commitvalue').val('');
+                $('#Consultant_Estimatedvalue').val('');
                 $('#Consultant_CurrValue').val('');
                 $('#Consultant_CurrFlutuationvalue').val('');
                 $('#Consultant_CurrConvertionRate').val('');
@@ -2161,6 +2650,18 @@
         $(".loading-bg").removeClass('dis-none');
     });
 
+    $(document).on('click', '#verify', function (e) {
+        e.preventDefault();
+        var isformValid = formSFAvalidate();
+        var fundcheck = fundavailability();
+        if (!isformValid)
+            return false;
+        if (!fundcheck)
+            return false;
+        $('#formConsEntry').submit();
+        $(".loading-bg").removeClass('dis-none');
+    });
+
     //function formSave() {
     //    //$('#isDraftbtn').val(false);
     //    var isvalid = $('#formConsEntry').valid();
@@ -2184,7 +2685,7 @@
         var isvalid = false;
         var draftattachvalid = formattachvalidatedraft();
         var formdraftvalidate = formvalidate();
-        var Status = @Html.Raw(Json.Encode(Model.Consultant_Status)) || '';       
+        var Status = @Html.Raw(Json.Encode(Model.Consultant_Status)) || '';
         if (draftattachvalid == false) {
             isvalid = false;
             return isvalid;
@@ -2218,7 +2719,7 @@
             else {
                 element.style.border = '';
                 isvalid = true;
-            }           
+            }
         }
         return isvalid;
     }
@@ -2233,7 +2734,7 @@
             'Consultant_Mode', 'Consultant_AppStartDt', 'Consultant_AppEndDt',
             'Consultant_PayType', 'Consultant_WorkPlace', 'Consultant_RetainerFee',
             'Consultant_GSTvalue', 'Consultant_ReqReceivedDate', 'Consultant_AutofillReqInitBy',
-            'Consultant_ReqInitBy', 'Consultant_Commitvalue'
+            'Consultant_ReqInitBy', 'Consultant_Commitvalue','Consultant_Estimatedvalue'
         ];
         for (var i = 0; i < elementsToCheck.length; i++) {
             var elementId = elementsToCheck[i];
@@ -2377,7 +2878,12 @@
         var isvalid = true;
         var isformattachValid1 = formattachvalidate();
         var formsfvalidatecheck = formsfvalidate();
-        $('#consstatus').val("Open");       
+        if (verifystatus == "Awaiting Verification") {
+            $('#consstatus').val("Awaiting Verification");
+        }
+        else {
+            $('#consstatus').val("Open");
+        }
         if (isformattachValid1 == false) {
             isvalid = false;
         }

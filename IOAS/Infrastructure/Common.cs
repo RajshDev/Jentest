@@ -24901,7 +24901,7 @@ namespace IOAS.Infrastructure
                 using (var context = new IOASDBEntities())
                 {
                     list = (from U in context.vwFacultyStaffDetails
-                            where (string.IsNullOrEmpty(term) || U.FirstName.Contains(term) || U.EmployeeId.Contains(term))
+                            where (string.IsNullOrEmpty(term) || U.FirstName.Contains(term) || U.EmployeeId.Contains(term) || (U.UserId.HasValue && U.UserId.Value.ToString() == term))
                             && (userID == null || userID == U.UserId)
                             orderby U.UserId
                             select new
@@ -25479,13 +25479,13 @@ namespace IOAS.Infrastructure
                     }
                     else if (typecode == "CON")
                     {
-                        var STEquery = (from prj in context.tblRCTConsultantAppointment
-                                        where prj.ApplicationNumber == applno
+                        var STEquery = (from prj in context.tblRCTConsultantEntry
+                                        where prj.Consultant_ApplicationNo == applno
                                         select prj).FirstOrDefault();
                         medicalamt = 0;
-                        basicpay = STEquery.Salary ?? 0;
-                        startdate = STEquery.AppointmentStartdate;
-                        closedate = STEquery.AppointmentEnddate;
+                        basicpay = STEquery.Consultant_RetainerFee ?? 0;
+                        startdate = STEquery.Consultant_AppStartDt;
+                        closedate = STEquery.Consultant_AppEndDt;
                     }
                     else if (typecode == "OSG")
                     {
