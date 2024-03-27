@@ -81,8 +81,10 @@ namespace IOAS.GenericServices
                         var ClrQry = context.tblClearanceAgentMaster.Where(m => m.ClearanceAgentCode == query.VendorCode && m.Status != "InActive").FirstOrDefault();
                         if (ClrQry != null)
                         {
-                            editVendor.ClearanceAgency_f = true;
+                            
                             editVendor.TravelAgency_f = ClrQry.IsTravelAgency ?? false;
+                            if (ClrQry.IsTravelAgency == false)
+                                editVendor.ClearanceAgency_f = true; 
 
                             ClrQry.Nationality = Convert.ToInt32(query.Nationality);
                             ClrQry.Name = query.Name;
