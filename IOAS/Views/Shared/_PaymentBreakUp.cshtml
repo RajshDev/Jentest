@@ -25,6 +25,7 @@
                     {
                         var catId = "PaymentBreakDetail[" + count + "].CategoryId";
                         var uId = "PaymentBreakDetail[" + count + "].UserId";
+                        var isGSTVendor = "PaymentBreakDetail[" + count + "].isGSTVendor";
                         var name = "PaymentBreakDetail[" + count + "].Name";
                         var mode = "PaymentBreakDetail[" + count + "].ModeOfPayment";
                         var pAmt = "PaymentBreakDetail[" + count + "].PaymentAmount";
@@ -40,13 +41,15 @@
                                 @Html.ValidationMessage(@catId)
                                 @Html.Hidden("PaymentBreakDetail.Index", @count)
                                 @Html.Hidden(@detId, item.PaymentBreakUpDetailId)
+                               
                             </td>
                             <td class="tdDDLUser">
                                 @Html.TextBox(@autoComp, item.Name, new { @class = "form-control" })
                                 @Html.TextBox(@uId, item.UserId, new { @class = "form-control dis-none" })
                                 @*<input name="@autoComp" value="@item.Name" class="form-control" />
-                                    <input name="@uId" value="@item.UserId" class="form-control dis-none" />*@
+                                <input name="@uId" value="@item.UserId" class="form-control dis-none" />*@
                                 @Html.ValidationMessage(@uId)
+                                <span name="@isGSTVendor" class="form-c ontrol dis-none" style="color: white; background-color: red; " >HOLD GST FOR THIS VENDOR</span>
                             </td>
                             <td class="tdTxtName dis-none">
                                 @Html.TextBox(@name, item.Name, new { @class = "form-control" })
@@ -96,8 +99,9 @@
                             @Html.TextBox("PaymentBreakDetail[0].autoComplete", "", new { @class = "form-control" })
                             @Html.TextBox("PaymentBreakDetail[0].UserId", "", new { @class = "form-control dis-none" })
                             @*<input name="PaymentBreakDetail[0].autoComplete" class="form-control" />
-                                <input name="PaymentBreakDetail[0].UserId"  class="form-control dis-none" />*@
+        <input name="PaymentBreakDetail[0].UserId"  class="form-control dis-none" />*@
                             @Html.ValidationMessage("PaymentBreakDetail[0].UserId")
+                            <span name="PaymentBreakDetail[0].isGSTVendor" class="form-c ontrol dis-none" style="color: white; background-color: red; ">HOLD GST FOR THIS VENDOR</span>
                         </td>
                         <td class="tdTxtName dis-none">
                             @Html.TextBox("PaymentBreakDetail[0].Name", "", new { @class = "form-control" })
@@ -200,7 +204,8 @@
         CalculatePaymentBUTotal();
     });
     $("#btnAddPaymentBU").click(function () {
-        var cln = $('#tbodyPaymentBU tr:first').clone().find("select,input[type!='checkbox']").val("").end();
+        $('#tbodyPaymentBU tr:first').find('[name$=".isGSTVendor"]').addClass('dis-none');
+        var cln = $('#tbodyPaymentBU tr:first').clone().find("select,input[type!='checkbox']").val("").end();        
         var index = $('#tbodyPaymentBU tr:last').find("input[name='PaymentBreakDetail.Index']").val();        
         index = parseInt(index) + 1;
         $(cln).find("input[name='PaymentBreakDetail.Index']").val(index);
@@ -269,5 +274,6 @@
         $('#tbodyPaymentBU tr').find("input[type='checkbox']").val('true');
         $('#tbodyPaymentBU tr').find('input[type="hidden"][name$=".IsHaveTDS"]').val('false');
         $('#tbodyPaymentBU tr').find('input[name$=".IsHaveTDS"]').attr('checked', false);
+        $('#tbodyPaymentBU tr').find('[name$=".isGSTVendor"]').addClass('dis-none');
     }
 </script>

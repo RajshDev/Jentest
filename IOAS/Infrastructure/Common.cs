@@ -10848,7 +10848,8 @@ namespace IOAS.Infrastructure
                             select new AutoCompleteModel()
                             {
                                 value = C.ClearanceAgentId.ToString(),
-                                label = C.Name
+                                label = C.Name,
+                                desc = C.isGstVendor.HasValue ? " HOLD GST FOR THIS VENDOR " : ""
                             }).ToList();
 
 

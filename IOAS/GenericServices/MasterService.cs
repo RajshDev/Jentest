@@ -598,7 +598,7 @@ namespace IOAS.GenericServices
                                         Clr.Status = "Active";
                                         Clr.StateCode = chkvendor.StateCode;
                                         Clr.IsTravelAgency = model.TravelAgency_f;
-                                        Clr.isGstVendor = model.isGSTVendor_f;
+                                        Clr.isGstVendor = model.isGSTVendor;
                                         context.tblClearanceAgentMaster.Add(Clr);
                                         context.SaveChanges();
                                     }
@@ -644,6 +644,11 @@ namespace IOAS.GenericServices
                                         ClrQry.isGstVendor = model.isGSTVendor;
                                         context.SaveChanges();
                                     }
+                                }
+                                else
+                                {
+                                    if (ClrQry != null)
+                                        ClrQry.IsTravelAgency = null;
                                 }
 
                                 if (model.GSTDocumentType != null)
