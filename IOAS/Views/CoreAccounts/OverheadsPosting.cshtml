@@ -126,13 +126,13 @@
                                         {
                                             if (ViewBag.ReceiptNumber != null)
                                             {
-                                                @Html.DropDownListFor(m => m.ReceiptId, new SelectList(ViewBag.ReceiptNumber, "id", "name"), "Select any", new { @class = "form-control", @id = "txtreceiptid", @disabled = true })
+                                                @Html.DropDownListFor(m => m.ReceiptId, new SelectList(ViewBag.ReceiptNumber, "id", "name"), "Select any", new { @class = "form-control", @id = "txtreceiptid"})
                                                 @Html.ValidationMessageFor(m => m.ReceiptId)
                                             }
                                         }
                                         else
                                         {
-                                            @Html.DropDownListFor(m => m.ReceiptId, new SelectList(ViewBag.ReceiptList, "id", "name"), "Select any", new { @class = "form-control", @id = "txtreceiptid", @disabled = true })
+                                            @Html.DropDownListFor(m => m.ReceiptId, new SelectList(ViewBag.Receiptlist, "id", "name"), "Select any", new { @class = "form-control", @id = "txtreceiptid", @disabled = true })
                                             @Html.ValidationMessageFor(m => m.ReceiptId)
                                         }
                                     </div>
@@ -1347,6 +1347,7 @@
     $('#txtsrchProjectid').change(function () {
         debugger;
         var ProjectId = Number($('#txtsrchProjectid').val());
+        var OHId = $("#OverheadsPostingId").val() || 0;
         if (ProjectId != 0) {
             $('#txtreceiptid').prop('disabled', false);
 
@@ -1358,7 +1359,7 @@
                 text: "Select Receipt"
             }));
         }
-        $.getJSON("../CoreAccounts/GetReceiptListbyProject", { ProjectId: ProjectId },
+        $.getJSON("../CoreAccounts/GetReceiptListbyProject", { ProjectId: ProjectId, ohId : OHId },
                     function (data) {
                         var select = $("select[name='ReceiptId']");
                         select.empty();

@@ -23583,7 +23583,7 @@ namespace IOAS.Infrastructure
 
             }
         }
-        public static List<MasterlistviewModel> GetReceiptListbyProjectId(int projectId)
+        public static List<MasterlistviewModel> GetReceiptListbyProjectId(int projectId,int OHId)
         {
             try
             {
@@ -23592,26 +23592,51 @@ namespace IOAS.Infrastructure
 
                 using (var context = new IOASDBEntities())
                 {
-                    list = (from oh in context.tblReceiptOverheadBreakup
-                            join R in context.tblReceipt on oh.ReceiptId equals R.ReceiptId
-                            join P in context.tblProject on R.ProjectId equals P.ProjectId
-                            where R.Status == "Completed" && (oh.IsPosted_f == false || oh.IsPosted_f == null)
-                            && !context.tblOverheadsPostingDetails.Any(m => m.ReceiptId == R.ReceiptId)
-                            && P.ProjectId == projectId && P.ProjectType == 1
-                            orderby R.ReceiptNumber
-                            group R by R.ReceiptId into g
-                            select new
-                            {
-                                ReceiptId = g.Key,
-                                ReceiptNumber = g.Select(m => m.ReceiptNumber).FirstOrDefault()
-                            })
-                            .AsEnumerable()
-                            .Select((x, index) => new MasterlistviewModel()
-                            {
-                                id = x.ReceiptId,
-                                name = x.ReceiptNumber
-                            }).ToList();
+                    if (OHId > 0)
+                    {
+                        list = (from oh in context.tblReceiptOverheadBreakup
+                                join R in context.tblReceipt on oh.ReceiptId equals R.ReceiptId
+                                join P in context.tblProject on R.ProjectId equals P.ProjectId
+                                where R.Status == "Completed" && (oh.IsPosted_f == false || oh.IsPosted_f == null)
+                                //&& !context.tblOverheadsPostingDetails.Any(m => m.ReceiptId == R.ReceiptId)
+                                && P.ProjectId == projectId && P.ProjectType == 1
+                                orderby R.ReceiptNumber
+                                group R by R.ReceiptId into g
+                                select new
+                                {
+                                    ReceiptId = g.Key,
+                                    ReceiptNumber = g.Select(m => m.ReceiptNumber).FirstOrDefault()
+                                })
+                               .AsEnumerable()
+                               .Select((x, index) => new MasterlistviewModel()
+                               {
+                                   id = x.ReceiptId,
+                                   name = x.ReceiptNumber
+                               }).ToList();
 
+                    }
+                    else
+                    {
+                        list = (from oh in context.tblReceiptOverheadBreakup
+                                join R in context.tblReceipt on oh.ReceiptId equals R.ReceiptId
+                                join P in context.tblProject on R.ProjectId equals P.ProjectId
+                                where R.Status == "Completed" && (oh.IsPosted_f == false || oh.IsPosted_f == null)
+                                //&& !context.tblOverheadsPostingDetails.Any(m => m.ReceiptId == R.ReceiptId)
+                                && P.ProjectId == projectId && P.ProjectType == 1
+                                orderby R.ReceiptNumber
+                                group R by R.ReceiptId into g
+                                select new
+                                {
+                                    ReceiptId = g.Key,
+                                    ReceiptNumber = g.Select(m => m.ReceiptNumber).FirstOrDefault()
+                                })
+                                .AsEnumerable()
+                                .Select((x, index) => new MasterlistviewModel()
+                                {
+                                    id = x.ReceiptId,
+                                    name = x.ReceiptNumber
+                                }).ToList();
+                    }
                 }
 
                 return list;
