@@ -269,7 +269,10 @@ function applyPaymentBUAutoComplete(ele, url, setId) {
             if (ui.item.desc) {
                 $('#alert').html(ui.item.desc);
                 $('#Validation').modal('toggle');
+                $(ele).closest('tr').find('[name$=".isGSTVendor"]').removeClass('dis-none');
             }
+            else
+                $(ele).closest('tr').find('[name$=".isGSTVendor"]').addClass('dis-none');
         },
         focus: function (event, ui) {
             event.preventDefault();
@@ -405,12 +408,8 @@ function applyAutoCompleteProject(el, mode) {
         $(ele).addClass('required');
         $(el).closest('tr').find("input[name$='.Name']").removeClass('required');
         applyPaymentBUAutoComplete(ele, "../CoreAccounts/LoadClearanceAgentList", true)
-        //$(el).closest('tr').find("td.tdDDLUser").addClass('dis-none');
-        //$(el).closest('tr').find("td.tdTxtName").removeClass('dis-none');
-        //$(el).closest('tr').find("input[name$='.autoComplete']").removeClass('required');
-        //var ele = $(el).closest('tr').find("input[name$='.UserId']");
-        //$(ele).removeClass('required');
-        //$(el).closest('tr').find("input[name$='.Name']").addClass('required');
+      
+        
     }
 }
 function travelerCategoryChange(el, mode) {
@@ -622,6 +621,7 @@ function removePaymentBUValidation() {
         $(this).find("select[name$='.CategoryId'],select[name$='.ModeOfPayment'],input[name$='.PaymentAmount'],input[name$='.autoComplete'],input[name$='.UserId'],input[name$='.Name']").removeClass('required');
     });
     $("tbodyPaymentBU input[name$='.PaymentAmount'], #PaymentBUTotal").val('0');
+    $("tbodyPaymentBU [name$='.isGSTVendor']").addClass('dis-none');
     EmptyPaymentBU();
 }
 function setPaymentBUValidation() {
