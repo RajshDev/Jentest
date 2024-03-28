@@ -787,8 +787,9 @@ namespace IOAS.GenericServices
                 {
                     var id = (from d in context.tblProcessGuidelineDetail
                               join tx in context.tblProcessTransactionDetail on d.ProcessGuidelineDetailId equals tx.ProcessGuidelineDetailId
-                              join u in context.tblProcessGuidelineUser on d.ProcessGuidelineDetailId equals u.ProcessGuidelineDetailId
-                              where d.ProcessGuidelineId == this._processGuideLineId && tx.RefId == this._refId && tx.Clarified == true && tx.ActionStatus == "Clarify"
+                              join u in context.tblProcessGuidelineUser on d.ProcessGuidelineDetailId equals u.ProcessGuidelineDetailId   
+                              join pt in context.tblProcessTransaction on tx.ProcessTransactionId equals pt.ProcessTransactionId
+                              where d.ProcessGuidelineId == this._processGuideLineId && tx.RefId == this._refId && tx.Clarified == true && tx.ActionStatus == "Clarify" && pt.Closed_F != true
                               select tx.ProcessTransactionId
                               ).FirstOrDefault();
                     //context.tblProcessTransactionDetail
@@ -1346,7 +1347,7 @@ namespace IOAS.GenericServices
                                    join PGU in context.tblProcessGuidelineUser on PGD.ProcessGuidelineDetailId equals PGU.ProcessGuidelineDetailId
                                    //join PTD in context.tblProcessTransactionDetail on PGD.ProcessGuidelineDetailId equals PTD.ProcessGuidelineDetailId
                                    join PT in context.tblProcessTransaction on PGD.ProcessGuidelineDetailId equals PT.ProcessGuidelineDetailId
-                                   where PGD.ProcessGuidelineId == this._processGuideLineId && PT.RefId == this._refId
+                                   where PGD.ProcessGuidelineId == this._processGuideLineId && PT.RefId == this._refId && PT.Closed_F != true
                                    select new
                                    {
                                        PGH.ProcessGuidelineId,

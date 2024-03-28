@@ -15786,7 +15786,11 @@ namespace IOAS.GenericServices
                                     {
                                         commitrequest.EmpNumber = model.CommitReqModel.EmpNumber;
                                     }
-                                    commitrequest.EmpNumber = model.CommitReqModel.EmpNumber;
+                                    //else
+                                    //{
+                                    //    commitrequest.EmpNumber = model.CommitReqModel.EmpNumber;
+                                    //}
+                                    
                                     commitrequest.AllocationHeadId = model.CommitReqModel.AllocationHeadId;
                                     var allocheadid = model.CommitReqModel.AllocationHeadId ?? 0;
                                     commitrequest.AllocationHead = Common.getAllocationHeadName(allocheadid);
@@ -16376,10 +16380,14 @@ namespace IOAS.GenericServices
                                     var consverify = (from prj in context.tblRCTConsultantEntry
                                                       where prj.Consultant_ApplicationNo == refNo
                                                       select prj).FirstOrDefault();
-
+                                    var Servicecount = (from prj in context.tblRCTConsultantEntry
+                                                        where prj.Consultant_EmpNo == empno && prj.Consultant_ServiceNo != null
+                                                        select prj.Consultant_ServiceNo).Count();
+                                    var number = Servicecount + 1;
+                                    string value = number.ToString("D4");
                                     if (typecode == "CON")
                                     {
-
+                                        consverify.Consultant_ServiceNo = consverify.Consultant_EmpNo + "-S" + value;
                                         consverify.Consultant_Status = "Completed";
                                         consverify.Consultant_ActivityStatus = true;
                                         consverify.Consultant_Commitvalue = commit.CommitmentBalance;
@@ -33569,11 +33577,14 @@ namespace IOAS.GenericServices
                                         {
                                             var docid = model.Consultant_DocumentId[i];
                                             var doctype = model.Consultant_DocumentType[i];
+                                            var docremarks = model.Consultant_DocumentName[i];
+                                            var filepath = model.Consultant_DocumentNameEncrypted[i];
+                                            var fileName = filepath.Split('_').Last();
                                             //string docpath = "";
                                             var docquery = (from doc in context.tblRCTConsultantEntryDocs
                                                             where (doc.Consultant_DocumentId == docid && doc.Consultant_AppointmentId == model.Consultant_AppointmentId)
-                                                            select doc).ToList();
-                                            if (docquery.Count == 0 && file[i] != null)
+                                                            select doc).FirstOrDefault();
+                                            if (docquery == null  && file[i] != null)
                                             {
                                                 string path = " ";
                                                 path = System.IO.Path.GetFileName(file[i].FileName);
@@ -33596,7 +33607,28 @@ namespace IOAS.GenericServices
                                                 context.tblRCTConsultantEntryDocs.Add(ConsDoc);
                                                 context.SaveChanges();
                                             }
+                                            else
+                                            {                                                                                               
+                                                docquery.Consultant_MasterId = model.Consultant_MasterId;
+                                                docquery.Consultant_AppointmentId = Consultant_AppointmentId;
+                                                docquery.Consultant_DocumentType = model.Consultant_DocumentType[i];
+                                                if  (file[i] != null)
+                                                {
+                                                    string path = " ";
+                                                    path = System.IO.Path.GetFileName(file[i].FileName);
+                                                    var docfileId = Guid.NewGuid().ToString();
+                                                    var docname = docfileId + "_" + path;
+                                                    docquery.Consultant_DocumentName = file[i].FileName;
+                                                    docquery.Consultant_DocumentNameEncrypted = docname;
+                                                }                                                                           
+                                                docquery.Consultant_DocumentRemarks = model.Consultant_DocumentName[i];
+                                                docquery.Consultant_UptdTs = DateTime.Now;
+                                                docquery.Consultant_UptdUser = logged_in_userId;
+                                                docquery.Consultant_Status = "Active";
+                                                docquery.Consultant_IsDeleted = false;
+                                                context.SaveChanges();
 
+                                            }
                                         }
                                     }
                                 }
@@ -33745,11 +33777,14 @@ namespace IOAS.GenericServices
                                         {
                                             var docid = model.Consultant_DocumentId[i];
                                             var doctype = model.Consultant_DocumentType[i];
+                                            var docremarks = model.Consultant_DocumentName[i];
+                                            var filepath = model.Consultant_DocumentNameEncrypted[i];
+                                            var fileName = filepath.Split('_').Last();
                                             //string docpath = "";
                                             var docquery = (from doc in context.tblRCTConsultantEntryDocs
                                                             where (doc.Consultant_DocumentId == docid && doc.Consultant_AppointmentId == model.Consultant_AppointmentId)
-                                                            select doc).ToList();
-                                            if (docquery.Count == 0 && file[i] != null)
+                                                            select doc).FirstOrDefault();
+                                            if (docquery == null && file[i] != null)
                                             {
                                                 string path = " ";
                                                 path = System.IO.Path.GetFileName(file[i].FileName);
@@ -33772,7 +33807,28 @@ namespace IOAS.GenericServices
                                                 context.tblRCTConsultantEntryDocs.Add(ConsDoc);
                                                 context.SaveChanges();
                                             }
+                                            else
+                                            {
+                                                docquery.Consultant_MasterId = model.Consultant_MasterId;
+                                                docquery.Consultant_AppointmentId = Consultant_AppointmentId;
+                                                docquery.Consultant_DocumentType = model.Consultant_DocumentType[i];
+                                                if (file[i] != null)
+                                                {
+                                                    string path = " ";
+                                                    path = System.IO.Path.GetFileName(file[i].FileName);
+                                                    var docfileId = Guid.NewGuid().ToString();
+                                                    var docname = docfileId + "_" + path;
+                                                    docquery.Consultant_DocumentName = file[i].FileName;
+                                                    docquery.Consultant_DocumentNameEncrypted = docname;
+                                                }
+                                                docquery.Consultant_DocumentRemarks = model.Consultant_DocumentName[i];
+                                                docquery.Consultant_UptdTs = DateTime.Now;
+                                                docquery.Consultant_UptdUser = logged_in_userId;
+                                                docquery.Consultant_Status = "Active";
+                                                docquery.Consultant_IsDeleted = false;
+                                                context.SaveChanges();
 
+                                            }
                                         }
                                     }
                                 }

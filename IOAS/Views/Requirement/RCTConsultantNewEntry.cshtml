@@ -49,6 +49,8 @@
 
 @using (Html.BeginForm("RCTConsultantNewEntry", "Requirement", FormMethod.Post, new { @class = "", role = "form", @id = "formConsEntry", enctype = "multipart/form-data" }))
 {
+    var orderedList = ((IEnumerable<dynamic>
+    )ViewBag.ConsultantDocType).OrderBy(x => x.name);
     <div class="row hd-tt-bg">
         <div class="col-md-12">
             <h4><b>Consultant New Entry</b></h4>
@@ -66,7 +68,7 @@
                         <div class="col-md-6">
                             <div class="bl-lg-panel-box pb-null">
                                 <div class="cmn-panel-box">
-                                    <h1 class="spl-title" style="font-size:25px">Consultant Details</h1>
+                                    <h1 class="spl-title" style="font-size:15px">Consultant Details</h1>
                                     <div class="row">
                                         <div class="col-md-4">
                                             <div class="form-group custom-form-group">
@@ -109,7 +111,7 @@
                                                 <div>@Html.ValidationMessageFor(m => m.Consultant_ServiceDescription)</div>
                                             </div>
                                         </div>
-                                        <div class="col-md-4" style="font-size: 18px;">
+                                        <div class="col-md-4" style="font-size: 15px;">
                                             <div class="form-group custom-form-group">
                                                 <div>
                                                     <br>
@@ -170,7 +172,7 @@
                             <div class="bl-lg-panel-box pb-null">
                                 <div class="bl-lg-panel-box-hd mb-m-5 pd-null">
                                     <div class="cmn-panel-box">
-                                        <h1 class="spl-title" style="font-size:25px; color:white">Project details</h1>
+                                        <h1 class="spl-title" style="font-size:15px; color:white">Project details</h1>
                                         <div class="row">
                                             <div class="col-md-6">
                                                 <div class="form-group custom-form-group">
@@ -302,7 +304,7 @@
                         <div class="col-md-6">
                             <div class="bl-lg-panel-box pb-null">
                                 <div class="cmn-panel-box">
-                                    <h1 class="spl-title" style="font-size:25px">Payment / Tax Details</h1>
+                                    <h1 class="spl-title" style="font-size:15px">Payment / Tax Details</h1>
                                     <div class="row">
                                         <div class="col-md-4">
                                             <div class="form-group custom-form-group">
@@ -396,7 +398,7 @@
                             <div class="bl-lg-panel-box pb-null">
                                 <div class="bl-lg-panel-box-hd mb-m-5 pd-null">
                                     <div class="cmn-panel-box">
-                                        <h1 class="spl-title" style="font-size:25px; color:white">Engagement Details</h1>
+                                        <h1 class="spl-title" style="font-size:15px; color:white">Engagement Details</h1>
                                         <div class="row">
                                             <div class="col-md-3">
                                                 <div class="form-group custom-form-group">
@@ -525,19 +527,19 @@
                                 <div class="row">
                                     <div id="DocdivContent">
                                         <div class="col-md-11 mt10">
-                                            <div class="col-md-4">
+                                            <div class="col-md-3">
                                                 <div class="form-group custom-form-group">
-                                                    <label>Attachment type</label>
+                                                    <label class="required">Attachment type</label>
                                                 </div>
                                             </div>
                                             <div class="col-md-3">
                                                 <div class="form-group custom-form-group">
-                                                    <label> Attachment Name </label>
+                                                    <label class="required"> Attachment Name </label>
                                                 </div>
                                             </div>
-                                            <div class="col-md-4">
+                                            <div class="col-md-3">
                                                 <div class="form-group custom-form-group">
-                                                    <label> Attachment (.pdf, .doc, .docx)</label>
+                                                    <label class="required"> Attachment (.pdf, .doc, .docx, Jpeg)</label>
                                                 </div>
                                             </div>
                                             <div class="col-md-1">
@@ -546,11 +548,12 @@
                                         </div>
                                         <div id="DocprimaryDiv">
                                             <div class="col-md-11">
-                                                <div class="col-md-4">
+                                                <div class="col-md-3">
                                                     <div class="form-group custom-form-group">
-                                                        @Html.DropDownList("Consultant_DocumentType", new SelectList(ViewBag.ConsultantDocType, "id", "name"), "Select Document Type",
-                                                        new { @class = "form-control", @id = "doctype" })
-                                                        @Html.Hidden("Consultant_DocumentId")
+
+                                                            @Html.DropDownList("Consultant_DocumentType", new SelectList(orderedList, "id", "name"), "Select Document Type",
+                                                                               new { @class = "form-control", @id = "doctype" })
+                                                            @Html.Hidden("Consultant_DocumentId")
                                                     </div>
                                                 </div>
                                                 <div class="col-md-3">
@@ -703,7 +706,7 @@
     var ReqDate = $('#Consultant_ReqReceivedDate').val();
     var reqinitby = $('#Consultant_ReqInitBy').val();
     var ITTDSvalue = $('#Consultant_ITTDSPercentage').val();
-    if (ApptId > 0) {
+    if (ApptId > 0 && verifystatus != "Awaiting Verification") {
         $('#Consultant_Mode').val(arrayOfArrays);
         var EmptId = $("#moddata").data("emptype");
         $('#GetConsDetail1').attr("readonly", true);
@@ -995,23 +998,8 @@
                 });
             }
         }
-        else if ($('#Consultant_ITTDSType').val() == 2 && (outputstrappointmentenddtDate != null && outputstrappointmentenddtDate != '')) {
-            $('#Consultant_ITTDSExemptedDate').datepicker({
-                dateFormat: "dd-MM-yy",
-                changeYear: true
-            }).datepicker("option", "maxDate", outputstrappointmentenddtDate).datepicker("option", "minDate", outputstrappointmentstartdtDate);
-            $('#Consultant_ITTDSPercentage').attr("readonly", true);
-            $('#Consultant_ITTDSPercentage').css('pointer-events', 'none');
-            $('#Consultant_ITTDSPercentage').val('');
-        }
-        else {
-            $('#Consultant_ITTDSPercentage').attr("readonly", true);
-            $('#Consultant_ITTDSPercentage').css('pointer-events', 'none');
-            $('#Consultant_ITTDSPercentage').val('');
-            $('#Consultant_ITTDSExemptedDate').attr("readonly", true);
-            $("#Consultant_ITTDSExemptedDate").datepicker("destroy");
-            $('#Consultant_ITTDSExemptedDate').val('');
-        }
+        
+
 
         /* Edit Mode - Project Details Load */
 
@@ -1071,7 +1059,23 @@
                         var strappointmentendtDate = moment(strappointmentenddt, 'DD-MMM-YYYY');
                         var outputstrappointmentenddtDate = strappointmentendtDate.format('DD-MMMM-YYYY');
 
-
+                        if ($('#Consultant_ITTDSType').val() == 2 && (outputstrappointmentenddtDate != null && outputstrappointmentenddtDate != '')) {
+                            $('#Consultant_ITTDSExemptedDate').datepicker({
+                                dateFormat: "dd-MM-yy",
+                                changeYear: true
+                            }).datepicker("option", "maxDate", outputstrappointmentenddtDate).datepicker("option", "minDate", outputstrappointmentstartdtDate);
+                            $('#Consultant_ITTDSPercentage').attr("readonly", true);
+                            $('#Consultant_ITTDSPercentage').css('pointer-events', 'none');
+                            $('#Consultant_ITTDSPercentage').val('');
+                        }
+                        //else {
+                        //    $('#Consultant_ITTDSPercentage').attr("readonly", true);
+                        //    //$('#Consultant_ITTDSPercentage').css('pointer-events', 'none');
+                        //    //$('#Consultant_ITTDSPercentage').val('');
+                        //    //$('#Consultant_ITTDSExemptedDate').attr("readonly", true);
+                        //    //$("#Consultant_ITTDSExemptedDate").datepicker("destroy");
+                        //    //$('#Consultant_ITTDSExemptedDate').val('');
+                        //}
                     }
                     else {
                         $(".loading-bg").addClass('dis-none');
@@ -1136,7 +1140,8 @@
                 } else {
                     var cln = $("#DocprimaryDiv").clone().find("input").val("").end();
                     $(cln).find('.dis-none').removeClass('dis-none');
-                    $('#DocdivContent').append(cln)
+                    $(cln).find('.btn-default').addClass('dis-none');
+                    $('#DocdivContent').append(cln);
                     document.getElementsByName('Consultant_DocumentType')[i].value = Doctype[i];
                     document.getElementsByName('Consultant_DocumentName')[i].value = Docname[i];
                     document.getElementsByName('Consultant_DocumentId')[i].value = DocID[i];
@@ -1403,7 +1408,8 @@
                 } else {
                     var cln = $("#DocprimaryDiv").clone().find("input").val("").end();
                     $(cln).find('.dis-none').removeClass('dis-none');
-                    $('#DocdivContent').append(cln)
+                    $(cln).find('.dis-none').removeClass('dis-none');
+                    $(cln).find('.btn-default').addClass('dis-none');
                     document.getElementsByName('Consultant_DocumentType')[i].value = Doctype[i];
                     document.getElementsByName('Consultant_DocumentName')[i].value = Docname[i];
                     document.getElementsByName('Consultant_DocumentId')[i].value = DocID[i];
@@ -2138,7 +2144,7 @@
             $('#Consultant_ITTDSPercentage').val('');
         }
         else {
-            $('#Consultant_ITTDSPercentage').attr("readonly", false);
+            $('#Consultant_ITTDSPercentage').attr("readonly", true);
             $('#Consultant_ITTDSPercentage').css('pointer-events', 'none');
             $('#Consultant_ITTDSPercentage').val('');
             $('#Consultant_ITTDSExemptedDate').attr("readonly", true);
@@ -2776,7 +2782,7 @@
             if (
                 $('#Consultant_Code').val() == null ||
                 $('#Consultant_Title').val() == null || $('#Consultant_Code').val() == "") {
-                $.alert('Please update Consultant Code');
+                //$.alert('Please update Consultant Code');
                 document.getElementById('Consultant_Code').style.border = '2px solid red';
                 isvalid = false;
             }
@@ -2787,7 +2793,7 @@
         if ($.trim(ConsEmpID) == "CID" || $.trim(ConsEmpID) == "CFD") {
             if (
                 $('#Consultant_GSTStatus').val() == null || $('#Consultant_GSTStatus').val() == "") {
-                $.alert('Please select GST Status');
+                //$.alert('Please select GST Status');
                 document.getElementById('Consultant_GSTStatus').style.border = '2px solid red';
                 isvalid = false;
             }
@@ -2817,7 +2823,7 @@
             if ($('#Consultant_GSTStatus').val() == 3) {
                 if (
                     $('#Consultant_GSTIN').val() == null || $('#Consultant_GSTIN').val() == "") {
-                    $.alert('Please enter GSTIN');
+                    //$.alert('Please enter GSTIN');
                     document.getElementById('Consultant_GSTIN').style.border = '2px solid red';
                     isvalid = false;
                 }
@@ -2828,7 +2834,7 @@
             if ($('#Consultant_GSTStatus').val() == 4) {
                 if (
                     $('#Consultant_RCMType').val() == null || $('#Consultant_RCMType').val() == "") {
-                    $.alert('Please select RCM Type');
+                    //$.alert('Please select RCM Type');
                     document.getElementById('Consultant_RCMType').style.border = '2px solid red';
                     isvalid = false;
                 }
@@ -2840,7 +2846,7 @@
         if ($('#Consultant_ITTDSType').val() == 1) {
             if (
                 $('#Consultant_ITTDSPercentage').val() == null || $('#Consultant_ITTDSPercentage').val() == "") {
-                $.alert('Please select ITTDS');
+                //$.alert('Please select ITTDS');
                 document.getElementById('Consultant_ITTDSPercentage').style.border = '2px solid red';
                 isvalid = false;
             }
@@ -2851,7 +2857,7 @@
         if ($('#Consultant_ITTDSType').val() == 2) {
             if (
                 $('#Consultant_ITTDSExemptedDate').val() == null || $('#Consultant_ITTDSExemptedDate').val() == "") {
-                $.alert('Please select Expiry date');
+                //$.alert('Please select Expiry date');
                 document.getElementById('Consultant_ITTDSExemptedDate').style.border = '2px solid red';
                 isvalid = false;
             }
@@ -2863,7 +2869,7 @@
 
             if (
                 $('#Consultant_RCMType').val() == null || $('#Consultant_RCMType').val() == "") {
-                $.alert('Please select RCM Type');
+                //$.alert('Please select RCM Type');
                 document.getElementById('Consultant_RCMType').style.border = '2px solid red';
                 isvalid = false;
             }

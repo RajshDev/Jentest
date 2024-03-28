@@ -11254,7 +11254,7 @@ namespace IOAS.Controllers
                     else
                     {
                         TempData["errMsg"] = "Something went wrong please contact administrator";
-                        return View(model);
+                        return RedirectToAction("RCTConsultantList", "Requirement");
                     }
                 }
             }

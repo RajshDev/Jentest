@@ -65,7 +65,7 @@
                     <div class="col-md-6">
                         <div class="bl-lg-panel-box pb-null">
                             <div class="cmn-panel-box">
-                                <h1 class="spl-title" style="font-size:25px">Consultant Details</h1>
+                                <h1 class="spl-title" style="font-size:15px">Consultant Details</h1>
                                 <div class="row">
                                     <div class="col-md-4">
                                         <div class="form-group custom-form-group">
@@ -106,7 +106,7 @@
                                             <div>@Html.ValidationMessageFor(m => m.Consultant_ServiceDescription)</div>
                                         </div>
                                     </div>
-                                    <div class="col-md-3" style="font-size: 20px;">
+                                    <div class="col-md-3" style="font-size: 15px;">
                                         <div class="form-group custom-form-group">
                                             <div>
                                                 <br>
@@ -166,7 +166,7 @@
                         <div class="bl-lg-panel-box pb-null">
                             <div class="bl-lg-panel-box-hd mb-m-5 pd-null">
                                 <div class="cmn-panel-box">
-                                    <h1 class="spl-title" style="font-size:25px; color:white">Project details</h1>
+                                    <h1 class="spl-title" style="font-size:15px; color:white">Project details</h1>
                                     <div class="row">
                                         <div class="col-md-6">
                                             <div class="form-group custom-form-group">
@@ -298,7 +298,7 @@
                     <div class="col-md-6">
                         <div class="bl-lg-panel-box pb-null">
                             <div class="cmn-panel-box">
-                                <h1 class="spl-title" style="font-size:25px">Payment / Tax Details</h1>
+                                <h1 class="spl-title" style="font-size:15px">Payment / Tax Details</h1>
                                 <div class="row">
                                     <div class="col-md-4">
                                         <div class="form-group custom-form-group">
@@ -392,7 +392,7 @@
                         <div class="bl-lg-panel-box pb-null">
                             <div class="bl-lg-panel-box-hd mb-m-5 pd-null">
                                 <div class="cmn-panel-box">
-                                    <h1 class="spl-title" style="font-size:25px; color:white">Engagement Details</h1>
+                                    <h1 class="spl-title" style="font-size:15px; color:white">Engagement Details</h1>
                                     <div class="row">
                                         <div class="col-md-3">
                                             <div class="form-group custom-form-group">
@@ -533,7 +533,7 @@
                                         </div>
                                         <div class="col-md-4">
                                             <div class="form-group custom-form-group">
-                                                <label> Attachment (.pdf, .doc, .docx)</label>
+                                                <label> Attachment (.pdf, .doc, .docx, Jpeg)</label>
                                             </div>
                                         </div>
                                         <div class="col-md-1">
@@ -545,7 +545,7 @@
                                             <div class="col-md-4">
                                                 <div class="form-group custom-form-group">
                                                     @Html.DropDownList("Consultant_DocumentType", new SelectList(ViewBag.ConsultantDocType, "id", "name"), "Select Document Type",
-                                                    new { @class = "form-control", @id = "doctype", @readonly = "readonly" })
+                                                    new { @class = "form-control", @id = "doctype", @readonly = "readonly", style = "pointer-events: none;" })
                                                     @Html.Hidden("Consultant_DocumentId")
                                                 </div>
                                             </div>
@@ -588,7 +588,7 @@
 <div class="row">
     <div class="col-md-6">
     </div>
-    <div class="col-md-6" id="flowdiv">
+    <div class="col-md-6" id="flowdiv" style="display: none;" >
         <div class="bl-lg-panel-box pb-null">
             <div class="bl-lg-panel-box-hd mb-m-5 pd-null">
                 <div class="cmn-panel-box">
@@ -617,7 +617,7 @@
             </div>
         </div>
     </div>
-    <div class="col-md-6" id="withdraw">
+    <div class="col-md-6" id="withdraw" style="display: none;" >
         <div class="bl-lg-panel-box pb-null">
             <div class="bl-lg-panel-box-hd mb-m-5 pd-null">
                 <div class="cmn-panel-box">
@@ -682,9 +682,22 @@
 
 <script>
 
-    $(document).ready(function ()
-    {
-
+    $(document).ready(function () {
+        var Docname =@Html.Raw(Json.Encode(Model.Consultant_DocumentRemarks));
+        var Attachname = @Html.Raw(Json.Encode(Model.Consultant_DocumentName));
+        var Doctype =@Html.Raw(Json.Encode(Model.Consultant_DocumentType));
+        var Docpath =@Html.Raw(Json.Encode(Model.Consultant_DocumentNameEncrypted));
+        var DocID = @Html.Raw(Json.Encode(Model.Consultant_DocumentId));
+        var RCTconsID = @Html.Raw(Json.Encode(Model.Consultant_AppointmentId));
+        var verifystatus = @Html.Raw(Json.Encode(Model.Consultant_Status)) || '';
+        if (RCTconsID > 0 && verifystatus != "Awaiting Verification") {
+            $('#flowdiv').prop("disabled", false).show();
+            $('#withdraw').prop("disabled", true).hide();
+        }
+        else if (RCTconsID > 0 && (verifystatus == "Awaiting Verification" || verifystatus == "Awaiting Verification - Pending commitment update")) {
+            $('#withdraw').prop("disabled", false).show();
+            $('#flowdiv').prop("disabled", true).hide();
+        }
         var arrayOfArrays = (@Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model?.Consultant_Mode, Newtonsoft.Json.Formatting.Indented)));
         $('#Consultant_Mode').val(arrayOfArrays);
 
@@ -713,15 +726,9 @@
             $('#Consultant_AppEndDt').val(outputDate1);
         }
 
-        var Docname =@Html.Raw(Json.Encode(Model.Consultant_DocumentRemarks));
-        var Attachname = @Html.Raw(Json.Encode(Model.Consultant_DocumentName));
-        var Doctype =@Html.Raw(Json.Encode(Model.Consultant_DocumentType));
-        var Docpath =@Html.Raw(Json.Encode(Model.Consultant_DocumentNameEncrypted));
-        var DocID = @Html.Raw(Json.Encode(Model.Consultant_DocumentId));
-        var RCTconsID = @Html.Raw(Json.Encode(Model.Consultant_AppointmentId));
-        var verifystatus = @Html.Raw(Json.Encode(Model.Consultant_Status)) || '';
+
         $.each(Docname, function (i, val) {
-            if(RCTconsID>0){
+            if (RCTconsID > 0) {
                 if (i == 0) {
                     document.getElementsByName('Consultant_DocumentType')[0].value = Doctype[0];
                     document.getElementsByName('Consultant_DocumentName')[0].value = Docname[0];
@@ -754,7 +761,7 @@
 
         var projectId = $("#Consultant_ProjectId").val();
         if (projectId != "" || projectId != 0) {
-            $(".loading-bg").removeClass('dis-none');
+            //$(".loading-bg").removeClass('dis-none');
             $.getJSON("@Url.Action("LoadProjectDetails", "Requirement")", { ProjectId: projectId },
                 function (result) {
                     if (result.projectData.ProjectNumber != null || result.projectData.ProjectNumber != "") {
@@ -795,10 +802,10 @@
                     if (result.DesignationData.DestinationID > 0) {
                         $("#Consultant_Title").val(result.DesignationData.Designation);
                         $('#Consultant_Code').val(result.DesignationData.DesignationCode);
-                        $(".loading-bg").addClass('dis-none');
+                        //$(".loading-bg").addClass('dis-none');
                     }
-                    //else
-                    //    $(".loading-bg").addClass('dis-none');
+                    else
+                        $(".loading-bg").addClass('dis-none');
                 });
         }
         var reqinitby = $('#Consultant_ReqInitBy').val();
@@ -810,89 +817,89 @@
                         $("#Consultant_AutofillReqInitBy").val(data[0].label);
                         $("#Consultant_ReqInitBy").val(data[0].value);
                     }
-                    //else
-                    //    $(".loading-bg").addClass('dis-none');
+                    else
+                        $(".loading-bg").addClass('dis-none');
                 });
         }
 
 
-    $(document).on('click', '#btnViewConsDetails', function () {
-        var empID = $('#txtConMasterId').val() || 0;
-        if (empID > 0) {
-            var searchData = { "Vendorid": empID };
-            $.ajax({
-                url: "@Url.Action("_ConsultantMasterView", "Requirement")",
-                type: "POST",
-                data: searchData,
-                contentType: "application/x-www-form-urlencoded",
-                beforeSend: function () {
-                    $(".loading-bg").removeClass('dis-none');
-                },
-                success: function (result) {
-                    $(".loading-bg").addClass('dis-none');
-                    $("#popup").html(result);
-                    $("#Consultantviewmodel").modal('toggle');
-                },
-                error: function (err) {
-                    console.log("error : " + err);
-                    $(".loading-bg").addClass('dis-none');
-                }
-            });
-        }
-    });
+        $(document).on('click', '#btnViewConsDetails', function () {
+            var empID = $('#txtConMasterId').val() || 0;
+            if (empID > 0) {
+                var searchData = { "Vendorid": empID };
+                $.ajax({
+                    url: "@Url.Action("_ConsultantMasterView", "Requirement")",
+                    type: "POST",
+                    data: searchData,
+                    contentType: "application/x-www-form-urlencoded",
+                    beforeSend: function () {
+                        $(".loading-bg").removeClass('dis-none');
+                    },
+                    success: function (result) {
+                        $(".loading-bg").addClass('dis-none');
+                        $("#popup").html(result);
+                        $("#Consultantviewmodel").modal('toggle');
+                    },
+                    error: function (err) {
+                        console.log("error : " + err);
+                        $(".loading-bg").addClass('dis-none');
+                    }
+                });
+            }
+        });
 
-/* Project Summary View */
+        /* Project Summary View */
 
-    $(document).on('click', '#btnViewSummary', function () {
-        var projNo = $('#Consultant_ProjectId').val() || 0;
-        if (projNo > 0) {
-            var searchData = { "ProjectId": projNo };
-            $.ajax({
-                url: "@Url.Action("_ProjectSummary", "CoreAccounts")",
-                type: "POST",
-                data: searchData,
-                contentType: "application/x-www-form-urlencoded",
-                beforeSend: function () {
-                    $(".loading-bg").removeClass('dis-none');
-                },
-                success: function (result) {
-                    $(".loading-bg").addClass('dis-none');
-                    $("#popup").html(result);
-                    $("#projectSummaryModal").modal('toggle');
-                },
-                error: function (err) {
-                    console.log("error : " + err);
-                }
-            });
-        }
-    });
+        $(document).on('click', '#btnViewSummary', function () {
+            var projNo = $('#Consultant_ProjectId').val() || 0;
+            if (projNo > 0) {
+                var searchData = { "ProjectId": projNo };
+                $.ajax({
+                    url: "@Url.Action("_ProjectSummary", "CoreAccounts")",
+                    type: "POST",
+                    data: searchData,
+                    contentType: "application/x-www-form-urlencoded",
+                    beforeSend: function () {
+                        $(".loading-bg").removeClass('dis-none');
+                    },
+                    success: function (result) {
+                        $(".loading-bg").addClass('dis-none');
+                        $("#popup").html(result);
+                        $("#projectSummaryModal").modal('toggle');
+                    },
+                    error: function (err) {
+                        console.log("error : " + err);
+                    }
+                });
+            }
+        });
 
-                /* Project Eligible Staff Category view */
+        /* Project Eligible Staff Category view */
 
-    $(document).on('click', '#btnViewStaffAllocation', function () {
-        var projNo = $('#Consultant_ProjectId').val() || 0;
-        if (projNo > 0) {
-            var searchData = { "ProjectId": projNo };
-            $.ajax({
-                url: "@Url.Action("_ViewStaffAllocation", "Requirement")",
-                type: "POST",
-                data: searchData,
-                contentType: "application/x-www-form-urlencoded",
-                beforeSend: function () {
-                    $(".loading-bg").removeClass('dis-none');
-                },
-                success: function (result) {
-                    $(".loading-bg").addClass('dis-none');
-                    $("#popup").html(result);
-                    $("#myModal1").modal('toggle');
-                },
-                error: function (err) {
-                    console.log("error : " + err);
-                    $(".loading-bg").addClass('dis-none');
-                }
-            });
-        }
-    });
+        $(document).on('click', '#btnViewStaffAllocation', function () {
+            var projNo = $('#Consultant_ProjectId').val() || 0;
+            if (projNo > 0) {
+                var searchData = { "ProjectId": projNo };
+                $.ajax({
+                    url: "@Url.Action("_ViewStaffAllocation", "Requirement")",
+                    type: "POST",
+                    data: searchData,
+                    contentType: "application/x-www-form-urlencoded",
+                    beforeSend: function () {
+                        $(".loading-bg").removeClass('dis-none');
+                    },
+                    success: function (result) {
+                        $(".loading-bg").addClass('dis-none');
+                        $("#popup").html(result);
+                        $("#myModal1").modal('toggle');
+                    },
+                    error: function (err) {
+                        console.log("error : " + err);
+                        $(".loading-bg").addClass('dis-none');
+                    }
+                });
+            }
+        });
 
     });
 
