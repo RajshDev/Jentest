@@ -16081,7 +16081,7 @@ namespace IOAS.Controllers
                 return RedirectToAction("OverheadsPosting", new { ProjectId = model.ProjectId, ReceiptId = model.ReceiptId, ReceiptToDate = model.ToDate });
             }
         }
-        public ActionResult EditOverheadsPosting(int OHId = 0, int ProjectId = 0, int ReceiptId = 0, string ReceiptToDate = null)
+        public ActionResult EditOverheadsPosting(int OHId = 0, int ProjectId = 0, int ReceiptId = 0, string ReceiptToDate = null,string ProjectNumber=null)
         {
             try
             {
@@ -16095,7 +16095,7 @@ namespace IOAS.Controllers
                 ViewBag.ReceiptNumber = emptyList;
                 ViewBag.SourceName = emptyList;
                 ViewBag.Projecttype = Common.GetCodeControlList("Projecttype");
-                ViewBag.ReceiptNumber = Common.GetReceiptNumberList(OHId);
+                
                 ViewBag.ProjectNumber = Common.GetOHPAutoCompleteProjectList(OHId);
                 //ViewBag.SourceName=Common.GetSourceList()
                 OverheadsPostingModel model = new OverheadsPostingModel();
@@ -16110,6 +16110,7 @@ namespace IOAS.Controllers
                 //}
 
                 //model.ProjectNumber = Common.getprojectnumber(ProjectId);
+                ViewBag.ReceiptNumber = Common.GetReceiptListbyProjectId(model.ProjectId ?? 0, OHId);
                 model.OverheadsPostingId = OHId;
                 model.ToDate = String.Format("{0:ddd dd-MMM-yyyy}", DateTime.Now);
                 model.ProjectType = 1;
@@ -21896,9 +21897,9 @@ TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             return Json(output, JsonRequestBehavior.AllowGet);
         }
 
-        public JsonResult GetReceiptListbyProject(int ProjectId)
+        public JsonResult GetReceiptListbyProject(int ProjectId,int ohId)
         {
-            var receiptlist = Common.GetReceiptListbyProjectId(ProjectId);
+            var receiptlist = Common.GetReceiptListbyProjectId(ProjectId, ohId);
             //var curr = GenericServices.RiskProGenServices.getCompanyCurr(CompanyName);
             var data = new { rcvlist = receiptlist };
             return Json(data, JsonRequestBehavior.AllowGet);

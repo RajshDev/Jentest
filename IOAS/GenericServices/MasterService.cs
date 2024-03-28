@@ -81,8 +81,12 @@ namespace IOAS.GenericServices
                         var ClrQry = context.tblClearanceAgentMaster.Where(m => m.ClearanceAgentCode == query.VendorCode && m.Status != "InActive").FirstOrDefault();
                         if (ClrQry != null)
                         {
-                            editVendor.ClearanceAgency_f = true;
-                            editVendor.TravelAgency_f = ClrQry.IsTravelAgency ?? false;
+                            if (ClrQry.IsTravelAgency != null)
+                            {
+                                editVendor.TravelAgency_f = ClrQry.IsTravelAgency ?? false;
+                                if (ClrQry.IsTravelAgency == false)
+                                    editVendor.ClearanceAgency_f = true;
+                            }
 
                             ClrQry.Nationality = Convert.ToInt32(query.Nationality);
                             ClrQry.Name = query.Name;
@@ -598,7 +602,7 @@ namespace IOAS.GenericServices
                                         Clr.Status = "Active";
                                         Clr.StateCode = chkvendor.StateCode;
                                         Clr.IsTravelAgency = model.TravelAgency_f;
-                                        Clr.isGstVendor = model.isGSTVendor_f;
+                                        Clr.isGstVendor = model.isGSTVendor;
                                         context.tblClearanceAgentMaster.Add(Clr);
                                         context.SaveChanges();
                                     }
@@ -642,6 +646,14 @@ namespace IOAS.GenericServices
                                         ClrQry.StateCode = chkvendor.StateCode;
                                         ClrQry.IsTravelAgency = model.TravelAgency_f;
                                         ClrQry.isGstVendor = model.isGSTVendor;
+                                        context.SaveChanges();
+                                    }
+                                }
+                                else
+                                {
+                                    if (ClrQry != null)
+                                    {
+                                        ClrQry.IsTravelAgency = null;
                                         context.SaveChanges();
                                     }
                                 }

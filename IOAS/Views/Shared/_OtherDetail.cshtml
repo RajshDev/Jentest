@@ -113,13 +113,16 @@
     </div>
 </div>
 <script type="text/javascript">
-
+   
     $("#btnAddOthers").click(function () {       
-        var cln = $('#tbodyOthers tr:first').clone().find("select,input,textarea").val("").end();
+        var cln = $('#tbodyOthers tr:first').clone().find("select,input,textarea").val("").end();        
         var index = $('#tbodyOthers tr:last').find("input[name='OtherDetail.Index']").val();
         index = parseInt(index) + 1;
         $(cln).find('b').parent('a').remove();
         $(cln).find('b').remove();
+        cln.find("input[name$='OtherDetailFile']").val()
+        cln.find("input[name$='OtherDetailFile']").removeClass("dis-none");
+        $(cln).find('a.link2').remove();
         $(cln).find("input[name='OtherDetail.Index']").val(index);
         $(cln).find("input, select,textarea").each(function () {
             $(this).attr("name", $(this).attr("name").replace(/\d+/, index));
@@ -131,7 +134,7 @@
         });
         $('#tbodyOthers').append(cln);
     });
-
+    
     $(document).on('click', 'a.removeOtherDetail', function () {
         if ($('#tbodyOthers tr').length != 1) {
             $(this).closest('tr').remove();
