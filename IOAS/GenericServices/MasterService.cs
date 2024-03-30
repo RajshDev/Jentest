@@ -350,7 +350,7 @@ namespace IOAS.GenericServices
                                 Clr.Status = "Active";
                                 Clr.StateCode = regvendor.StateCode;
                                 Clr.IsTravelAgency = model.TravelAgency_f;
-                                Clr.isGstVendor = model.isGSTVendor_f;
+                                Clr.isGstVendor = model.isGSTVendor;
                                 context.tblClearanceAgentMaster.Add(Clr);
                                 context.SaveChanges();
                             }
@@ -1466,8 +1466,14 @@ namespace IOAS.GenericServices
                     var ClrQry = context.tblClearanceAgentMaster.Where(m => m.ClearanceAgentCode == Qry.VendorCode && m.Status != "InActive").FirstOrDefault();
                     if (ClrQry != null)
                     {
-                        model.ClearanceAgency_f = true;
-                        model.TravelAgency_f = ClrQry.IsTravelAgency ?? false;
+                        if (ClrQry.IsTravelAgency != null)
+                        {
+                            model.TravelAgency_f = ClrQry.IsTravelAgency ?? false;
+                            if (ClrQry.IsTravelAgency == false)
+                                model.ClearanceAgency_f = true;
+                        }
+                        //model.ClearanceAgency_f = true;
+                        //model.TravelAgency_f = ClrQry.IsTravelAgency ?? false;
                     }
                     var GstQry = (from gd in context.tblGstDocument
                                   join DN in context.tblDocument on gd.GstDocumentType equals DN.DocumentId into g
