@@ -1348,9 +1348,12 @@
 
         // Compare total PCF amounts
         if (totalPCFAmount !== totalPCFAmountInput) {
-            $('#alert').html("PCF Amount and Percentaage must to be checked");
-            $('#Validation').modal('toggle');
+            //$('#alert').html("PCF Amount and Percentaage must to be checked");
+            //$('#Validation').modal('toggle');
+            return "PCF Amount and Percentaage must to be checked";
         }
+        else
+            return "valid";
     }
 
     function getQueryStringParams() {
@@ -2864,6 +2867,9 @@
                 //if (totalrmfpercent != 100 || totalpcfpercent != 100) {
                 //    msg = "The PCF and RMF share is not equal to 100 %. Please check and update this receipt number " + inputRecNo;
                 //}
+                if (totalpcfpercent != 100) {
+                    msg = "The PCF share is not equal to 100 %. Please check and update this receipt number " + inputRecNo;
+                }
             });
             if (msg != 'valid') {
                 hadError = true;
@@ -3018,7 +3024,12 @@
             var creditoramt = $('input[name="TotalAmount"]').val()
             $("#CreditorAmount").val(creditoramt);
 
-            validateTotalPCFAmount();
+            var msg = validateTotalPCFAmount();
+            if (msg != 'valid') {
+                hadError = true;
+                $("#alert").text(validationMsg);
+                $('#Validation').modal('show');
+            }
         }
         else if (currentTab == 2) {
             var validationMsg = ValidateTransaction()
