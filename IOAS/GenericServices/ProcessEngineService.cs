@@ -642,7 +642,7 @@ namespace IOAS.GenericServices
                                join PT in context.tblProcessTransaction on PGD.ProcessGuidelineDetailId equals PT.ProcessGuidelineDetailId
                                join PTD in context.tblProcessTransactionDetail on PT.ProcessTransactionId equals PTD.ProcessTransactionId
                                join U in context.tblUser on PT.InitiatedUserId equals U.UserId
-                               where PTD.RefId == this._refId && PGD.ProcessGuidelineId == this._processGuideLineId
+                               where PTD.RefId == this._refId && PGD.ProcessGuidelineId == this._processGuideLineId && PT.Closed_F != true
                                orderby PTD.ProcessTransactionDetailId
                                select new
                                {
@@ -685,7 +685,7 @@ namespace IOAS.GenericServices
                                join PT in context.tblProcessTransaction on PGD.ProcessGuidelineDetailId equals PT.ProcessGuidelineDetailId
                                join PTD in context.tblProcessTransactionDetail on PT.ProcessTransactionId equals PTD.ProcessTransactionId
                                join U in context.tblUser on PT.InitiatedUserId equals U.UserId
-                               where PTD.RefId == this._refId && PGD.ProcessGuidelineId == this._processGuideLineId
+                               where PTD.RefId == this._refId && PGD.ProcessGuidelineId == this._processGuideLineId && PT.Closed_F != true
                                orderby PTD.ProcessTransactionDetailId
                                select new
                                {
@@ -728,7 +728,7 @@ namespace IOAS.GenericServices
                                join PT in context.tblProcessTransaction on PGD.ProcessGuidelineDetailId equals PT.ProcessGuidelineDetailId
                                //join PTD in context.tblProcessTransactionDetail on PT.ProcessTransactionId equals PTD.ProcessTransactionId
                                join U in context.tblUser on WF.ApproverId equals U.UserId
-                               where WF.ProcessGuidelineId == this._processGuideLineId && PT.RefId == this._refId && U.Status != "InActive"
+                               where WF.ProcessGuidelineId == this._processGuideLineId && PT.RefId == this._refId && U.Status != "InActive" && PT.Closed_F != true
                                orderby WF.ApproverLevel ascending
                                select new
                                {
@@ -1577,7 +1577,8 @@ namespace IOAS.GenericServices
                                    //join F in context.tblFunction on PGH.FunctionId equals F.FunctionId
                                    join PGU in context.tblProcessGuidelineUser on PGD.ProcessGuidelineDetailId equals PGU.ProcessGuidelineDetailId
                                    join PTD in context.tblProcessTransactionDetail on PGD.ProcessGuidelineDetailId equals PTD.ProcessGuidelineDetailId
-                                   where PGD.ProcessGuidelineId == this._processGuideLineId && PTD.RefId == this._refId
+                                   join PT in context.tblProcessTransaction on PTD.ProcessTransactionId equals PT.ProcessTransactionId
+                                   where PGD.ProcessGuidelineId == this._processGuideLineId && PTD.RefId == this._refId && PT.Closed_F != true
                                    select new
                                    {
                                        PGH.ProcessGuidelineId,
@@ -1592,8 +1593,9 @@ namespace IOAS.GenericServices
                                    }).ToList();
 
                     var ProcessSeqNumber = (from PTD in context.tblProcessTransactionDetail
+                                            join PT in context.tblProcessTransaction on PTD.ProcessTransactionId equals PT.ProcessTransactionId
                                             join PGD in context.tblProcessGuidelineDetail on PTD.ProcessGuidelineDetailId equals PGD.ProcessGuidelineDetailId
-                                            where PGD.ProcessGuidelineId == this._processGuideLineId && PTD.RefId == this._refId
+                                            where PGD.ProcessGuidelineId == this._processGuideLineId && PTD.RefId == this._refId && PT.Closed_F != true
                                             select new { PTD.ProcessTransactionId, PTD.ProcessSeqNumber, PTD.RefId }).Max(x => x.ProcessSeqNumber);
 
                     if (records != null && records.Count > 0)

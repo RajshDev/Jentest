@@ -1408,8 +1408,9 @@
                 } else {
                     var cln = $("#DocprimaryDiv").clone().find("input").val("").end();
                     $(cln).find('.dis-none').removeClass('dis-none');
-                    $(cln).find('.dis-none').removeClass('dis-none');
                     $(cln).find('.btn-default').addClass('dis-none');
+                    $('#DocdivContent').append(cln);
+                    
                     document.getElementsByName('Consultant_DocumentType')[i].value = Doctype[i];
                     document.getElementsByName('Consultant_DocumentName')[i].value = Docname[i];
                     document.getElementsByName('Consultant_DocumentId')[i].value = DocID[i];
@@ -2734,23 +2735,29 @@
         var isvalid = true;
         var RCMType = $('#Consultant_RCMCategoryy').val();
         var ConsEmpID = $('#consemptype').val();
+        var parentdiv = $('#Consultant_Mode').parent();
         var elementsToCheck = [
             'GetConsDetail1', 'Consultant_Name', 'ServiceDes', 'ConsType',
             'Consultant_TandC', 'Consultant_PaymentTerms', 'Consultant_ITTDSType',
-            'Consultant_Mode', 'Consultant_AppStartDt', 'Consultant_AppEndDt',
+             'Consultant_AppStartDt', 'Consultant_AppEndDt',
             'Consultant_PayType', 'Consultant_WorkPlace', 'Consultant_RetainerFee',
             'Consultant_GSTvalue', 'Consultant_ReqReceivedDate', 'Consultant_AutofillReqInitBy',
-            'Consultant_ReqInitBy', 'Consultant_Commitvalue','Consultant_Estimatedvalue'
+            'Consultant_ReqInitBy', 'Consultant_Commitvalue', 'Consultant_Estimatedvalue', 'Consultant_Mode'
         ];
         for (var i = 0; i < elementsToCheck.length; i++) {
             var elementId = elementsToCheck[i];
             var element = document.getElementById(elementId);
             if (element.value === null || element.value.trim() === "") {
                 element.style.border = '2px solid red';
+                parentdiv.css('border', '2px solid red');
                 isvalid = false;
             }
+            //if (elementId === 'Consultant_Mode' && $('#Consultant_Mode').val() == null) {
+            //    parentdiv.css('border', '2px solid red');
+            //}
             else {
                 element.style.border = '';
+                parentdiv.css('border', '');
             }
         }
         if ($('#Consultant_RetainerFee').val() == "" || $('#Consultant_RetainerFee').val() == null || $('#Consultant_RetainerFee').val() == 0) {

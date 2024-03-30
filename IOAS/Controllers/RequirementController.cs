@@ -11216,7 +11216,7 @@ namespace IOAS.Controllers
                     else
                     {
                         TempData["errMsg"] = "Something went wrong please contact administrator";
-                        return View(model);
+                        return RedirectToAction("RCTConsultantList", "Requirement");
                     }
                 }
                 else if (model.Consultant_Status == "Open")
@@ -11235,7 +11235,7 @@ namespace IOAS.Controllers
                     else
                     {
                         TempData["errMsg"] = "Something went wrong please contact administrator";
-                        return View(model);
+                        return RedirectToAction("RCTConsultantList", "Requirement");
                     }
                 }
                 else if (model.Consultant_Status == "Awaiting Verification")

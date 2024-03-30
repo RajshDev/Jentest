@@ -17290,7 +17290,7 @@ namespace IOAS.GenericServices
                                 model.Designation = designation;
                                 model.Medical = 0;
                                 model.Appointmentstartdate = string.Format("{0:dd-MMMM-yyyy}", QrySTE.A.Consultant_AppStartDt);
-                                model.AppointmentEndDate = string.Format("{0:dd-MMMM-yyyy}", QrySTE.A.Consultant_AppStartDt);
+                                model.AppointmentEndDate = string.Format("{0:dd-MMMM-yyyy}", QrySTE.A.Consultant_AppEndDt);
                                 model.MedicalAmmount = 0;
                                 model.CommitmentAmount = QrySTE.A.Consultant_Commitvalue ?? 0;
                                 model.Comments = QrySTE.A.Consultant_DAComments;
