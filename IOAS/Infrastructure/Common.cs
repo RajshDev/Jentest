@@ -17231,7 +17231,7 @@ namespace IOAS.Infrastructure
                                 join R in context.tblReceipt on oh.ReceiptId equals R.ReceiptId
                                 join P in context.tblProject on R.ProjectId equals P.ProjectId
                                 join U in context.vwFacultyStaffDetails on P.PIName equals U.UserId
-                                where P.ProjectType == 1 && P.Status == "Active" && (oh.IsPosted_f == false || oh.IsPosted_f == null) && !context.tblOverheadsPostingDetails.Any(m => m.ProjectId == P.ProjectId)
+                                where P.ProjectType == 1 && P.Status == "Active" && (oh.IsPosted_f == false || oh.IsPosted_f == null) //&& !context.tblOverheadsPostingDetails.Any(m => m.ProjectId == P.ProjectId)
                                 orderby P.ProjectNumber
                                 group new { P.ProjectId, P.ProjectNumber, U.FirstName } by P.ProjectId into g
                                 select new
@@ -23622,7 +23622,7 @@ namespace IOAS.Infrastructure
                                 join R in context.tblReceipt on oh.ReceiptId equals R.ReceiptId
                                 join P in context.tblProject on R.ProjectId equals P.ProjectId
                                 where R.Status == "Completed" && (oh.IsPosted_f == false || oh.IsPosted_f == null)
-                                //&& !context.tblOverheadsPostingDetails.Any(m => m.ReceiptId == R.ReceiptId)
+                                && !context.tblOverheadsPostingDetails.Any(m => m.ReceiptId == R.ReceiptId)
                                 && P.ProjectId == projectId && P.ProjectType == 1
                                 orderby R.ReceiptNumber
                                 group R by R.ReceiptId into g
