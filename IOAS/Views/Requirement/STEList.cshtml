@@ -5,18 +5,52 @@
 }
 <div class="row hd-tt-bg">
     <div class="col-md-4">
+        <!--Menu -->
         <h3>Short Term Engagement</h3>
+
+        <ul class="nav nav-pills custom-nav-pills custom-spl-nav">
+
+            <li class="active" id="optNewApplication"><a href="javascript:void(0)" class="ml-null brd-rd-md">Ongoing Process</a></li>
+
+            <li id="optCompleted"><a href="javascript:void(0)" class="brd-rd-md">Completed</a></li>
+
+
+            @*<li class="active">    <a href="@Url.Action("STEView", "Requirment", new { STEID =null})" class="brd-rd-md">Completed</a></li>*@
+        </ul>
     </div>
-    <div class="col-md-8 flt-nav-links">
+
+    <div class="col-md-8 flt-nav-links stejuniorad">
         <a href="@Url.Action("STEJunior")"> <i class="ion-plus"></i>Add New</a>
     </div>
 </div>
-<div class="row mt30">
-    <div class="page-wrapper">
-        <div class="row">
-            <div class="col-md-12">
-                <div class="custom-jsgrid-normal">
-                    <div id="gridConApp"></div>
+<div class="row cts-mn-dts" id="tabNewApplication">
+    <div class="col-md-12">
+        <div class="row mt30">
+            <div class="page-wrapper">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="custom-jsgrid-normal">
+                            <div id="gridConApp">
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row cts-mn-dts" id="tabCompleted" style="display: none;">
+    <div class="col-md-12">
+        <div class="row mt30">
+            <div class="page-wrapper">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="custom-jsgrid-normal">
+                            <div id="gridCOMdApp"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -25,6 +59,20 @@
 <div class="loading-bg dis-none">
 </div>
 <script>
+    $("#optNewApplication").on("click", function () {
+        $("#tabNewApplication").css("display", "block");
+        $("#tabCompleted").css("display", "none");
+        $("#optCompleted").removeClass('active');
+        $("#optNewApplication").addClass('active');
+    });
+
+
+    $("#optCompleted").on("click", function () {
+        $("#tabNewApplication").css("display", "none");
+        $("#tabCompleted").css("display", "block");
+        $("#optNewApplication").removeClass('active');
+        $("#optCompleted").addClass('active');
+    });
     var errMsg = '@TempData["errMsg"]';
     var succMsg = '@TempData["succMsg"]';
     var alertMsg = '@TempData["alertMsg"]';
@@ -41,6 +89,154 @@
             $('#alert').html(alertMsg);
             $('#Validation').modal('toggle');
         }
+    });
+    $("#gridCOMdApp").jsGrid({
+        paging: true,
+        pageIndex: 1,
+        pageSize: 10,
+        editing: false,
+        filtering: true,
+        pageLoading: true,
+        autoload: true,
+        controller: {
+
+            loadData: function (filter) {
+                var searchData = [];
+                searchData = {
+                    ApplicationNo: filter.ApplicationNumber || null,
+                    Category: filter.Category || null,
+                    PIName: filter.PIName || null,
+                    CondidateName: filter.CondidateName || null,
+                    PIEmail: filter.Email || null,
+                    ProjectNumber: filter.ProjectNumber || null,
+                    TypeofAppointment: filter.TypeofAppoint || null,
+                    Status: filter.Status || null
+              },
+                    filter.model = searchData;
+                var deferred = $.Deferred();
+
+
+
+                $.ajax({
+                    type: "post",
+                    url: "GetEmployeeAwaitingApplicationList",
+                    data: JSON.stringify(filter),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (result) {
+                        //db = result;
+                        //$("#AdvanceBillPaymentList").jsGrid({ data: db });
+                        var da = {
+                            data: result.ApplicationList,
+                            itemsCount: result.TotalRecords
+                        }
+                        deferred.resolve(da);
+                    },
+                    error: function (err) {
+                        console.log("error : " + err);
+                    }
+
+                });
+                return deferred.promise();
+            }
+
+        },
+
+        fields: [
+            { name: "SNo", title: "S.No", editing: false, width: 50 },
+            { type: "number", name: "ApplicationId", title: "Id", visible: false },
+            { type: "text", name: "ApplicationNumber", title: "Application Number", editing: false },
+            { type: "text", name: "TypeofAppoint", title: "Type of Appointment", editing: false },
+            { type: "text", name: "ProjectNumber", title: "Project Number", editing: false, width: 130 },
+            { type: "text", name: "CondidateName", title: "Candidate Name", editing: false },
+            {
+                type: "text", name: "PIName", title: "PI Name & Email", editing: false, width: 130,
+                itemTemplate: function (item, name) {
+                    return $("<td>").append(name.PIName + "<br/><span class='fn-s-xs'>(" + name.Email + ")</span>");
+                }
+            },
+           
+
+            {
+                type: "control", editButton: false, deleteButton: false, width: 120, title: "Action",
+
+                itemTemplate: function (value, item) {
+                    var $result = jsGrid.fields.control.prototype.itemTemplate.apply(this, arguments);
+                    if (item.Status == "Awaiting Verification" || item.Status == "Awaiting Verification-Draft" || item.Status == "Awaiting Verification-Open" 
+                        || item.Status == "Sent for approval-Verify" || item.Status == "Verification Completed"){
+                        statusList = [{ id: "", name: "Select Action" }, { id: "View", name: "View" }];
+                    } else {
+                        statusList = [{ id: "", name: "Select Action" }, { id: "View", name: "View" }];
+                    }
+
+                 
+                    var $customSelect = $("<select>")
+                        .attr("class", "form-control").prop("selectedIndex", "")
+                    $.each(statusList, function (index, itemData) {
+                        $customSelect.append($('<option/>', {
+
+                            value: itemData.id,
+                            text: itemData.name
+                        }));
+                    });
+                        $customSelect.change(function (e) {
+                         var selVal = $(this).val();
+                            if (selVal == "View")
+
+                              @*if (selVal == "View") {
+                                  if (item.Status == "Verification Completed"&& (item.isGovAgencyFund || item.isCommitmentRejection))) {
+                                 var url = '@Url.Action("STENewView", "Requirement")?ApplicationId=' + item.STEId + '&AppType=STE&listf=AL';
+                                 window.location.href = url;*@
+                    
+                    
+
+                            {
+                                if (item.Status == "Awaiting Verification" || item.Status == "Awaiting Verification-Draft" || item.Status == "Awaiting Verification-Open"
+                                    || item.Status == "Sent for approval-Verify" || item.Status == "Verification Completed") {
+                                 if (item.Category == "CON") {
+                                     var url = '@Url.Action("ConsultantView", "Requirement")?consultantAppId=' + item.ApplicationId + '&listf=HR';
+                                     window.location.href = url;
+                                 }
+                                 else if (item.Category == "STE") {
+                                     var url = '@Url.Action("STENewView", "Requirement")?STEID=' + item.ApplicationId;
+                                     window.location.href = url;
+                                 }
+                                 else if (item.Category == "OSG") {
+                                     var url = '@Url.Action("OutsourcingView", "Requirement")?OSGID=' + item.ApplicationId + '&listf=HR';
+                                     window.location.href = url;
+                                 }
+                             }
+                             else {
+                                 if (item.ApplicationType == "Extension") {
+                                     var url = '@Url.Action("RecruitExtensionView", "Requirement")?OrderId=' + item.OrderId + '&listf=HR';
+                                     window.location.href = url;
+                                 }
+                                 else if (item.ApplicationType == "Enhancement") {
+                                     var url = '@Url.Action("RecruitEnhancementView", "Requirement")?OrderId=' + item.OrderId + '&listf=HR';
+                                     window.location.href = url;
+                                 }
+                                 else if (item.ApplicationType == "Amendment") {
+                                     var url = '@Url.Action("RecruitAmendmentView", "Requirement")?OrderId=' + item.OrderId + '&listf=HR';
+                                     window.location.href = url;
+                                 }
+                             }
+
+                         }
+
+                         $(this).val("");
+                         return false;
+                         e.stopPropagation();
+                     });
+                     return $result.add($customSelect);
+                 },
+                 _createFilterSwitchButton: function () {
+                     return this._createOnOffSwitchButton("filtering", this.searchModeButtonClass, false);
+                 }
+             }
+
+
+        ],
+
     });
     $("#gridConApp").jsGrid({
         paging: true,
@@ -122,6 +318,9 @@
                  return $("<td>").addClass("txt-org").append(value.Status);
              }
              else if (value.Status == "Committee Clarify") {
+                 return $("<td>").addClass("txt-rd").append(value.Status);
+             }
+             else if (value.Status == "Verification Completed") {
                  return $("<td>").addClass("txt-rd").append(value.Status);
              }
              else if (value.Status == "Awaiting Verification") {
@@ -464,7 +663,7 @@
                                                                      },
                                                                  },
                                                              });
-                                                         }                                                         
+                                                         }
                                                      },
                                                      error: function (err) {
                                                          $(".loading-bg").addClass('dis-none');

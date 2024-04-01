@@ -1,7 +1,8 @@
 ﻿@model IOAS.Models.STEModel
+
 @using IOAS.GenericServices
 @{
-    ViewBag.Title = "Short Term Engagement";
+    ViewBag.Title = "OSGNewView";
     Layout = "~/Views/Shared/_LayoutFluid.cshtml";
     <link href="@Url.Content("~/Content/IOASContent/assets/bootstrap-select/css/bootstrap-select.min.css")" rel="stylesheet" />
     string Remark = RequirementService.GetRejectCommitment(Model.ApplicationNo, 0);
@@ -39,12 +40,12 @@
 {
     <div class="row hd-tt-bg">
         <div class="col-md-12">
-            <h4><b>Short Term Engagement</b></h4>
+            <h4><b>OutSourcing</b></h4>
             <ul class="nav nav-pills custom-nav-pills custom-spl-nav">
                 <li class="active"><a href="javascript:void(0)"><span>01</span>Application Entry</a></li>
                 <li><a href="javascript:void(0)"><span>02</span>Application Checklist</a></li>
             </ul>
-            <a class="tab-cls-close" href="@Url.Action("STEList","Requirement")"><i class="ion-close-circled" style="color:white;"></i></a>
+
         </div>
     </div>
 
@@ -60,7 +61,8 @@
                                         <div class="col-md-4">
                                             <div class="form-group custom-form-group">
                                                 <label>Application Ref Number</label>
-                                                @Html.TextBoxFor(m => m.ApplicationRefNo, new { @class = "form-control", @onpaste = "return false" })
+                                                <h4>@Html.DisplayFor(m => m.ApplicationRefNo)</h4>
+                                                @*@Html.TextBoxFor(m => m.ApplicationRefNo, new { @class = "form-control", @onpaste = "return false" })*@
                                                 <div>@Html.ValidationMessageFor(m => m.ApplicationRefNo)</div>
                                             </div>
                                         </div>
@@ -91,7 +93,8 @@
                                         <div class="col-md-4 dis-none" id="divOld">
                                             <div class="form-group custom-form-group">
                                                 <label>Old Employee Number</label>
-                                                @Html.TextBoxFor(m => m.OldEmployeeNumber, new { @class = "form-control", @onpaste = "return false" })
+                                                <h4>@Html.DisplayFor(m => m.OldEmployeeNumber)</h4>
+                                                @*@Html.TextBoxFor(m => m.OldEmployeeNumber, new { @class = "form-control", @onpaste = "return false" })*@
                                                 @Html.HiddenFor(m => m.OldEmpId)
                                                 <div>@Html.ValidationMessageFor(m => m.OldEmployeeNumber)</div>
                                             </div>
@@ -99,7 +102,8 @@
                                         <div class="col-md-4" id="divNew">
                                             <div class="form-group custom-form-group">
                                                 <label>NID Number</label>
-                                                @Html.TextBoxFor(m => m.NIDNumber, new { @class = "form-control" })
+                                                <h4>@Html.DisplayFor(m => m.NIDNumber)</h4>
+                                                @*@Html.TextBoxFor(m => m.NIDNumber, new { @class = "form-control" })*@
                                                 <div>@Html.ValidationMessageFor(m => m.NIDNumber)</div>
                                             </div>
                                         </div>
@@ -109,13 +113,13 @@
                                                 @if (Model.STEId > 0 && !string.IsNullOrEmpty(Model.ResumeFilePath))
                                                 {
                                                     <h4>@Html.ActionLink(Model.ResumeFileName, "ShowDocument", new { Controller = "Account", filepath = "Requirement", file = Model.ResumeFileName }, new { @name = "DocDownload" })</h4><br>
-                                                    <input class="" type="file" name="Resume" style="width:190px;">
+                                                    <input class="" type="file" name="Resume" style="width:190px; ">
                                                 }
                                                 else
                                                 {
-                                                    <input class="" type="file" name="Resume" style="width:190px;">
+                                                    <input class="" type="file" name="Resume" style="width:190px; display : none;">
                                                 }
-                                                <em style="color:red;font-size:12px;">upload .pdf and file size below 5MB</em>
+                                                <em style="color:red;font-size:12px; display : none;">upload .pdf and file size below 5MB</em>
                                             </div>
                                         </div>
                                     </div>
@@ -137,11 +141,11 @@
                                                 }
                                                 else
                                                 {
-                                                    <img id="displayImg" src="~/Content/IOASContent/img/Image_placeholder.png" width="30px" height="30px"><br>
-                                                    <input class="form-control" type="file" name="PersonImage" onchange="readURL(this);">
+                                                    <img id="displayImg" src="~/Content/IOASContent/img/Image_placeholder.png" width="30px" height="30px" style="display:none"><br>
+                                                    <input class="form-control" type="file" name="PersonImage" onchange="readURL(this);" style="display:none">
                                                 }
                                                 @Html.HiddenFor(m => m.PersonImagePath)
-                                                <em style="color:red;font-size:12px;">upload [.jpeg,.png,.jpg] and file size below 1MB</em>
+                                                <em style="color:red;font-size:12px; display: none">upload [.jpeg,.png,.jpg] and file size below 1MB</em>
                                             </div>
                                         </div>
                                     </div>
@@ -151,14 +155,16 @@
                                                 <label class="required">Name</label>
                                                 @Html.DropDownListFor(m => m.ProfessionalId, new SelectList(ViewBag.Professional, "id", "name"), "Select")
                                                 <div>@Html.ValidationMessageFor(m => m.ProfessionalId)</div>
-                                                @Html.TextBoxFor(m => m.Name, new { @class = "form-control" })
+                                                <h4>@Html.DisplayFor(m => m.Name)</h4>
+                                                @*@Html.TextBoxFor(m => m.Name, new { @class = "form-control" })*@
                                                 <div>@Html.ValidationMessageFor(m => m.Name)</div>
                                             </div>
                                         </div>
                                         <div class="col-md-6">
                                             <div class="form-group custom-form-group mb-sm ">
                                                 <label class="required">Father’s / Husband’s Name</label>
-                                                @Html.TextBoxFor(m => m.Nameoftheguardian, new { @class = "form-control" })
+                                                @*@Html.TextBoxFor(m => m.Nameoftheguardian, new { @class = "form-control" })*@
+                                                <h4> @Html.DisplayFor(m => m.Nameoftheguardian)</h4>
                                                 <div>@Html.ValidationMessageFor(m => m.Nameoftheguardian)</div>
                                             </div>
                                         </div>
@@ -186,6 +192,7 @@
                                             <div class="form-group custom-form-group ">
                                                 <label class="required">Date of Birth</label>
                                                 <h4 id="lblDateofBirth"></h4>
+                                                @*<h4>@Html.DisplayFor(m => m.DateofBirth)</h4>*@
                                                 @Html.EditorFor(m => m.DateofBirth, new { @class = "form-control" })
                                                 <div>@Html.ValidationMessageFor(m => m.DateofBirth)</div>
                                             </div>
@@ -193,7 +200,8 @@
                                         <div class="col-md-4">
                                             <div class="form-group custom-form-group ">
                                                 <label>Age</label>
-                                                @Html.TextBoxFor(m => m.Age, new { @class = "form-control", @readonly = "readonly" })
+                                                <h4>@Html.DisplayFor(m => m.Age)</h4>
+                                                @*@Html.TextBoxFor(m => m.Age, new { @class = "form-control", @readonly = "readonly" })*@
                                                 <div>@Html.ValidationMessageFor(m => m.Age)</div>
                                             </div>
                                         </div>
@@ -218,7 +226,8 @@
                                         <div class="col-md-4">
                                             <div class="form-group custom-form-group mb-sm ">
                                                 <label class="required">Contact No</label>
-                                                @Html.TextBoxFor(m => m.ContactNumber, new { @class = "form-control", @onkeypress = "return isNumberKey(event)" })
+                                                <h4>@Html.DisplayFor(m => m.ContactNumber)</h4>
+                                                @*@Html.TextBoxFor(m => m.ContactNumber, new { @class = "form-control", @onkeypress = "return isNumberKey(event)" })*@
                                                 <div>@Html.ValidationMessageFor(m => m.ContactNumber)</div>
                                             </div>
                                         </div>
@@ -226,7 +235,8 @@
                                         <div class="col-md-4">
                                             <div class="form-group custom-form-group mb-sm ">
                                                 <label>Emergency Contact No</label>
-                                                @Html.TextBoxFor(m => m.EmergencyContactNo, new { @class = "form-control", @onkeypress = "return isNumberKey(event)" })
+                                                <h4>@Html.DisplayFor(m => m.EmergencyContactNo)</h4>
+                                                @*@Html.TextBoxFor(m => m.EmergencyContactNo, new { @class = "form-control", @onkeypress = "return isNumberKey(event)" })*@
                                                 <div>@Html.ValidationMessageFor(m => m.EmergencyContactNo)</div>
                                             </div>
                                         </div>
@@ -235,14 +245,16 @@
                                         <div class="col-md-4">
                                             <div class="form-group custom-form-group  ">
                                                 <label class="required">Email ID</label>
-                                                @Html.TextBoxFor(m => m.Email, new { @class = "form-control" })
+                                                <h4>@Html.DisplayFor(m => m.Email)</h4>
+                                                @*@Html.TextBoxFor(m => m.Email, new { @class = "form-control" })*@
                                                 <div>@Html.ValidationMessageFor(m => m.Email)</div>
                                             </div>
                                         </div>
                                         <div class="col-md-4">
                                             <div class="form-group custom-form-group">
                                                 <label class="required">Present Address </label>
-                                                @Html.TextAreaFor(m => m.PresentAddress, new { @class = "form-control" })
+                                                <h4>@Html.DisplayFor(m => m.PresentAddress)</h4>
+                                                @*@Html.TextAreaFor(m => m.PresentAddress, new { @class = "form-control" })*@
                                                 <div>@Html.ValidationMessageFor(m => m.PresentAddress)</div>
                                             </div>
                                         </div>
@@ -251,7 +263,8 @@
                                                 <label>
                                                     @Html.CheckBoxFor(m => m.isSameasPermanentAddress) same as present address	   <br>Permanent Address
                                                 </label> <br>
-                                                @Html.TextAreaFor(m => m.PermanentAddress, new { @class = "form-control" })
+                                                <h4>@Html.DisplayFor(m => m.PermanentAddress)</h4>
+                                                @*@Html.TextAreaFor(m => m.PermanentAddress, new { @class = "form-control" })*@
                                             </div>
                                         </div>
                                     </div>
@@ -259,6 +272,7 @@
                                         <div class="col-md-4">
                                             <div class="form-group custom-form-group mb-sm ">
                                                 <label>Blood Group</label>
+
                                                 @Html.DropDownListFor(m => m.BloodGroup, new SelectList(ViewBag.BloodGroup, "id", "name"), "Select", new { @class = "form-control" })
                                                 <div>@Html.ValidationMessageFor(m => m.BloodGroup)</div>
                                             </div>
@@ -290,6 +304,7 @@
                                         <div class="col-md-4">
                                             <div class="form-group custom-form-group ">
                                                 <label class="required">Nationality</label>
+
                                                 @Html.DropDownListFor(m => m.Nationality, new SelectList(ViewBag.Nationality, "id", "name"), "Select", new { @class = "form-control" })
                                                 <div>@Html.ValidationMessageFor(m => m.Nationality)</div>
                                             </div>
@@ -297,6 +312,7 @@
                                         <div class="col-md-4">
                                             <div class="form-group custom-form-group ">
                                                 <label class="required">Physically Challenged</label>
+
                                                 @Html.DropDownListFor(m => m.PhysicallyChallenged, new SelectList(ViewBag.YesNo, "id", "name"), "Select", new { @class = "form-control", @id = "PhysicallyChallenged" })
                                                 <div>@Html.ValidationMessageFor(m => m.PhysicallyChallenged)</div>
                                             </div>
@@ -304,6 +320,7 @@
                                         <div class="col-md-4">
                                             <div class="form-group custom-form-group ">
                                                 <label>Are you related to any employee at IIT Madras? </label>
+                                                @*<h4>@Html.DisplayFor(m => m.RelatedIITMadras)</h4>*@
                                                 @Html.DropDownListFor(m => m.RelatedIITMadras, new SelectList(ViewBag.YesNo, "id", "name"), "Select", new { @class = "form-control", @id = "RelatedIITMadras" })
                                                 <div>@Html.ValidationMessageFor(m => m.RelatedIITMadras)</div>
                                             </div>
@@ -313,14 +330,16 @@
                                         <div class="col-md-6">
                                             <div class="form-group custom-form-group ">
                                                 <label>(if yes) (a) Relationship</label>
-                                                @Html.TextBoxFor(m => m.Relationship, new { @class = "form-control mt-mmd" })
+                                                <h4>@Html.DisplayFor(m => m.Relationship)</h4>
+                                                @*@Html.TextBoxFor(m => m.Relationship, new { @class = "form-control mt-mmd" })*@
                                                 <div>@Html.ValidationMessageFor(m => m.Relationship)</div>
                                             </div>
                                         </div>
                                         <div class="col-md-6">
                                             <div class="form-group custom-form-group ">
                                                 <label>(b) Name of the Faculty / Staff, Designation & Department</label>
-                                                @Html.TextBoxFor(m => m.RelationshipName, new { @class = "form-control" })
+                                                <h4>@Html.DisplayFor(m => m.RelationshipName)</h4>
+                                                @*@Html.TextBoxFor(m => m.RelationshipName, new { @class = "form-control" })*@
                                                 <div>@Html.ValidationMessageFor(m => m.RelationshipName)</div>
                                             </div>
                                         </div>
@@ -329,16 +348,18 @@
                                         <div class="col-md-4">
                                             <div class="form-group custom-form-group ">
                                                 <label class="required">Applicaton Entry Date</label>
-                                                <label>@string.Format("{0:dd-MMMM-yyyy}", Model.ApplicationEntryDate)</label>
-                                                @Html.EditorFor(m => m.ApplicationEntryDate, new { @class = "form-control dis-none" })
-                                                <div>@Html.ValidationMessageFor(m => m.ApplicationEntryDate)</div>
+                                                @*<label>@string.Format("{0:dd-MMMM-yyyy}", Model.ApplicationEntryDate)</label>*@
+                                                <h4>@Html.DisplayFor(m => m.ApplnEntryDate)</h4>
+                                                @*@Html.EditorFor(m => m.ApplicationEntryDate, new { @class = "form-control dis-none" })*@
+                                                <div>@Html.ValidationMessageFor(m => m.ApplnEntryDate)</div>
                                             </div>
                                         </div>
                                         <div class="col-md-4">
                                             <div class="form-group custom-form-group ">
                                                 <label class="required">Application Receive Date</label>
-                                                @Html.EditorFor(m => m.ApplicationReceiveDate, new { @class = "form-control" })
-                                                <div>@Html.ValidationMessageFor(m => m.ApplicationReceiveDate)</div>
+                                                <h4>@Html.DisplayFor(m => m.ApplnReceiveDate)</h4>
+                                                @*@Html.EditorFor(m => m.ApplicationReceiveDate, new { @class = "form-control" })*@
+                                                <div>@Html.ValidationMessageFor(m => m.ApplnReceiveDate)</div>
                                             </div>
                                         </div>
                                         <div class="col-md-4">
@@ -368,6 +389,7 @@
                                         <div class="col-md-4">
                                             <div class="form-group custom-form-group ">
                                                 <label class="required">IITM Pensioner / CSIR Staff :</label>
+                                                @*<h4>@Html.DisplayFor(m => m.IITMPensionerCSIRStaff)</h4>*@
                                                 @Html.DropDownListFor(m => m.IITMPensionerCSIRStaff, new SelectList(ViewBag.IITMPensionerOrCSIRStaff, "id", "name"), "Select", new { @class = "form-control" })
                                                 <div>@Html.ValidationMessageFor(m => m.IITMPensionerCSIRStaff)</div>
                                             </div>
@@ -375,13 +397,15 @@
                                         <div class="col-md-4 dis-none" id="divPensionerNo">
                                             <div class="form-group custom-form-group">
                                                 <label class="required">PPO No :</label>
-                                                @Html.TextBoxFor(m => m.PPONo, new { @class = "form-control" })
+                                                <h4>@Html.DisplayFor(m => m.PPONo)</h4>
+                                                @*@Html.TextBoxFor(m => m.PPONo, new { @class = "form-control" })*@
                                                 <div>@Html.ValidationMessageFor(m => m.PPONo)</div>
                                             </div>
                                         </div>
                                         <div class="col-md-4 dis-none" id="divCSIRStaff">
                                             <div class="form-group custom-form-group">
                                                 <label class="required">CSIR staff  :</label>
+
                                                 @Html.DropDownListFor(m => m.CSIRStaff, new SelectList(ViewBag.CSIRStaffPayMode, "id", "name"), "Select", new { @class = "form-control" })
                                                 <div>@Html.ValidationMessageFor(m => m.CSIRStaff)</div>
                                             </div>
@@ -392,6 +416,7 @@
                                         <div class="col-md-4">
                                             <div class="form-group custom-form-group ">
                                                 <label>M.S/Ph.D</label>
+                                                @*<h4>@Html.DisplayFor(m => m.MsPhdType)</h4>*@
                                                 @Html.DropDownListFor(m => m.MsPhdType, new SelectList(ViewBag.MsPhd, "id", "name"), "Select", new { @class = "form-control" })
                                                 <div>@Html.ValidationMessageFor(m => m.MsPhdType)</div>
                                                 @Html.HiddenFor(m => m.MsPhdTypeValid)
@@ -401,7 +426,8 @@
                                             <div class="col-md-4">
                                                 <div class="form-group custom-form-group ">
                                                     <label>Roll Number</label>
-                                                    @Html.TextBoxFor(m => m.PhdDetail, new { @class = "form-control" })
+                                                    <h4>@Html.DisplayFor(m => m.PhdDetail)</h4>
+                                                    @*@Html.TextBoxFor(m => m.PhdDetail, new { @class = "form-control" })*@
                                                     <div>@Html.ValidationMessageFor(m => m.PhdDetail)</div>
                                                 </div>
                                             </div>
@@ -418,7 +444,8 @@
                                             <div class="col-md-6">
                                                 <div class="form-group custom-form-group mb-sm">
                                                     <label class="required">Project Number</label>
-                                                    @Html.TextBoxFor(m => m.ProjectNumber, new { @class = "form-control" })
+                                                    <h4>@Html.DisplayFor(m => m.ProjectNumber)</h4>
+                                                    @*@Html.TextBoxFor(m => m.ProjectNumber, new { @class = "form-control" })*@
                                                     @Html.HiddenFor(m => m.ProjectId)
                                                     <div>@Html.ValidationMessageFor(m => m.ProjectNumber)</div>
                                                 </div>
@@ -500,6 +527,7 @@
                                             <div class="col-md-4">
                                                 <div class="form-group custom-form-group">
                                                     <label>Medical</label> <br>
+                                                    @*<h4>@Html.DisplayFor(m => m.Medical)</h4>*@
                                                     @Html.DropDownListFor(m => m.Medical, new SelectList(ViewBag.Medical, "id", "name"), "Select Medical", new { @class = "form-control" })
                                                     <h4 id="MedicalText" class="dis-none"></h4>
                                                     <div>@Html.ValidationMessageFor(m => m.Medical)</div>
@@ -510,6 +538,7 @@
                                             <div class="col-md-4">
                                                 <div class="form-group custom-form-group">
                                                     <label class="required">Designation Code</label>
+                                                    @*<h4>@Html.DisplayFor(m => m.DesignationCode)</h4>*@
                                                     @Html.TextBoxFor(m => m.DesignationCode, new { @class = "form-control", @autocomplete = "off" })
                                                     <div>@Html.ValidationMessageFor(m => m.DesignationCode)</div>
                                                 </div>
@@ -517,6 +546,7 @@
                                             <div class="col-md-6">
                                                 <div class="form-group custom-form-group">
                                                     <label class="required">Designation</label>
+                                                    @*<h4>@Html.DisplayFor(m => m.Designation)</h4>*@
                                                     @Html.TextBoxFor(m => m.Designation, new { @class = "form-control", @readonly = "readonly" })
                                                     <div>@Html.ValidationMessageFor(m => m.Designation)</div>
                                                     @Html.HiddenFor(M => M.DesignationId)
@@ -527,6 +557,7 @@
                                             <div class="col-md-4">
                                                 <div class="form-group custom-form-group">
                                                     <label class="required">Appointment start date</label>
+                                                    @*<h4>@Html.DisplayFor(m => m.Appointmentstartdate)</h4>*@
                                                     @Html.EditorFor(m => m.Appointmentstartdate, new { @class = "form-control" })
                                                     <div>@Html.ValidationMessageFor(m => m.Appointmentstartdate)</div>
                                                 </div>
@@ -534,6 +565,7 @@
                                             <div class="col-md-4">
                                                 <div class="form-group custom-form-group">
                                                     <label class="required">Appointment End date</label>
+                                                    @*<h4>@Html.DisplayFor(m => m.AppointmentEndDate)</h4>*@
                                                     @Html.EditorFor(m => m.AppointmentEndDate, new { @class = "form-control", @readonly = "readonly" })
                                                     <div>@Html.ValidationMessageFor(m => m.AppointmentEndDate)</div>
                                                 </div>
@@ -551,6 +583,7 @@
                                             <div class="col-md-4">
                                                 <div class="form-group custom-form-group">
                                                     <label class="required">Salary</label>
+                                                    @*<h4>@Html.DisplayFor(m => m.Salary)</h4>*@
                                                     @Html.TextBoxFor(m => m.Salary, new { @class = "form-control required", @onkeypress = "return isNumberKey(event)", @autocomplete = "off" })
                                                     <div>@Html.ValidationMessageFor(m => m.Salary)</div>
                                                     @Html.HiddenFor(m => m.MinSalary)
@@ -569,7 +602,8 @@
                                             <div class="col-md-4 reg-no custom-reg-no">
                                                 <div class="form-group custom-form-group">
                                                     <label class="required">Commitment Amount</label>
-                                                    <h4 id="lblCommitmentAmount">@Html.DisplayFor(m => m.CommitmentAmount)</h4>
+
+                                                    <h4 id="lblCommitmentAmt1">@Html.DisplayFor(m => m.CommitmentAmount)</h4>
                                                     @Html.HiddenFor(m => m.CommitmentAmount, new { @class = "form-control", @readonly = "readonly" })
                                                     @Html.Hidden("PrjAviAvailableBalance")
                                                 </div>
@@ -586,7 +620,8 @@
                                             <div class="col-md-6">
                                                 <div class="form-group custom-form-group">
                                                     <label class="required">Requested By</label>
-                                                    @Html.TextBoxFor(m => m.AutoFillRequstedbyPI, new { @class = "form-control required" })
+                                                    <h4>@Html.DisplayFor(m => m.AutoFillRequstedbyPI)</h4>
+                                                    @*@Html.TextBoxFor(m => m.AutoFillRequstedbyPI, new { @class = "form-control required" })*@
                                                     <div>@Html.ValidationMessageFor(m => m.AutoFillRequstedbyPI)</div>
                                                     @Html.HiddenFor(m => m.RequestedByPI)
                                                 </div>
@@ -594,20 +629,21 @@
                                             <div class="col-md-3">
                                                 <div class="form-group custom-form-group">
                                                     <label class="">Employee Workplace</label>
-                                                    @Html.TextBoxFor(m => m.EmployeeWorkplace, new { @class = "form-control required", @placeholder = "Employee Workplace" })
+                                                    <h4>@Html.DisplayFor(m => m.EmployeeWorkplace)</h4>
+                                                    @*@Html.TextBoxFor(m => m.EmployeeWorkplace, new { @class = "form-control required", @placeholder = "Employee Workplace" })*@
                                                     <div>@Html.ValidationMessageFor(m => m.EmployeeWorkplace)</div>
                                                     @Html.HiddenFor(m => m.EmployeeWorkplace)
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="row">
-                                            <div class="col-md-12">
-                                                <div class="form-group custom-form-group">
-                                                    <input type="button" class="btn btn-success" value="View Staff Allocation" id="btnViewStaffAllocation">
-                                                    <input type="button" class="btn btn-success" value="Project Fund Availability" id="btnViewSummary">
+                                        @*<div class="row">
+                                                <div class="col-md-12">
+                                                    <div class="form-group custom-form-group">
+                                                        <input type="button" class="btn btn-success" value="View Staff Allocation" id="btnViewStaffAllocation">
+                                                        <input type="button" class="btn btn-success" value="Project Fund Availability" id="btnViewSummary">
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        </div>
+                                            </div>*@
                                         <div class="row">
                                             <div class="col-md-12">
                                                 <div class="form-group custom-form-group">
@@ -628,11 +664,11 @@
                                         <div class="row">
                                             <div class="col-md-12">
                                                 <label>PI Justification Document [ .doc, .docx, .pdf ]</label> <br>
-                                                <div id="divPIJustification">
+                                                <div id="divPIJustification" style="display: none;">
                                                     <input class="form-control mb-sm" id="PIJustificationFile_0" type="file" name="PIJustificationFile[0]" value="">
                                                     <a href="javascript:void(0)" class="btn-sm btn btn-danger mb-sm removeFile" style="margin-bottom: 10px;"><i class="ion-android-close"></i></a>
                                                 </div>
-                                                <a href="javascript:void(0)" id="btnAddFile" class="btn btn-success mt-20 mb20">Add New</a>
+                                                @*<a href="javascript:void(0)" id="btnAddFile" class="btn btn-success mt-20 mb20">Add New</a>*@
                                                 @foreach (var item in Model.PIJustificationDocDetail)
                                                 {
                                                     if (!string.IsNullOrEmpty(item.PIJustificationDocumentPath))
@@ -652,7 +688,8 @@
                                             <div class="col-md-12">
                                                 <div class="form-group custom-form-group">
                                                     <label>PI Justification / Remarks </label>
-                                                    @Html.TextAreaFor(m => m.PIJustificationRemarks, new { @class = "form-control" })
+                                                    <h4>@Html.DisplayFor(m => m.PIJustificationRemarks)</h4>
+                                                    @*@Html.TextAreaFor(m => m.PIJustificationRemarks, new { @class = "form-control" })*@
                                                 </div>
                                             </div>
                                         </div>
@@ -663,14 +700,16 @@
                                 <div class="col-md-6">
                                     <div class="form-group custom-form-group">
                                         <label class="">Bank Account No </label>
-                                        @Html.TextBoxFor(m => m.BankAccountNo, new { @class = "form-control", @onkeypress = "return isOnlyNumericKey(event)" })
+                                        <h4>@Html.DisplayFor(m => m.BankAccountNo)</h4>
+                                        @*@Html.TextBoxFor(m => m.BankAccountNo, new { @class = "form-control", @onkeypress = "return isOnlyNumericKey(event)" })*@
                                         <div>@Html.ValidationMessageFor(m => m.BankAccountNo)</div>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group custom-form-group">
                                         <label class="">Bank Name </label>
-                                        @Html.TextBoxFor(m => m.BankName, new { @class = "form-control", @onpaste = "return false", @onblur = "changeBankName()" })
+                                        <h4>@Html.DisplayFor(m => m.BankName)</h4>
+                                        @*@Html.TextBoxFor(m => m.BankName, new { @class = "form-control", @onpaste = "return false", @onblur = "changeBankName()" })*@
                                         @Html.Hidden("BankId")
                                         <div>@Html.ValidationMessageFor(m => m.BankName)</div>
                                     </div>
@@ -678,7 +717,8 @@
                                 <div class="col-md-6">
                                     <div class="form-group custom-form-group">
                                         <label class="">IFSC </label>
-                                        @Html.TextBoxFor(m => m.IFSCCode, new { @class = "form-control" })
+                                        <h4>@Html.DisplayFor(m => m.IFSCCode)</h4>
+                                        @*@Html.TextBoxFor(m => m.IFSCCode, new { @class = "form-control" })*@
                                         <div>@Html.ValidationMessageFor(m => m.IFSCCode)</div>
                                     </div>
                                 </div>
@@ -691,6 +731,7 @@
             </div>
         </div>
     </div>
+
     <div class="row cust-tab" style="display:none;">
         <div class="page-wrapper mt30">
             <div>
@@ -710,10 +751,18 @@
                                             </div>
                                         }
                                         <div class="col-md-6">
-                                            <div class="form-group custom-form-group">
-                                                <label>Candidate Name: </label>
-                                                <h4 id="labelCandidate"></h4>
+
+                                            <div class="form-group custom-form-group ">
+                                                <label>Candidate Name:</label>
+
+                                                <h4>@Html.DisplayFor(m => m.CantName)</h4>
+
+                                                <div>@Html.ValidationMessageFor(m => m.CantName)</div>
                                             </div>
+                                            @*<div class="form-group custom-form-group">
+                                                    <label>Candidate Name: </label>
+                                                    <h4 id="lblPIName"></h4>
+                                                </div>*@
                                         </div>
                                         <div class="col-md-6">
                                             <div class="form-group custom-form-group">
@@ -730,7 +779,9 @@
                                         <div class="col-md-6">
                                             <div class="form-group custom-form-group">
                                                 <label>M.S/Ph.D:</label> <br>
+
                                                 <h4 id="labelMsPhd"></h4>
+
                                             </div>
                                         </div>
                                         <div class="col-md-6">
@@ -742,6 +793,7 @@
                                         <div class="col-md-6">
                                             <div class="form-group custom-form-group">
                                                 <label>Qualification: </label>
+                                                QUALIFICATION
                                                 <h4 id="labelQualification"></h4>
                                             </div>
                                         </div>
@@ -791,7 +843,8 @@
                                         <div class="col-md-6">
                                             <div class="form-group custom-form-group  ">
                                                 <label>Application Received Date</label>
-                                                <h4 id="labelReceivedDate"></h4>
+                                                <h4 id="labelReceivedDate">@Html.DisplayFor(m => m.ApplnReceiveDate)</h4>
+
                                             </div>
                                         </div>
                                         <div class="col-md-6">
@@ -815,13 +868,15 @@
                                         <div class="col-md-6">
                                             <div class="form-group custom-form-group">
                                                 <label>Comments</label>
-                                                @if (string.IsNullOrEmpty(Model.Status) || Model.Status == "Draft" || Model.Status == "Open" || Model.Status.Contains("Note"))
+                                                @if (string.IsNullOrEmpty(Model.Status) || Model.Status == "Draft" || Model.Status == "Open" || Model.Status.Contains("Note") || Model.Status.Contains("No diviation"))
                                                 {
-                                                    @Html.TextAreaFor(m => m.Comments, new { @class = "form-control" })
+                                                    @Html.DisplayFor(m => m.Comments)
+                                                    @*@Html.TextAreaFor(m => m.Comments, new { @class = "form-control" })*@
                                                 }
                                                 else
                                                 {
-                                                    @Html.TextAreaFor(m => m.Comments, new { @class = "form-control", @readonly = "readonly" })
+                                                    @Html.DisplayFor(m => m.Comments)
+                                                    @*@Html.TextAreaFor(m => m.Comments, new { @class = "form-control", @readonly = "readonly" })*@
                                                 }
                                             </div>
                                         </div>
@@ -962,21 +1017,24 @@
                                             <div class="col-md-4">
                                                 <div class="form-group custom-form-group">
                                                     <label>Committee member</label>
-                                                    @Html.TextBoxFor(m => m.CommiteeMember1, new { @class = "form-control", @readonly = "readonly" })
+                                                    <h4>@Html.DisplayFor(m => m.CommiteeMember1)</h4>
+                                                    @*@Html.TextBoxFor(m => m.CommiteeMember1, new { @class = "form-control", @readonly = "readonly" })*@
                                                     @Html.HiddenFor(m => m.CommiteeMemberId1)
                                                 </div>
                                             </div>
                                             <div class="col-md-4">
                                                 <div class="form-group custom-form-group">
                                                     <label>Committee member</label>
-                                                    @Html.TextBoxFor(m => m.CommiteeMember2, new { @class = "form-control", @readonly = "readonly" })
-                                                    @Html.HiddenFor(m => m.CommiteeMemberId2)
+                                                    <h4>@Html.DisplayFor(m => m.CommiteeMember2)</h4>
+                                                    @*@Html.TextBoxFor(m => m.CommiteeMember2, new { @class = "form-control", @readonly = "readonly" })
+                                                        @Html.HiddenFor(m => m.CommiteeMemberId2)*@
                                                 </div>
                                             </div>
                                             <div class="col-md-4">
                                                 <div class="form-group custom-form-group">
                                                     <label> Chairperson</label>
-                                                    @Html.TextBoxFor(m => m.ChairpersonName, new { @class = "form-control", @readonly = "readonly" })
+                                                    <h4>@Html.DisplayFor(m => m.ChairpersonName)</h4>
+                                                    @*@Html.TextBoxFor(m => m.ChairpersonName, new { @class = "form-control", @readonly = "readonly" })*@
                                                     @Html.HiddenFor(m => m.ChairpersonNameId)
                                                 </div>
                                             </div>
@@ -995,7 +1053,6 @@
                                                 </div>
                                             </div>
                                         </div>
-
 
                                         <div id="Deviation">
 
@@ -1049,12 +1106,13 @@
             <input class="cancel btn btn-danger" type="submit" value="Save as draft" id="btnSave" />
         }
         <button type="button" class="btn btn-default" id="prevBtn" onclick="nextPrev(-1)">Previous</button>
+        <button type="button" class="btn btn-default" onclick="window.location.href='/Requirement/OutsourcingList';">Close</button>
         <button type="button" class="btn btn-primary pull-right" id="nextBtn" onclick="nextPrev(1)">Next</button>
     </div>
 
     <div id="dialogConfirm" class="modal fade" role="dialog" data-backdrop="static" aria-labelledby="myModalLabel" aria-hidden="true">
         <div class="modal-dialog">
-            <!-- Modal content-->
+            Modal content
             <div class="modal-content">
                 <div class="modal-header brd-bottom">
                     <button type="button" class="close" data-dismiss="modal">×</button>
@@ -1062,7 +1120,7 @@
                 </div>
                 <div class="modal-body">
                     <div style="padding:10px;margin-left: 10px;" id="divBcc">
-                        <label>To mail</label>
+                        <label>@*To mail*@</label>
                         <h4>@Html.DisplayFor(m => m.ReqTomail)</h4>
                         @if (Model.STEId > 0 && Model.Status != "Draft")
                         {
@@ -1111,6 +1169,7 @@
 
 </div>
 
+
 <script>
     var errMsg = '@TempData["errMsg"]';
     var succMsg = '@TempData["succMsg"]';
@@ -1124,6 +1183,7 @@
     var Diff = 0;
     var GovAgencyFund_f = @Json.Encode(Model.isGovAgencyFund) || false;
     var FlowApp = @Html.Raw(Json.Encode(Model.FlowApprover)) || '';
+
 
     if(STEID > 0) {
         $('#Caste').val(@Html.Raw(Json.Encode(Model.Caste)));
@@ -1160,6 +1220,16 @@
                 },
             });
         }
+        document.getElementById('btnAddEducation').style.display = 'none';
+        document.getElementById('btnAddExperience').style.display = 'none';
+
+        document.querySelectorAll('input[id$="Comview"]').forEach(function (element) {
+            element.style.display = 'none'; // Hide each input element
+        });
+        document.querySelectorAll('input[id$="ExpView"]').forEach(function (element) {
+            element.style.display = 'none'; // Hide each input element
+        });
+
 
         if(!$('.loading-bg').hasClass('dis-none')) {
             $('.loading-bg').addClass('dis-none');
@@ -1770,10 +1840,17 @@
         $('#labelCandidate').text($('#Name').val());
         $('#labelPIName').text($('#lblPIName').text());
         $('#labelDepartname').text($('#lblDepartmentName').text());
-        if (MsPhdType > 0)
-            $('#labelMsPhd').text($('#PhdDetail').val());
-        else
+        if (MsPhdType > 0) {
+            if (MsPhdType = 1) {
+                $('#labelMsPhd').text('Ph.D');
+            }
+            else {
+                $('#labelMsPhd').text('M.S');
+            }
+        } else {
             $('#labelMsPhd').text('-');
+
+        }
         $('#labelDesignation').text($('#Designation').val());
         $('#labelMedical').text($("#Medical option:selected").text());
         $('#labelPay').text($('#Salary').val());
@@ -1785,6 +1862,7 @@
         else if ($('input[name="isConsolidatePay"]:checked').val() == "FellowshipPay") {
             $('#labelPaycategory').text('Fellowship Pay');
         }
+        //$('#labelMsPhd').text($('#MsPhd option:selected').val());
         $('#labelIITMCSIR').text($('#IITMPensionerCSIRStaff option:selected').text());
         $('#labelStaffCategory').text($('input[name=StaffCategory]:checked').val());
         $('#lblAppStartDate1').text($('#Appointmentstartdate').val());
@@ -1865,6 +1943,7 @@
             $('#divMSPHDDetails').removeClass('dis-none');
             $('#CSIRStaff').prop('selectedIndex', 0);
         }
+
     });
 
     $('select[name="Medical"]').on('change', function () {
@@ -1897,6 +1976,7 @@
             return [day != 0,''];
         }
     });
+
 
     $("#AppointmentEndDate").datepicker({
         dateFormat: 'dd-MM-yy',
@@ -1993,7 +2073,7 @@
             BasicPay : basicpay,
             MasrksType : markstype,
             GateScore  :gatescore,
-            AppType : "STE",
+            AppType : "OSG",
             TypeOfAppointment : $('#TypeofappointmentId').val(),
             DateOfBirth : $('#DateofBirth').val(),
             PaymentthroughAgency : paymentthroughagency,
@@ -2002,7 +2082,9 @@
             Experienceinwordings : $('#labelExperience').text() || "0 Years 0 Months 0 Days"
         }
         modelData = inputdata;
+
         $.ajax({
+
             type: "POST",
             url: "@Url.Action("CheckDeviationQualfication", "Requirement")",
             data: modelData,
@@ -2014,17 +2096,17 @@
             success: function (result) {
                 $(".loading-bg").addClass('dis-none');
                 $("input[name=FlowofMail]").prop('checked', false);
-                if((Status == "Open" || Status == "" || Status == "Draft" || Status.includes("Note")) && Status != "Note to Dean" && !GovAgencyFund_f)
+                if ((Status == "Open" || Status == "" || Status == "Draft" || Status.includes("Note") || Status.includes("Verification Completed"))  && Status == "Note to Dean" && !GovAgencyFund_f )
                 {
                     $("#Deviation").html(result.output);
                     $("#ShowDeviationNP").html(result.template);
                     if(result.isRes) {
                         $("input[name=FlowofMail][value=NP]").prop('checked', true);
-                        document.getElementById("nextBtn").innerHTML = "Send for clarification";
+                        document.getElementById("nextBtn").innerHTML = "Send For Clarification";
                     }
                     else {
                         $("input[name=FlowofMail][value=Nd]").prop('checked', true);
-                        document.getElementById("nextBtn").innerHTML = "Send for approval";
+                        document.getElementById("nextBtn").innerHTML = "Close ";
                     }
 
                     //Check is Selection AppointmentType
@@ -2038,9 +2120,15 @@
                 }
                 else
                 {
-                    $("#Deviation").empty();
-                    $("input[name=FlowofMail][value=Nd]").prop('checked', true);
+                   $("#Deviation").html(result.output);
+                   $("input[name=FlowofMail][value=Nd]").prop('checked', true);
                     document.getElementById("nextBtn").style.display = "none";
+                    $("#Deviation input[type='checkbox']").prop("checked", false);
+                    $("#Deviation").css({
+                        "pointer-events": "none",
+                        "opacity": "0.5"
+                    });
+
                 }
             },
             error: function (err) {
@@ -2103,6 +2191,7 @@
     /* Tab Sections Start*/
     var currentTab = 0; // Current tab is set to be the first tab (0)
     showTab(currentTab); // Display the crurrent tab
+
     function showTab(n) {
         // This function will display the specified tab of the form...
         var x = document.getElementsByClassName("cust-tab");
@@ -2117,13 +2206,11 @@
             document.getElementById("prevBtn").style.display = "inline";
         }
         if (n == (x.length - 1)) {
-            if(Status == "Open" || Status == "" || Status == "Draft" || Status.includes("Note") &&Status != "Note to Dean")
-            {
+            if (Status == "Open" || Status == "" || Status == "Draft" || Status.includes("Note") && Status != "Note to Dean") {
                 document.getElementById("nextBtn").style.display = "inline";
                 document.getElementById("nextBtn").innerHTML = "Submit";
             }
-            else
-            {
+            else {
                 document.getElementById("nextBtn").style.display = "none";
                 document.getElementById("nextBtn").innerHTML = "Submit";
             }
@@ -2135,15 +2222,15 @@
     }
 
     function nextPrev(n) {
+
+
         // This function will figure out which tab to display
         var x = document.getElementsByClassName("cust-tab");
-
         // Exit the function if any field in the current tab is invalid:
         var v = n;
-        if($('#nextBtn').text().includes("Send") || $('#nextBtn').text().includes("Submit")) {
+        if ($('#nextBtn').text().includes("Send") || $('#nextBtn').text().includes("Submit")) {
             v = 2;
         }
-
         var expinValid = validateExperiencedetail();
         if (expinValid) {
             $.confirm({
@@ -2158,33 +2245,11 @@
             });
             return false;
         }
-        var val = $('select[name="ProfessionalId"]').val() || 0;
-        var qualification = [];
-        if (val == 4) {
-            $(document).find('select[name $=".QualificationId"]').each(function () {
-                var value = parseFloat($(this).val()) || 0;
-                if (value != 0)
-                    qualification.push(value);
-            });
-            if (qualification.length > 0) {
-                if(arrayContains(3,qualification) == false) {
-                    $('select[name="ProfessionalId"]').val('');
-                    $.alert({
-                        icon: 'ion-close-circled',
-                        title: 'Error Alert!',
-                        content: "Please select Doctorate degree for Salutation Dr.",
-                        type: 'red'
-                    });
-                    return;
-                }
-            }
-        }
-
         if (n > 0 && !validateForm(v)) {
             $.confirm({
                 title: 'Warning!',
                 content: 'Invalid data exist',
-                type: 'orange',
+                type: 'red',
                 buttons: {
                     Ok: function () {
                         //close
@@ -2201,7 +2266,10 @@
                 //do soemthing
                 $(this).text($('#Comments').val());
             })
+
+
         }
+
         if (currentTab + n < x.length) {
             // Hide the current tab:
             x[currentTab].style.display = "none";
@@ -2211,55 +2279,55 @@
             // ... the form gets submitted:
             // ... Update checklist in the deviation
             var checkedvalue = [];
-            $('#tbodyDEVCheckList').find('input[id^="DeviationCheckId_"]').each(function() {
-                if($(this).is(':checked')){
-                    var str =$(this).attr('name');
+            $('#tbodyDEVCheckList').find('input[id^="DeviationCheckId_"]').each(function () {
+                if ($(this).is(':checked')) {
+                    var str = $(this).attr('name');
                     var matches = str.match(/(\d+)/);
-                    var value = 0;
-                    if(matches)
+                    var value = ""
+                    if (matches)
                         value = $('input[name="CheckListDetail[' + matches[0] + '].FunctionCheckListId"]').val();
                     checkedvalue.push(value);
                 }
             });
-            $('.CheckListBody').find('tr[class^="Checklist_"]').each(function() {
+            $('.CheckListBody').find('tr[class^="Checklist_"]').each(function () {
                 $(this).addClass('dis-none');
             });
 
-            if(checkedvalue.length > 0) {
-                for(var i = 0;i < checkedvalue.length;i++)
-                {
-                    $('.Checklist_' + checkedvalue[i]).removeClass('dis-none');
+            if (checkedvalue.length > 0) {
+                for (var i = 0; i < checkedvalue.length; i++) {
+                    $('.Checklist_' + checkedvalue[i]).removeClass('');
                 }
             }
-            $('.CheckListBody').find('tr:not(.dis-none)').each(function(e) {
+            $('.CheckListBody').find('tr:not()').each(function (e) {
                 $(this).find('.dyn-srl-No').text(parseInt(e));
             });
-
             //..... end ......
 
-            if($('input[name="FlowofMail"]:checked').val() != "Nd") {
-                if($('#Comments').val() != "") {
-                    $('#tr-cmt').removeClass('dis-none');
+            if ($('input[name="FlowofMail"]:checked').val() != "Nd") {
+                if ($('#Comments').val() != "") {
+                    $('#tr-cmt').removeClass('');
                 }
                 else {
-                    $('#tr-cmt').addClass('dis-none');
+                    $('#tr-cmt').addClass('');
                 }
                 $('#txt-mail-comments').text($('#Comments').val());
-                $('#ShowDeviationND').hide();
+                $('#ShowDeviationND').show();
                 $('#ShowDeviationNP').show();
                 PopupConfirm()
             }
-            else if($('input[name="FlowofMail"]:checked').val() == "Nd") {
-                if(Status == "" || Status == "Draft")  {
-                    $('#ShowDeviationND').empty();
-                    $('#ShowDeviationNP').hide();
-                    $('#ShowDeviationND').show();
-                    AckowleadgementEmail()
-                    PopupConfirm()
-                }
-                else {
-                    formSave();
-                }
+            else if ($('input[name="FlowofMail"]:checked').val() == "Nd" || $('input[name="SendSalaryStructure"]:checked').val() == "SST") {
+                //if(Status=="" || Status=="Draft")
+                //{
+                $('#txt-mail-comments').text($('#Comments').val());
+                $('#ShowDeviationNP').show();
+                $('#ShowDeviationND').show();
+                AckowleadgementEmail()
+                PopupConfirm()
+                //}
+                //else
+                //{
+                //    formSave();
+                //}
             }
             else {
                 formSave();
@@ -2269,9 +2337,9 @@
         }
         // Increase or decrease the current tab by 1:
         currentTab = currentTab + n;
+
         // Otherwise, display the correct tab:
         showTab(currentTab);
-
     }
 
     function validateForm(n) {
@@ -2293,10 +2361,10 @@
             $(stepElements).each(function (idx)
             {
                 if (!$(this).is(':radio') && !$(this).is(':checkbox'))
-                {
-                    isValid = $(this).valid(); // check that the input is valid. This can also be used on a per input basis to perform another action if the field is not valid.
-                    if (!isValid) {
-                        hadError = true;
+              {
+                   isValid = $(this).valid(); // check that the input is valid. This can also be used on a per input basis to perform another action if the field is not valid.
+                   if (!isValid) {
+                       hadError = true;
                     } // set our flag if there was an error
                 }
             });
@@ -2349,10 +2417,12 @@
             if ($('#ProjectId').val() != null || $('#ProjectId').val() != "")
             {
                 FillData();
+
             }
             if ($('#DesignationId').val() != null || $('#DesignationId').val() != "")
+
             {
-                if(Status == "Open" || Status == "" || Status == "Draft" || Status.includes("Note") && Status != "Note to Dean")
+                if (Status == "Awaiting Verification" || Status == "" || Status == "Sent for approval-Verify" || Status.includes("Awaiting Verification-Draft") || Status.includes("Verification Completed") && Status != "Note to Dean")
                 {
                     var minsalary = parseFloat($('#MinSalary').val()) || 0;
                     var salary = parseFloat($('#Salary').val()) || 0;
@@ -2376,16 +2446,20 @@
                         return false;
                     }
                     else
+
                     {
                         checkDevation();
+
                     }
                 }
                 else
                 {
+                   // checkDevation();
                     $("input[name=FlowofMail]").prop('checked', false);
                     $("#Deviation").empty();
                     $("input[name=FlowofMail][value=Nd]").prop('checked', true);
                     document.getElementById("nextBtn").style.display = "none";
+
                 }
             }
 
@@ -2477,7 +2551,8 @@
     }
 
     function enableDisableReqClass(required) {
-        if(required) {
+        if (required) {
+
             //if($('input[name="EmployeeType"]:checked').val() == "Old Employee"){
             //    $('#OldEmployeeNumber').addClass("required");
             //}
@@ -2502,6 +2577,7 @@
             ////$("#BloodGroup").addClass("required");
             ////$("#BloodGroupRH").addClass("required");
             //$("#Nationality").addClass("required");
+
             //$("#PhysicallyChallenged").addClass("required");
             //if($("#IITMPensionerCSIRStaff").val() == 1)
             //{
@@ -2558,6 +2634,7 @@
             $('#tbodyEducation').find('select[name$=".MarkType"]').each(function(){
                 $(this).addClass("required");
             });
+
             @*$('#tbodyEducation').find('input[name$=".Certificate"]').each(function(){
                 if(@Model.STEId>0)
                     $(this).removeClass("required");
@@ -2620,6 +2697,7 @@
             $('#aadharnumber').removeClass("required");
             $('#PAN').removeClass("required");
             $('#aadharnumber').removeClass("required");
+
             $('#tbodyEducation').find('select[name$=".QualificationId"]').each(function(){
                 $(this).removeClass("required");
             });
@@ -2653,8 +2731,13 @@
             //$('#tbodyExperience').find('input[name$=".ToDate"]').each(function(){
             //    $(this).removeClass("required");
             //});
+
         }
     }
+
+
+
+
 
 
     $(document).on('click', '#btnViewSummary', function () {
@@ -2667,1162 +2750,1173 @@
                 data: searchData,
                 contentType: "application/x-www-form-urlencoded",
                 beforeSend: function () {
-                    $(".loading-bg").removeClass('dis-none');
+                $(".loading-bg").removeClass('dis-none');
                 },
                 success: function (result) {
-                    $(".loading-bg").addClass('dis-none');
-                    $("#popup").html(result);
-                    $("#projectSummaryModal").modal('toggle');
+                $(".loading-bg").addClass('dis-none');
+                $("#popup").html(result);
+                $("#projectSummaryModal").modal('toggle');
                 },
                 error: function (err) {
-                    console.log("error : " + err);
+                console.log("error : " + err);
                 }
-            });
-        }
-    });
+                });
+                }
+                });
 
-    $(document).on('click', '#btnViewStaffAllocation', function () {
-        var projNo = $('#ProjectId').val() || 0;
-        if (projNo > 0) {
-            var searchData = { "ProjectId": projNo };
-            $.ajax({
+                $(document).on('click', '#btnViewStaffAllocation', function () {
+                var projNo = $('#ProjectId').val() || 0;
+                if (projNo > 0) {
+                var searchData = { "ProjectId": projNo };
+                $.ajax({
                 url: "@Url.Action("_ViewStaffAllocation", "Requirement")",
                 type: "POST",
                 data: searchData,
                 contentType: "application/x-www-form-urlencoded",
                 beforeSend: function () {
-                    $(".loading-bg").removeClass('dis-none');
+                $(".loading-bg").removeClass('dis-none');
                 },
                 success: function (result) {
-                    $(".loading-bg").addClass('dis-none');
-                    $("#popup").html(result);
-                    $("#myModal1").modal('toggle');
+                $(".loading-bg").addClass('dis-none');
+                $("#popup").html(result);
+                $("#myModal1").modal('toggle');
                 },
                 error: function (err) {
-                    console.log("error : " + err);
-                    $(".loading-bg").addClass('dis-none');
+                console.log("error : " + err);
+                $(".loading-bg").addClass('dis-none');
                 }
-            });
-        }
-    });
+                });
+                }
+                });
 
 
-    function isNumberKey(evt) {
-        var charCode = (evt.which) ? evt.which : evt.keyCode;
-        if (charCode != 46 && charCode > 31
-          && (charCode < 48 || charCode > 57))
-            return false;
 
-        return true;
-    }
+                function isNumberKey(evt) {
+                var charCode = (evt.which) ? evt.which : evt.keyCode;
+                if (charCode != 46 && charCode > 31
+                && (charCode < 48 || charCode > 57))
+                return false;
 
-    function isOnlyNumericKey(e) {
-        //if the letter is not digit then display error and don't type anything
-        if (e.which != 8 && e.which != 0 && (e.which < 48 || e.which > 57)) {
-            return false;
-        }
-    }
+                return true;
+                }
 
-    $('select[name="ProfessionalId"]').on('change', function () {
-        Professional(parseInt($(this).val()))
-    });
+                function isOnlyNumericKey(e) {
+                //if the letter is not digit then display error and don't type anything
+                if (e.which != 8 && e.which != 0 && (e.which < 48 || e.which > 57)) {
+                return false;
+                }
+                }
 
-    function Professional(value) {
-        $('#Sex').removeClass('dis-none');
-        $('#lblSex').removeClass('dis-none');
-        if (value == 1) {
-            $('#Sex').val(1)
-            $('#lblSex').text('Male');
-            $('#Sex').addClass('dis-none');
-        }
-        else if (value == 2) {
-            $('#Sex').val(2)
-            $('#lblSex').text('Female');
-            $('#Sex').addClass('dis-none');
-        }
-        else if (value == 3) {
-            $('#Sex').val(2)
-            $('#lblSex').text('Female');
-            $('#Sex').addClass('dis-none');
-        }
-        else if (value == 4) {
-            $('#Sex').val('')
-            $('#lblSex').addClass('dis-none');
-            $('#Sex').removeClass('dis-none');
-        }
-        else if (value == 5) {
-            $('#Sex').val(3)
-            $('#lblSex').text('Others');
-            $('#Sex').addClass('dis-none');
-        }
-        else{
-            $('#lblSex').text('');
-            $('#Sex').val('');
-            $('#lblSex').addClass('dis-none');
-            $('#Sex').removeClass('dis-none');
-        }
-    }
+                $('select[name="ProfessionalId"]').on('change', function () {
+                Professional(parseInt($(this).val()))
+                });
 
-
-    if ($('select[name="ProfessionalId"]').val() != "") {
-        if($('select[name="ProfessionalId"]').val() != 4)
-            Professional($('select[name="ProfessionalId"]').val())
-    }
-
-    var EmployeeType = $("input[name='EmployeeType']:checked").val();
-    if (EmployeeType == "Old Employee") {
-        $('#divOld').removeClass('dis-none');
-        $('#divNew').addClass('dis-none');
-        if($('#aadharnumber').val() != "")
-        {
-            $('#lblAadharnumber').text($('#aadharnumber').val());
-            $('#aadharnumber').addClass('dis-none');
-        }
-        if($('#PAN').val() != "")
-        {
-            $('#lblPANNo').text($('#PAN').val());
-            $('#PAN').addClass('dis-none');
-        }
-    }
-    else {
-        $('#divNew').removeClass('dis-none');
-        $('#divOld').addClass('dis-none');
-    }
-
-    var IITRelation = $("select[name='RelatedIITMadras']").val() || 0;
-    if (IITRelation == 1)
-        $('#divRelationShip').removeClass('dis-none');
-    else
-        $('#divRelationShip').addClass('dis-none');
+                function Professional(value) {
+                $('#Sex').removeClass('dis-none');
+                $('#lblSex').removeClass('dis-none');
+                if (value == 1) {
+                $('#Sex').val(1)
+                $('#lblSex').text('Male');
+                $('#Sex').addClass('dis-none');
+                }
+                else if (value == 2) {
+                $('#Sex').val(2)
+                $('#lblSex').text('Female');
+                $('#Sex').addClass('dis-none');
+                }
+                else if (value == 3) {
+                $('#Sex').val(2)
+                $('#lblSex').text('Female');
+                $('#Sex').addClass('dis-none');
+                }
+                else if (value == 4) {
+                $('#Sex').val('')
+                $('#lblSex').addClass('dis-none');
+                $('#Sex').removeClass('dis-none');
+                }
+                else if (value == 5) {
+                $('#Sex').val(3)
+                $('#lblSex').text('Others');
+                $('#Sex').addClass('dis-none');
+                }
+                else{
+                $('#lblSex').text('');
+                $('#Sex').val('');
+                $('#lblSex').addClass('dis-none');
+                $('#Sex').removeClass('dis-none');
+                }
+                }
 
 
-    $('#MsPhdType').change(function () {
-        //Medical benefit and Hospital charges is not applicable for Part Time & MS/Phd candidates
-        var value =  parseInt($(this).val()) || 0;
-        var typeofappointment =  parseInt($('#TypeofappointmentId').val()) || 0;
+                if ($('select[name="ProfessionalId"]').val() != "") {
+                if($('select[name="ProfessionalId"]').val() != 4)
+                Professional($('select[name="ProfessionalId"]').val())
+                }
 
-        $('#PhdDetail').val('');
-        if (value > 0) {
-            $('#MsPhdTypeValid').val(true);
-            $('#phdDetails').removeClass('dis-none');
-            UpdateMedical(3);
-        }
-        else {
-            $('#MsPhdTypeValid').val(false);
-            $('#phdDetails').addClass('dis-none');
-            if($('#TypeofappointmentId').val() != 2)
-            {
+                var EmployeeType = $("input[name='EmployeeType']:checked").val();
+                if (EmployeeType == "Old Employee") {
+                $('#divOld').removeClass('dis-none');
+                $('#divNew').addClass('dis-none');
+                if($('#aadharnumber').val() != "")
+                {
+                $('#lblAadharnumber').text($('#aadharnumber').val());
+                $('#aadharnumber').addClass('dis-none');
+                }
+                if($('#PAN').val() != "")
+                {
+                $('#lblPANNo').text($('#PAN').val());
+                $('#PAN').addClass('dis-none');
+                }
+                }
+                else {
+                $('#divNew').removeClass('dis-none');
+                $('#divOld').addClass('dis-none');
+                }
+
+                var IITRelation = $("select[name='RelatedIITMadras']").val() || 0;
+                if (IITRelation == 1)
+                $('#divRelationShip').removeClass('dis-none');
+                else
+                $('#divRelationShip').addClass('dis-none');
+
+
+                $('#MsPhdType').change(function () {
+                //Medical benefit and Hospital charges is not applicable for Part Time & MS/Phd candidates
+                var value =  parseInt($(this).val()) || 0;
+                var typeofappointment =  parseInt($('#TypeofappointmentId').val()) || 0;
+
+                $('#PhdDetail').val('');
+                if (value > 0) {
+                $('#MsPhdTypeValid').val(true);
+                $('#phdDetails').removeClass('dis-none');
+                UpdateMedical(3);
+                }
+                else {
+                $('#MsPhdTypeValid').val(false);
+                $('#phdDetails').addClass('dis-none');
+                if($('#TypeofappointmentId').val() != 2)
+                {
                 UpdateMedical(2);
                 if(MedicalAmount==0&&$("#Medical").val()==2)
-                    FillDesignation();
-            }
-            else
+                FillDesignation();
+                }
+                else
                 UpdateMedical(3);
-        }
-        calculatetaxTotal();
-        if(typeofappointment == 3 && value > 0)
-            UpdateAppointmentDatePicker()
-    });
+                }
+                calculatetaxTotal();
+                if(typeofappointment == 3 && value > 0)
+                UpdateAppointmentDatePicker()
+                });
 
-    var MsPhdTypeid = parseInt($('#MsPhdType').val()) || 0;
-    if (MsPhdTypeid > 0)
-        $('#phdDetails').removeClass('dis-none');
-    else
-        $('#phdDetails').addClass('dis-none');
+                var MsPhdTypeid = parseInt($('#MsPhdType').val()) || 0;
+                if (MsPhdTypeid > 0)
+                $('#phdDetails').removeClass('dis-none');
+                else
+                $('#phdDetails').addClass('dis-none');
 
 
-    $('#TypeofappointmentId').change(function(){
-        var value = 0;
-        //Medical benefit and Hospital charges is not applicable for Part Time & MS/Phd candidates
-        var MsPhdType = parseInt($('#MsPhdType').val()) || 0;
-        if($('#TypeofappointmentId').val() == 2) {
-            $('#HRAText').removeClass('dis-none');
-            $('#HRAText').text(0);
-            $('#HRA').addClass('dis-none');
-            value = 3;
-        }
-        else {
-            if(getBoolean($('#isHRA').val())) {
+                $('#TypeofappointmentId').change(function(){
+                var value = 0;
+                //Medical benefit and Hospital charges is not applicable for Part Time & MS/Phd candidates
+                var MsPhdType = parseInt($('#MsPhdType').val()) || 0;
+                if($('#TypeofappointmentId').val() == 2) {
+                $('#HRAText').removeClass('dis-none');
+                $('#HRAText').text(0);
+                $('#HRA').addClass('dis-none');
+                value = 3;
+                }
+                else {
+                if(getBoolean($('#isHRA').val())) {
                 $('#HRA').removeClass('dis-none');
                 $('#HRAText').addClass('dis-none');
-            }
-            if(MsPhdType == 0 && getBoolean($('#isMedical').val()))
+                }
+                if(MsPhdType == 0 && getBoolean($('#isMedical').val()))
                 value = 2
-            else
+                else
                 value = 3;
-        }
-        UpdateMedical(value);
-        calculatetaxTotal();
-        UpdateAppointmentDatePicker();
-    });
+                }
+                UpdateMedical(value);
+                calculatetaxTotal();
+                UpdateAppointmentDatePicker();
+                });
 
 
 
 
-    $('#IsICSRStaff').click(function () {
-        var value = parseInt($('#Medical').val()) || 0;
-        
-        ICSRStaffUpdateMedical(value);
-        calculatetaxTotal();
-    });
-    $('#IsProjectStaff').click(function () {
-        var value = parseInt($('#Medical').val()) || 0;
-        ICSRStaffUpdateMedical(value);
-        calculatetaxTotal();
-    });
+                $('#IsICSRStaff').click(function () {
+                var value = parseInt($('#Medical').val()) || 0;
+
+                ICSRStaffUpdateMedical(value);
+                calculatetaxTotal();
+                });
+                $('#IsProjectStaff').click(function () {
+                var value = parseInt($('#Medical').val()) || 0;
+                ICSRStaffUpdateMedical(value);
+                calculatetaxTotal();
+                });
 
 
-    function UpdateMedical(value,isHaveMedical) {
-        var checkmedical = getBoolean($('#isMedical').val());
-        $('#Medical').val(value);
-        var StaffCatecory1 = $('input[name="StaffCategory"]:checked').val();
-        //if (parseInt($('#Medical').val()) == 1 && StaffCatecory1 == "Non ICSR Staff") {
-        //if(value == 1 || value == 2) {
-        if (value == 2) {
-            $('#Medical').removeClass('dis-none');
-            $('#MedicalText').addClass('dis-none');
-            $('#MedicalAmmount').val(MedicalAmount);
-        }
-        else if (value == 1 && StaffCatecory1 == "Non ICSR Staff") {
-            $('#Medical').removeClass('dis-none');
-            $('#MedicalText').addClass('dis-none');
-            $('#MedicalAmmount').val(MedicalAmount);
-        }
-        else if ((value == 3 || value == 1) && !checkmedical) {
-            $('#Medical').addClass('dis-none');
-            $('#MedicalText').removeClass('dis-none');
-            $('#MedicalAmmount').val(0);
-        }
-        else if (value == 3 || value == 1) {
-            $('#Medical').removeClass('dis-none');
-            $('#MedicalText').addClass('dis-none');
-            $('#MedicalAmmount').val(0);
-        }
-        $('#MedicalText').text($("#Medical option:selected").text());
-        $('#txtMedical1').text($("#Medical option:selected").text())
-        $('#txtMedicalAmount').text($('#MedicalAmmount').val());
-    }
+                function UpdateMedical(value,isHaveMedical) {
+                var checkmedical = getBoolean($('#isMedical').val());
+                $('#Medical').val(value);
+                var StaffCatecory1 = $('input[name="StaffCategory"]:checked').val();
+                //if (parseInt($('#Medical').val()) == 1 && StaffCatecory1 == "Non ICSR Staff") {
+                //if(value == 1 || value == 2) {
+                if (value == 2) {
+                $('#Medical').removeClass('dis-none');
+                $('#MedicalText').addClass('dis-none');
+                $('#MedicalAmmount').val(MedicalAmount);
+                }
+                else if (value == 1 && StaffCatecory1 == "Non ICSR Staff") {
+                $('#Medical').removeClass('dis-none');
+                $('#MedicalText').addClass('dis-none');
+                $('#MedicalAmmount').val(MedicalAmount);
+                }
+                else if ((value == 3 || value == 1) && !checkmedical) {
+                $('#Medical').addClass('dis-none');
+                $('#MedicalText').removeClass('dis-none');
+                $('#MedicalAmmount').val(0);
+                }
+                else if (value == 3 || value == 1) {
+                $('#Medical').removeClass('dis-none');
+                $('#MedicalText').addClass('dis-none');
+                $('#MedicalAmmount').val(0);
+                }
+                $('#MedicalText').text($("#Medical option:selected").text());
+                $('#txtMedical1').text($("#Medical option:selected").text())
+                $('#txtMedicalAmount').text($('#MedicalAmmount').val());
+                }
 
-    function ICSRStaffUpdateMedical(value, isHaveMedical) {
-        var checkmedical = getBoolean($('#isMedical').val());
-        $('#Medical').val(value);
-        var StaffCatecory1 = $('input[name="StaffCategory"]:checked').val();
-        //if(value == 1 || value == 2) {
-        if (value == 2) {
-            $('#Medical').removeClass('dis-none');
-            $('#MedicalText').addClass('dis-none');
-            $('#MedicalAmmount').val(MedicalAmount);
-        }
-        else if (value == 1 && StaffCatecory1 == "Non ICSR Staff") {
-            $('#Medical').removeClass('dis-none');
-            $('#MedicalText').addClass('dis-none');
-            $('#MedicalAmmount').val(MedicalAmount);
-        }
-        else if ((value == 3 || value == 1) && !checkmedical) {
-            $('#Medical').addClass('dis-none');
-            $('#MedicalText').addClass('dis-none');
-            $('#MedicalAmmount').val(0);
-        }
-        else if (value == 3 || value == 1) {
-            $('#Medical').removeClass('dis-none');
-            $('#MedicalText').addClass('dis-none');
-            $('#MedicalAmmount').val(0);
-        }
-        $('#MedicalText').text($("#Medical option:selected").text());
-        $('#txtMedical1').text($("#Medical option:selected").text())
-        $('#txtMedicalAmount').text($('#MedicalAmmount').val());
-    }
+                function ICSRStaffUpdateMedical(value, isHaveMedical) {
+                var checkmedical = getBoolean($('#isMedical').val());
+                $('#Medical').val(value);
+                var StaffCatecory1 = $('input[name="StaffCategory"]:checked').val();
+                //if(value == 1 || value == 2) {
+                if (value == 2) {
+                $('#Medical').removeClass('dis-none');
+                $('#MedicalText').addClass('dis-none');
+                $('#MedicalAmmount').val(MedicalAmount);
+                }
+                else if (value == 1 && StaffCatecory1 == "Non ICSR Staff") {
+                $('#Medical').removeClass('dis-none');
+                $('#MedicalText').addClass('dis-none');
+                $('#MedicalAmmount').val(MedicalAmount);
+                }
+                else if ((value == 3 || value == 1) && !checkmedical) {
+                $('#Medical').addClass('dis-none');
+                $('#MedicalText').addClass('dis-none');
+                $('#MedicalAmmount').val(0);
+                }
+                else if (value == 3 || value == 1) {
+                $('#Medical').removeClass('dis-none');
+                $('#MedicalText').addClass('dis-none');
+                $('#MedicalAmmount').val(0);
+                }
+                $('#MedicalText').text($("#Medical option:selected").text());
+                $('#txtMedical1').text($("#Medical option:selected").text())
+                $('#txtMedicalAmount').text($('#MedicalAmmount').val());
+                }
 
-    var PensionerCSIStaff = parseInt($('select[name="IITMPensionerCSIRStaff"]').val());
-    if (PensionerCSIStaff == 1) {
-        $('#divPensionerNo').removeClass('dis-none');
-        $('#divCSIRStaff,#divMSPHDDetails,#phdDetails').addClass('dis-none');
-        $('#MsPhdType').val('');
-    }
-    else if (PensionerCSIStaff == 2) {
-        $('#divPensionerNo').addClass('dis-none');
-        $('#divCSIRStaff,#divMSPHDDetails').removeClass('dis-none');
-    }
-    else {
-        $('#divPensionerNo,#divCSIRStaff').addClass('dis-none');
-        $('#divMSPHDDetails').removeClass('dis-none');
-    }
+                var PensionerCSIStaff = parseInt($('select[name="IITMPensionerCSIRStaff"]').val());
+                if (PensionerCSIStaff == 1) {
+                $('#divPensionerNo').removeClass('dis-none');
+                $('#divCSIRStaff,#divMSPHDDetails,#phdDetails').addClass('dis-none');
+                $('#MsPhdType').val('');
+                }
+                else if (PensionerCSIStaff == 2) {
+                $('#divPensionerNo').addClass('dis-none');
+                $('#divCSIRStaff,#divMSPHDDetails').removeClass('dis-none');
+                }
+                else {
+                $('#divPensionerNo,#divCSIRStaff').addClass('dis-none');
+                $('#divMSPHDDetails').removeClass('dis-none');
+                }
 
-    $(document).on('change','input[name$=".IsChecked"]',function () {
-        var isunchecked = false;
-        $('input[name$=".IsChecked"]').each(function () {
-            if ($(this).is(':checked')) {
+                $(document).on('change','input[name$=".IsChecked"]',function () {
+                var isunchecked = false;
+                $('input[name$=".IsChecked"]').each(function () {
+                if ($(this).is(':checked')) {
                 isunchecked = true;
-            }
-        });
-        $("input[name=FlowofMail]").prop('checked', false);
+                }
+                });
+                $("input[name=FlowofMail]").prop('checked', false);
 
-        if (!isunchecked) {
-            $("input[name=FlowofMail][value=Nd]").prop('checked', true);
-            $('#nextBtn').text('Send for approval');
-        }
-        else {
-            $("input[name=FlowofMail][value=NP]").prop('checked', true);
-            $('#nextBtn').text('Send for clarification');
-        }
-    });
+                if (!isunchecked) {
+                $("input[name=FlowofMail][value=Nd]").prop('checked', true);
+                $('#nextBtn').text('Send for approval');
+                }
+                else {
+                $("input[name=FlowofMail][value=NP]").prop('checked', true);
+                $('#nextBtn').text('nextBtn');
+                }
+                });
 
-    $(document).on('change','input[name="FlowofMail"]',function () {
-        var value = $('input[name="FlowofMail"]:checked').val();
-        if(value == "Nd") {
-            $('input[name$=".IsChecked"]').each(function () {
+                $(document).on('change','input[name="FlowofMail"]',function () {
+                var value = $('input[name="FlowofMail"]:checked').val();
+                if(value == "Nd") {
+                $('input[name$=".IsChecked"]').each(function () {
                 $(this).prop('checked', false);
-            });
-            $('#nextBtn').text('Send for approval');
-        }
-        else {
-            $('input[name$=".IsChecked"]').each(function () {
+                });
+                $('#nextBtn').text('Send for approval');
+                }
+                else {
+                $('input[name$=".IsChecked"]').each(function () {
                 $(this).prop('checked', true);
-            });
-            $('#nextBtn').text('Send for clarification');
-        }
-    });
+                });
+                $('#nextBtn').text('Send for clarification');
+                }
+                });
 
-    function readURL(input) {
-        if (input.files && input.files[0]) {
-            var reader = new FileReader();
-            reader.onload = function (e) {
+                function readURL(input) {
+                if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
                 $('#displayImg')
-                    .attr('src', e.target.result)
-                    .width(30)
-                    .height(30);
-            };
-            reader.readAsDataURL(input.files[0]);
-        }
-    }
+                .attr('src', e.target.result)
+                .width(30)
+                .height(30);
+                };
+                reader.readAsDataURL(input.files[0]);
+                }
+                }
 
-    $('input[name$=".Certificate"],input[name$=".ExperienceFile"]').change(function (e) {
-        var _size = this.files[0].size;
-        var iSize = (_size / 1024);
-        iSize = (Math.round(iSize * 100) / 100)
-        var filename = e.target.files[0].name;
-        var allowedextensions   = [".jpeg", ".png", ".jpg",".gif"];
-        var allowedextensionspdf =[".pdf", ".PDF"];
-        var extension = filename.substr((filename.lastIndexOf('.') + 1)).toLowerCase();
-        var imgformat = allowedextensions.includes('.' + extension);
-        var docformat = allowedextensionspdf.includes('.' + extension);
-        if(imgformat)
-        {
-            if(iSize > 1024)
-            {
+                $('input[name$=".Certificate"],input[name$=".ExperienceFile"]').change(function (e) {
+                var _size = this.files[0].size;
+                var iSize = (_size / 1024);
+                iSize = (Math.round(iSize * 100) / 100)
+                var filename = e.target.files[0].name;
+                var allowedextensions   = [".jpeg", ".png", ".jpg",".gif"];
+                var allowedextensionspdf =[".pdf", ".PDF"];
+                var extension = filename.substr((filename.lastIndexOf('.') + 1)).toLowerCase();
+                var imgformat = allowedextensions.includes('.' + extension);
+                var docformat = allowedextensionspdf.includes('.' + extension);
+                if(imgformat)
+                {
+                if(iSize > 1024)
+                {
                 $('#alert').html('Image size should be allow below 1MB');
                 $('#Validation').modal('toggle');
                 $(this).val('');
                 return;
-            }
-        }
-        else if(docformat)
-        {
-            if(iSize > 5120)
-            {
+                }
+                }
+                else if(docformat)
+                {
+                if(iSize > 5120)
+                {
                 $('#alert').html('PDF size should be allow below 5MB');
                 $('#Validation').modal('toggle');
                 $(this).val('');
                 return;
-            }
-        }
-        else {
-            $('#alert').html('Certificates allowed document type [pdf,jpg,jpeg,gif]');
-            $('#Validation').modal('toggle');
-            $(this).val('');
-            return;
-        }
-    });
+                }
+                }
+                else {
+                $('#alert').html('Certificates allowed document type [pdf,jpg,jpeg,gif]');
+                $('#Validation').modal('toggle');
+                $(this).val('');
+                return;
+                }
+                });
 
-    $('input[name="Resume"]').change(function (e) {
-        var _size = this.files[0].size;
-        var iSize = (_size / 1024);
-        iSize = (Math.round(iSize * 100) / 100)
-        var filename = e.target.files[0].name;
-        var allowedextensions = [".pdf"];
-        var extension = filename.substr((filename.lastIndexOf('.') + 1)).toLowerCase();
-        var imgformat = allowedextensions.includes('.' + extension);
-        if(imgformat)
-        {
-            if(iSize > 5120){
+                $('input[name="Resume"]').change(function (e) {
+                var _size = this.files[0].size;
+                var iSize = (_size / 1024);
+                iSize = (Math.round(iSize * 100) / 100)
+                var filename = e.target.files[0].name;
+                var allowedextensions = [".pdf"];
+                var extension = filename.substr((filename.lastIndexOf('.') + 1)).toLowerCase();
+                var imgformat = allowedextensions.includes('.' + extension);
+                if(imgformat)
+                {
+                if(iSize > 5120){
                 $('#alert').html('Resume size should be allow below 5MB');
                 $('#Validation').modal('toggle');
                 $(this).val('');
                 return;
-            }
-        }
-        else {
-            $('#alert').html('Resume should be allowd document type .pdf');
-            $('#Validation').modal('toggle');
-            $(this).val('');
-            return;
-        }
-    });
+                }
+                }
+                else {
+                $('#alert').html('Resume should be allowd document type .pdf');
+                $('#Validation').modal('toggle');
+                $(this).val('');
+                return;
+                }
+                });
 
-    $('input[name="PersonImage"]').change(function (e) {
-        var _size = this.files[0].size;
-        var iSize = (_size / 1024);
-        iSize = (Math.round(iSize * 100) / 100)
-        var filename = e.target.files[0].name;
-        var allowedextensions = [".jpeg", ".png", ".jpg",".gif", ".JPEG", ".PNG", ".JPG"];
-        var extension = filename.substr((filename.lastIndexOf('.') + 1)).toLowerCase();
-        var imgformat = allowedextensions.includes('.' + extension);
-        if(imgformat) {
-            if(iSize > 1024) {
+                $('input[name="PersonImage"]').change(function (e) {
+                var _size = this.files[0].size;
+                var iSize = (_size / 1024);
+                iSize = (Math.round(iSize * 100) / 100)
+                var filename = e.target.files[0].name;
+                var allowedextensions = [".jpeg", ".png", ".jpg",".gif", ".JPEG", ".PNG", ".JPG"];
+                var extension = filename.substr((filename.lastIndexOf('.') + 1)).toLowerCase();
+                var imgformat = allowedextensions.includes('.' + extension);
+                if(imgformat) {
+                if(iSize > 1024) {
                 $('#alert').html('Image size should be allow below 1MB');
                 $('#Validation').modal('toggle');
                 $(this).val('');
                 return;
-            }
-        }
-        else {
-            $('#alert').html('Image should be allowd document type [.jpg,.jpeg,.png]');
-            $('#Validation').modal('toggle');
-            $(this).val('');
-            return;
-        }
-    });
+                }
+                }
+                else {
+                $('#alert').html('Image should be allowd document type [.jpg,.jpeg,.png]');
+                $('#Validation').modal('toggle');
+                $(this).val('');
+                return;
+                }
+                });
 
-    $(document).on('change','input[name^="PIJustificationFile"]', function(event) {
-        var id = $(this).attr('id');
-        id = id.split('_')[1];
-        if($(this).val() != "")
-        {
-            // Read selected files
-            var allowedextensions =[".pdf", ".doc",".docx"];
-            var filename    = document.getElementById('PIJustificationFile_' + id).files[0].name;
-            var extension   = filename.substr((filename.lastIndexOf('.') + 1)).toLowerCase();
-            var validFormat = allowedextensions.includes('.' + extension);
-            if(validFormat)
-            {
+                $(document).on('change','input[name^="PIJustificationFile"]', function(event) {
+                var id = $(this).attr('id');
+                id = id.split('_')[1];
+                if($(this).val() != "")
+                {
+                // Read selected files
+                var allowedextensions =[".pdf", ".doc",".docx"];
+                var filename    = document.getElementById('PIJustificationFile_' + id).files[0].name;
+                var extension   = filename.substr((filename.lastIndexOf('.') + 1)).toLowerCase();
+                var validFormat = allowedextensions.includes('.' + extension);
+                if(validFormat)
+                {
                 var _size = document.getElementById('PIJustificationFile_'+id).files[0].size;
                 var iSize = (_size / 1024);
                 iSize = (Math.round(iSize * 100) / 100)
                 if (iSize > 5120) {
-                    $('#alert').html('Documents size should be allow below 5MB');
-                    $('#Validation').modal('toggle');
-                    $(this).val('');
-                    return;
+                $('#alert').html('Documents size should be allow below 5MB');
+                $('#Validation').modal('toggle');
+                $(this).val('');
+                return;
                 }
-            }
-            else {
+                }
+                else {
                 $('#alert').html('PIJustification allowed document type [pdf,doc,docx]');
                 $('#Validation').modal('toggle');
                 $(this).val('');
                 return;
-            }
-        }
-    });
+                }
+                }
+                });
 
-    var innc=1;
-    $("#btnAddFile").click(function () {
-        var cln = $('div#divPIJustification:first').clone().find("input").val("").end();
-        $(cln).find('a').removeClass('dis-none');
-        $(cln).find("input, select").each(function () {
-            $(this).attr("name", $(this).attr("name").replace(/\d+/, innc));
-            if ($(this).attr("id"))
+                var innc=1;
+                $("#btnAddFile").click(function () {
+                var cln = $('div#divPIJustification:first').clone().find("input").val("").end();
+                $(cln).find('a').removeClass('dis-none');
+                $(cln).find("input, select").each(function () {
+                $(this).attr("name", $(this).attr("name").replace(/\d+/, innc));
+                if ($(this).attr("id"))
                 $(this).attr("id", $(this).attr("id").replace(/\d+/, innc));
-        });
-        $(cln).insertAfter("div#divPIJustification:last");
-        innc++;
-    });
+                });
+                $(cln).insertAfter("div#divPIJustification:last");
+                innc++;
+                });
 
-    $(document).on('click', 'a.removeFile', function () {
-        if ($('div#divPIJustification').length == 1) {
-            $('div#divPIJustification').find("input").val("").end();
-        }
-        else{
-            $(this).closest('div').remove();
-            $(document).find('input[name^="PIJustificationFile"]').each(function(idx,ele){
+                $(document).on('click', 'a.removeFile', function () {
+                if ($('div#divPIJustification').length == 1) {
+                $('div#divPIJustification').find("input").val("").end();
+                }
+                else{
+                $(this).closest('div').remove();
+                $(document).find('input[name^="PIJustificationFile"]').each(function(idx,ele){
                 $(this).attr("name", $(this).attr("name").replace(/\d+/, idx));
                 if ($(this).attr("id"))
-                    $(this).attr("id", $(this).attr("id").replace(/\d+/, idx));
-            });
-            innc--;
-        }
-    });
+                $(this).attr("id", $(this).attr("id").replace(/\d+/, idx));
+                });
+                innc--;
+                }
+                });
 
-    $('a[name="DocDownload"]').click(function (p) {
-        p.preventDefault();
-        var ref = $(this).attr('href');
-        var win = window.open('', '_blank');
-        win.location.href = ref;
-    });
+                $('a[name="DocDownload"]').click(function (p) {
+                p.preventDefault();
+                var ref = $(this).attr('href');
+                var win = window.open('', '_blank');
+                win.location.href = ref;
+                });
 
-    $(document).on('click','#btnSave',function(e){
-        e.preventDefault();
-        $('#isDraftbtn').val(true);
-        //enableDisableReqClass(false);
-        $('#formSTEJuniorApp').submit();
-        $(".loading-bg").removeClass('dis-none');
-    });
-
-    var findtabs = $(".cust-tab");
-    $(findtabs[0]).find('textarea,input[type="text"]').each(function(){
-        var id = $(this).attr('id');
-        var name = $(this).attr('name').split('.')[1];
-        var noexpid = ["DesignationCode" , "ProjectNumber" , "Comments" , "PIJustificationRemarks"];
-        var noexpname = ["DesignationautoComplete"];
-        if(!noexpid.includes(id) && !noexpname.includes(name)){
-            $(this).attr('style','text-transform:uppercase');
-        }
-    });
-
-    $(document).on('keyup','textarea,input[type="text"]',function(event) {
-        if($(this).attr('id') != "Comments" && $(this).attr('id') != "PIJustificationRemarks" && $(this).attr('id') != undefined) {
-            var input = event.target;
-            var start = input.selectionStart;
-            var end = input.selectionEnd;
-            input.value = input.value.toLocaleUpperCase();
-            input.setSelectionRange(start, end);
-        }
-    });
+                $(document).on('click','#btnSave',function(e){
+                e.preventDefault();
+                $('#isDraftbtn').val(true);
+                //enableDisableReqClass(false);
+                $('#formSTEJuniorApp').submit();
+                $(".loading-bg").removeClass('dis-none');
+                });
 
 
-    $(document).on('keyup','input[name$=".Marks"]',function(){
-        var value = parseInt($(this).val());
-        var splitId = $(this).attr('id');
-        var id = splitId.split('_')[1];
-        var marktype = parseInt($('select[name="EducationDetail[' + id + '].MarkType"]').val()) || 0;
-        if(marktype > 0)
-        {
-            if(marktype == 1) {
+
+                var findtabs = $(".cust-tab");
+                $(findtabs[0]).find('textarea,input[type="text"]').each(function(){
+                var id = $(this).attr('id');
+                var name = $(this).attr('name').split('.')[1];
+                var noexpid = ["DesignationCode" , "ProjectNumber" , "Comments" , "PIJustificationRemarks"];
+                var noexpname = ["DesignationautoComplete"];
+                if(!noexpid.includes(id) && !noexpname.includes(name)){
+                $(this).attr('style','text-transform:uppercase');
+                }
+                });
+
+                $(document).on('keyup','textarea,input[type="text"]',function(event) {
+                if($(this).attr('id') != "Comments" && $(this).attr('id') != "PIJustificationRemarks" && $(this).attr('id') != undefined) {
+                var input = event.target;
+                var start = input.selectionStart;
+                var end = input.selectionEnd;
+                input.value = input.value.toLocaleUpperCase();
+                input.setSelectionRange(start, end);
+                }
+                });
+
+
+                $(document).on('keyup','input[name$=".Marks"]',function(){
+                var value = parseInt($(this).val());
+                var splitId = $(this).attr('id');
+                var id = splitId.split('_')[1];
+                var marktype = parseInt($('select[name="EducationDetail[' + id + '].MarkType"]').val()) || 0;
+                if(marktype > 0)
+                {
+                if(marktype == 1) {
                 if(isNaN(value))
-                    return false;
+                return false;
                 if(value > 100)
                 {
-                    $.alert({
-                        icon: 'ion-close-circled',
-                        title: 'Error Alert!',
-                        content: 'Mark percentage should be between 0 and 100',
-                        type: 'red'
-                    });
-                    $(this).val('')
-                    return false;
+                $.alert({
+                icon: 'ion-close-circled',
+                title: 'Error Alert!',
+                content: 'Mark percentage should be between 0 and 100',
+                type: 'red'
+                });
+                $(this).val('')
+                return false;
                 }
-            }
-            else {
+                }
+                else {
                 if(isNaN(value))
                 {
-                    $.alert({
-                        icon: 'ion-close-circled',
-                        title: 'Error Alert!',
-                        content: 'Enter valid input',
-                        type: 'red'
-                    });
-                    return false;
+                $.alert({
+                icon: 'ion-close-circled',
+                title: 'Error Alert!',
+                content: 'Enter valid input',
+                type: 'red'
+                });
+                return false;
                 }
                 if(value > 10)
                 {
-                    $.alert({
-                        icon: 'ion-close-circled',
-                        title: 'Error Alert!',
-                        content: 'CGPA should be between 1 and 10',
-                        type: 'red'
-                    });
-                    $(this).val('')
-                    return false;
+                $.alert({
+                icon: 'ion-close-circled',
+                title: 'Error Alert!',
+                content: 'CGPA should be between 1 and 10',
+                type: 'red'
+                });
+                $(this).val('')
+                return false;
                 }
-            }
-        }
-        else
-        {
-            $.alert({
+                }
+                }
+                else
+                {
+                $.alert({
                 icon: 'ion-close-circled',
                 title: 'Error Alert!',
                 content: 'Please select mark type',
                 type: 'red'
-            });
-            $('input[name="EducationDetail[' + id + '].MarkType"]').focus();
-            $(this).val('')
-            return false;
-        }
+                });
+                $('input[name="EducationDetail[' + id + '].MarkType"]').focus();
+                $(this).val('')
+                return false;
+                }
 
-    });
+                });
 
-    $(document).on('change','select[name$=".MarkType"]',function(){
-        var value = parseInt($(this).val());
-        var name = $(this).attr('name');
-        var id = name.match(/\d+/)[0];
-        var mark = parseFloat($('input[name="EducationDetail[' + id + '].Marks"]').val()) || 0;
-        if(mark > 0)
-        {
-            if(value == 1)
-            {
+                $(document).on('change','select[name$=".MarkType"]',function(){
+                var value = parseInt($(this).val());
+                var name = $(this).attr('name');
+                var id = name.match(/\d+/)[0];
+                var mark = parseFloat($('input[name="EducationDetail[' + id + '].Marks"]').val()) || 0;
+                if(mark > 0)
+                {
+                if(value == 1)
+                {
                 if(mark > 100)
                 {
-                    $.alert({
-                        icon: 'ion-close-circled',
-                        title: 'Error Alert!',
-                        content: 'Mark percentage should be between 0 and 100',
-                        type: 'red'
-                    });
-                    $('input[name="EducationDetail[' + id + '].Marks"]').val('');
-                    return false;
+                $.alert({
+                icon: 'ion-close-circled',
+                title: 'Error Alert!',
+                content: 'Mark percentage should be between 0 and 100',
+                type: 'red'
+                });
+                $('input[name="EducationDetail[' + id + '].Marks"]').val('');
+                return false;
                 }
-            }
-            else if(value == 2)
-            {
+                }
+                else if(value == 2)
+                {
                 if(mark > 10)
                 {
-                    $.alert({
-                        icon: 'ion-close-circled',
-                        title: 'Error Alert!',
-                        content: 'CGPA should be between 1 and 10',
-                        type: 'red'
-                    });
-                    $('input[name="EducationDetail[' + id + '].Marks"]').val('');
-                    return false;
-                }
-            }
-            else
-            {
                 $.alert({
-                    icon: 'ion-close-circled',
-                    title: 'Error Alert!',
-                    content: 'Please select valid input',
-                    type: 'red'
+                icon: 'ion-close-circled',
+                title: 'Error Alert!',
+                content: 'CGPA should be between 1 and 10',
+                type: 'red'
+                });
+                $('input[name="EducationDetail[' + id + '].Marks"]').val('');
+                return false;
+                }
+                }
+                else
+                {
+                $.alert({
+                icon: 'ion-close-circled',
+                title: 'Error Alert!',
+                content: 'Please select valid input',
+                type: 'red'
                 });
                 return false;
-            }
-        }
-    });
+                }
+                }
+                });
 
-    $(document).on("change", "input[name$='.FromDate']",function () {
-        var name = $(this).attr('name');
-        var splitname = name.split('.');
-        var value = $(this).val();
-        value = value.split('-').join('/')
-        var defaultfromdate = moment(value).add(+1, 'days').toDate();
-        $('input[name="' + splitname[0] + '.ToDate"]').datepicker({
-            dateFormat: 'dd-MM-yy',
-            changeYear: true
-        }).datepicker("option", "minDate", defaultfromdate);
-    });
+                $(document).on("change", "input[name$='.FromDate']",function () {
+                var name = $(this).attr('name');
+                var splitname = name.split('.');
+                var value = $(this).val();
+                value = value.split('-').join('/')
+                var defaultfromdate = moment(value).add(+1, 'days').toDate();
+                $('input[name="' + splitname[0] + '.ToDate"]').datepicker({
+                dateFormat: 'dd-MM-yy',
+                changeYear: true
+                }).datepicker("option", "minDate", defaultfromdate);
+                });
 
-    $(document).on('change', 'select[name$=".ExperienceTypeId"]', function () {
-        var value = parseInt($(this).val());
-        var name = $(this).attr('name');
-        var id = name.match(/\d+/)[0];
-        if (value == 1) {
-            $('input[name="ExperienceDetail[' + id + '].Organisation"]').val("IIT Madras");
-        }
-        else {
-            $('input[name="ExperienceDetail[' + id + '].Organisation"]').val("");
-        }
-    });
+                $(document).on('change', 'select[name$=".ExperienceTypeId"]', function () {
+                var value = parseInt($(this).val());
+                var name = $(this).attr('name');
+                var id = name.match(/\d+/)[0];
+                if (value == 1) {
+                $('input[name="ExperienceDetail[' + id + '].Organisation"]').val("IIT Madras");
+                }
+                else {
+                $('input[name="ExperienceDetail[' + id + '].Organisation"]').val("");
+                }
+                });
 
-    function FormDisabled() {
-        $("#formSTEJuniorApp").find("input, select, textarea").each(function () {
-            var isdisable = $(this).is(":disabled");
-            var id = $(this).attr('id');
-            if (isdisable == false)
+                function FormDisabled() {
+                $("#formSTEJuniorApp").find("input, select, textarea").each(function () {
+                var isdisable = $(this).is(":disabled");
+                var id = $(this).attr('id');
+                if (isdisable == false)
                 $(this).attr("disabled", "disabled");
-        });
-    }
+                });
+                }
 
-    var isDisabledStatus = ["", "Open", "Note to PI", "Draft"];
-    if (!isDisabledStatus.includes(Status) || GovAgencyFund_f) {
-        FormDisabled();
-        $('#btnViewSummary').removeAttr('disabled');
-        $('#btnViewStaffAllocation').removeAttr('disabled');
-    }
+                var isDisabledStatus = ["", "Open", "Note to PI", "Draft"];
+                if (!isDisabledStatus.includes(Status) || GovAgencyFund_f) {
+                FormDisabled();
+                $('#btnViewSummary').removeAttr('disabled');
+                $('#btnViewStaffAllocation').removeAttr('disabled');
 
-    if(GovAgencyFund_f && Status == "Open") {
-        FormDisabled();
-        $('#btnViewSummary').removeAttr('disabled');
-        $('#btnViewStaffAllocation').removeAttr('disabled');
-    }
+                }
 
-    function getBoolean(value){
-        switch(value){
-            case true:
-            case "true":
-            case "True":
-            case 1:
-            case "1":
-            case "on":
-            case "yes":
+                if(GovAgencyFund_f && Status == "Open") {
+                FormDisabled();
+                $('#btnViewSummary').removeAttr('disabled');
+                $('#btnViewStaffAllocation').removeAttr('disabled');
+                }
+
+                function getBoolean(value){
+                switch(value){
+                case true:
+                case "true":
+                case "True":
+                case 1:
+                case "1":
+                case "on":
+                case "yes":
                 return true;
-            default:
+                default:
                 return false;
-        }
-    }
+                }
+                }
 
-    $('#Name,#Nameoftheguardian').keypress(function (e) {
-        var regex = new RegExp("^[a-zA-Z ]+$");
-        var str = String.fromCharCode(!e.charCode ? e.which : e.charCode);
-        if (regex.test(str)) {
-            return true;
-        }
-        else {
-            e.preventDefault();
-            return false;
-        }
-    });
-
-
-    $('#BankName').keypress(function (e) {
-        var regex = new RegExp("^[a-zA-Z ,-@@&]+$");
-        var str = String.fromCharCode(!e.charCode ? e.which : e.charCode);
-        if (regex.test(str)) {
-            return true;
-        }
-        else {
-            e.preventDefault();
-            return false;
-        }
-    });
-
-    $('input[name$=".DivisionClassObtained"]').keypress(function (e) {
-        var regex = new RegExp("^[a-zA-Z ]+$");
-        var str = String.fromCharCode(!e.charCode ? e.which : e.charCode);
-        if (regex.test(str)) {
-            return true;
-        }
-        else {
-            e.preventDefault();
-            return false;
-        }
-    });
+                $('#Name,#Nameoftheguardian').keypress(function (e) {
+                var regex = new RegExp("^[a-zA-Z ]+$");
+                var str = String.fromCharCode(!e.charCode ? e.which : e.charCode);
+                if (regex.test(str)) {
+                return true;
+                }
+                else {
+                e.preventDefault();
+                return false;
+                }
+                });
 
 
-    function getDateDifference(startDate, endDate) {
-        var date1 = Date.parse(startDate.split('-').join('/'));
-        var endat = new Date(endDate.split('-').join('/'));
-        endat.setDate(endat.getDate() + 1);
-        var date2 = Date.parse(endat);
-        Diff += date2 - date1;
-    }
+                $('#BankName').keypress(function (e) {
+                var regex = new RegExp("^[a-zA-Z ,-@@&]+$");
+                var str = String.fromCharCode(!e.charCode ? e.which : e.charCode);
+                if (regex.test(str)) {
+                return true;
+                }
+                else {
+                e.preventDefault();
+                return false;
+                }
+                });
 
-    function getDateFormattedDate() {
-        var day = 1000 * 60 * 60 * 24;
-        var years = Math.floor(Diff / 31536000000);
-        var months = Math.floor((Diff % 31536000000) / 2628000000);
-        var days = Math.floor(((Diff % 31536000000) % 2628000000) / 86400000);
-        return years + " Years " + months + " months " + days + " days";
-    }
-
-    $('input[name="isConsolidatePay"]').change(function(){
-        $('#DesignationCode').val("");
-    });
-
-    $('input[name="EmployeeType"]').on('change', function () {
-        var value = $("input[name='EmployeeType']:checked").val();
-        if (value == "Old Employee") {
-            $('#divOld').removeClass('dis-none');
-            $('#divNew').addClass('dis-none');
-            $('#NIDNumber').val('');
-        }
-        else {
-            $('#OldEmployeeNumber').val('');
-            $('#divNew').removeClass('dis-none');
-            $('#divOld').addClass('dis-none');
-        }
-    });
-
-    applyAutoComplete($('#OldEmployeeNumber'), $('#OldEmpId'),'@Url.Action("LoadRCTSTEEmployeeList", "Requirement")?apptype=STE','AddOldEmployeeDetails',true);
-
-    applyAutoComplete($('#ApplicationRefNo'), $('#ApplicationRefNo'),'@Url.Action("LoadRCTSTEApplicationNumberList", "Requirement")?apptype=STE','AddOldEmployeeDetails',true);
+                $('input[name$=".DivisionClassObtained"]').keypress(function (e) {
+                var regex = new RegExp("^[a-zA-Z ]+$");
+                var str = String.fromCharCode(!e.charCode ? e.which : e.charCode);
+                if (regex.test(str)) {
+                return true;
+                }
+                else {
+                e.preventDefault();
+                return false;
+                }
+                });
 
 
-    function AddOldEmployeeDetails() {
-        var oldEmp = $('#OldEmployeeNumber').val();
-        var apprefno = $('#ApplicationRefNo').val();
-        if(oldEmp != "" || apprefno != "")
-        {
-            var data = {"AppRefNo" : apprefno};
-            if(oldEmp != "") {
+                function getDateDifference(startDate, endDate) {
+                var date1 = Date.parse(startDate.split('-').join('/'));
+                var endat = new Date(endDate.split('-').join('/'));
+                endat.setDate(endat.getDate() + 1);
+                var date2 = Date.parse(endat);
+                Diff += date2 - date1;
+                }
+
+                function getDateFormattedDate() {
+                var day = 1000 * 60 * 60 * 24;
+                var years = Math.floor(Diff / 31536000000);
+                var months = Math.floor((Diff % 31536000000) / 2628000000);
+                var days = Math.floor(((Diff % 31536000000) % 2628000000) / 86400000);
+                return years + " Years " + months + " months " + days + " days";
+                }
+
+                $('input[name="isConsolidatePay"]').change(function(){
+                $('#DesignationCode').val("");
+                });
+
+                $('input[name="EmployeeType"]').on('change', function () {
+                var value = $("input[name='EmployeeType']:checked").val();
+                if (value == "Old Employee") {
+                $('#divOld').removeClass('dis-none');
+                $('#divNew').addClass('dis-none');
+                $('#NIDNumber').val('');
+                }
+                else {
+                $('#OldEmployeeNumber').val('');
+                $('#divNew').removeClass('dis-none');
+                $('#divOld').addClass('dis-none');
+                }
+                });
+
+                applyAutoComplete($('#OldEmployeeNumber'), $('#OldEmpId'),'@Url.Action("LoadRCTSTEEmployeeList", "Requirement")?apptype=OSG','AddOldEmployeeDetails',true);
+
+                applyAutoComplete($('#ApplicationRefNo'), $('#ApplicationRefNo'),'@Url.Action("LoadRCTSTEApplicationNumberList", "Requirement")?apptype=OSG','AddOldEmployeeDetails',true);
+
+
+                function AddOldEmployeeDetails() {
+                var oldEmp = $('#OldEmployeeNumber').val();
+                var apprefno = $('#ApplicationRefNo').val();
+                if(oldEmp != "" || apprefno != "")
+                {
+                var data = {"AppRefNo" : apprefno};
+                if(oldEmp != "") {
                 data = {"EmpNo" : oldEmp};
                 $('#ApplicationRefNo').val("");
-            }
-            $(".loading-bg").removeClass('dis-none');
-            $.ajax({
+                }
+                $(".loading-bg").removeClass('dis-none');
+                $.ajax({
                 type: "GET",
                 url: "@Url.Action("GetOldEmployeeDetails", "Requirement")",
                 data: data,
                 //traditional: true,
                 dataType: "json",
                 success: function (result) {
-                    var origin = window.location.origin;
-                    if(oldEmp != "") {
-                        $('#IsNew').addClass('dis-none');
-                        $('#lblNewEmployee').addClass('dis-none');
-                    }
-                    $('#ProfessionalId').val(result.ProfessionalId);
-                    $('#Name').val(result.Name);
-                    $('#Nameoftheguardian').val(result.Nameoftheguardian);
-                    if(result.CandidatePhoto != "")
-                    {
-                        $('#PersonImagePath').val(result.CandidatePhoto)
-                        $('#displayImg').attr("src","/Account/ShowDocument?file=" + result.CandidatePhoto + "&filepath=RCTEmployeeImages");
-                    }
-                    if(result.IITMExperience!=null)
-                    {
-                        $("#labelIITMExperience").text(result.IITMExperience);
-                    }
-                    else
-                    {
-                        $("#labelIITMExperience").text('0 Years 0 months 0 days');
-                    }
-                    if(result.aadharnumber!=null)
-                    {
-                        $('#lblAadharnumber').text(result.aadharnumber);
-                        $('#aadharnumber').val(result.aadharnumber);
-                        $('#aadharnumber').addClass('dis-none');
-                    }
-                    else
-                    {
-                        $('#lblAadharnumber').text('');
-                        $('#aadharnumber').removeClass('dis-none');
-                    }
-                    if(result.PAN!=null)
-                    {
-                        $('#lblPANNo').text(result.PAN);
-                        $('#PAN').addClass('dis-none');
-                        $('#PAN').val(result.PAN);
-                    }
-                    else
-                    {
-                        $('#lblPANNo').text('');
-                        $('#PAN').removeClass('dis-none');
-                    }
-                    $('#DateofBirth').val(result.DateofBirth);
-                    if(result.DateofBirth != "")
-                    {
-                        $('#DateofBirth').addClass("dis-none");
-                        $('#lblDateofBirth').text(result.DateofBirth);
-                        calculateAge();
-                        FillyearandExpDate();
-                    }
-                    else
-                    {
-                        $('#DateofBirth').removeClass("dis-none");
-                        $('#lblDateofBirth').text('');
-                    }
-                    //$('#Age').val(result.Age);
-                    $('#Sex').val(result.Gender);
-                    $('#Caste').val(result.Caste);
-                    $('#ContactNumber').val(result.ContactNumber);
-                    $('#EmergencyContactNo').val(result.EmergencyContactno);
-                    $('#Email').val(result.Email);
-                    $('#PresentAddress').val(result.PresentAddress);
-                    $('#isSameasPermanentAddress').val(result.isSameasPermanentAddress);
-                    if(result.isSameasPermanentAddress==true)
-                    {
-                        $('input[name="isSameasPermanentAddress"]').prop('checked',true);
-                    }
-                    $('#PermanentAddress').val(result.PermanentAddress);
-                    $('#BloodGroup').val(result.BloodGroup);
-                    $('#BloodGroupRH').val(result.BloodGroupRH);
-                    $('#Nationality').val(result.Nationality);
-                    $('#PhysicallyChallenged').val(result.PhysicallyChallenged);
-                    $('#RelatedIITMadras').val(result.RelatedIITMadras);
-                    $('#IITMPensionerCSIRStaff').val(result.IITMPensionerCSIRStaff);
-                    if(result.MsPhd == true)
-                    {
-                        $('#IsMsPhd').prop('checked',true);
-                        $('#MsPhdType').val(result.MsPhdType);
-                        $('#phdDetails').removeClass('dis-none');
-                        $('#PhdDetail').val(result.PhdDetail);
-                    }
-                    else
-                    {
-                        $('#IsMsPhd').prop('checked',false);
-                        $('#MsPhdType').val("");
-                        $('#PhdDetail').val("");
-                        $('#phdDetails').addClass('dis-none');
-                        $('#PhdDetail').val(result.PhdDetail);
-                    }
-                    $('#BankAccountNo').val(result.BankAccountNo);
-                    $('#BankName').val(result.BankName);
-                    $('#IFSCCode').val(result.IFSCCode);
-                    if(result.IsGateScore == true)
-                    {
-                        $('#isYesGateScore').prop('checked',true);
-                        $('#divScore').removeClass('dis-none');
-                        $('#Score').val(result.GateScore);
-                    }
-                    else
-                    {
-                        $('#divScore').addClass('dis-none');
-                        $("input[name=isHaveGateScore][value=No]").prop('checked',true);
-                        $('#Score').val("");
-                    }
-
-                    $.each(result.EducationDetail, function (i, item) {
-                        //$('#tbodyEducation tr').not(':first').not(':last').remove();
-                        if(i == 0)
-                        {
-                            var cln = $('#tbodyEducation tr:first');
-                            var selectGroup = $(cln).find('select[name="EducationDetail[' + i + '].DisciplineId"]');
-                            $.each(item.DisiplineList, function (index, itemData) {
-                                $(selectGroup).append($('<option/>', {
-                                    value: itemData.id,
-                                    text: itemData.name
-                                }))
-                            });
-                            $(cln).find("input[name='EducationDetail.Index']").val(i);
-                            $(cln).find('select[name$=".QualificationId"]').val(item.QualificationId);
-                            $(selectGroup).val(item.DisciplineId);
-                            $(cln).find("input[name$='.DivisionClassObtained']").val(item.DivisionClassObtained);
-                            $(cln).find("input[name$='.Institution']").val(item.Institution);
-                            $(cln).find("select[name$='.YearofPassing']").val(item.YearofPassing);
-                            $(cln).find("select[name$='.MarkType']").val(item.MarkType);
-                            $(cln).find("input[name$='.Marks']").val(item.Marks);
-                            if(item.CertificateName != null)
-                            {
-                                $(cln).find("input[name$='.Certificate']").addClass("dis-none");
-                                $(cln).find(".link1").text(item.CertificateName);
-                                $(cln).find(".link1").attr("href","/Account/ShowDocument?filepath=Requirement&file=" + item.CertificatePath);
-                                $(cln).find("input[name$='.CertificatePath']").val(item.CertificatePath);
-                                $(cln).find("input[name$='.CertificateName']").val(item.CertificateName);
-                            }
-                            $(cln).find("input[name$='.Remarks']").val(item.Remarks);
-
-                        }
-                        else
-                        {
-
-                            var clnnew = $('#tbodyEducation tr:first').clone().find("input,select").val("").end();
-                            $(clnnew).find("input,select").each(function () {
-                                if ($(this).attr("name") != undefined)
-                                    $(this).attr("name", $(this).attr("name").replace(/\d+/, i));
-                                var letters = /^[0-9a-zA-Z]+$/;
-                                if ($(this).attr("id") != undefined)
-                                    $(this).attr("id", $(this).attr("id").replace(/\d+/, i));
-                            });
-                            $(clnnew).find("span[data-valmsg-for]").each(function () {
-                                $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, i));
-                            });
-                            var selectGroup = $(clnnew).find('select[name="EducationDetail[' + i + '].DisciplineId"]');
-                            $.each(item.DisiplineList, function (index, itemData) {
-                                $(selectGroup).append($('<option/>', {
-                                    value: itemData.id,
-                                    text: itemData.name
-                                }))
-                            });
-                            $(clnnew).find("input[name='EducationDetail.Index']").val(i);
-                            $(clnnew).find('select[name$=".QualificationId"]').val(item.QualificationId);
-                            $(selectGroup).val(item.DisciplineId);
-                            $(clnnew).find("input[name$='.DivisionClassObtained']").val(item.DivisionClassObtained);
-                            $(clnnew).find("input[name$='.Institution']").val(item.Institution);
-                            $(clnnew).find("select[name$='.YearofPassing']").val(item.YearofPassing);
-                            $(clnnew).find("select[name$='.MarkType']").val(item.MarkType);
-                            $(clnnew).find("input[name$='.Marks']").val(item.Marks);
-                            if(item.CertificateName!=null)
-                            {
-                                $(clnnew).find("input[name$='.Certificate']").addClass("dis-none");
-                                $(clnnew).find(".link1").text(item.CertificateName);
-                                $(clnnew).find(".link1").attr("href","/Account/ShowDocument?filepath=Requirement&file=" + item.CertificatePath);
-                                $(clnnew).find("input[name$='.CertificatePath']").val(item.CertificatePath);
-                                $(clnnew).find("input[name$='.CertificateName']").val(item.CertificateName);
-                            }
-                            $(clnnew).find("input[name$='.Remarks']").val(item.Remarks);
-                            $(clnnew).insertBefore("#tbodyEducation #ScoreDetails");
-
-                        }
-                    });
-                    $.each(result.ExperienceDetail, function (i, item) {
-                        //$('#tbodyExperience tr').not(':first').remove();
-                        if(i == 0)
-                        {
-
-                            var cln = $('#tbodyExperience tr:first');
-                            $(cln).find("input[name='ExperienceDetail.Index']").val(i);
-                            $(cln).find('select[name$=".ExperienceTypeId"]').val(item.ExperienceTypeId);
-                            $(cln).find("input[name$='.Organisation']").val(item.Organisation);
-                            $(cln).find("input[name$='.DesignationautoComplete']").val(item.DesignationautoComplete);
-                            $(cln).find("input[name$='.DesignationListId']").val(item.DesignationListId);
-                            $(cln).find("input[name$='.FromDate']").val(item.strFromDate);
-                            $(cln).find("input[name$='.ToDate']").val(item.strToDate);
-                            $(cln).find("input[name$='.SalaryDrawn']").val(item.SalaryDrawn);
-                            if(item.ExperienceFileName!=null)
-                            {
-                                $(cln).find("input[name$='.ExperienceFile']").addClass("dis-none");
-                                $(cln).find(".link2").text(item.ExperienceFileName);
-                                $(cln).find(".link2").attr("href","/Account/ShowDocument?filepath=Requirement&file=" + item.ExperienceFilePath);
-                                $(cln).find("input[name$='.ExperienceFilePath']").val(item.ExperienceFilePath);
-                                $(cln).find("input[name$='.ExperienceFileName']").val(item.ExperienceFileName);
-                            }
-
-                            $(cln).find("input[name$='.Remarks']").val(item.Remarks);
-
-                        }
-                        else
-                        {
-
-                            var clnnew = $('#tbodyExperience tr:first').clone().find("select,input").val("").end();
-                            $(clnnew).find('b').parent('a').remove();
-                            $(clnnew).find('b').remove();
-                            $(clnnew).find("input, select").each(function () {
-                                $(this).attr("name", $(this).attr("name").replace(/\d+/, i));
-                                if ($(this).attr("id"))
-                                    $(this).attr("id", $(this).attr("id").replace(/\d+/, i));
-                            });
-                            $(clnnew).find("span[data-valmsg-for]").each(function () {
-                                $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, i));
-                            });
-                            $(clnnew).find("input[name='ExperienceDetail.Index']").val(i);
-                            $(clnnew).find('select[name$=".ExperienceTypeId"]').val(item.ExperienceTypeId);
-                            $(clnnew).find("input[name$='.Organisation']").val(item.Organisation);
-                            $(clnnew).find("input[name$='.DesignationautoComplete']").val(item.DesignationautoComplete);
-                            $(clnnew).find("input[name$='.DesignationListId']").val(item.DesignationListId);
-                            $(clnnew).find("input[name$='.FromDate']").val(item.strFromDate);
-                            $(clnnew).find("input[name$='.ToDate']").val(item.strToDate);
-                            $(clnnew).find("input[name$='.SalaryDrawn']").val(item.SalaryDrawn);
-                            if(item.ExperienceFileName!=null)
-                            {
-                                $(clnnew).find("input[name$='.ExperienceFile']").addClass("dis-none");
-                                $(clnnew).find(".link2").text(item.ExperienceFileName);
-                                $(clnnew).find(".link2").attr("href","/Account/ShowDocument?filepath=Requirement&file=" + item.ExperienceFilePath);
-                                $(clnnew).find("input[name$='.ExperienceFilePath']").val(item.ExperienceFilePath);
-                                $(clnnew).find("input[name$='.ExperienceFileName']").val(item.ExperienceFileName);
-                            }
-                            $(clnnew).find("input[name$='.Remarks']").val(item.Remarks);
-                            $('#tbodyExperience').append(clnnew);
-
-                            var hdEle = $("input[name='ExperienceDetail[" + i + "].DesignationListId']");
-                            var acEle = $("input[name='ExperienceDetail[" + i + "].DesignationautoComplete']");
-                            $(cln).find('.hasDatepicker').attr("id", "").removeClass('hasDatepicker').removeData('datepicker').unbind().datepicker({
-                                dateFormat: 'dd-MM-yy', changeYear: true, yearRange: '-35:+0'
-                            });
-                            applyAutoComplete(acEle, hdEle, '@Url.Action("LoadDesignationNameList", "Requirement")');
-                        }
-                    });
-                },
-                error: function (err) {
-                    console.log("error : " + err);
+                var origin = window.location.origin;
+                if(oldEmp != "") {
+                $('#IsNew').addClass('dis-none');
+                $('#lblNewEmployee').addClass('dis-none');
+                }
+                $('#ProfessionalId').val(result.ProfessionalId);
+                $('#Name').val(result.Name);
+                $('#Nameoftheguardian').val(result.Nameoftheguardian);
+                if(result.CandidatePhoto != "")
+                {
+                $('#PersonImagePath').val(result.CandidatePhoto)
+                $('#displayImg').attr("src","/Account/ShowDocument?file=" + result.CandidatePhoto + "&filepath=RCTEmployeeImages");
+                }
+                if(result.IITMExperience!=null)
+                {
+                $("#labelIITMExperience").text(result.IITMExperience);
+                }
+                else
+                {
+                $("#labelIITMExperience").text('0 Years 0 months 0 days');
+                }
+                if(result.aadharnumber!=null)
+                {
+                $('#lblAadharnumber').text(result.aadharnumber);
+                $('#aadharnumber').val(result.aadharnumber);
+                $('#aadharnumber').addClass('dis-none');
+                }
+                else
+                {
+                $('#lblAadharnumber').text('');
+                $('#aadharnumber').removeClass('dis-none');
+                }
+                if(result.PAN!=null)
+                {
+                $('#lblPANNo').text(result.PAN);
+                $('#PAN').addClass('dis-none');
+                $('#PAN').val(result.PAN);
+                }
+                else
+                {
+                $('#lblPANNo').text('');
+                $('#PAN').removeClass('dis-none');
+                }
+                $('#DateofBirth').val(result.DateofBirth);
+                if(result.DateofBirth != "")
+                {
+                $('#DateofBirth').addClass("dis-none");
+                $('#lblDateofBirth').text(result.DateofBirth);
+                calculateAge();
+                FillyearandExpDate();
+                }
+                else
+                {
+                $('#DateofBirth').removeClass("dis-none");
+                $('#lblDateofBirth').text('');
+                }
+                //$('#Age').val(result.Age);
+                $('#Sex').val(result.Gender);
+                $('#Caste').val(result.Caste);
+                $('#ContactNumber').val(result.ContactNumber);
+                $('#EmergencyContactNo').val(result.EmergencyContactno);
+                $('#Email').val(result.Email);
+                $('#PresentAddress').val(result.PresentAddress);
+                $('#isSameasPermanentAddress').val(result.isSameasPermanentAddress);
+                if(result.isSameasPermanentAddress==true)
+                {
+                $('input[name="isSameasPermanentAddress"]').prop('checked',true);
+                }
+                $('#PermanentAddress').val(result.PermanentAddress);
+                $('#BloodGroup').val(result.BloodGroup);
+                $('#BloodGroupRH').val(result.BloodGroupRH);
+                $('#Nationality').val(result.Nationality);
+                $('#PhysicallyChallenged').val(result.PhysicallyChallenged);
+                $('#RelatedIITMadras').val(result.RelatedIITMadras);
+                $('#IITMPensionerCSIRStaff').val(result.IITMPensionerCSIRStaff);
+                if(result.MsPhd == true)
+                {
+                $('#IsMsPhd').prop('checked',true);
+                $('#MsPhdType').val(result.MsPhdType);
+                $('#phdDetails').removeClass('dis-none');
+                $('#PhdDetail').val(result.PhdDetail);
+                }
+                else
+                {
+                $('#IsMsPhd').prop('checked',false);
+                $('#MsPhdType').val("");
+                $('#PhdDetail').val("");
+                $('#phdDetails').addClass('dis-none');
+                $('#PhdDetail').val(result.PhdDetail);
+                }
+                $('#BankAccountNo').val(result.BankAccountNo);
+                $('#BankName').val(result.BankName);
+                $('#IFSCCode').val(result.IFSCCode);
+                if(result.IsGateScore == true)
+                {
+                $('#isYesGateScore').prop('checked',true);
+                $('#divScore').removeClass('dis-none');
+                $('#Score').val(result.GateScore);
+                }
+                else
+                {
+                $('#divScore').addClass('dis-none');
+                $("input[name=isHaveGateScore][value=No]").prop('checked',true);
+                $('#Score').val("");
                 }
 
-            });
-            $(".loading-bg").addClass('dis-none');
-        }
-    }
+                $.each(result.EducationDetail, function (i, item) {
+                //$('#tbodyEducation tr').not(':first').not(':last').remove();
+                if(i == 0)
+                {
+                var cln = $('#tbodyEducation tr:first');
+                var selectGroup = $(cln).find('select[name="EducationDetail[' + i + '].DisciplineId"]');
+                $.each(item.DisiplineList, function (index, itemData) {
+                $(selectGroup).append($('<option />', {
+                value: itemData.id,
+                text: itemData.name
+                }))
+                });
+                $(cln).find("input[name='EducationDetail.Index']").val(i);
+                $(cln).find('select[name$=".QualificationId"]').val(item.QualificationId);
+                $(selectGroup).val(item.DisciplineId);
+                $(cln).find("input[name$='.DivisionClassObtained']").val(item.DivisionClassObtained);
+                $(cln).find("input[name$='.Institution']").val(item.Institution);
+                $(cln).find("select[name$='.YearofPassing']").val(item.YearofPassing);
+                $(cln).find("select[name$='.MarkType']").val(item.MarkType);
+                $(cln).find("input[name$='.Marks']").val(item.Marks);
+                if(item.CertificateName != null)
+                {
+                $(cln).find("input[name$='.Certificate']").addClass("dis-none");
+                $(cln).find(".link1").text(item.CertificateName);
+                $(cln).find(".link1").attr("href","/Account/ShowDocument?filepath=Requirement&file=" + item.CertificatePath);
+                $(cln).find("input[name$='.CertificatePath']").val(item.CertificatePath);
+                $(cln).find("input[name$='.CertificateName']").val(item.CertificateName);
+                }
+                $(cln).find("input[name$='.Remarks']").val(item.Remarks);
 
-    function CheckEmployeeadhar() {
-        var adhar = $('#aadharnumber').val() || null;
-        var data = {};
-        if(adhar != null && adhar.length == 12)
-        {
-            var apprefNo = null;
-            if($('#ApplicationNo').val() != "")
+                }
+                else
+                {
+
+                var clnnew = $('#tbodyEducation tr:first').clone().find("input,select").val("").end();
+                $(clnnew).find("input,select").each(function () {
+                if ($(this).attr("name") != undefined)
+                $(this).attr("name", $(this).attr("name").replace(/\d+/, i));
+                var letters = /^[0-9a-zA-Z]+$/;
+                if ($(this).attr("id") != undefined)
+                $(this).attr("id", $(this).attr("id").replace(/\d+/, i));
+                });
+                $(clnnew).find("span[data-valmsg-for]").each(function () {
+                $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, i));
+                });
+                var selectGroup = $(clnnew).find('select[name="EducationDetail[' + i + '].DisciplineId"]');
+                $.each(item.DisiplineList, function (index, itemData) {
+                $(selectGroup).append($('<option />', {
+                value: itemData.id,
+                text: itemData.name
+                }))
+                });
+                $(clnnew).find("input[name='EducationDetail.Index']").val(i);
+                $(clnnew).find('select[name$=".QualificationId"]').val(item.QualificationId);
+                $(selectGroup).val(item.DisciplineId);
+                $(clnnew).find("input[name$='.DivisionClassObtained']").val(item.DivisionClassObtained);
+                $(clnnew).find("input[name$='.Institution']").val(item.Institution);
+                $(clnnew).find("select[name$='.YearofPassing']").val(item.YearofPassing);
+                $(clnnew).find("select[name$='.MarkType']").val(item.MarkType);
+                $(clnnew).find("input[name$='.Marks']").val(item.Marks);
+                if(item.CertificateName!=null)
+                {
+                $(clnnew).find("input[name$='.Certificate']").addClass("dis-none");
+                $(clnnew).find(".link1").text(item.CertificateName);
+                $(clnnew).find(".link1").attr("href","/Account/ShowDocument?filepath=Requirement&file=" + item.CertificatePath);
+                $(clnnew).find("input[name$='.CertificatePath']").val(item.CertificatePath);
+                $(clnnew).find("input[name$='.CertificateName']").val(item.CertificateName);
+                }
+                $(clnnew).find("input[name$='.Remarks']").val(item.Remarks);
+                $(clnnew).insertBefore("#tbodyEducation #ScoreDetails");
+
+                }
+                });
+                $.each(result.ExperienceDetail, function (i, item) {
+                //$('#tbodyExperience tr').not(':first').remove();
+                if(i == 0)
+                {
+
+                var cln = $('#tbodyExperience tr:first');
+                $(cln).find("input[name='ExperienceDetail.Index']").val(i);
+                $(cln).find('select[name$=".ExperienceTypeId"]').val(item.ExperienceTypeId);
+                $(cln).find("input[name$='.Organisation']").val(item.Organisation);
+                $(cln).find("input[name$='.DesignationautoComplete']").val(item.DesignationautoComplete);
+                $(cln).find("input[name$='.DesignationListId']").val(item.DesignationListId);
+                $(cln).find("input[name$='.FromDate']").val(item.strFromDate);
+                $(cln).find("input[name$='.ToDate']").val(item.strToDate);
+                $(cln).find("input[name$='.SalaryDrawn']").val(item.SalaryDrawn);
+                if(item.ExperienceFileName!=null)
+                {
+                $(cln).find("input[name$='.ExperienceFile']").addClass("dis-none");
+                $(cln).find(".link2").text(item.ExperienceFileName);
+                $(cln).find(".link2").attr("href","/Account/ShowDocument?filepath=Requirement&file=" + item.ExperienceFilePath);
+                $(cln).find("input[name$='.ExperienceFilePath']").val(item.ExperienceFilePath);
+                $(cln).find("input[name$='.ExperienceFileName']").val(item.ExperienceFileName);
+                }
+
+                $(cln).find("input[name$='.Remarks']").val(item.Remarks);
+
+                }
+                else
+                {
+
+                var clnnew = $('#tbodyExperience tr:first').clone().find("select,input").val("").end();
+                $(clnnew).find('b').parent('a').remove();
+                $(clnnew).find('b').remove();
+                $(clnnew).find("input, select").each(function () {
+                $(this).attr("name", $(this).attr("name").replace(/\d+/, i));
+                if ($(this).attr("id"))
+                $(this).attr("id", $(this).attr("id").replace(/\d+/, i));
+                });
+                $(clnnew).find("span[data-valmsg-for]").each(function () {
+                $(this).attr("data-valmsg-for", $(this).attr("data-valmsg-for").replace(/\d+/, i));
+                });
+                $(clnnew).find("input[name='ExperienceDetail.Index']").val(i);
+                $(clnnew).find('select[name$=".ExperienceTypeId"]').val(item.ExperienceTypeId);
+                $(clnnew).find("input[name$='.Organisation']").val(item.Organisation);
+                $(clnnew).find("input[name$='.DesignationautoComplete']").val(item.DesignationautoComplete);
+                $(clnnew).find("input[name$='.DesignationListId']").val(item.DesignationListId);
+                $(clnnew).find("input[name$='.FromDate']").val(item.strFromDate);
+                $(clnnew).find("input[name$='.ToDate']").val(item.strToDate);
+                $(clnnew).find("input[name$='.SalaryDrawn']").val(item.SalaryDrawn);
+                if(item.ExperienceFileName!=null)
+                {
+                $(clnnew).find("input[name$='.ExperienceFile']").addClass("dis-none");
+                $(clnnew).find(".link2").text(item.ExperienceFileName);
+                $(clnnew).find(".link2").attr("href","/Account/ShowDocument?filepath=Requirement&file=" + item.ExperienceFilePath);
+                $(clnnew).find("input[name$='.ExperienceFilePath']").val(item.ExperienceFilePath);
+                $(clnnew).find("input[name$='.ExperienceFileName']").val(item.ExperienceFileName);
+                }
+                $(clnnew).find("input[name$='.Remarks']").val(item.Remarks);
+                $('#tbodyExperience').append(clnnew);
+
+                var hdEle = $("input[name='ExperienceDetail[" + i + "].DesignationListId']");
+                var acEle = $("input[name='ExperienceDetail[" + i + "].DesignationautoComplete']");
+                $(cln).find('.hasDatepicker').attr("id", "").removeClass('hasDatepicker').removeData('datepicker').unbind().datepicker({
+                dateFormat: 'dd-MM-yy', changeYear: true, yearRange: '-35:+0'
+                });
+                applyAutoComplete(acEle, hdEle, '@Url.Action("LoadDesignationNameList", "Requirement")');
+                }
+                });
+                },
+                error: function (err) {
+                console.log("error : " + err);
+                }
+
+                });
+                $(".loading-bg").addClass('dis-none');
+                }
+                }
+
+                function CheckEmployeeadhar() {
+                var adhar = $('#aadharnumber').val() || null;
+                var data = {};
+                if(adhar != null && adhar.length == 12)
+                {
+                var apprefNo = null;
+                if($('#ApplicationNo').val() != "")
                 apprefNo = $('#ApplicationNo').val()
-            data = { adharno : adhar , apptype : "STE", appref : apprefNo};
-            if($('#OldEmployeeNumber').val() != "")
-            {
-                data = { adharno : adhar , oldId : $('#OldEmployeeNumber').val() , apptype : "STE", appref : apprefNo };
-            }
-            $.ajax({
+                data = { adharno : adhar , apptype : "OSG", appref : apprefNo};
+                if($('#OldEmployeeNumber').val() != "")
+                {
+                data = { adharno : adhar , oldId : $('#OldEmployeeNumber').val() , apptype : "OSG", appref : apprefNo };
+                }
+                $.ajax({
                 url: '@Url.Action("CheckPreviousEmployeeAdhar", "Requirement")',
                 type: "Get",
                 dataType: "JSON",
                 data: data,
                 success: function (result) {
-                    if(result!="")
-                    {
-                        $('#alert').html("This Aadhaar Number is linked to  " +result);
-                        $('#Validation').modal('toggle');
-                        $('#aadharnumber').val('');
-                        $('#aadharnumber').focus();
-                    }
+                if(result!="")
+                {
+                $('#alert').html("This Aadhaar Number is linked to  " +result);
+                $('#Validation').modal('toggle');
+                $('#aadharnumber').val('');
+                $('#aadharnumber').focus();
                 }
-            });
-        }
-    }
-    function CheckEmployeepanno() {
-        var pnno = $('#PAN').val() || null;
-        var data = {};
-        if(pnno != null && pnno.length == 10) {
-            var apprefNo = null;
-            if($('#ApplicationNo').val() != "")
+                }
+                });
+                }
+                }
+                function CheckEmployeepanno() {
+                var pnno = $('#PAN').val() || null;
+                var data = {};
+                if(pnno != null && pnno.length == 10) {
+                var apprefNo = null;
+                if($('#ApplicationNo').val() != "")
                 apprefNo = $('#ApplicationNo').val()
-            data = { Panno : pnno , apptype : "STE" , appref : apprefNo};
-            if($('#OldEmployeeNumber').val() != "")
-            {
-                data = { Panno : pnno , oldId : $('#OldEmployeeNumber').val() , apptype : "STE" , appref : apprefNo};
-            }
-            $.ajax({
+                data = { Panno : pnno , apptype : "OSG" , appref : apprefNo};
+                if($('#OldEmployeeNumber').val() != "")
+                {
+                data = { Panno : pnno , oldId : $('#OldEmployeeNumber').val() , apptype : "OSG" , appref : apprefNo};
+                }
+                $.ajax({
                 url: '@Url.Action("CheckPreviousEmployeePan", "Requirement")',
                 type: "Get",
                 dataType: "JSON",
                 data: data,
                 success: function (result) {
-                    if(result!="")
-                    {
-                        $('#alert').html("This Pan number is linked to  " +result);
-                        $('#Validation').modal('toggle');
-                        $('#PAN').val('');
-                        $('#PAN').focus();
-                    }
+                if(result!="")
+                {
+                $('#alert').html("This Pan number is linked to  " +result);
+                $('#Validation').modal('toggle');
+                $('#PAN').val('');
+                $('#PAN').focus();
                 }
-            });
-        }
-    }
+                }
+                });
+                }
+                }
 
-    $(document).on('change', 'select[name="ProfessionalId"]', function () {
-        var value = parseInt($(this).val()) || 0;
-        var qualification = [];
-        if (value == 4) {
-            $(document).find('select[name $=".QualificationId"]').each(function () {
+                $(document).on('change', 'select[name="ProfessionalId"]', function () {
+                var value = parseInt($(this).val()) || 0;
+                var qualification = [];
+                if (value == 4) {
+                $(document).find('select[name $=".QualificationId"]').each(function () {
                 var value = parseFloat($(this).val()) || 0;
                 if (value != 0) {
-                    qualification.push(value);
+                qualification.push(value);
                 }
-            });
-            if (qualification.length > 0) {
+                });
+                if (qualification.length > 0) {
                 if(arrayContains(3,qualification) == false) {
-                    $('select[name="ProfessionalId"]').val('');
-                    $.alert({
-                        icon: 'ion-close-circled',
-                        title: 'Error Alert!',
-                        content: "Please select Doctorate degree for Salutation Dr.",
-                        type: 'red'
-                    });
-                    return;
+                $('select[name="ProfessionalId"]').val('');
+                $.alert({
+                icon: 'ion-close-circled',
+                title: 'Error Alert!',
+                content: "Please select Doctorate degree for Salutation Dr.",
+                type: 'red'
+                });
+                return;
                 }
-            }
+                }
 
-        }
-    });
+                }
+                });
 
-    function arrayContains(needle, arrhaystack) {
-        return (arrhaystack.indexOf(needle) > -1);
-    }
+                function arrayContains(needle, arrhaystack) {
+                return (arrhaystack.indexOf(needle) > -1);
+                }
 
 
-    $(document).on('click', 'a[class="rct-del-doc cls-a-wt"]', function () {
-        if (STEID > 0) {
-            var $this = $(this);
-            var filepath = $this.attr("value");
-            $(".loading-bg").removeClass('dis-none');
-            $.getJSON("@Url.Action("DeleteDocument", "Requirement")", { Appid : STEID, Apptype : "STE", Doctype : "PI Justification Document", File : filepath },
-            function (result) {
+                $(document).on('click', 'a[class="rct-del-doc cls-a-wt"]', function () {
+                if (STEID > 0) {
+                var $this = $(this);
+                var filepath = $this.attr("value");
+                $(".loading-bg").removeClass('dis-none');
+                $.getJSON("@Url.Action("DeleteDocument", "Requirement")", { Appid : STEID, Apptype : "OSG", Doctype : "PI Justification Document", File : filepath },
+                function (result) {
                 if(result == true)
                 {
-                    $this.parent('h4').remove();
-                    $.alert({
-                        title: 'Success Alert!',
-                        content: "PI Justification document deleted.",
-                        type: 'green'
-                    });
-                    $(".loading-bg").addClass('dis-none');
+                $this.parent('h4').remove();
+                $.alert({
+                title: 'Success Alert!',
+                content: "PI Justification document deleted.",
+                type: 'green'
+                });
+                $(".loading-bg").addClass('dis-none');
                 }
                 else
                 {
-                    $.alert({
-                        icon: 'ion-close-circled',
-                        title: 'Error Alert!',
-                        content: "PI Justification document not deleted.",
-                        type: 'red'
-                    });
-                    $(".loading-bg").addClass('dis-none');
+                $.alert({
+                icon: 'ion-close-circled',
+                title: 'Error Alert!',
+                content: "PI Justification document not deleted.",
+                type: 'red'
+                });
+                $(".loading-bg").addClass('dis-none');
                 }
-            });
-        }
-    });
+                });
+
+                }
+                });
 </script>
 <script src="@Url.Content("~/Content/IOASContent/assets/bootstrap-select/js/bootstrap-select.min.js")"></script>
 <script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
 <script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
 <script src="@Url.Content("~/Scripts/FoolProof/mvcfoolproof.unobtrusive.min.js")" type="text/javascript"></script>
+
+
+
+
+
+
