@@ -1,0 +1,199 @@
+Create PROCEDURE [dbo].[ConsolidatedCashBook] @FromDate datetime , @ToDate datetime ,@BankId int  
+AS  
+BEGIN  
+  
+    --SET NOCOUNT ON;  
+  
+  declare @PayAmt decimal (18,2)  
+ declare @RecAmt decimal (18,2)  
+ declare @FinalOB varchar(max)  
+ declare @TranType varchar(max)  
+ declare @COB decimal (18,2)  
+ declare @migOB decimal (18,2)  
+ declare @PayAmtCB decimal (18,2)  
+ declare @RecAmtCB decimal (18,2)  
+ declare @CB decimal (18,2)  
+ declare @FinalCB varchar(max)  
+ declare @BankName varchar(max)  
+  
+ --declare @FromDate datetime declare @ToDate datetime  declare @BankId int  
+  
+  
+ --     set @FromDate = N'2021-03-01'  
+ -- set @ToDate = N'2021-03-31 23:53:05.213'  
+ -- set @BankId = 149   
+   SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;  
+  
+   set @PayAmt=0;  
+   set @RecAmt=0;  
+   set @migOB=0;  
+   set @COB=0;  
+  
+ select @PayAmt= isnull(sum(Amount),0) from vw_CashBookPayment where ReferenceDate<@FromDate   
+ select @RecAmt= isnull(sum(Amount),0) from vw_CashBookReceipt where ReferenceDate<@FromDate   
+ select top 1 @TranType=  TransactionType from tblHeadOpeningBalance   
+ select top 1 @migOB=  OpeningBalance from tblHeadOpeningBalance  
+   
+ if(@TranType='Credit')  
+ begin  
+  set  @COB = -@migOB + (@RecAmt - @PayAmt)  
+ end  
+ else if (@TranType='Debit')  
+ begin   
+  set  @COB = @migOB + (@RecAmt - @PayAmt)  
+ end  
+ else  
+ begin  
+  set  @COB = @migOB + (@RecAmt - @PayAmt)  
+  end  
+  
+  set @PayAmtCB=0;  
+   set @RecAmtCB=0;  
+   set @CB=0;  
+  
+ select @PayAmtCB= isnull(sum(Amount),0) from vw_CashBookPayment where ReferenceDate>=@FromDate and ReferenceDate<= @ToDate    
+ select @RecAmtCB= isnull(sum(Amount),0)  from vw_CashBookReceipt where ReferenceDate>=@FromDate and ReferenceDate<= @ToDate    
+  
+  
+ if(@COB < 0)  
+ begin  
+ set @CB = @COB + (@RecAmtCB - @PayAmtCB)  
+   
+     set  @FinalOB = CONVERT(varchar(max),convert(decimal(18,2),-@COB)) + ' Cr'  
+     end  
+ else   
+ begin   
+ set @CB = @COB + (@RecAmtCB - @PayAmtCB)  
+   
+     set  @FinalOB = CONVERT(varchar(max),convert(decimal(18,2),@COB)) + ' Dr'  
+ end  
+  
+  
+                    if (@CB < 0)   
+     begin   
+      
+     set @FinalCB = CONVERT(varchar(max),convert(decimal(18,2),-@CB)) + ' Cr'  
+     end  
+     else   
+     begin   
+      
+      set @FinalCB = CONVERT(varchar(max),convert(decimal(18,2),@CB))+ ' Dr'  
+     end  
+  
+  
+ select top 1 @BankName= AccountHead from tblAccountHead    
+ create table #tempCashBookFinal  
+ (  
+ FromDate datetime,  
+ Todate datetime,  
+ BankName varchar(max),  
+ OpeningBal varchar(max),  
+ ClosingBal varchar(max),  
+ )  
+  
+ insert into #tempCashBookFinal(FromDate,Todate,BankName,OpeningBal,ClosingBal)  
+ values(@FromDate,@ToDate,@BankName,@FinalOB, @FinalCB)  
+  
+ select * from   #tempCashBookFinal  
+  
+ select ReferenceDate,VoucherNumber,TempVoucherNumber,ChequeNumber,VoucherPayee,Amount,BankName from vw_CashBookReceipt   
+ where ReferenceDate>=@FromDate and ReferenceDate<= @ToDate    
+ --order by ReferenceDate  
+   
+    select ReferenceDate,VoucherNumber,TempVoucherNumber,VoucherPayee,Amount,BankName from vw_CashBookPayment  
+ where ReferenceDate>=@FromDate and ReferenceDate<= @ToDate    
+ --order by ReferenceDate  
+   
+ drop table #tempCashBookFinal  
+  --SET TRANSACTION ISOLATION LEVEL READ COMMITTED;  
+End   
+-------------------------------------------------------------------
+
+CREATE view [dbo].[vw_CashBookReceipt]  
+as  
+  
+select pay.BOAPaymentDetailId,  
+boa.PostedDate as ReferenceDate,  
+boa.RefNumber as VoucherNumber ,  
+pay.[Amount],  
+pay.PayeeBank as PayeeBank,  
+pay.[BOAId],  
+pay.TransactionType as TransactionType,pay.[BankHeadID],ach.AccountHead as BankName,  
+pay.PayeeName as PayeeName,pay.PayeeId,  
+isnull((case  
+when pay.PayeeType in ('Project','Distribution','Honororium') then  (select  top 1 bb.ProjectNumber+'-'+aa.Description from tblReceipt as aa  
+join tblProject as bb on aa.ProjectId=bb.ProjectId where aa.ReceiptNumber =boa.RefNumber  and aa.Status='Completed')  
+when pay.PayeeType='Receipt' then ( (select top 1 b.ProjectNumber from tblReceipt as a  
+join  tblProject as b on a.ProjectId =b.ProjectId where ReceiptId=pay.PayeeId))  
+when pay.PayeeType='Contra' then  'Contra'  
+when pay.PayeeType='Overheads' then (select top 1 c.ReceiptNumber from tblOverheadsPosting as a  
+join tblOverheadsPostingDetails as b on a.OverheadsPostingId=b.OverheadsPostingId  
+join tblReceipt as c on b.ReceiptId=c.ReceiptId  
+where a.Status='Completed'  and a.OverheadsPostingNumber=pay.ReferenceNumber  
+)  
+else pay.PayeeName  
+end),(select top 1 TransactionType from tblTransactionTypeCode where TransactionTypeCode= boa.RefTransactionCode))  as VoucherPayee,  
+boa.TransactionTypeCode,(select top 1 OpeningBalance from tblHeadOpeningBalance where AccountHeadId=pay.BankHeadID) as OpeningBalance,  
+case  
+ when boa.TempVoucherNumber like '%RBU%' then  (select top 1 aa.Description from tblReceipt as aa  
+join tblProject as bb on aa.ProjectId=bb.ProjectId where aa.ReceiptNumber =pay.ReferenceNumber  and aa.Status='Completed')  
+else  boa.TempVoucherNumber end as TempVoucherNumber,pay.ChequeNumber  
+  
+  
+from tblBOAPaymentDetail as pay  
+left join tblAccountHead as ach on pay.BankHeadID = ach.AccountHeadId  
+#NAME?
+join tblBOA as boa on pay.BOAId=boa.BOAId  
+#NAME?
+where pay.TransactionType='Debit' and boa.Status!='InActive'   
+  
+ and  (boa.paymentprocess_f =0 or boa.paymentprocess_f is null)  
+--------------------------------------------------------------------------------------
+
+CREATE view [dbo].[vw_CashBookPayment]  
+as  
+  
+select pay.BOAPaymentDetailId,  
+boa.PostedDate as ReferenceDate,CONVERT(varchar(8000),boa.RefNumber)  as VoucherNumber ,  
+pay.[Amount],  
+pay.PayeeBank as PayeeBank,  
+pay.[BOAId],  
+pay.TransactionType as TransactionType,pay.[BankHeadID],ach.AccountHead as BankName,  
+pay.PayeeName as PayeeName,pay.PayeeId,  
+isnull((case  
+when pay.PayeeType='Project' then ( (select top 1 ProjectNumber from tblProject where ProjectId =pay.PayeeId)  
++'-'+(select Description from tblReceipt where ReceiptNumber =pay.ReferenceNumber and status='Completed')  
+)  
+when pay.PayeeType='Receipt' then ( (select  top 1 b.ProjectNumber from tblReceipt as a  
+join  tblProject as b on a.ProjectId =b.ProjectId where ReceiptId=pay.PayeeId))  
+when pay.PayeeType='Contra' then   'Contra'  
+when pay.PayeeType='Overheads' then (select  top 1 c.ReceiptNumber from tblOverheadsPosting as a  
+join tblOverheadsPostingDetails as b on a.OverheadsPostingId=b.OverheadsPostingId  
+join tblReceipt as c on b.ReceiptId=c.ReceiptId  
+where a.Status='Completed' and a.OverheadsPostingNumber=pay.ReferenceNumber  
+)  
+  
+else   
+pay.PayeeName  
+end ),(select  top 1 TransactionType from tblTransactionTypeCode where TransactionTypeCode= boa.RefTransactionCode)) as VoucherPayee,  
+boa.TransactionTypeCode,  
+(select  top 1 OpeningBalance from tblHeadOpeningBalance where AccountHeadId=pay.BankHeadID)   
+as OpeningBalance,  
+case  
+ when boa.TempVoucherNumber like '%RBU%' then  
+   (select  top 1 aa.Description from tblReceipt as aa  
+join tblProject as bb on aa.ProjectId=bb.ProjectId where aa.ReceiptNumber =pay.ReferenceNumber and aa.Status='Completed')  
+else  boa.TempVoucherNumber end as TempVoucherNumber  
+  
+from tblBOAPaymentDetail as pay  
+left join tblAccountHead as ach on pay.BankHeadID = ach.AccountHeadId  
+join tblBOA as boa on pay.BOAId=boa.BOAId  
+where pay.TransactionType='Credit' and boa.Status!='InActive'    
+and ( boa.paymentprocess_f =0 or boa.paymentprocess_f is null)  
+
+
+
+
+                     
+   
+    

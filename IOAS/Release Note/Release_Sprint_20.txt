@@ -1,0 +1,151 @@
+Release Note:
+sprint_20
+
+Bug:#11769(Live),#11814-(Live),#10618-(Live),
+
+Feature:#11716,#11697,#10556,#11006,#11656-(Live),#5309,#10712 
+
+BALA
+#11697– Interest Reversal Entry
+IOAS\Controllers\CoreAccountsController.cs
+IOAS\GenericServices\CoreAccountsService.cs
+IOAS\Views\CoreAccounts\OtherReceipt.cshtml
+IOAS\Views\CoreAccounts\OtherReceiptView.cshtml
+
+DATABASE
+ALTER TABLE tblReceipt  ADD CategoryType int;
+insert into  tblCodeControl(CodeName,CodeValAbbr,CodeValDetail,CodeDescription,UPDT_UserID,CRTE_TS,UPDT_TS) 
+values('InterestCategory',0,'Interest Earned','Adhoc',NULL,NULL,NULL)
+insert into  tblCodeControl(CodeName,CodeValAbbr,CodeValDetail,CodeDescription,UPDT_UserID,CRTE_TS,UPDT_TS)
+values('InterestCategory',1,'Interest Reversable','Adhoc',NULL,NULL,NULL)
+update tblCodeControl set CodeValAbbr=1 where CodeID = 2780 and CodeName='InterestCategory'
+update tblCodeControl set CodeValAbbr=2 ,CodeValDetail='Interest Reversal' where CodeID = 2781 and CodeName='InterestCategory'
+update tblCodeControl set CodeValDetail='Interest' where CodeID = 2430 and CodeName='ReceiptCategory'
+
+YOGESH
+# 11716 - OSG New Entry Screen 
+IOAS\Views\Requirement\OSGModifyProfile.cshtml  
+IOAS\Views\Requirement\OSGVerification.cshtml     
+IOAS\Views\Requirement\Outsourcing.cshtml             
+
+BUG ID - #11769 -LC Opening (live)
+IOAS\Controllers\RCTReportMasterController.cs
+IOAS\GenericServices\CoreAccountsService.cs
+
+#10556 - LC Cancelled dropdown
+IOAS\Controllers\CoreAccountsController.cs
+IOAS\GenericServices\CoreAccountsService.cs
+IOAS\Views\CoreAccounts\LCOpeningList.cshtml
+
+DATABASE
+ALTER TABLE tblLCDraftDetails ADD Cancelled_f bit;
+ALTER TABLE tblLCAmmendment ADD Cancelled_f bit;
+ALTER TABLE tblLCDraftDetails ALTER COLUMN Status varchar(32);
+ALTER TABLE tblLCAmmendment ALTER COLUMN Status varchar(32)
+
+#11006 - Consolidates report
+DataAccessLayer\ListDatabaseObjects.cs
+IOAS\Controllers\ReportsController.cs
+IOAS\Models\CrystalReportViewModels.cs     
+IOAS\Views\ReportMaster\CashBookReport.cshtml  
+
+DATABASE
+ConsolidatedCashBook  ( New Procedure) in Sheet 2
+vw_CashBookReceipt  in Sheet 3
+vw_CashBookPayment  in Sheet 4
+
+RAJESH KUMAR
+#11656- Development Message (Live)
+IOAS\Controllers\AccountController.cs
+IOAS\Infrastructure\Common.cs
+IOAS\Models\CoreAccountsModels.cs
+IOAS\Views\Shared\_LoginPartial.cshtml
+DATABASE
+tblDeployment
+
+Bug #11814- SettlementBillPayment Screen Vendor pop alert message (Live)
+SettlementBillPayment.cshtml
+
+Bug #10618 --Duplication of Bill (Live)
+IOAS\GenericServices\CoreAccountsService.cs
+
+SANGEETHA
+#5309 – Overhead Posting Against Receipt - Reg
+Controllers\CoreAccountsController.cs
+GenericServices\CoreAccountsService.cs
+GenericServices\ProcessClarifyService.cs
+GenericServices\ProcessFailureService.cs
+GenericServices\ProcessSuccessService.cs
+Infrastructure\Common.cs
+Models\CoreAccountsModels.cs
+Models\ProjectReceiptDetails.cs
+Views\CoreAccounts\_OverheadsPostingPIPCFShare.cshtml
+Views\CoreAccounts\_OverheadsPostingPIRMFShare.cshtml
+Views\CoreAccounts\OverheadsPosting.cshtml
+Views\CoreAccounts\OverheadsPostingList.cshtml
+Views\CoreAccounts\OverheadsPostingView.cshtml
+Views\Shared\_TransactionDetails.cshtml
+
+DB Changes:
+Update tblOverheadsPosting set Status='Open' where Status='Approval Pending'
+Update tblProcessGuidelineHeader set Status='NULL' where ProcessGuidelineId=255
+
+Madhu 
+"IOAS\GenericServices	
+IOAS\GenericServices\CoreAccountsService.cs	
+IOAS\GenericServices\MasterService.cs	
+IOAS\Infrastructure	
+IOAS\Infrastructure\Common.cs	
+IOAS\Models	
+IOAS\Models\AccountViewModels.cs	
+IOAS\Models\MasterViewModels.cs	
+IOAS\Models\UserModel.cs	
+IOAS\Scripts	
+IOAS\Scripts\Common.js	
+IOAS\Scripts\Master	
+IOAS\Scripts\Master\RevisedVendorMaster.js	IOAS\Scripts\Master\VendorMaster.js	
+IOAS\Views	
+IOAS\Views\CoreAccounts	
+IOAS\Views\CoreAccounts\AdvanceBillPayment.cshtml	
+IOAS\Views\CoreAccounts\AdvancePartBillPayment.cshtml	
+IOAS\Views\CoreAccounts\ClearancePayment.cshtml
+IOAS\Views\CoreAccounts\PartBillPayment.cshtml	
+IOAS\Views\CoreAccounts\SettlementBillPayment.cshtml	
+IOAS\Views\Master	
+IOAS\Views\Master\RevisedVendor.cshtml	
+IOAS\Views\Master\Vendor.cshtml	IOAS\Scripts\Master\VendorManagementView.cshtml"
+IOAS\Views\Shared\_PaymentBreakUp.cshtml
+
+IOAS\Controllers
+IOAS\Controllers\RequirementController.cs
+IOAS\GenericServices
+IOAS\GenericServices\RequirementService.cs
+IOAS\Infrastructure
+IOAS\Infrastructure\Common.cs
+IOAS\Models
+IOAS\Models\RequirementModel.cs
+IOAS\Views
+IOAS\Views\Requirement
+IOAS\Views\Requirement\_ConsultantMasterView.cshtml
+"IOAS\Views\Requirement\IOAS\Views\Requirement\ConsultantMaster.cshtml	Edit"
+IOAS\Views\Requirement\RCTConsultantNewEntry.cshtml
+IOAS\Views\Shared
+IOAS\Views\Shared\_Layout.cshtml
+IOAS\GenericServices
+IOAS\GenericServices\ProcessClarifyService.cs
+IOAS\GenericServices\ProcessEngineService.cs
+IOAS\GenericServices\ProcessFailureService.cs
+IOAS\GenericServices\ProcessSuccessService.cs
+IOAS\GenericServices\RequirementService.cs
+IOAS\Scripts\Master\ConsultantMaster.js
+IOAS\Views\Requirement
+IOAS\Views\Requirement\_RCTConsultantNewEntryView.cshtml
+IOAS\Views\Requirement\RCTCloseCommitment.cshtml
+IOAS\Views\Requirement\RCTConsultantList.cshtml
+IOAS\Views\Requirement\RCTConsultantNewEntry.cshtml
+IOAS\Views\Requirement\RCTConsultantNewEntryView.cshtml
+IOAS\Views\Requirement\RCTRejectCommitRequest.cshtml
+IOAS\Views\Requirement\RecruitmentCommitmentBooking.cshtml
+IOAS\Views\Requirement\ConsultantMaster.cshtml
+IOAS\Views\Requirement\RCTConsultantPaymentRelease.cshtml
+IOAS\Views\Requirement\ViewConsultantMaster.cshtml
