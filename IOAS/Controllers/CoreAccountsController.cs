@@ -22436,6 +22436,33 @@ TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
         }
 
         [HttpGet]
+        public ActionResult Maintenance()
+        {
+            ViewBag.StatusChanger = Common.GetCodeControlList("MemberStatus");
+            return View();
+        }
+
+        public JsonResult MaintenanceStatusChanger(string StatusChanger, string Depmess)
+        {
+            var empty = new ProjectStatusUpdateModel();
+            ProjectStatusUpdateModel data = new ProjectStatusUpdateModel();
+            if (Depmess != "")
+            {
+                int userId = Common.GetUserid(User.Identity.Name);
+                data.Message = CoreAccountsService.UpdateMaintenanceStatus(StatusChanger, Depmess, userId) == true ? "Success" : "Failed";
+                return Json(data, JsonRequestBehavior.AllowGet);
+            }
+
+            else
+            {
+                data = empty;
+                return Json(data, JsonRequestBehavior.AllowGet);
+
+            }
+
+        }
+
+        [HttpGet]
         public JsonResult GetPanNumberOnly(int Vendorid, int CategoryId)
         {
             try

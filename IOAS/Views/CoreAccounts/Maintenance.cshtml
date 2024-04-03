@@ -1,0 +1,77 @@
+﻿@model IOAS.Models.Maintenance
+@{
+    ViewBag.Title = "Maintenance";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+
+    <link href="@Url.Content("~/Content/IOASContent/assets/bootstrap-select/css/bootstrap-select.min.css")" rel="stylesheet" />
+}
+
+<div class="row hd-tt-bg" id="addnewpage">
+    <div class="col-md-4">
+        <h3>Maintenance</h3>
+    </div>
+</div>
+
+<div class="row">
+    <div class="white-bg ad-navbar">
+
+
+        <div class="col-md-6 ds-spl-bg">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group custom-form-group mb-sm">
+                        <label class="required">Deployment Messenge</label>
+                        @Html.TextAreaFor(m => m.DeploymentMessenge, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(m => m.DeploymentMessenge)
+
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group custom-form-group">
+                        <label class="required">Status</label>
+                        @Html.DropDownListFor(m => m.DeploymentStatus, new SelectList(ViewBag.StatusChanger, "name", "name"), "Select any", new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 ds-spl-bg">
+            <div class="ds-tt">
+                <input type="submit" value="Submit" class="btn btn-primary" id="btnSubmit" />
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+
+<script>
+        $('#btnSubmit').click(function () {
+            var Depmess = $('#DeploymentMessenge').val();
+            var StatusChanger = $("#DeploymentStatus").val();
+            if (Depmess != "" && StatusChanger != "" ) {
+           $.getJSON("@Url.Action("MaintenanceStatusChanger", "CoreAccounts")", { StatusChanger: StatusChanger, Depmess: Depmess },
+        function (result) {
+            if (result.Message == "Success") {
+                $('#alertSuccess').html("It has been updated successfully.");
+                $('#Success').modal('toggle');
+            } else {
+                $('#FailedAlert').html("Something went wrong please contact administrator");
+                $('#Failed').modal('toggle');
+            }
+        });
+        } else {
+                $('#FailedAlert').html("Invalid Entry ");
+            $('#Failed').modal('toggle');
+        }
+    });
+
+
+
+
+</script>
+<link href="@Url.Content("~/Content/IOASContent/assets/bootstrap-select/css/bootstrap-select.min.css")" rel="stylesheet" />
+<script src="@Url.Content("~/Content/IOASContent/assets/bootstrap-select/js/bootstrap-select.min.js")"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/FoolProof/mvcfoolproof.unobtrusive.min.js")" type="text/javascript"></script>

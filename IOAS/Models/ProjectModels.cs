@@ -1131,7 +1131,14 @@ namespace IOAS.Models
         public string ForgnProjectFundingNonGovtBodyName { get; set; }
     }
 
-
+    public class Maintenance
+    {
+        public int Deploymentid { get; set; }
+        public string DeploymentStatus { get; set; }
+        public String DeploymentMessenge { get; set; }
+        public DateTime Crtd_Ts { get; set; }
+        public int Crtd_By { get; set; }
+    }
 
     public class ProjectJointDevlopmentCompanyModel
     {
