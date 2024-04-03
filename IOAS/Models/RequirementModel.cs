@@ -488,6 +488,8 @@ namespace IOAS.Models
         [RegularExpression("^[a-zA-Z0-9_\\.-]+@([a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,6}$", ErrorMessage = "Invalid To Mail")]
         public string ReqTomail { get; set; }  
         public int STEId { get; set; }
+        public int OSGID { get; set; }
+
         [Required]
         [Display(Name = "Type of appointment")]
         public Nullable<int> TypeofappointmentId { get; set; }
@@ -513,6 +515,9 @@ namespace IOAS.Models
         public string Name { get; set; }
         [Required]
         [Display(Name = "Father’s / Husband’s Name")]
+        public string ApplnEntryDate { get; set; }
+        public string ApplnReceiveDate { get; set; }
+        public string CantName { get; set; }
         public string Nameoftheguardian { get; set; }
         [RequiredIf("PAN", null, ErrorMessage = "Please enter aadhaar number")]
         [Range(100000000000, 999999999999, ErrorMessage = "Aadhaar number should not exceed 12 characters")]
@@ -854,7 +859,7 @@ namespace IOAS.Models
         public string EmployeeType { get; set; }
         public string PIName { get; set; }
         public string EmployeeID { get; set; }
-
+        public string FlowofMail { get; set; }
         public string OldNumber { get; set; }
         public string NIDNumber { get; set; }
         public int TypeofappointmentID { get; set; }
@@ -2126,6 +2131,7 @@ namespace IOAS.Models
     public class ApplicationSearchListModel
     {
         public string ApplicationNo { get; set; }
+        public string TypeofAppointment { get; set; }
         public string ApplicationType { get; set; }
         public string PIName { get; set; }
         public string PIEmail { get; set; }
@@ -2141,6 +2147,7 @@ namespace IOAS.Models
     {
         public int SNo { get; set; }
         public Nullable<int> ApplicationId { get; set; }
+        public string TypeofAppoint { get; set; }
         public Nullable<int> OrderId { get; set; }
         public string ApplicationNumber { get; set; }
         public string Category { get; set; }

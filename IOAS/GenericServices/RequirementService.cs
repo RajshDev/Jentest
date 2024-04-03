@@ -2231,6 +2231,7 @@ namespace IOAS.GenericServices
                         model.Professional = Common.GetCodeControlName(QrySTE.A.ProfessionalType ?? 0, "RCTProfessional");
                         model.ProfessionalId = QrySTE.A.ProfessionalType;
                         model.Name = QrySTE.A.Name;
+                        model.CantName = QrySTE.A.Name;
                         model.Nameoftheguardian = QrySTE.A.NameoftheGuardian;
                         if (!string.IsNullOrEmpty(QrySTE.A.AadhaarNumber))
                             model.aadharnumber = long.Parse(QrySTE.A.AadhaarNumber == "" ? "0" : QrySTE.A.AadhaarNumber);
@@ -2257,6 +2258,8 @@ namespace IOAS.GenericServices
                         model.Relationship = QrySTE.A.Relationship;
                         model.RelationshipName = QrySTE.A.RelationshipDetails;
                         model.RelatedIITMadras = QrySTE.A.RelatedIIT;
+                        model.ApplnEntryDate = string.Format("{0:dd-MMMM-yyyy}", QrySTE.A.ApplicationEntryDate);
+                        model.ApplnReceiveDate = string.Format("{0:dd-MMMM-yyyy}", QrySTE.A.ApplicationReceiveDate);
                         model.ApplicationEntryDate = QrySTE.A.ApplicationEntryDate;
                         model.ApplicationReceiveDate = QrySTE.A.ApplicationReceiveDate;
                         model.ConsolidatedPay = QrySTE.A.ConsolidatedPay ?? false;
@@ -31373,6 +31376,365 @@ namespace IOAS.GenericServices
             {
                 SearchOrderModel list = new SearchOrderModel();
                 return list;
+            }
+        }
+
+        public static ApplicationSearchListModel GetAwaitApplicationList(ApplicationSearchListModel model, int page, int pageSize, int RoleId)
+        {
+            ApplicationSearchListModel appseamodel = new ApplicationSearchListModel();
+            List<ApplicationListModel> list = new List<ApplicationListModel>();
+            try
+            {
+                int skiprec = 0;
+                if (page == 1)
+                {
+                    skiprec = 0;
+                }
+                else
+                {
+                    skiprec = (page - 1) * pageSize;
+                }
+                var CategoryName = "";
+                if (RoleId == 102 || RoleId == 103 || RoleId == 104 || RoleId == 104 || RoleId == 105 || RoleId == 106)
+                    CategoryName = "STE";
+                else if (RoleId == 107 || RoleId == 108 || RoleId == 109)
+                    CategoryName = "OSG";
+                else if (RoleId == 94 || RoleId == 93)
+                    CategoryName = "CON";
+
+                using (var context = new IOASDBEntities())
+                {
+                    var query = (from vw in context.vw_RCTOverAllApplicationEntry.AsNoTracking()
+                                 orderby vw.ApplicationId descending
+                                 where (vw.Status.Contains("Awaiting Verification") || vw.Status.Contains("Awaiting Verification-Draft") ||
+                                vw.Status.Contains("Awaiting Verification-Open") || vw.Status.Contains("Sent for approval-Verify") ||
+                                vw.Status.Contains("Verification Completed"))
+                                 && (vw.ApplicationNo.Contains(model.ApplicationNo) || model.ApplicationNo == null)
+                                 && (vw.Category.Contains(model.Category) || model.Category == null) && (vw.Category == CategoryName || CategoryName == "")
+                                 && (vw.CandidateName.Contains(model.CondidateName) || model.CondidateName == null)
+                                 && (vw.ProjectNumber.Contains(model.ProjectNumber) || model.ProjectNumber == null)
+                                  && (vw.TypeofAppointment.Contains(model.TypeofAppointment) || model.TypeofAppointment == null)
+                               && (vw.PIName.Contains(model.PIName) || model.PIName == null)
+                                 //&& (vw.Status.Contains(model.Status) || model.Status == null)
+                                 && (vw.PIEmail.Contains(model.PIEmail) || model.PIEmail == null)
+                                 //&& (vw.ApplicationType.Contains(model.ApplicationType) || model.ApplicationType == null)
+                                 //  && vw.isEmployee == true
+                                 select vw).Skip(skiprec).Take(pageSize).ToList();
+
+                    appseamodel.TotalRecords = (from vw in context.vw_RCTOverAllApplicationEntry.AsNoTracking()
+                                                where (vw.Status.Contains("Awaiting Verification")
+                                                       || vw.Status.Contains("Awaiting Verification-Draft")
+                                                       || vw.Status.Contains("Awaiting Verification-Open")
+                                                       || vw.Status.Contains("Sent for approval-Verify")
+                                                      || vw.Status.Contains("Verification Completed"))
+                                                              && (vw.ApplicationNo.Contains(model.ApplicationNo) || model.ApplicationNo == null)
+                                 && (vw.Category.Contains(model.Category) || model.Category == null) && (vw.Category == CategoryName || CategoryName == "")
+                                 && (vw.CandidateName.Contains(model.CondidateName) || model.CondidateName == null)
+                                 && (vw.ProjectNumber.Contains(model.ProjectNumber) || model.ProjectNumber == null)
+                                  && (vw.TypeofAppointment.Contains(model.TypeofAppointment) || model.TypeofAppointment == null)
+                                 && (vw.PIName.Contains(model.PIName) || model.PIName == null)
+                                 //&& (vw.Status.Contains(model.Status) || model.Status == null)
+                                 && (vw.PIEmail.Contains(model.PIEmail) || model.PIEmail == null)
+                                                select vw).Count();
+                    if (query.Count > 0)
+                    {
+                        int sno = 0;
+                        if (page == 1)
+                        {
+                            sno = 1;
+                        }
+                        else
+                        {
+                            sno = ((page - 1) * pageSize) + 1;
+                        }
+                        int emailcount = 0;
+                        for (int i = 0; i < query.Count; i++)
+                        {
+                            if (query[i].Category == "CON")
+                            {
+                                int appid = query[i].ApplicationId ?? 0;
+                                emailcount = context.tblRCTConsutantAppEmailLog.
+                                                Where(x => x.IsSend == true && x.TypeofMail == 3 &&
+                                                x.ConsultantAppointmentId == appid).Count();
+                            }
+                            else if (query[i].Category == "STE")
+                            {
+                                int appid = query[i].ApplicationId ?? 0;
+                                emailcount = context.tblRCTSTEEmailLog.
+                                                Where(x => x.IsSend == true && x.TypeofMail == 3 &&
+                                                x.STEID == appid).Count();
+                            }
+                            list.Add(new ApplicationListModel()
+                            {
+                                SNo = sno + i,
+                                OrderId = query[i].ApplicationId,
+                                ApplicationId = query[i].ApplicationId,
+                                ApplicationNumber = query[i].ApplicationNo,
+                                ApplicationType = query[i].ApplicationType,
+                                Category = query[i].Category,
+                                CondidateName = query[i].CandidateName,
+                                PIName = query[i].PIName,
+                                Email = query[i].PIEmail,
+                                Status = query[i].Status,
+                                TypeofAppoint = query[i].TypeofAppointment,
+                                ProjectNumber = query[i].ProjectNumber,
+                                EmailRemaindarCount = emailcount,
+                                EmployeeNo = query[i].EmployeeNo
+                            });
+
+                        }
+                    }
+                }
+                appseamodel.ApplicationList = list;
+                return appseamodel;
+            }
+            catch (Exception ex)
+            {
+                return appseamodel;
+            }
+        }
+        public STEModel GetSTEEdit(int STEID)
+        {
+            STEModel model = new STEModel();
+            try
+            {
+                using (var context = new IOASDBEntities())
+                {
+                    var QrySTE = (from A in context.tblRCTSTE
+                                  join D in context.tblRCTDesignation on A.DesignationId equals D.DesignationId into lftjn
+                                  from j in lftjn.DefaultIfEmpty()
+                                  where A.STEID == STEID
+                                  select new
+                                  {
+                                      A,
+                                      j.Designation,
+                                      j.DesignationCode,
+                                      j.PayStructureMinMum,
+                                      j.PayStructureMaximum
+                                  }).FirstOrDefault();
+                    if (QrySTE != null)
+                    {
+                        model.Status = QrySTE.A.Status;
+                        model.bccSaved = QrySTE.A.bcc != null ? true : false;
+                        model.STEId = QrySTE.A.STEID;
+                        model.ApplicationNo = QrySTE.A.ApplicationNumber;
+                        model.TypeofappointmentId = QrySTE.A.TypeofAppointment;
+                        model.EmployeeType = QrySTE.A.EmployeeCategory;
+                        model.NIDNumber = QrySTE.A.NIDNumber;
+                        model.OldEmployeeNumber = QrySTE.A.OldNumber;
+                        if (!string.IsNullOrEmpty(model.OldEmployeeNumber))
+                            model.OldEmpId = model.OldEmployeeNumber;
+                        model.PersonImagePath = QrySTE.A.CandidateImage;
+                        if (!string.IsNullOrEmpty(QrySTE.A.ResumeFile))
+                            model.ResumeFileName = QrySTE.A.ResumeFile.Substring((QrySTE.A.ResumeFile.LastIndexOf('_') + 1));
+                        model.ResumeFilePath = QrySTE.A.ResumeFile;
+                        model.CantidateSignatureFilePath = QrySTE.A.CandidateSignature;
+                        model.Professional = Common.GetCodeControlName(QrySTE.A.ProfessionalType ?? 0, "RCTProfessional");
+                        model.ProfessionalId = QrySTE.A.ProfessionalType;
+                        model.Name = QrySTE.A.Name;
+                        model.Nameoftheguardian = QrySTE.A.NameoftheGuardian;
+                        if (!string.IsNullOrEmpty(QrySTE.A.AadhaarNumber))
+                            model.aadharnumber = long.Parse(QrySTE.A.AadhaarNumber == "" ? "0" : QrySTE.A.AadhaarNumber);
+                        else
+                            model.aadharnumber = null;
+                        model.PAN = QrySTE.A.PANNo;
+                        model.DateofBirth = QrySTE.A.DateofBirth;
+                        model.strDateofBirth = string.Format("{0:dd-MMMM-yyyy}", QrySTE.A.DateofBirth);
+                        model.Age = QrySTE.A.Age ?? 0;
+                        model.Sex = QrySTE.A.Sex ?? 0;
+                        model.Caste = QrySTE.A.Caste ?? 0;
+                        model.ContactNumber = QrySTE.A.ContactNumber;
+                        model.AlternativeContactNumber = QrySTE.A.AlternativeContactNumber;
+                        model.EmergencyContactNo = QrySTE.A.EmergencyContact;
+                        model.Email = QrySTE.A.Email;
+                        model.PresentAddress = QrySTE.A.PresentAddress;
+                        model.isSameasPermanentAddress = QrySTE.A.isSameAsPresentAddress ?? false;
+                        model.PermanentAddress = QrySTE.A.PermanentAddress;
+                        model.BloodGroup = QrySTE.A.Bloodgroup;
+                        model.BloodGroupRH = QrySTE.A.BloodgroupRH;
+                        model.StaffCategory = QrySTE.A.StaffCategory;
+                        model.Nationality = QrySTE.A.Nationality ?? 0;
+                        model.PhysicallyChallenged = QrySTE.A.PhysicallyChallenged == "No" ? 2 : QrySTE.A.PhysicallyChallenged == "Yes" ? 1 : 0;
+                        model.Relationship = QrySTE.A.Relationship;
+                        model.RelationshipName = QrySTE.A.RelationshipDetails;
+                        model.RelatedIITMadras = QrySTE.A.RelatedIIT;
+                        model.ApplicationEntryDate = QrySTE.A.ApplicationEntryDate;
+                        model.ApplicationReceiveDate = QrySTE.A.ApplicationReceiveDate;
+                        model.ConsolidatedPay = QrySTE.A.ConsolidatedPay ?? false;
+                        model.Fellowship = QrySTE.A.Fellowship ?? false;
+                        model.IITMPensionerCSIRStaff = QrySTE.A.IITMPensionerOrCSIRStaff;
+                        model.PPONo = QrySTE.A.PPONo;
+                        model.CSIRStaff = QrySTE.A.CSIRStaffPayMode;
+                        model.MsPhd = QrySTE.A.MsPhd ?? false;
+                        model.MsPhdType = QrySTE.A.MsPhdType;
+                        model.PhdDetail = QrySTE.A.PhdDetail;
+                        model.ProjectId = QrySTE.A.ProjectId;
+                        model.DesignationId = QrySTE.A.DesignationId;
+                        model.SalaryLevelId = QrySTE.A.SalaryLevelId;
+                        model.Designation = QrySTE.Designation;
+                        model.DesignationCode = QrySTE.DesignationCode;
+                        model.MinSalary = QrySTE.PayStructureMinMum;
+                        model.MaxSalary = QrySTE.PayStructureMaximum;
+                        model.Medical = QrySTE.A.Medical;
+                        model.Appointmentstartdate = QrySTE.A.AppointmentStartdate;
+                        model.AppointmentEndDate = QrySTE.A.AppointmentEnddate;
+                        model.MedicalAmmount = QrySTE.A.MedicalAmmount ?? 0;
+                        model.Salary = QrySTE.A.Salary;
+                        model.HRA = QrySTE.A.HRA ?? 0;
+                        model.isHRA = QrySTE.A.isHaveHRA ?? false;
+                        model.HRAPercentage = QrySTE.A.HRAPercentage ?? 0;
+                        model.CommitmentAmount = QrySTE.A.CommitmentAmount;
+                        model.SalaryPayHigh = QrySTE.A.SalaryPayHigh;
+                        model.BankAccountNo = QrySTE.A.BankAccountNumber;
+                        model.BankName = QrySTE.A.BankName;
+                        model.IFSCCode = QrySTE.A.IFSCCode;
+                        model.ProjectNumber = Common.GetProjectNameandNumber(QrySTE.A.ProjectId ?? 0);
+                        model.isHaveGateScore = QrySTE.A.isHaveGateScore == true ? "Yes" : "No";
+                        model.GateScore = QrySTE.A.GateScore;
+                        List<STEEducationModel> EducationList = new List<STEEducationModel>();
+                        var QryEducation = (from c in context.tblRCTSTEEducationDetail
+                                            join q in context.tblRCTQualificationList on c.QualifiCationID equals q.QualificationId into lft
+                                            from j in lft.DefaultIfEmpty()
+                                            where c.STEID == STEID && c.isCurrentVersion == true
+                                            orderby c.STEEducationDetailID
+                                            select new { c, j }).ToList();
+                        if (QryEducation != null)
+                        {
+                            for (int i = 0; i < QryEducation.Count; i++)
+                            {
+                                int EducationID = QryEducation[i].c.QualifiCationID ?? 0;
+                                int DisciplineID = QryEducation[i].c.DisciplineID ?? 0;
+                                var list = Common.GetCourseList(EducationID);
+                                var Discipline = Common.GetCourseList(EducationID).Where(m => m.id == DisciplineID).Select(m => m.name).FirstOrDefault();
+                                var strMarkType = Common.GetCodeControlName(QryEducation[i].c.MarkType ?? 0, "RCTMarkType");
+                                EducationList.Add(new STEEducationModel()
+                                {
+                                    Education = QryEducation[i].j != null ? QryEducation[i].j.Qualification : "",
+                                    EducationId = QryEducation[i].c.STEEducationDetailID,
+                                    QualificationId = QryEducation[i].c.QualifiCationID,
+                                    DisciplineId = QryEducation[i].c.DisciplineID,
+                                    Discipline = Discipline,
+                                    Institution = QryEducation[i].c.UniversityorInstitution,
+                                    YearofPassing = QryEducation[i].c.YearOfPassing,
+                                    strMarkType = strMarkType,
+                                    MarkType = QryEducation[i].c.MarkType,
+                                    Marks = QryEducation[i].c.Marks,
+                                    DivisionClassObtained = QryEducation[i].c.DivisionClassObtained,
+                                    CertificatePath = QryEducation[i].c.DocumentFilePath,
+                                    CertificateName = QryEducation[i].c.FileName,
+                                    Remarks = QryEducation[i].c.Remarks,
+                                    DisiplineList = list
+                                });
+                            }
+                        }
+                        //model.EducationDetail = EducationList;
+                        model.EducationDetail = EducationList.Count > 0 ? EducationList : null;
+
+                        model.ExperienceDetail = (from c in context.tblRCTSTEExperienceDetail
+                                                  join d in context.tblCodeControl on c.TypeID equals d.CodeValAbbr into lft
+                                                  from j in lft.DefaultIfEmpty()
+                                                  where c.isCurrentVersion == true && (j == null ? true : j.CodeName == "RCTExperienceType")
+                                                  && c.STEID == STEID
+                                                  orderby c.STEExperienceDetailID
+                                                  select new
+                                                  {
+                                                      c.STEExperienceDetailID,
+                                                      c.TypeID,
+                                                      j.CodeValDetail,
+                                                      c.Organisation,
+                                                      c.DesignationId,
+                                                      c.Designation,
+                                                      c.FromYear,
+                                                      c.ToYear,
+                                                      c.SalaryDrawn,
+                                                      c.DocumentFilePath,
+                                                      c.FileName,
+                                                      c.Remarks,
+                                                  }).AsEnumerable().Select((x) => new STEExperienceModel()
+                                                  {
+                                                      ExperienceId = x.STEExperienceDetailID,
+                                                      ExperienceTypeId = x.TypeID,
+                                                      ExperienceType = x.CodeValDetail,
+                                                      Organisation = x.Organisation,
+                                                      DesignationListId = x.DesignationId,
+                                                      DesignationautoComplete = x.Designation,
+                                                      FromDate = x.FromYear,
+                                                      ToDate = x.ToYear,
+                                                      SalaryDrawn = x.SalaryDrawn,
+                                                      ExperienceFilePath = x.DocumentFilePath,
+                                                      ExperienceFileName = x.FileName,
+                                                      Remarks = x.Remarks,
+                                                      strFromDate = string.Format("{0:dd-MMMM-yyyy}", x.FromYear),
+                                                      strToDate = string.Format("{0:dd-MMMM-yyyy}", x.ToYear)
+                                                  }).ToList();
+
+                        model.ExperienceDetail = model.ExperienceDetail.Count > 0 ? model.ExperienceDetail : null;
+
+                        model.JustificationDoc = (from c in context.tblRCTSTEPIJustificationDocs
+                                                  where c.STEID == STEID && c.Deleted_f != true
+                                                  orderby c.DocsID
+                                                  select new STEJustificationDoc()
+                                                  {
+                                                      FilePath = c.DocsName,
+                                                      FileName = c.FileName
+                                                  }).ToList();
+
+                        model.PIJustificationDocDetail = (from c in context.tblRCTSTEPIJustificationDocs
+                                                          where c.STEID == STEID && c.Deleted_f != true
+                                                          orderby c.DocsID
+                                                          select new PIJustificationModel()
+                                                          {
+                                                              PIJustificationDocumentPath = c.DocsName,
+                                                              PIJustificationDocument = c.FileName
+                                                          }).ToList();
+
+                        model.PIJustificationRemarks = (from c in context.tblRCTSTEPIJustificationDocs
+                                                        where c.STEID == STEID && !string.IsNullOrEmpty(c.Description)
+                                                        && c.Deleted_f != true
+                                                        orderby c.DocsID descending
+                                                        group c by c.Description into grp
+                                                        select grp.Key).FirstOrDefault();
+
+                        model.OtherDocList = (from S in context.tblRCTSupportingDocument
+                                              where S.AppointmentId == STEID && S.AppointmentType == 2
+                                              select S).AsEnumerable().Select((x) => new OtherDocModel
+                                              {
+                                                  DocumentName = x.DocumentName,
+                                                  DocumentFileName = x.DocumentFileName,
+                                                  DocumentPath = x.DocumentPath,
+                                              }).ToList();
+
+                        model.OtherDocList = model.OtherDocList.Count > 0 ? model.OtherDocList : null;
+                        model.CommiteeMemberId1 = QrySTE.A.CommitteeMember ?? 0;
+                        model.CommiteeMemberId2 = QrySTE.A.CommitteeMembers ?? 0;
+                        model.ChairpersonNameId = QrySTE.A.Chairperson ?? 0;
+                        model.CommiteeMember1 = Common.GetPIName(QrySTE.A.CommitteeMember ?? 0);
+                        model.CommiteeMember2 = Common.GetPIName(QrySTE.A.CommitteeMembers ?? 0);
+                        model.ChairpersonName = Common.GetPIName(QrySTE.A.Chairperson ?? 0);
+                        model.FlowofMail = QrySTE.A.NotetoPI == true ? "NP" : QrySTE.A.NotetoCommittee == true ? "NC" : QrySTE.A.NotetoDean == true ? "NDean" : "Nd";
+                        model.EmergencyContactNo = QrySTE.A.EmergencyContact;
+                        model.EmployeeId = QrySTE.A.EmployeersID;
+                        model.ToMail = QrySTE.A.ToMail;
+                        model.bcc = QrySTE.A.bcc;
+                        model.isGovAgencyFund = QrySTE.A.isGovAgencyFund ?? false;
+                        if (QrySTE.A.NotetoCMAdmin == true)
+                            model.FlowApprover = "CMAdmin";
+                        if (QrySTE.A.NotetoDean == true)
+                            model.FlowApprover = "NDean";
+                        model.EmployeeWorkplace = QrySTE.A.EmployeeWorkplace;
+                        model.ApplicationRefNo = QrySTE.A.RefNumber;
+                        model.AutoFillRequstedbyPI = Common.GetPIName(QrySTE.A.RequestedBy ?? 0);
+                        model.RequestedByPI = QrySTE.A.RequestedBy;
+                        model.Comments = QrySTE.A.Comments;
+                        if (QrySTE.A.EmployeeCategory == "Old Employee")
+                            model.IITMExperience = IITExperienceInWording(QrySTE.A.OldNumber);
+                    }
+                }
+                return model;
+            }
+            catch (Exception ex)
+            {
+                return model;
             }
         }
 

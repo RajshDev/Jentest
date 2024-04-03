@@ -1244,7 +1244,7 @@ namespace IOAS.Controllers
                 return Json("");
             }
         }
-        public ActionResult STEView(int STEID, string listf = null)
+        public ActionResult STEView(int STEID=0, string listf = null)
         {
             try
             {
@@ -11139,6 +11139,920 @@ namespace IOAS.Controllers
                 throw new Exception(ex.Message);
             }
         }
+        [HttpPost]
+        public JsonResult GetEmployeeAwaitingApplicationList(ApplicationSearchListModel model, int pageIndex, int pageSize)
+        {
+            try
+            {
+                string username = User.Identity.Name;
+                var user = Common.getUserIdAndRole(username);
+                int userid = user.Item1;
+                int roleid = user.Item2;
+                object output = RequirementService.GetAwaitApplicationList(model, pageIndex, pageSize, roleid);
+                return Json(output, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
+
+        [HttpGet]
+        public ActionResult STENewView(int STEID = 0, int WFid = 0)
+
+        {
+            STEModel model = new STEModel();
+            try
+            {
+                ViewBag.List = new List<MasterlistviewModel>();
+                model.ApplicationEntryDate = DateTime.Now;
+                model.Status = string.Empty;
+                model.Medical = 2;
+                ViewBag.Apptype = Common.GetCodeControlList("STEAppointmenttype");
+                ViewBag.Caste = Common.GetCodeControlList("STECaste");
+                ViewBag.Nationality = Common.GetCodeControlList("Nationality");
+                ViewBag.IITMPensionerOrCSIRStaff = Common.GetCodeControlList("IITMPensioner/CSIRStaff");
+                ViewBag.CSIRStaffPayMode = Common.GetCodeControlList("STECSIRStaffPayMode");
+                ViewBag.Medical = Common.GetCodeControlList("SETMedical");
+                ViewBag.BloodGroup = Common.GetCodeControlList("SETBloodGroup");
+                ViewBag.BloodGroupRH = Common.GetCodeControlList("SETBloodGroupRH");
+                ViewBag.Professional = Common.GetCodeControlList("RCTProfessional");
+                ViewBag.formtype = Common.GetCodeControlList("RCTFormtype");
+                ViewBag.Qualification = Common.GetQualificationList();
+                ViewBag.marks = Common.GetCodeControlList("Markstype");
+                ViewBag.Exptype = Common.GetCodeControlList("RCTExperienceType");
+                ViewBag.Gender = Common.GetCodeControlList("RCTGender");
+                ViewBag.MarkType = Common.GetCodeControlList("RCTMarkType");
+                ViewBag.YesNo = Common.GetCodeControlList("Forncurrequalantstatus");
+                ViewBag.Years = Common.getRequirementyear();
+                ViewBag.MsPhd = Common.GetCodeControlList("MsPhd");
+                if (STEID > 0)
+                {
+                    model = recruitmentService.GetEditSTE(STEID);
+                    if (model.DateofBirth != null)
+                        ViewBag.Years = Common.getRequirementyear(model.DateofBirth.Value.Year);
+                    if (model.FlowApprover == "CMAdmin")
+                        ViewBag.processGuideLineId = Common.GetProcessGuidelineId(192, "STEAdminFlow", 0);
+                    else if (model.FlowApprover == "NDean")
+                        ViewBag.processGuideLineId = Common.GetProcessGuidelineId(192, "STEFlowDean", 0);
+                    else
+                        ViewBag.processGuideLineId = Common.GetProcessGuidelineId(192, "STE Flow", 0);
+                }
+                else if (WFid > 0 && STEID == 0)
+                {
+                    model = Common.GetWFEditSTE(WFid);
+                    var listcommitte = Common.GetCommittee();
+                    if (listcommitte.Item1.Count > 0)
+                    {
+                        for (int i = 0; i < listcommitte.Item1.Count; i++)
+                        {
+                            if (i == 0)
+                            {
+                                model.CommiteeMemberId1 = listcommitte.Item1[i].id ?? 0;
+                                model.CommiteeMember1 = listcommitte.Item1[i].name;
+                            }
+                            if (i == 1)
+                            {
+                                model.CommiteeMemberId2 = listcommitte.Item1[i].id ?? 0;
+                                model.CommiteeMember2 = listcommitte.Item1[i].name;
+                            }
+                        }
+                        var datacharperson = Common.GetChairPerson();
+                        model.ChairpersonNameId = datacharperson.Item1;
+                        model.ChairpersonName = datacharperson.Item2;
+                    }
+                }
+                else
+                {
+                    var listcommitte = Common.GetCommittee();
+                    if (listcommitte.Item1.Count > 0)
+                    {
+                        for (int i = 0; i < listcommitte.Item1.Count; i++)
+                        {
+                            if (i == 0)
+                            {
+                                model.CommiteeMemberId1 = listcommitte.Item1[i].id ?? 0;
+                                model.CommiteeMember1 = listcommitte.Item1[i].name;
+                            }
+                            if (i == 1)
+                            {
+                                model.CommiteeMemberId2 = listcommitte.Item1[i].id ?? 0;
+                                model.CommiteeMember2 = listcommitte.Item1[i].name;
+                            }
+                        }
+                        var datacharperson = Common.GetChairPerson();
+                        model.ChairpersonNameId = datacharperson.Item1;
+                        model.ChairpersonName = datacharperson.Item2;
+                    }
+                    ViewBag.processGuideLineId = Common.GetProcessGuidelineId(191, "", 0);
+                }
+                model.isDraftbtn = false;
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                ViewBag.List = new List<MasterlistviewModel>();
+                ViewBag.Apptype = Common.GetCodeControlList("STEAppointmenttype");
+                ViewBag.Caste = Common.GetCodeControlList("STECaste");
+                ViewBag.Nationality = Common.GetCodeControlList("Nationality");
+                ViewBag.IITMPensionerOrCSIRStaff = Common.GetCodeControlList("IITMPensioner/CSIRStaff");
+                ViewBag.CSIRStaffPayMode = Common.GetCodeControlList("STECSIRStaffPayMode");
+                ViewBag.Medical = Common.GetCodeControlList("SETMedical");
+                ViewBag.BloodGroup = Common.GetCodeControlList("SETBloodGroup");
+                ViewBag.BloodGroupRH = Common.GetCodeControlList("SETBloodGroupRH");
+                ViewBag.Professional = Common.GetCodeControlList("RCTProfessional");
+                ViewBag.formtype = Common.GetCodeControlList("RCTFormtype");
+                ViewBag.Qualification = Common.GetQualificationList();
+                ViewBag.marks = Common.GetCodeControlList("Markstype");
+                ViewBag.Exptype = Common.GetCodeControlList("RCTExperienceType");
+                ViewBag.Gender = Common.GetCodeControlList("RCTGender");
+                ViewBag.MarkType = Common.GetCodeControlList("RCTMarkType");
+                ViewBag.MsPhd = Common.GetCodeControlList("MsPhd");
+                ViewBag.YesNo = Common.GetCodeControlList("Forncurrequalantstatus");
+                ViewBag.processGuideLineId = Common.GetProcessGuidelineId(191, "", 0);
+                if (model.DateofBirth != null)
+                    ViewBag.Years = Common.getRequirementyear(model.DateofBirth.Value.Year);
+                else
+                    ViewBag.Years = Common.getRequirementyear();
+                WriteLog.SendErrorToText(ex);
+                return View(model);
+            }
+
+        }
+
+        [HttpPost]
+        public ActionResult STENewView(STEModel model)
+        {
+            try
+            {
+                int userId = Common.GetUserid(User.Identity.Name);
+                ViewBag.List = new List<MasterlistviewModel>();
+                ViewBag.Apptype = Common.GetCodeControlList("STEAppointmenttype");
+                ViewBag.Caste = Common.GetCodeControlList("STECaste");
+                ViewBag.Nationality = Common.GetCodeControlList("Nationality");
+                ViewBag.IITMPensionerOrCSIRStaff = Common.GetCodeControlList("IITMPensioner/CSIRStaff");
+                ViewBag.CSIRStaffPayMode = Common.GetCodeControlList("STECSIRStaffPayMode");
+                ViewBag.Medical = Common.GetCodeControlList("SETMedical");
+                ViewBag.BloodGroup = Common.GetCodeControlList("SETBloodGroup");
+                ViewBag.BloodGroupRH = Common.GetCodeControlList("SETBloodGroupRH");
+                ViewBag.Professional = Common.GetCodeControlList("RCTProfessional");
+                ViewBag.formtype = Common.GetCodeControlList("RCTFormtype");
+                ViewBag.Qualification = Common.GetQualificationList();
+                ViewBag.marks = Common.GetCodeControlList("Markstype");
+                ViewBag.Exptype = Common.GetCodeControlList("RCTExperienceType");
+                ViewBag.Gender = Common.GetCodeControlList("RCTGender");
+                ViewBag.YesNo = Common.GetCodeControlList("Forncurrequalantstatus");
+                ViewBag.MarkType = Common.GetCodeControlList("RCTMarkType");
+                ViewBag.Years = Common.getRequirementyear();
+                ViewBag.MsPhd = Common.GetCodeControlList("MsPhd");
+                if (model.EducationDetail.Count > 0)
+                {
+                    foreach (var item in model.EducationDetail)
+                        item.DisiplineList = Common.GetCourseList(item.QualificationId ?? 0);
+                }
+
+                #region FileValidation
+                if (model.PersonImage != null)
+                {
+                    var allowedExtensions = new[] { ".jpeg", ".png", ".jpg", ".gif" };
+                    var extension = Path.GetExtension(model.PersonImage.FileName);
+                    if (!allowedExtensions.Contains(extension.ToLower()))
+                    {
+                        TempData["alertMsg"] = "Please upload any one of these type candidate image [.jpeg,.png,.jpg]";
+                        return View(model);
+                    }
+                    if (model.PersonImage.ContentLength > 1000000)
+                    {
+                        TempData["alertMsg"] = "You can upload candidate image up to 1MB";
+                        return View(model);
+                    }
+                }
+
+                if (model.Resume != null)
+                {
+                    var extension = Path.GetExtension(model.Resume.FileName);
+                    if (extension.ToLower() != ".pdf")
+                    {
+                        TempData["alertMsg"] = "Please upload any one of these type Resume [.pdf]";
+                        return View(model);
+                    }
+                    if (model.Resume.ContentLength > 5242880)
+                    {
+                        TempData["alertMsg"] = "You can upload Resume up to 5MB";
+                        return View(model);
+                    }
+                }
+
+                if (model.PIJustificationFile != null)
+                {
+                    var allowedExtensions = new[] { ".doc", ".docx", ".pdf" };
+                    for (int i = 0; i < model.PIJustificationFile.Count(); i++)
+                    {
+                        if (model.PIJustificationFile[i] != null)
+                        {
+                            string extension = Path.GetExtension(model.PIJustificationFile[i].FileName);
+                            if (!allowedExtensions.Contains(extension.ToLower()))
+                            {
+                                TempData["alertMsg"] = "Please upload any one of these type PI judtification document [.doc,.docx,.pdf]";
+                                return View(model);
+                            }
+                            if (model.PIJustificationFile[i].ContentLength > 5242880)
+                            {
+                                TempData["alertMsg"] = "You can upload PI judtification document up to 5MB";
+                                return View(model);
+                            }
+                        }
+                    }
+                }
+
+                if (model.EducationDetail != null)
+                {
+                    var allowedExtensionsCer = new[] { ".jpeg", ".png", ".jpg", ".gif", ".pdf" };
+                    for (int i = 0; i < model.EducationDetail.Count; i++)
+                    {
+                        if (model.EducationDetail[i].Certificate != null)
+                        {
+                            string extension = Path.GetExtension(model.EducationDetail[i].Certificate.FileName);
+                            if (!allowedExtensionsCer.Contains(extension.ToLower()))
+                            {
+                                TempData["alertMsg"] = "Please upload any one of these type certificate [.jpeg,.png,.jpg,.gif,.pdf]";
+                                return View(model);
+                            }
+                            if (model.EducationDetail[i].Certificate.ContentLength > 5242880)
+                            {
+                                TempData["alertMsg"] = "You can upload certificate up to 5MB";
+                                return View(model);
+                            }
+                        }
+                    }
+                }
+
+                if (model.ExperienceDetail != null)
+                {
+                    var allowedExtensionsCer = new[] { ".jpeg", ".png", ".jpg", ".gif", ".pdf" };
+                    for (int i = 0; i < model.ExperienceDetail.Count; i++)
+                    {
+                        if (model.ExperienceDetail[i].ExperienceFile != null)//...........Experience Certificates
+                        {
+                            string filename = System.IO.Path.GetFileName(model.ExperienceDetail[i].ExperienceFile.FileName);
+                            string extension = Path.GetExtension(filename);
+                            if (!allowedExtensionsCer.Contains(extension.ToLower()))
+                            {
+                                TempData["alertMsg"] = "Please upload any one of these type certificate [.jpeg,.png,.jpg,.gif,.pdf]";
+                                return View(model);
+                            }
+                            if (model.ExperienceDetail[i].ExperienceFile.ContentLength > 5242880)
+                            {
+                                TempData["alertMsg"] = "You can upload certificate up to 5MB";
+                                return View(model);
+                            }
+                        }
+                    }
+                }
+                #endregion
+
+                if (model.STEId > 0)
+                {
+                    if (model.aadharnumber != null)
+                    {
+                        var chkemployeeadhar = Common.CheckPreviousEmployeeAdharserver(Convert.ToString(model.aadharnumber), model.ApplicationNo, true, model.OldEmployeeNumber, "STE");
+                        if (chkemployeeadhar != "")
+                        {
+                            TempData["alertMsg"] = chkemployeeadhar;
+                            model.Status = model.Status == null ? "" : model.Status;
+                            return View(model);
+                        }
+                    }
+                    if (!string.IsNullOrEmpty(model.PAN))
+                    {
+                        var chkemployeepanno = Common.CheckPreviousEmployeePanserver(model.PAN, model.ApplicationNo, true, model.OldEmployeeNumber, "STE");
+                        if (chkemployeepanno != "")
+                        {
+                            TempData["alertMsg"] = chkemployeepanno;
+                            model.Status = model.Status == null ? "" : model.Status;
+                            return View(model);
+                        }
+                    }
+                }
+                else
+                {
+                    if (model.aadharnumber != null)
+                    {
+                        var chkemployeeadhar = Common.CheckPreviousEmployeeAdharserver(Convert.ToString(model.aadharnumber), null, true, model.OldEmployeeNumber, "STE");
+                        if (chkemployeeadhar != "")
+                        {
+                            TempData["errMsg"] = chkemployeeadhar;
+                            model.Status = model.Status == null ? "" : model.Status;
+                            return View(model);
+                        }
+                    }
+                    if (!string.IsNullOrEmpty(model.PAN))
+                    {
+                        var chkemployeepanno = Common.CheckPreviousEmployeePanserver(model.PAN, null, true, model.OldEmployeeNumber, "STE");
+                        if (chkemployeepanno != "")
+                        {
+                            TempData["errMsg"] = "This Pan Number is linked to  " + chkemployeepanno;
+                            model.Status = model.Status == null ? "" : model.Status;
+                            return View(model);
+                        }
+                    }
+                }
+
+                if (model.isDraftbtn == false && ModelState.IsValid)
+                {
+                    string validationMsg = ValidateSTEFormData(model);
+                    if (validationMsg != "Valid")
+                    {
+                        TempData["errMsg"] = validationMsg;
+                        model.Status = model.Status == null ? "" : model.Status;
+                        return View(model);
+                    }
+                    var result = recruitmentService.PostSTE(model, userId);
+                    if (result.Item1 == 1)
+                    {
+                        TempData["succMsg"] = "Application submitted for approval";
+                        return RedirectToAction("STEList", "Requirement");
+                    }
+                    else if (result.Item1 == 2)
+                    {
+                        TempData["succMsg"] = "STE application submitted for PI justification";
+                        return RedirectToAction("STEList", "Requirement");
+                    }
+                    else if (result.Item1 == -1)
+                    {
+                        TempData["errMsg"] = result.Item3;
+                        return RedirectToAction("STEList", "Requirement");
+                    }
+                    else
+                    {
+                        TempData["errMsg"] = "Something went wrong please contact administrator";
+                        return RedirectToAction("STEList", "Requirement");
+                    }
+                }
+                else if (model.isDraftbtn == false && !ModelState.IsValid)
+                {
+                    string messages = string.Join("\n", ModelState.Values
+                                        .SelectMany(x => x.Errors)
+                                        .Select(x => x.ErrorMessage));
+                    model.Status = model.Status == null ? "" : model.Status;
+                    TempData["errMsg"] = messages;
+                }
+                else
+                {
+                    var result = recruitmentService.PostSTE(model, userId);//....Draft button....
+                    if (result.Item1 == 1)
+                    {
+                        TempData["succMsg"] = "Draft Saved Successfully";
+                        return RedirectToAction("STEList", "Requirement");
+                    }
+                    else if (result.Item1 == 2)
+                    {
+                        TempData["succMsg"] = "Draft updated";
+                        return RedirectToAction("STEList", "Requirement");
+                    }
+                    else if (result.Item1 == -1)
+                    {
+                        TempData["errMsg"] = result.Item3;
+                        return RedirectToAction("STEList", "Requirement");
+                    }
+                    else
+                    {
+                        TempData["errMsg"] = "Something went wrong please contact administrator";
+                        return RedirectToAction("STEList", "Requirement");
+                    }
+                }
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                WriteLog.SendErrorToText(ex);
+                ViewBag.List = new List<MasterlistviewModel>();
+                ViewBag.Apptype = Common.GetCodeControlList("STEAppointmenttype");
+                ViewBag.Caste = Common.GetCodeControlList("STECaste");
+                ViewBag.Nationality = Common.GetCodeControlList("Nationality");
+                ViewBag.IITMPensionerOrCSIRStaff = Common.GetCodeControlList("IITMPensioner/CSIRStaff");
+                ViewBag.CSIRStaffPayMode = Common.GetCodeControlList("STECSIRStaffPayMode");
+                ViewBag.Medical = Common.GetCodeControlList("SETMedical");
+                ViewBag.BloodGroup = Common.GetCodeControlList("SETBloodGroup");
+                ViewBag.BloodGroupRH = Common.GetCodeControlList("SETBloodGroupRH");
+                ViewBag.Professional = Common.GetCodeControlList("RCTProfessional");
+                ViewBag.formtype = Common.GetCodeControlList("RCTFormtype");
+                ViewBag.Qualification = Common.GetQualificationList();
+                ViewBag.marks = Common.GetCodeControlList("Markstype");
+                ViewBag.Exptype = Common.GetCodeControlList("RCTExperienceType");
+                ViewBag.Gender = Common.GetCodeControlList("RCTGender");
+                ViewBag.MarkType = Common.GetCodeControlList("RCTMarkType");
+                ViewBag.YesNo = Common.GetCodeControlList("Forncurrequalantstatus");
+                ViewBag.Years = Common.getRequirementyear();
+                ViewBag.MsPhd = Common.GetCodeControlList("MsPhd");
+                #region UpdateDisiplineList
+                if (model.EducationDetail.Count > 0)
+                {
+                    foreach (var item in model.EducationDetail)
+                        item.DisiplineList = Common.GetCourseList(item.QualificationId ?? 0);
+                }
+                #endregion
+                model.Status = model.Status == null ? "" : model.Status;
+                TempData["errMsg"] = "Something went wrong please contact administrator";
+                return View(model);
+            }
+        }
+
+
+
+
+        public ActionResult OSGNewView(int OSGID, string listf = null)
+
+        {
+            STEModel model = new STEModel();
+            try
+            {
+                ViewBag.List = new List<MasterlistviewModel>();
+                model.ApplicationEntryDate = DateTime.Now;
+                model.Status = string.Empty;
+                model.Medical = 2;
+                ViewBag.Apptype = Common.GetCodeControlList("STEAppointmenttype");
+                ViewBag.Caste = Common.GetCodeControlList("STECaste");
+                ViewBag.Nationality = Common.GetCodeControlList("Nationality");
+                ViewBag.IITMPensionerOrCSIRStaff = Common.GetCodeControlList("IITMPensioner/CSIRStaff");
+                ViewBag.CSIRStaffPayMode = Common.GetCodeControlList("STECSIRStaffPayMode");
+                ViewBag.Medical = Common.GetCodeControlList("SETMedical");
+                ViewBag.BloodGroup = Common.GetCodeControlList("SETBloodGroup");
+                ViewBag.BloodGroupRH = Common.GetCodeControlList("SETBloodGroupRH");
+                ViewBag.Professional = Common.GetCodeControlList("RCTProfessional");
+                ViewBag.formtype = Common.GetCodeControlList("RCTFormtype");
+                ViewBag.Qualification = Common.GetQualificationList();
+                ViewBag.marks = Common.GetCodeControlList("Markstype");
+                ViewBag.Exptype = Common.GetCodeControlList("RCTExperienceType");
+                ViewBag.Gender = Common.GetCodeControlList("RCTGender");
+                ViewBag.MarkType = Common.GetCodeControlList("RCTMarkType");
+                ViewBag.YesNo = Common.GetCodeControlList("Forncurrequalantstatus");
+                ViewBag.Years = Common.getRequirementyear();
+                ViewBag.MsPhd = Common.GetCodeControlList("MsPhd");
+                if (OSGID > 0)
+                {
+                    model = recruitmentService.GetEditOSG(OSGID);
+                    if (model.DateofBirth != null)
+                        ViewBag.Years = Common.getRequirementyear(model.DateofBirth.Value.Year);
+                    if (model.FlowApprover == "CMAdmin")
+                        ViewBag.processGuideLineId = Common.GetProcessGuidelineId(194, "OSGAdminFlow", 0);
+                    else if (model.FlowApprover == "NDean")
+                        ViewBag.processGuideLineId = Common.GetProcessGuidelineId(194, "OSGFlowDean", 0);
+                    else
+                        ViewBag.processGuideLineId = Common.GetProcessGuidelineId(194, "Outsourcing Flow", 0);
+                }
+                else if (OSGID == 0)
+                {
+                    // model = Common.GetWFEditSTE(listf);
+                    var listcommitte = Common.GetCommittee();
+                    if (listcommitte.Item1.Count > 0)
+                    {
+                        for (int i = 0; i < listcommitte.Item1.Count; i++)
+                        {
+                            if (i == 0)
+                            {
+                                model.CommiteeMemberId1 = listcommitte.Item1[i].id ?? 0;
+                                model.CommiteeMember1 = listcommitte.Item1[i].name;
+                            }
+                            if (i == 1)
+                            {
+                                model.CommiteeMemberId2 = listcommitte.Item1[i].id ?? 0;
+                                model.CommiteeMember2 = listcommitte.Item1[i].name;
+                            }
+                        }
+                        var datacharperson = Common.GetChairPerson();
+                        model.ChairpersonNameId = datacharperson.Item1;
+                        model.ChairpersonName = datacharperson.Item2;
+                    }
+                }
+                else
+                {
+                    var listcommitte = Common.GetCommittee();
+                    if (listcommitte.Item1.Count > 0)
+                    {
+                        for (int i = 0; i < listcommitte.Item1.Count; i++)
+                        {
+                            if (i == 0)
+                            {
+                                model.CommiteeMemberId1 = listcommitte.Item1[i].id ?? 0;
+                                model.CommiteeMember1 = listcommitte.Item1[i].name;
+                            }
+                            if (i == 1)
+                            {
+                                model.CommiteeMemberId2 = listcommitte.Item1[i].id ?? 0;
+                                model.CommiteeMember2 = listcommitte.Item1[i].name;
+                            }
+                        }
+                        var datacharperson = Common.GetChairPerson();
+                        model.ChairpersonNameId = datacharperson.Item1;
+                        model.ChairpersonName = datacharperson.Item2;
+                    }
+                    ViewBag.processGuideLineId = Common.GetProcessGuidelineId(191, "", 0);
+                }
+                model.isDraftbtn = false;
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                ViewBag.List = new List<MasterlistviewModel>();
+                ViewBag.Apptype = Common.GetCodeControlList("STEAppointmenttype");
+                ViewBag.Caste = Common.GetCodeControlList("STECaste");
+                ViewBag.Nationality = Common.GetCodeControlList("Nationality");
+                ViewBag.IITMPensionerOrCSIRStaff = Common.GetCodeControlList("IITMPensioner/CSIRStaff");
+                ViewBag.CSIRStaffPayMode = Common.GetCodeControlList("STECSIRStaffPayMode");
+                ViewBag.Medical = Common.GetCodeControlList("SETMedical");
+                ViewBag.BloodGroup = Common.GetCodeControlList("SETBloodGroup");
+                ViewBag.BloodGroupRH = Common.GetCodeControlList("SETBloodGroupRH");
+                ViewBag.Professional = Common.GetCodeControlList("RCTProfessional");
+                ViewBag.formtype = Common.GetCodeControlList("RCTFormtype");
+                ViewBag.Qualification = Common.GetQualificationList();
+                ViewBag.marks = Common.GetCodeControlList("Markstype");
+                ViewBag.Exptype = Common.GetCodeControlList("RCTExperienceType");
+                ViewBag.Gender = Common.GetCodeControlList("RCTGender");
+                ViewBag.MarkType = Common.GetCodeControlList("RCTMarkType");
+                ViewBag.MsPhd = Common.GetCodeControlList("MsPhd");
+                ViewBag.YesNo = Common.GetCodeControlList("Forncurrequalantstatus");
+                ViewBag.processGuideLineId = Common.GetProcessGuidelineId(191, "", 0);
+                if (model.DateofBirth != null)
+                    ViewBag.Years = Common.getRequirementyear(model.DateofBirth.Value.Year);
+                else
+                    ViewBag.Years = Common.getRequirementyear();
+                WriteLog.SendErrorToText(ex);
+                return View(model);
+            }
+
+        }
+
+        [HttpPost]
+        public ActionResult OSGNewView(STEModel model)
+        {
+            try
+            {
+                int userId = Common.GetUserid(User.Identity.Name);
+                ViewBag.List = new List<MasterlistviewModel>();
+                ViewBag.Apptype = Common.GetCodeControlList("STEAppointmenttype");
+                ViewBag.Caste = Common.GetCodeControlList("STECaste");
+                ViewBag.Nationality = Common.GetCodeControlList("Nationality");
+                ViewBag.IITMPensionerOrCSIRStaff = Common.GetCodeControlList("IITMPensioner/CSIRStaff");
+                ViewBag.CSIRStaffPayMode = Common.GetCodeControlList("STECSIRStaffPayMode");
+                ViewBag.Medical = Common.GetCodeControlList("SETMedical");
+                ViewBag.BloodGroup = Common.GetCodeControlList("SETBloodGroup");
+                ViewBag.BloodGroupRH = Common.GetCodeControlList("SETBloodGroupRH");
+                ViewBag.Professional = Common.GetCodeControlList("RCTProfessional");
+                ViewBag.formtype = Common.GetCodeControlList("RCTFormtype");
+                ViewBag.Qualification = Common.GetQualificationList();
+                ViewBag.marks = Common.GetCodeControlList("Markstype");
+                ViewBag.Exptype = Common.GetCodeControlList("RCTExperienceType");
+                ViewBag.Gender = Common.GetCodeControlList("RCTGender");
+                ViewBag.YesNo = Common.GetCodeControlList("Forncurrequalantstatus");
+                ViewBag.MarkType = Common.GetCodeControlList("RCTMarkType");
+                ViewBag.Years = Common.getRequirementyear();
+                ViewBag.MsPhd = Common.GetCodeControlList("MsPhd");
+                if (model.EducationDetail.Count > 0)
+                {
+                    foreach (var item in model.EducationDetail)
+                        item.DisiplineList = Common.GetCourseList(item.QualificationId ?? 0);
+                }
+
+                #region FileValidation
+                if (model.PersonImage != null)
+                {
+                    var allowedExtensions = new[] { ".jpeg", ".png", ".jpg", ".gif" };
+                    var extension = Path.GetExtension(model.PersonImage.FileName);
+                    if (!allowedExtensions.Contains(extension.ToLower()))
+                    {
+                        TempData["alertMsg"] = "Please upload any one of these type candidate image [.jpeg,.png,.jpg]";
+                        return View(model);
+                    }
+                    if (model.PersonImage.ContentLength > 1000000)
+                    {
+                        TempData["alertMsg"] = "You can upload candidate image up to 1MB";
+                        return View(model);
+                    }
+                }
+
+                if (model.Resume != null)
+                {
+                    var extension = Path.GetExtension(model.Resume.FileName);
+                    if (extension.ToLower() != ".pdf")
+                    {
+                        TempData["alertMsg"] = "Please upload any one of these type Resume [.pdf]";
+                        return View(model);
+                    }
+                    if (model.Resume.ContentLength > 5242880)
+                    {
+                        TempData["alertMsg"] = "You can upload Resume up to 5MB";
+                        return View(model);
+                    }
+                }
+
+                if (model.PIJustificationFile != null)
+                {
+                    var allowedExtensions = new[] { ".doc", ".docx", ".pdf" };
+                    for (int i = 0; i < model.PIJustificationFile.Count(); i++)
+                    {
+                        if (model.PIJustificationFile[i] != null)
+                        {
+                            string extension = Path.GetExtension(model.PIJustificationFile[i].FileName);
+                            if (!allowedExtensions.Contains(extension.ToLower()))
+                            {
+                                TempData["alertMsg"] = "Please upload any one of these type PI judtification document [.doc,.docx,.pdf]";
+                                return View(model);
+                            }
+                            if (model.PIJustificationFile[i].ContentLength > 5242880)
+                            {
+                                TempData["alertMsg"] = "You can upload PI judtification document up to 5MB";
+                                return View(model);
+                            }
+                        }
+                    }
+                }
+
+                if (model.EducationDetail != null)
+                {
+                    var allowedExtensionsCer = new[] { ".jpeg", ".png", ".jpg", ".gif", ".pdf" };
+                    for (int i = 0; i < model.EducationDetail.Count; i++)
+                    {
+                        if (model.EducationDetail[i].Certificate != null)
+                        {
+                            string extension = Path.GetExtension(model.EducationDetail[i].Certificate.FileName);
+                            if (!allowedExtensionsCer.Contains(extension.ToLower()))
+                            {
+                                TempData["alertMsg"] = "Please upload any one of these type certificate [.jpeg,.png,.jpg,.gif,.pdf]";
+                                return View(model);
+                            }
+                            if (model.EducationDetail[i].Certificate.ContentLength > 5242880)
+                            {
+                                TempData["alertMsg"] = "You can upload certificate up to 5MB";
+                                return View(model);
+                            }
+                        }
+                    }
+                }
+
+                if (model.ExperienceDetail != null)
+                {
+                    var allowedExtensionsCer = new[] { ".jpeg", ".png", ".jpg", ".gif", ".pdf" };
+                    for (int i = 0; i < model.ExperienceDetail.Count; i++)
+                    {
+                        if (model.ExperienceDetail[i].ExperienceFile != null)//...........Experience Certificates
+                        {
+                            string filename = System.IO.Path.GetFileName(model.ExperienceDetail[i].ExperienceFile.FileName);
+                            string extension = Path.GetExtension(filename);
+                            if (!allowedExtensionsCer.Contains(extension.ToLower()))
+                            {
+                                TempData["alertMsg"] = "Please upload any one of these type certificate [.jpeg,.png,.jpg,.gif,.pdf]";
+                                return View(model);
+                            }
+                            if (model.ExperienceDetail[i].ExperienceFile.ContentLength > 5242880)
+                            {
+                                TempData["alertMsg"] = "You can upload certificate up to 5MB";
+                                return View(model);
+                            }
+                        }
+                    }
+                }
+                #endregion
+
+                if (model.STEId > 0)
+                {
+                    if (model.aadharnumber != null)
+                    {
+                        var chkemployeeadhar = Common.CheckPreviousEmployeeAdharserver(Convert.ToString(model.aadharnumber), model.ApplicationNo, true, model.OldEmployeeNumber, "OSG");
+                        if (chkemployeeadhar != "")
+                        {
+                            TempData["alertMsg"] = chkemployeeadhar;
+                            model.Status = model.Status == null ? "" : model.Status;
+                            return View(model);
+                        }
+                    }
+                    if (!string.IsNullOrEmpty(model.PAN))
+                    {
+                        var chkemployeepanno = Common.CheckPreviousEmployeePanserver(model.PAN, model.ApplicationNo, true, model.OldEmployeeNumber, "OSG");
+                        if (chkemployeepanno != "")
+                        {
+                            TempData["alertMsg"] = chkemployeepanno;
+                            model.Status = model.Status == null ? "" : model.Status;
+                            return View(model);
+                        }
+                    }
+                }
+                else
+                {
+                    if (model.aadharnumber != null)
+                    {
+                        var chkemployeeadhar = Common.CheckPreviousEmployeeAdharserver(Convert.ToString(model.aadharnumber), null, true, model.OldEmployeeNumber, "OSG");
+                        if (chkemployeeadhar != "")
+                        {
+                            TempData["errMsg"] = chkemployeeadhar;
+                            model.Status = model.Status == null ? "" : model.Status;
+                            return View(model);
+                        }
+                    }
+                    if (!string.IsNullOrEmpty(model.PAN))
+                    {
+                        var chkemployeepanno = Common.CheckPreviousEmployeePanserver(model.PAN, null, true, model.OldEmployeeNumber, "OSG");
+                        if (chkemployeepanno != "")
+                        {
+                            TempData["errMsg"] = "This Pan Number is linked to  " + chkemployeepanno;
+                            model.Status = model.Status == null ? "" : model.Status;
+                            return View(model);
+                        }
+                    }
+                }
+
+                if (model.isDraftbtn == false && ModelState.IsValid)
+                {
+                    string validationMsg = ValidateSTEFormData(model);
+                    if (validationMsg != "Valid")
+                    {
+                        TempData["errMsg"] = validationMsg;
+                        model.Status = model.Status == null ? "" : model.Status;
+                        return View(model);
+                    }
+                    var result = recruitmentService.PostSTE(model, userId);
+                    if (result.Item1 == 1)
+                    {
+                        TempData["succMsg"] = "Application submitted for approval";
+                        return RedirectToAction("OutsourcingList", "Requirement");
+                    }
+                    else if (result.Item1 == 2)
+                    {
+                        TempData["succMsg"] = "OSG application submitted for PI justification";
+                        return RedirectToAction("OutsourcingList", "Requirement");
+                    }
+                    else if (result.Item1 == -1)
+                    {
+                        TempData["errMsg"] = result.Item3;
+                        return RedirectToAction("OutsourcingList", "Requirement");
+                    }
+                    else
+                    {
+                        TempData["errMsg"] = "Something went wrong please contact administrator";
+                        return RedirectToAction("OutsourcingList", "Requirement");
+                    }
+                }
+                else if (model.isDraftbtn == false && !ModelState.IsValid)
+                {
+                    string messages = string.Join("\n", ModelState.Values
+                                        .SelectMany(x => x.Errors)
+                                        .Select(x => x.ErrorMessage));
+                    model.Status = model.Status == null ? "" : model.Status;
+                    TempData["errMsg"] = messages;
+                }
+                else
+                {
+                    var result = recruitmentService.PostSTE(model, userId);//....Draft button....
+                    if (result.Item1 == 1)
+                    {
+                        TempData["succMsg"] = "Draft Saved Successfully";
+                        return RedirectToAction("OutsourcingList", "Requirement");
+                    }
+                    else if (result.Item1 == 2)
+                    {
+                        TempData["succMsg"] = "Draft updated";
+                        return RedirectToAction("OutsourcingList", "Requirement");
+                    }
+                    else if (result.Item1 == -1)
+                    {
+                        TempData["errMsg"] = result.Item3;
+                        return RedirectToAction("OutsourcingList", "Requirement");
+                    }
+                    else
+                    {
+                        TempData["errMsg"] = "Something went wrong please contact administrator";
+                        return RedirectToAction("OutsourcingList", "Requirement");
+                    }
+                }
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                WriteLog.SendErrorToText(ex);
+                ViewBag.List = new List<MasterlistviewModel>();
+                ViewBag.Apptype = Common.GetCodeControlList("STEAppointmenttype");
+                ViewBag.Caste = Common.GetCodeControlList("STECaste");
+                ViewBag.Nationality = Common.GetCodeControlList("Nationality");
+                ViewBag.IITMPensionerOrCSIRStaff = Common.GetCodeControlList("IITMPensioner/CSIRStaff");
+                ViewBag.CSIRStaffPayMode = Common.GetCodeControlList("STECSIRStaffPayMode");
+                ViewBag.Medical = Common.GetCodeControlList("SETMedical");
+                ViewBag.BloodGroup = Common.GetCodeControlList("SETBloodGroup");
+                ViewBag.BloodGroupRH = Common.GetCodeControlList("SETBloodGroupRH");
+                ViewBag.Professional = Common.GetCodeControlList("RCTProfessional");
+                ViewBag.formtype = Common.GetCodeControlList("RCTFormtype");
+                ViewBag.Qualification = Common.GetQualificationList();
+                ViewBag.marks = Common.GetCodeControlList("Markstype");
+                ViewBag.Exptype = Common.GetCodeControlList("RCTExperienceType");
+                ViewBag.Gender = Common.GetCodeControlList("RCTGender");
+                ViewBag.MarkType = Common.GetCodeControlList("RCTMarkType");
+                ViewBag.YesNo = Common.GetCodeControlList("Forncurrequalantstatus");
+                ViewBag.Years = Common.getRequirementyear();
+                ViewBag.MsPhd = Common.GetCodeControlList("MsPhd");
+                #region UpdateDisiplineList
+                if (model.EducationDetail.Count > 0)
+                {
+                    foreach (var item in model.EducationDetail)
+                        item.DisiplineList = Common.GetCourseList(item.QualificationId ?? 0);
+                }
+                #endregion
+                model.Status = model.Status == null ? "" : model.Status;
+                TempData["errMsg"] = "Something went wrong please contact administrator";
+                return View(model);
+            }
+        }
+
+
+
+
+
+        //public ActionResult STENewView(int STEID = 0, string listf = null)
+        //{
+        //    try
+        //    {
+        //        STEViewModel model = new STEViewModel();
+        //        model = recruitmentService.GetSTEView(STEID);
+        //        var user = Common.getUserIdAndRole(User.Identity.Name);
+        //        model.RoleId = user.Item2;
+        //        if (model.FlowApprover == "CMAdmin")
+        //            ViewBag.processGuideLineId = Common.GetProcessGuidelineId(192, "STEAdminFlow", 0);
+        //        else if (model.FlowApprover == "NDean")
+        //            ViewBag.processGuideLineId = Common.GetProcessGuidelineId(192, "STEFlowDean", 0);
+        //        else
+        //            ViewBag.processGuideLineId = Common.GetProcessGuidelineId(192, "STE Flow", 0);
+        //        model.List_f = getEmployeeActionLink("STE", listf);
+        //        return View(model);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        STEViewModel model = new STEViewModel();
+        //        WriteLog.SendErrorToText(ex);
+        //        return View(model);
+        //    }
+        //}
+
+        [HttpPost]
+        public JsonResult CheckDeviationQualfication1(CheckDevationModel model)
+        {
+            List<CheckListModel> listmodel = new List<CheckListModel>();
+            List<CheckListEmailModel> checkdetails = new List<CheckListEmailModel>();
+            NotePIModel emailModel = new NotePIModel();
+            EmailBuilder _eb = new EmailBuilder();
+            string username = User.Identity.Name;
+            var user = Common.getUserIdAndRole(username);
+            var Data = Common.GetDeviationofAppointments(model);
+            listmodel = Data.Item1;
+            if (listmodel.Count > 0)
+            {
+                for (int i = 0; i < listmodel.Count; i++)
+                {
+                    var sno = i + 1;
+                    checkdetails.Add(new CheckListEmailModel()
+                    {
+                        CheckList = listmodel[i].CheckList,
+                        checklistId = listmodel[i].FunctionCheckListId
+                    });
+                }
+            }
+            model.devChecklist = checkdetails;
+            using (var context = new IOASDBEntities())
+            {
+                string designation = context.tblRCTDesignation.FirstOrDefault(m => m.DesignationId == model.DesignationId).Designation;
+                emailModel.AppointmentType = model.AppointmentType;
+                emailModel.checkdetails = RCTEmailContentService.getDevNormsDetails(model);
+                emailModel.DesignationName = designation;
+                emailModel.PersonName = model.PersonName;
+                emailModel.Comments = model.Comments;
+                emailModel.DAName = Common.GetUserNameBasedonId(user.Item1);
+                emailModel.BasicPay = Convert.ToString(model.ChekSalary);
+                emailModel.IsDeviation = true;
+                emailModel.SendSlryStruct = model.SendSalaryStructure;
+                int ProjectID = model.ProjectID ?? 0;
+                var qryProject = (from prj in context.tblProject
+                                  where prj.ProjectId == ProjectID
+                                  select prj).FirstOrDefault();
+                if (qryProject != null)
+                {
+                    emailModel.ProjectNumber = qryProject.ProjectNumber;
+                    emailModel.ProjectTitle = qryProject.ProjectTitle;
+                }
+            }
+            var loadEmialView = Tuple.Create(false, "", "");
+            if (model.AppType == "STE")
+                loadEmialView = _eb.RunCompile("RCTSTEDevTemplate.cshtml", "", emailModel, typeof(NotePIModel));
+            else if (model.AppType == "OSG")
+                loadEmialView = _eb.RunCompile("RCTOSGApplicationack.cshtml", "", emailModel, typeof(NotePIModel));
+            else
+                loadEmialView = _eb.RunCompile("NotePIProcess.cshtml", "", emailModel, typeof(NotePIModel));
+
+            var result = new { output = ConvertViewToString("_DeviationCheckListDetail", listmodel), isRes = Data.Item2, template = loadEmialView.Item2 };
+            return Json(result, JsonRequestBehavior.AllowGet);
+        }
+
+
+
+
         #region Consultant New Appointment
         [HttpGet]
         public ActionResult RCTConsultantNewEntry(HttpPostedFileBase[] file, int ConsultantServiceID = 0)

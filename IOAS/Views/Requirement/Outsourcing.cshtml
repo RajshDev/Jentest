@@ -3621,10 +3621,19 @@
             return false;
         }
 
-        if($('#Comments').val() != '') {
-            $('#txt-Comments').text($('#Comments').val());
-        }
+        if ($('#Comments').val() != '') {
 
+            //$('#txt-Comments').text($('#Comments').val());
+
+            $('[id=txt-Comments]').each(function (idx, el) {
+
+                //here this/el refers to the current image dom reference
+
+                //do soemthing
+
+                $(this).text($('#Comments').val());
+            })
+        }
         if (currentTab + n < x.length) {
             // Hide the current tab:
             x[currentTab].style.display = "none";
@@ -3678,8 +3687,9 @@
             else if($('input[name="FlowofMail"]:checked').val() == "Nd" || $('input[name="SendSalaryStructure"]:checked').val() == "SST")
             {
                 //if(Status=="" || Status=="Draft")
-                //{              
-                $('#ShowDeviationND').empty();
+                //{      
+                $('#txt-mail-comments').text($('#Comments').val());
+                //$('#ShowDeviationND').empty();
                 $('#ShowDeviationNP').hide();
                 $('#ShowDeviationND').show();
                 AckowleadgementEmail()
@@ -3800,7 +3810,7 @@
             }
             if ($('#DesignationId').val() != null || $('#DesignationId').val() != "")
             {
-                if(Status == "Open" || Status == "" || Status == "Draft" || Status.includes("Note") && Status != "Note to Dean")
+                if (Status == "Open" || Status == "" || Status == "Draft" || Status.includes("Note") || Status.includes("Verification Completed") && Status != "Note to Dean")
                 {
                     var minsalary = parseFloat($('#MinSalary').val());
                     var salary = parseFloat($('#Salary').val());
@@ -3855,14 +3865,11 @@
         $('#dialogConfirm').modal('toggle');
     }
 
-    $('#isbtnConfirm').click(function()
-    {
-        var tomailId = $('#_reqToMail2').val() || $('#_reqToMail1').val() || "";
-        //var tomailId = $('#ToMail').val()||"";
-        if (Status == "" || Status == "Draft" ||  Status == "Open")
-        {
-            if(tomailId == "")
-            {
+    $('#isbtnConfirm').click(function () {
+        //var tomailId = $('#_reqToMail2').val() || $('#_reqToMail1').val()||"";
+        var tomailId = $('#ToMail').val() || "";
+        if (Status == "" || Status == "Draft") {
+            if (tomailId == "") {
                 $.alert('Please enter to mail');
                 return;
             }
