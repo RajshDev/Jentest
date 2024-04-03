@@ -6951,6 +6951,15 @@ namespace IOAS.Models
         public string Status { get; set; }
         public string Message { get; set; }
     }
+    public class ProjectPatternChange
+    {
+        public int ProjectId { get; set; }
+        [Required]
+        [Display(Name = "ProjectNo")]
+        public string ProjectNo { get; set; }
+        public string Message { get; set; }
+
+    }
 
 
     #endregion

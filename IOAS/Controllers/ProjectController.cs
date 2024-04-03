@@ -390,7 +390,46 @@ namespace IOAS.Controllers
             }
 
         }
+        public ActionResult ProjectPatternChange()
+        {
 
+            return View();
+        }
+        //public JsonResult MaintenanceStatusChanger(string StatusChanger, string Depmess)
+        //{
+        //    var empty = new ProjectStatusUpdateModel();
+        //    ProjectStatusUpdateModel data = new ProjectStatusUpdateModel();
+        //    if (Depmess != "")
+        //    {
+        //        int userId = Common.GetUserid(User.Identity.Name);
+        //        data.Message = CoreAccountsService.UpdateMaintenanceStatus(StatusChanger, Depmess, userId) == true ? "Success" : "Failed";
+        //        return Json(data, JsonRequestBehavior.AllowGet);
+        //    }
+
+        //    else
+        //    {
+        //        data = empty;
+        //        return Json(data, JsonRequestBehavior.AllowGet);
+
+        //    }
+
+        //}
+
+
+        public JsonResult UpdateProjectNumber(int ProjectId = 0, string NewProjectNum="")
+        {
+            var empty = new ProjectPatternChange();
+            ProjectPatternChange data = new ProjectPatternChange();
+
+            if (ProjectId > 0)
+            {
+                data.Message = CoreAccountsService.ChangeProjectNumber(ProjectId, NewProjectNum) == true ? "Success" : "Failed";
+                return Json(data, JsonRequestBehavior.AllowGet);
+            }
+            else
+                data = empty;
+            return Json(data, JsonRequestBehavior.AllowGet);
+        }
         [HttpGet]
         public JsonResult GetFreezeAndAllocationData(int ProjectId, int AllocationId)
         {

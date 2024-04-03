@@ -1,0 +1,151 @@
+﻿@model IOAS.Models.ProjectPatternChange
+@{
+    ViewBag.Title = "ProjectPatternChange";
+    Layout = "~/Views/Shared/_LayoutFluid.cshtml";
+}
+
+<div class="row hd-tt-bg">
+    <div class="col-md-12">
+        <h4><b>Project Pattern Change</b> </h4>
+    </div>
+</div>
+
+<div class="row">
+    <div class="white-bg ad-navbar">
+
+        <div class="col-md-3 ds-spl-bg">
+            <div class="ds-icn">
+                <i class="ion-ios-list-outline "></i>
+            </div>
+            <div class="ds-tt">
+                <span class="required">Project Number</span>
+                <input type="text" class="form-control" autocomplete="off" name="ProjNo" id="ProjNo" />
+                <input type="text" class="form-control dis-none" autocomplete="off" name="ProjId" id="ProjId" />
+            </div>
+        </div>
+        <div class="col-md-6 ds-spl-bg">
+            @*<div class="ds-tt">*@
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group custom-form-group">
+                        <span></span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group custom-form-group">
+                        <span class="required">Update Project Number</span>
+                        @Html.TextBoxFor(m => m.ProjectNo, new { @class = "form-control", @id = "NewProjectNo" })
+                        @Html.ValidationMessageFor(m => m.ProjectNo)
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+        <div class="col-md-3 ds-spl-bg">
+            <div class="ds-tt">
+                <input type="submit" value="Update" class="btn btn-primary mt-20" id="btnSubmit" />
+            </div>
+        </div>
+
+    </div>
+</div>
+<div id="popup"></div>
+<script>
+
+   $(document).on('click', '#ProjNo', function () {
+       applyAutoComplete($('#ProjNo'), $('#ProjId'), '@Url.Action("LoadAllProjectNo", "CoreAccounts")', 'ProjectStatus', undefined, undefined);
+       ProjectStatus();
+    });
+   
+    function validateprojectnum() {
+        var validateFun = 0
+        var NewProjNo = $('#NewProjectNo').val();
+        var ProjNo = $('#ProjNo').val();
+
+        if (NewProjNo == "" || ProjNo== "" ) {
+            $('#FailedAlert').html("Project No field required");
+            $('#Failed').modal('toggle');
+        } else
+        return validateFun;
+    }
+
+
+    $('#btnSubmit').click(function () {
+        var validate = validateprojectnum();
+        if (validate == 0) {
+        var ProjectId = $("#ProjId").val();
+        var NewProjectNum =$('#NewProjectNo').val();
+        
+            if (ProjectId != "" && ProjectId != 0) {
+                $.getJSON("@Url.Action("UpdateProjectNumber", "Project")", { ProjectId: ProjectId, NewProjectNum: NewProjectNum },
+                    function (result) {
+                        if (result.Message == "Success") {
+                            $('#alertSuccess').html("It has been updated successfully.");
+                            $('#Success').modal('toggle');
+                            $("#ProjId,#ProjNo,#NewProjectNo").val('');
+
+                        } else {
+                            $('#FailedAlert').html("Something went wrong please contact administrator");
+                            $('#Failed').modal('toggle');
+                            $("#ProjId,#ProjNo,#NewProjectNo").val('');
+
+                        }
+                    });
+            }
+        }
+        //else {
+        //    $('#FailedAlert').html("Project No field required");
+        //    $('#Failed').modal('toggle');
+        //}
+    });
+
+    function ProjectStatus()
+    {
+        var ProjectId = $("#ProjId").val();
+        if (ProjectId != "" || ProjectId != 0) {
+            $.getJSON("@Url.Action("GetProjectStatus", "CoreAccounts")", { ProjectId: ProjectId },
+        function (result) {
+            $("#Status").text(result);
+
+            var selectHead = $("#idstatusChange");
+            selectHead.empty();
+            if (result == "Open") {
+
+                selectHead.append($('<option/>', {
+                    value: 'Active',
+                    text: 'Active',
+                }));
+                selectHead.append($('<option/>', {
+                    value: 'InActive',
+                    text: 'InActive',
+                }));
+            } else if (result == "Active") {
+
+                selectHead.append($('<option/>', {
+                    value: 'Open',
+                    text: 'Open',
+                }));
+                selectHead.append($('<option/>', {
+                    value: 'InActive',
+                    text: 'InActive',
+                }));
+            }
+            else if (result == "InActive") {
+
+                selectHead.append($('<option/>', {
+                    value: 'Open',
+                    text: 'Open',
+                }));
+                selectHead.append($('<option/>', {
+                    value: 'Active',
+                    text: 'Active',
+                }));
+            }
+
+
+        });
+    }
+    }
+</script>
+
