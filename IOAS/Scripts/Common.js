@@ -30,6 +30,8 @@ function GetSubCodeByTDSSection(tdsSel) {
             subcode = '12';
         else if (tdsSel == "29")
             subcode = '13';
+        else if (tdsSel == "3")
+            subcode = '14';
     return subcode
 }
 function IsInterState(stateCode) {
