@@ -21919,6 +21919,21 @@ TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
                 throw new Exception(ex.Message);
             }
         }
+        [HttpGet]
+        public JsonResult PattanLoadAllProjectNo(string term, int? type = null)
+        {
+            try
+            {
+                var data = Common.PattanGetAllProjectNumber(term, type);
+                return Json(data, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+       (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                throw new Exception(ex.Message);
+            }
+        }
         public JsonResult ValidateProjectSummary(int ProjectId, int HeadId, decimal Amt)
         {
             var result = Common.ValidateProjectSummary(ProjectId, HeadId, Amt);

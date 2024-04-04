@@ -23683,7 +23683,39 @@ namespace IOAS.Infrastructure
             }
 
         }
+        public static List<AutoCompleteModel> PattanGetAllProjectNumber(string term, int? pType = null)
+        {
+            try
+            {
 
+                List<AutoCompleteModel> pro = new List<AutoCompleteModel>();
+
+                using (var context = new IOASDBEntities())
+                {
+                    pro = (from C in context.tblProject
+                           join D in context.vwFacultyStaffDetails on C.PIName equals D.UserId
+                           where (C.ProjectNumber.Contains(term) || C.SanctionOrderNumber.Contains(term) || D.FirstName.Contains(term))
+                             && (pType == null || C.ProjectType == pType)
+
+                           orderby C.ProjectNumber
+                           select new AutoCompleteModel()
+                           {
+                               value = C.ProjectId.ToString(),
+                               label = C.ProjectNumber
+                           }).ToList();
+
+                }
+
+                return pro;
+            }
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+    (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                return new List<AutoCompleteModel>();
+            }
+
+        }
         public static List<AutoCompleteModel> LoadAutoAllVendorCodes(string term)
         {
             try

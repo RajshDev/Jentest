@@ -416,14 +416,14 @@ namespace IOAS.Controllers
         //}
 
 
-        public JsonResult UpdateProjectNumber(int ProjectId = 0, string NewProjectNum="")
+        public JsonResult UpdateProjectNumber(string OldProjectNum="", string NewProjectNum="")
         {
             var empty = new ProjectPatternChange();
             ProjectPatternChange data = new ProjectPatternChange();
 
-            if (ProjectId > 0)
+            if (OldProjectNum != null || OldProjectNum == "")
             {
-                data.Message = CoreAccountsService.ChangeProjectNumber(ProjectId, NewProjectNum) == true ? "Success" : "Failed";
+                data.Message = CoreAccountsService.ChangeProjectNumber(OldProjectNum, NewProjectNum) == true ? "Success" : "Failed";
                 return Json(data, JsonRequestBehavior.AllowGet);
             }
             else
