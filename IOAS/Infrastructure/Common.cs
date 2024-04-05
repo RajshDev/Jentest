@@ -27771,6 +27771,235 @@ namespace IOAS.Infrastructure
             }
         }
 
+        public static decimal calculateWithdrawalAmountlossofPay(int AppId, string AppType, DateTime From, DateTime To, bool Includelast_f = false, int OrderId = 0, bool Verification_f = false)
+        {
+            decimal days = 0, startdatetotalDay = 0, enddatetotalDay = 0;
+            decimal total = 0, months = 0, salary = 0, hra = 0, startworkingdays = 0, endworkingdays = 0;
+            try
+            {
+                using (var context = new IOASDBEntities())
+                {
+                    #region <--Calculate appointment days-->
+                    if (From != null && To != null)
+                    {
+                        var monthcount = dateRange(From, To);
+                        startdatetotalDay = DateTime.DaysInMonth(From.Year, From.Month);
+                        enddatetotalDay = DateTime.DaysInMonth(To.Year, To.Month);
+                        if (From.Month == To.Month && From.Year == To.Year)
+                        {
+                            if (Includelast_f == true && Verification_f == false)
+                                startworkingdays = (To.Day - From.Day) + 1;
+                            else
+                                startworkingdays = To.Day - From.Day;
+                        }
+                        else
+                        {
+                            if (Includelast_f == true)
+                                startworkingdays = (startdatetotalDay - From.Day) + 1;
+                            else
+                                startworkingdays = startdatetotalDay - From.Day;
+
+                            if (Verification_f == true)
+                                endworkingdays = To.Day - 1;
+                            else
+                                endworkingdays = To.Day;
+                        }
+
+                        var count = 0;
+                        for (var i = 0; i < monthcount; i++)
+                        {
+                            var lastCount = monthcount - 1;
+                            if (i != 0 && i != lastCount)
+                                count += 1;
+                        }
+                        var workingdays = startworkingdays + endworkingdays;
+                        months = count;
+                        days = workingdays;
+
+                        if (From.Month == To.Month && From.Year == To.Year && (From.Hour == 12 || To.Hour == 12))
+                        {
+                            startworkingdays -= Convert.ToDecimal(0.5);
+                        }
+                        else if (From.Hour == 12 || To.Hour == 12)
+                        {
+                            if (From.Hour == 12)
+                                startworkingdays -= Convert.ToDecimal(0.5);
+                            if (To.Hour == 12)
+                                startworkingdays -= Convert.ToDecimal(0.5);
+                        }
+
+                    }
+                    else
+                        return 0;
+
+                    #endregion
+
+                    if (OrderId > 0)
+                    {
+                        var query = (from o in context.tblOrder
+                                     from od in context.tblOrderDetail
+                                     from vw in context.vw_RCTOverAllApplicationEntry
+                                     where o.OrderId == od.OrderId && o.OrderId == vw.OrderId
+                                     && o.OrderId == OrderId
+                                     select new { o, od, vw }).FirstOrDefault();
+                        if (query != null)
+                        {
+                            decimal ttlVal = 0, medical = 0;
+                            hra = query.o.isHRA == true ? (query.o.HRA ?? 0) : 0;
+                            medical = query.o.MedicalType == 1 ? (query.o.MedicalAmount ?? 0) : 0;
+                            salary = query.o.Basic ?? 0;
+                            if (query.o.AppointmentType == 3)
+                            {
+                                var salry = (from s in context.tblRCTSalaryCalcDetails
+                                             where s.ID == AppId && s.Status == "Active"/* && s.IsCurrentVersion == true*/ && s.OrderId == OrderId
+                                             select s).FirstOrDefault();
+                                salary = salry.EmployerCTC ?? 0;
+                            }
+
+                            if (query.vw.isMsPhd == true || query.vw.TypeofAppointmentinInt == 2)
+                            {
+                                medical = 0;
+                                hra = query.vw.TypeofAppointmentinInt == 2 ? 0 : hra;
+                            }
+                            ttlVal = medical + salary + hra;
+                            var startperday = ttlVal / startdatetotalDay;
+                            var endperday = ttlVal / enddatetotalDay;
+                            var monthlyamt = ttlVal;
+                            if (months > 0)
+                                total = total + (monthlyamt * months);
+                            if (days > 0)
+                            {
+                                total = total + (startworkingdays * startperday);
+                                total = total + (endworkingdays * endperday);
+                            }
+                            return Math.Round(total);
+                        }
+                    }
+                    else
+                    {
+                        if (AppType == "STE")
+                        {
+                            decimal ttlVal = 0, medical = 0;
+                            var query = (from s in context.tblRCTSTE
+                                         where s.STEID == AppId
+                                         select s).FirstOrDefault();
+                            if (query != null)
+                            {
+                                hra = query.isHaveHRA == true ? (query.HRA ?? 0) : 0;
+                                medical = query.Medical == 1 ? (query.MedicalAmmount ?? 0) : 0;
+                                salary = query.Salary ?? 0;
+                                if (query.MsPhd == true || query.TypeofAppointment == 2)
+                                {
+                                    medical = 0;
+                                    hra = query.TypeofAppointment == 2 ? 0 : hra;
+                                }
+                                ttlVal = medical + salary + hra;
+                                var startperday = ttlVal / startdatetotalDay;
+                                var endperday = ttlVal / enddatetotalDay;
+                                var monthlyamt = ttlVal;
+                                if (months > 0)
+                                    total = total + (monthlyamt * months);
+                                if (days > 0)
+                                {
+                                    total = total + (startworkingdays * startperday);
+                                    total = total + (endworkingdays * endperday);
+                                }
+                            }
+                        }
+                        else if (AppType == "CON")
+                        {
+                            decimal ttlVal = 0;
+                            var query = (from s in context.tblRCTConsultantAppointment
+                                         where s.ConsultantAppointmentId == AppId
+                                         select s).FirstOrDefault();
+                            if (query != null)
+                            {
+                                salary = query.Salary ?? 0;
+                                salary = query.Salary ?? 0;
+                                decimal gstamt = 0;
+                                decimal gstper = 0;
+                                if (query.GSTApplicable == 2)
+                                {
+                                    gstper = (query.GSTPercentage ?? 0) / 100;
+                                    gstamt = salary * gstper;
+                                }
+                                ttlVal = salary + gstamt;
+                                var startperday = ttlVal / startdatetotalDay;
+                                var endperday = ttlVal / enddatetotalDay;
+                                var monthlyamt = ttlVal;
+                                if (months > 0)
+                                    total = total + (monthlyamt * months);
+                                if (days > 0)
+                                {
+                                    total = total + (startworkingdays * startperday);
+                                    total = total + (endworkingdays * endperday);
+                                }
+                            }
+                        }
+                        else if (AppType == "OSG")
+                        {
+                            var startmonth = From.Month;
+                            var endmonth = To.Month;
+                            var startyear = From.Year;
+                            var endyear = To.Year;
+                            decimal ttlVal = 0, medical = 0;
+                            var query = (from s in context.tblRCTOutsourcing
+                                         where s.OSGID == AppId
+                                         select s).FirstOrDefault();
+                            var salry = (from s in context.tblRCTSalaryCalcDetails
+                                         where s.ID == AppId && s.Status == "Active" && s.IsCurrentVersion == true
+                                         orderby s.SalaryDetailsId descending
+                                         select s).FirstOrDefault();
+
+                            if (query != null)
+                            {
+                                hra = query.isHaveHRA == true ? (query.HRA ?? 0) : 0;
+                                medical = query.Medical == 1 ? (query.MedicalAmmount ?? 0) : 0;
+                                salary = salry.RecommendSalary ?? 0;
+                                //if (query.MsPhd == true || query.TypeofAppointment == 2)
+                                //{
+                                //    medical = 0;
+                                //    hra = query.TypeofAppointment == 2 ? 0 : hra;
+                                //}
+                                var statMast = (from s in context.tblRCTStatutory
+                                                where s.StatutoryId == salry.StatutoryId
+                                                select s).FirstOrDefault();
+                                var lwfamt = statMast.LWFEmployerContribution ?? 0;
+                                ttlVal = medical + salary + hra;
+                                var startperday = ttlVal / startdatetotalDay;
+                                var endperday = ttlVal / enddatetotalDay;
+                                var monthlyamt = ttlVal;
+                                if (months > 0)
+                                    total = total + (monthlyamt * months);
+                                if (days > 0)
+                                {
+                                    total = total + (startworkingdays * startperday);
+                                    total = total + (endworkingdays * endperday);
+                                }
+                                if (startyear < endyear)
+                                {
+                                    total += lwfamt;
+                                }
+                                if ((endmonth == 12 || startmonth == 12) && startyear == endyear)
+                                {
+                                    total += lwfamt;
+                                }
+                            }
+                        }
+                    }
+                }
+                return Math.Round(total);
+            }
+            catch (Exception ex)
+            {
+                ErrorHandler WriteLog = new ErrorHandler();
+                WriteLog.SendErrorToText(ex);
+                return 0;
+            }
+        }
+
+
+
         public static Tuple<decimal, bool, decimal, bool, decimal, bool> calRCTCommitmentAmount(IOASDBEntities context, DateTime From, DateTime To, decimal salary, decimal hra, int medical, int desid, bool ismsphd, int typeofappointment, string apptype = null, decimal LWFAmount = 0, decimal gst = 0, DateTime? preDueDate = null)
         {
             int days = 0, startworkingdays = 0, endworkingdays = 0, starttotday = 0, endtotalday = 0;

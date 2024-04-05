@@ -5272,6 +5272,24 @@ namespace IOAS.Controllers
             }
         }
 
+        [HttpPost]
+        public JsonResult calculateWithdrawalAmountlossofPay(int appid, string apptype, DateTime From, DateTime To, bool isIncludedate = true)
+        {
+            try
+            {
+                decimal res = 0;
+                if (appid > 0 && !string.IsNullOrEmpty(apptype))
+                    res = Common.calculateWithdrawalAmountlossofPay(appid, apptype, From, To, isIncludedate);
+                return Json(res, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                WriteLog.SendErrorToText(ex);
+                return Json(0, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+
         #region CommitmentRequest
 
         public ActionResult RecruitmentCommitmentRequestList()
