@@ -54,8 +54,7 @@
 <script>
 
    $(document).on('click', '#ProjNo', function () {
-       applyAutoComplete($('#ProjNo'), $('#ProjId'), '@Url.Action("LoadAllProjectNo", "CoreAccounts")', 'ProjectStatus', undefined, undefined);
-       ProjectStatus();
+       applyAutoComplete($('#ProjNo'), $('#ProjId'), '@Url.Action("PattanLoadAllProjectNo", "CoreAccounts")', 'ProjectStatus', undefined, undefined);       
     });
    
     function validateprojectnum() {
@@ -74,11 +73,11 @@
     $('#btnSubmit').click(function () {
         var validate = validateprojectnum();
         if (validate == 0) {
-        var ProjectId = $("#ProjId").val();
-        var NewProjectNum =$('#NewProjectNo').val();
-        
-            if (ProjectId != "" && ProjectId != 0) {
-                $.getJSON("@Url.Action("UpdateProjectNumber", "Project")", { ProjectId: ProjectId, NewProjectNum: NewProjectNum },
+            var OldProjectNum = $('#ProjNo').val();
+            var NewProjectNum = $('#NewProjectNo').val();
+
+            if (OldProjectNum != "" && OldProjectNum != null) {
+                $.getJSON("@Url.Action("UpdateProjectNumber", "Project")", { OldProjectNum: OldProjectNum, NewProjectNum: NewProjectNum },
                     function (result) {
                         if (result.Message == "Success") {
                             $('#alertSuccess').html("It has been updated successfully.");
