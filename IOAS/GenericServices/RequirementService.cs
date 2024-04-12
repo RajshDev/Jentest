@@ -12577,7 +12577,7 @@ namespace IOAS.GenericServices
 
                                 if (queryorder.o.FromDate < queryorder.o.ToDate)
                                 {
-                                    decimal WidthdrawAmmount = Common.calculateWithdrawalAmount(model.ApplicationID, model.TypeCode, queryorder.o.FromDate ?? DateTime.Now, queryorder.o.ToDate ?? DateTime.Now, true);
+                                    decimal WidthdrawAmmount = Common.calculateWithdrawalAmountlossofPay(model.ApplicationID, model.TypeCode, queryorder.o.FromDate ?? DateTime.Now, queryorder.o.ToDate ?? DateTime.Now, true);
                                     queryorder.o.WithdrawAmmount = WidthdrawAmmount;
                                 }
                                 else
@@ -12768,7 +12768,7 @@ namespace IOAS.GenericServices
                                     model.FromDate = model.FromDate.Value.AddHours(+12);
                                 if (model.ToMeridiem == 1)
                                     model.ToDate = model.ToDate.Value.AddHours(+12);
-                                WidthdrawAmmount = Common.calculateWithdrawalAmount(model.ApplicationID, model.TypeCode, model.FromDate ?? DateTime.Now, model.ToDate ?? DateTime.Now, true);
+                                WidthdrawAmmount = Common.calculateWithdrawalAmountlossofPay(model.ApplicationID, model.TypeCode, model.FromDate ?? DateTime.Now, model.ToDate ?? DateTime.Now, true);
                                 order.OrderDate = model.ApplicationReceiveDate;
                                 order.OrderType = model.OrderType;
                                 order.FromDate = model.FromDate;
