@@ -512,12 +512,12 @@ namespace IOAS.Models
         public string ResumeFileName { get; set; }
         [Required]
         [Display(Name = "Name")]
-        public string Name { get; set; }
-        [Required]
-        [Display(Name = "Father’s / Husband’s Name")]
+        public string Name { get; set; }        
         public string ApplnEntryDate { get; set; }
         public string ApplnReceiveDate { get; set; }
         public string CantName { get; set; }
+        [Required]
+        [Display(Name = "Father’s / Husband’s Name")]
         public string Nameoftheguardian { get; set; }
         [RequiredIf("PAN", null, ErrorMessage = "Please enter aadhaar number")]
         [Range(100000000000, 999999999999, ErrorMessage = "Aadhaar number should not exceed 12 characters")]
