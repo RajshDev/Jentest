@@ -5969,7 +5969,7 @@ namespace IOAS.Models
         [RequiredIf("ProjectValidation", true, ErrorMessage = "Project field is required")]
         public Nullable<int> ProjectId { get; set; }
         public bool IsProject { get; set; }
-        [RequiredIf("Category", 18, ErrorMessage = "Negative No. field is required")]
+        //[RequiredIf("Category", 18, ErrorMessage = "Negative No. field is required")]
         public Nullable<int> ModeOfReceipt { get; set; }
         public string RefNo { get; set; }
         public Nullable<DateTime> RefDate { get; set; }
