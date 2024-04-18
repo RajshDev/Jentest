@@ -114,12 +114,19 @@
         
         fincurrent = moment(new Date()).toDate();
         finyr = new Date('@TempData["Finyear"]');
+        finTo = new Date('@TempData["FinTo"]');
         console.log(finyr);
+        var finyrmax;
+        if (fincurrent < finTo) {
+            finyrmax = fincurrent;
+        }
+        else {
+            finyrmax = finTo;
+        }
         $('#BillDate,#CashDate').datepicker({
             dateFormat: 'dd-mm-yy',
             changeYear: true,
-        }).datepicker("option", "minDate", finyr).datepicker("option", "maxDate", fincurrent);
-        
+        }).datepicker("option", "minDate", finyr).datepicker("option", "maxDate", finyrmax);
         if (errMsg == 'Failed') {
             $("#RefId,#RefNo,#BillDate,#ExpDate,#CashDate,#Remarks").val('');
             $("#CurrDate,#expendituredate,#cashbookdate,#Remarks").text('');

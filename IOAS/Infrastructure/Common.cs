@@ -7060,16 +7060,45 @@ namespace IOAS.Infrastructure
             try
             {
                 DateTime? finFrom = null;
+              
                 using (var context = new IOASDBEntities())
                 {
                     var financialYear = context.tblFinYear.FirstOrDefault(m => m.CurrentYearFlag == true);
                     if (financialYear != null)
                         finFrom = Convert.ToDateTime(financialYear.StartDate);
+                       
 
 
                 }
 
                 return finFrom;
+            }
+
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+                (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                return null;
+            }
+        }
+
+        public static DateTime? GetCurrentFinYearToDate()
+        {
+            try
+            {
+               
+                DateTime? finTo = null;
+                using (var context = new IOASDBEntities())
+                {
+                    var financialYear = context.tblFinYear.FirstOrDefault(m => m.CurrentYearFlag == true);
+                    if (financialYear != null)
+                        
+                    finTo = Convert.ToDateTime(financialYear.EndDate);
+
+
+                }
+
+                return finTo;
             }
 
             catch (Exception ex)
@@ -7281,6 +7310,27 @@ namespace IOAS.Infrastructure
                             refnums = (from boa in context.tblBOA
                                        from fy in context.tblFinYear
                                        where boa.Status == "Posted" && boa.TransactionTypeCode == "LCR" && boa.RefNumber == Refnum
+                                       && boa.PostedDate >= fy.StartDate && boa.PostedDate <= fy.EndDate && fy.CurrentYearFlag == true
+                                       select boa.RefNumber).FirstOrDefault();
+                            break;
+                        case "ImprestEnhance":
+                            refnums = (from boa in context.tblBOA
+                                       from fy in context.tblFinYear
+                                       where boa.Status == "Posted" && boa.TransactionTypeCode == "IME" && boa.RefNumber == Refnum
+                                       && boa.PostedDate >= fy.StartDate && boa.PostedDate <= fy.EndDate && fy.CurrentYearFlag == true
+                                       select boa.RefNumber).FirstOrDefault();
+                            break;
+                        case "ImprestMaster":
+                            refnums = (from boa in context.tblBOA
+                                       from fy in context.tblFinYear
+                                       where boa.Status == "Posted" && boa.TransactionTypeCode == "IMP" && boa.RefNumber == Refnum
+                                       && boa.PostedDate >= fy.StartDate && boa.PostedDate <= fy.EndDate && fy.CurrentYearFlag == true
+                                       select boa.RefNumber).FirstOrDefault();
+                            break;
+                        case "ImprestMasterClose":
+                            refnums = (from boa in context.tblBOA
+                                       from fy in context.tblFinYear
+                                       where boa.Status == "Posted" && boa.TransactionTypeCode == "IMC" && boa.RefNumber == Refnum
                                        && boa.PostedDate >= fy.StartDate && boa.PostedDate <= fy.EndDate && fy.CurrentYearFlag == true
                                        select boa.RefNumber).FirstOrDefault();
                             break;
@@ -21249,6 +21299,67 @@ namespace IOAS.Infrastructure
                 return Tuple.Create((string)"NA", (string)"NA", (string)"NA");
             }
         }
+
+        public Tuple<string, string, string> GetIMECurrentDate(string RefNumber)
+        {
+            try
+            {
+                using (var context = new IOASDBEntities())
+                {
+                    var BoaDate = context.tblBOA.Where(m => m.RefNumber == RefNumber).OrderByDescending(m => m.BOAId).Select(m => m.PostedDate).FirstOrDefault();
+                    var BillDate = context.tblImprestPaymentDetails.Where(m => m.ImprestEnhanceNumber == RefNumber).FirstOrDefault();
+
+                    return Tuple.Create(string.Format("{0:dd-MMM-yyyy}", BoaDate), string.Format("{0:dd-MMM-yyyy}", BillDate.CrtdTS), (string)"NA");
+                }
+            }
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+      (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                return Tuple.Create((string)"NA", (string)"NA", (string)"NA");
+            }
+        }
+
+        public Tuple<string, string, string> GetIMPCurrentDate(string RefNumber)
+        {
+            try
+            {
+                using (var context = new IOASDBEntities())
+                {
+                    var BoaDate = context.tblBOA.Where(m => m.RefNumber == RefNumber).OrderByDescending(m => m.BOAId).Select(m => m.PostedDate).FirstOrDefault();
+                    var BillDate = context.tblIMPUserDetails.Where(m => m.ImprestNumber == RefNumber).FirstOrDefault();
+
+                    return Tuple.Create(string.Format("{0:dd-MMM-yyyy}", BoaDate), string.Format("{0:dd-MMM-yyyy}", BillDate.CrtdTS), (string)"NA");
+                }
+            }
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+      (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                return Tuple.Create((string)"NA", (string)"NA", (string)"NA");
+            }
+        }
+
+        public Tuple<string, string, string> GetIMCCurrentDate(string RefNumber)
+        {
+            try
+            {
+                using (var context = new IOASDBEntities())
+                {
+                    var BoaDate = context.tblBOA.Where(m => m.RefNumber == RefNumber).OrderByDescending(m => m.BOAId).Select(m => m.PostedDate).FirstOrDefault();
+                    var BillDate = context.tblImprestClose.Where(m => m.ImprestCloseNumber == RefNumber).FirstOrDefault();
+
+                    return Tuple.Create(string.Format("{0:dd-MMM-yyyy}", BoaDate), string.Format("{0:dd-MMM-yyyy}", BillDate.CRTD_TS), (string)"NA");
+                }
+            }
+            catch (Exception ex)
+            {
+                Infrastructure.IOASException.Instance.HandleMe(
+      (object)System.Reflection.MethodBase.GetCurrentMethod().ReflectedType.FullName, ex);
+                return Tuple.Create((string)"NA", (string)"NA", (string)"NA");
+            }
+        }
+
         public static string GetDirectoryName(string path)
         {
             path = path.TrimEnd('/');
