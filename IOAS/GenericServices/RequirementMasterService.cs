@@ -1101,9 +1101,15 @@ namespace IOAS.GenericServices
                                 }
                                 else
                                 {
-                                    if (model.ToDate <= uptQuery.Effectivedate && model.ToDate < curr)
+                                    if (model.ToDate >= model.EffectiveDate)
+                                    {
                                         uptQuery.Status = "InActive";
+
+                                        uptQuery.Effectivedate = model.EffectiveDate;
+                                    }
+                                  else { 
                                     uptQuery.Effectivedate = model.ToDate;
+                                    }
                                 }
                                 uptQuery.UpdtTS = DateTime.Now;
                                 uptQuery.UpdtUser = model.UserId;
