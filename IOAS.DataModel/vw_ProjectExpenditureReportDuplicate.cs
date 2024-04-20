@@ -44,5 +44,6 @@ namespace IOAS.DataModel
         public string ProjectSchemeCode { get; set; }
         public string Subhead { get; set; }
         public string Remarks { get; set; }
+        public string BatchNumber { get; set; }
     }
 }

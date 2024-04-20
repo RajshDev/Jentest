@@ -62,5 +62,6 @@ namespace IOAS.DataModel
         public string FunctionName { get; set; }
         public string ProjectSchemeCode { get; set; }
         public string ProjType { get; set; }
+        public string SubHead { get; set; }
     }
 }
