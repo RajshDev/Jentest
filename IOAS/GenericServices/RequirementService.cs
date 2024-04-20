@@ -2293,6 +2293,11 @@ namespace IOAS.GenericServices
                         model.ProjectNumber = Common.GetProjectNameandNumber(QrySTE.A.ProjectId ?? 0);
                         model.isHaveGateScore = QrySTE.A.isHaveGateScore == true ? "Yes" : "No";
                         model.GateScore = QrySTE.A.GateScore;
+                        model.CommitteeRemark = QrySTE.A.CommitteeRemarks;
+                        int CommitteApprovalID = QrySTE.A.CommitteeApprovedBy ?? 0;
+                        model.CommitteeApprovedBy = Common.GetPIName(CommitteApprovalID);
+                        model.isCommiteeRejection = QrySTE.A.Status == "Committee Clarify" ? true : false;
+                        //model.CommitteeApprovedBy = QrySTE.A.CommitteeApprovedBy;
                         List<STEEducationModel> EducationList = new List<STEEducationModel>();
                         var QryEducation = (from c in context.tblRCTSTEEducationDetail
                                             join q in context.tblRCTQualificationList on c.QualifiCationID equals q.QualificationId into lft
@@ -18744,7 +18749,9 @@ namespace IOAS.GenericServices
                         model.isHaveGateScore = QryOSG.A.isHaveGateScore == true ? "Yes" : "No";
                         model.GateScore = QryOSG.A.GateScore ?? 0;
                         model.EmployeeWorkplace = QryOSG.A.EmployeeWorkplace;
-
+                        model.CommitteeRemark = QryOSG.A.CommitteeRemarks;
+                        int CommitteApprovalID = QryOSG.A.CommitteeApprovedBy ?? 0;
+                        model.CommitteeApprovedBy = Common.GetPIName(CommitteApprovalID);
                         model.StatutoryId = Qrysalcalc.StatutoryId;
                         model.RecommendedSalary = Qrysalcalc.RecommendSalary;
                         model.EmpSalutation = Qrysalcalc.Salutation;
@@ -18767,6 +18774,7 @@ namespace IOAS.GenericServices
                         model.SalaryGST = Qrysalcalc.EmployerGST;
                         model.CTCwithAgencyFee = Qrysalcalc.EmployerCTCWithAgencyFee;
                         model.TotalCTC = Qrysalcalc.TotalCostPerMonth;
+                        model.isCommiteeRejection = QryOSG.A.Status == "Committee Clarify" ? true : false;
 
                         model.EducationDetail = (from c in context.tblRCTOSGEducationDetail
                                                  from q in context.tblRCTQualificationList
@@ -31394,23 +31402,23 @@ namespace IOAS.GenericServices
                 {
                     skiprec = (page - 1) * pageSize;
                 }
-                var CategoryName = "";
-                if (RoleId == 102 || RoleId == 103 || RoleId == 104 || RoleId == 104 || RoleId == 105 || RoleId == 106)
-                    CategoryName = "STE";
-                else if (RoleId == 107 || RoleId == 108 || RoleId == 109)
-                    CategoryName = "OSG";
-                else if (RoleId == 94 || RoleId == 93)
-                    CategoryName = "CON";
+                //var CategoryName = "";
+                //if (RoleId == 102 || RoleId == 103 || RoleId == 104 || RoleId == 104 || RoleId == 105 || RoleId == 106)
+                //    CategoryName = "STE";
+                //else if (RoleId == 107 || RoleId == 108 || RoleId == 109)
+                //    CategoryName = "OSG";
+                //else if (RoleId == 94 || RoleId == 93)
+                //    CategoryName = "CON";
 
                 using (var context = new IOASDBEntities())
                 {
                     var query = (from vw in context.vw_RCTOverAllApplicationEntry.AsNoTracking()
                                  orderby vw.ApplicationId descending
                                  where (vw.Status.Contains("Awaiting Verification") || vw.Status.Contains("Awaiting Verification-Draft") ||
-                                vw.Status.Contains("Awaiting Verification-Open") || vw.Status.Contains("Sent for approval-Verify") ||
+                                vw.Status.Contains("Awaiting Verification-Open") || vw.Status.Contains("Sent for approval-Verify") || vw.Status.Contains("Relieved") ||
                                 vw.Status.Contains("Verification Completed"))
                                  && (vw.ApplicationNo.Contains(model.ApplicationNo) || model.ApplicationNo == null)
-                                 && (vw.Category.Contains(model.Category) || model.Category == null) && (vw.Category == CategoryName || CategoryName == "")
+                                 && (vw.Category.Contains(model.Category) || model.Category == null)
                                  && (vw.CandidateName.Contains(model.CondidateName) || model.CondidateName == null)
                                  && (vw.ProjectNumber.Contains(model.ProjectNumber) || model.ProjectNumber == null)
                                   && (vw.TypeofAppointment.Contains(model.TypeofAppointment) || model.TypeofAppointment == null)
@@ -31426,9 +31434,10 @@ namespace IOAS.GenericServices
                                                        || vw.Status.Contains("Awaiting Verification-Draft")
                                                        || vw.Status.Contains("Awaiting Verification-Open")
                                                        || vw.Status.Contains("Sent for approval-Verify")
+                                                      || vw.Status.Contains("Relieved") 
                                                       || vw.Status.Contains("Verification Completed"))
                                                               && (vw.ApplicationNo.Contains(model.ApplicationNo) || model.ApplicationNo == null)
-                                 && (vw.Category.Contains(model.Category) || model.Category == null) && (vw.Category == CategoryName || CategoryName == "")
+                                 && (vw.Category.Contains(model.Category) || model.Category == null)
                                  && (vw.CandidateName.Contains(model.CondidateName) || model.CondidateName == null)
                                  && (vw.ProjectNumber.Contains(model.ProjectNumber) || model.ProjectNumber == null)
                                   && (vw.TypeofAppointment.Contains(model.TypeofAppointment) || model.TypeofAppointment == null)
@@ -31457,7 +31466,7 @@ namespace IOAS.GenericServices
                                                 Where(x => x.IsSend == true && x.TypeofMail == 3 &&
                                                 x.ConsultantAppointmentId == appid).Count();
                             }
-                            else if (query[i].Category == "STE")
+                            else if (query[i].Category == "CON")
                             {
                                 int appid = query[i].ApplicationId ?? 0;
                                 emailcount = context.tblRCTSTEEmailLog.

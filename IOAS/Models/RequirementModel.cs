@@ -626,6 +626,8 @@ namespace IOAS.Models
         [Required]
         public Nullable<decimal> CommitmentAmount { get; set; }
         public string Comments { get; set; }
+        public string CommitteeRemark { get; set; }
+        public string CommitteeApprovedBy { get; set; }
         public string CommiteeMember1 { get; set; }
         public Nullable<int> CommiteeMemberId1 { get; set; }
         public string CommiteeMember2 { get; set; }
@@ -647,10 +649,12 @@ namespace IOAS.Models
         public List<PIJustificationModel> PIJustificationDocDetail { get; set; } = new List<PIJustificationModel>();
         public List<STENotes> Notes { get; set; }
         public string Status { get; set; }
+        public bool isCommiteeRejection { get; set; }
+
         public bool isDraftbtn { get; set; }
-        [RegularExpression("^([\\w+-.%]+@[\\w-.]+\\.[A-Za-z]{2,6},?)+$", ErrorMessage = "Invalid CC Mail Example:abc@mail.com,abx@mail.in,abz@mail.com")]
+        [RegularExpression("^([\\w+-.%]+@[\\w-.]+\\.[A-Za-z]{2,6}?)+$", ErrorMessage = "Invalid CC Mail Example:abc@mail.com,abx@mail.in,abz@mail.com")]
         public string bcc { get; set; }
-        //[RegularExpression("^[a-zA-Z0-9_\\.-]+@([a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,6}$", ErrorMessage = "Invalid To Mail")]
+        [RegularExpression("^([\\w+-.%]+@[\\w-.]+\\.[A-Za-z]{2,6}?)+$", ErrorMessage = "Invalid CC Mail Example:abc@mail.com,abx@mail.in,abz@mail.com")]
         public string ToMail { get; set; }
         public string EmployeeWorkplace { get; set; }
         public bool bccSaved { get; set; }
