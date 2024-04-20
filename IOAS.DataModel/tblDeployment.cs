@@ -17,5 +17,8 @@ namespace IOAS.DataModel
         public int Deploymentid { get; set; }
         public string DeploymentStatus { get; set; }
         public string DeploymentMessenge { get; set; }
+        public Nullable<int> Crtd_By { get; set; }
+        public Nullable<System.DateTime> Uptd_Ts { get; set; }
+        public Nullable<System.DateTime> Crtd_TS { get; set; }
     }
 }

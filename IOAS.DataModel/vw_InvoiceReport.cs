@@ -46,5 +46,6 @@ namespace IOAS.DataModel
         public Nullable<decimal> OpeningReceiptAmount { get; set; }
         public string AgencyRegCommunicationAddress { get; set; }
         public string ConsultancyType { get; set; }
+        public Nullable<int> Pincode { get; set; }
     }
 }

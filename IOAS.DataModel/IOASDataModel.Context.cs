@@ -20,6 +20,8 @@ namespace IOAS.DataModel
         public IOASDBEntities()
             : base("name=IOASDBEntities")
         {
+            this.Database.CommandTimeout = 360;
+            this.Database.ExecuteSqlCommand("SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;");
         }
     
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
@@ -126,7 +128,6 @@ namespace IOAS.DataModel
         public virtual DbSet<tblForeignRemitDeductionDetail> tblForeignRemitDeductionDetail { get; set; }
         public virtual DbSet<tblForeignRemitDocumentDetail> tblForeignRemitDocumentDetail { get; set; }
         public virtual DbSet<tblForeignRemitExpenseDetail> tblForeignRemitExpenseDetail { get; set; }
-        public virtual DbSet<tblForeignRemittance> tblForeignRemittance { get; set; }
         public virtual DbSet<tblFunctionCheckList> tblFunctionCheckList { get; set; }
         public virtual DbSet<tblFunctionDocument> tblFunctionDocument { get; set; }
         public virtual DbSet<tblFunctionStatus> tblFunctionStatus { get; set; }
@@ -443,7 +444,6 @@ namespace IOAS.DataModel
         public virtual DbSet<tblGSTCreditDetails> tblGSTCreditDetails { get; set; }
         public virtual DbSet<vw_GSTCredit> vw_GSTCredit { get; set; }
         public virtual DbSet<tblProcessCodeControl> tblProcessCodeControl { get; set; }
-        public virtual DbSet<tblRCM> tblRCM { get; set; }
         public virtual DbSet<tblContractorBill> tblContractorBill { get; set; }
         public virtual DbSet<tblContractorBillDetails> tblContractorBillDetails { get; set; }
         public virtual DbSet<tblUCExpenditureDetail> tblUCExpenditureDetail { get; set; }
@@ -946,6 +946,8 @@ namespace IOAS.DataModel
         public virtual DbSet<tblRCTConsultantEntry> tblRCTConsultantEntry { get; set; }
         public virtual DbSet<tblRCTConsultantStatuslog> tblRCTConsultantStatuslog { get; set; }
         public virtual DbSet<tblDeployment> tblDeployment { get; set; }
+        public virtual DbSet<tblForeignRemittance> tblForeignRemittance { get; set; }
+        public virtual DbSet<tblRCM> tblRCM { get; set; }
     
         public virtual int AnnualAccounts(Nullable<System.DateTime> date, Nullable<System.DateTime> date2)
         {

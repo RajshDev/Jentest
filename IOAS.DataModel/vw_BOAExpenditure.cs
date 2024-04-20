@@ -72,5 +72,6 @@ namespace IOAS.DataModel
         public string AdvanceValue { get; set; }
         public string Advancerefnumber { get; set; }
         public string Month { get; set; }
+        public string SubHead { get; set; }
     }
 }

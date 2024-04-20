@@ -157,9 +157,27 @@
 <div class="loading-bg dis-none">
 </div>
 <script>
+ var errMsg = '@TempData["errMsg"]';
+    var succMsg = '@TempData["succMsg"]';
+    var alertMsg = '@TempData["alertMsg"]';
     $(document).ready(function () {
+        if (succMsg != '') {
+            $('#alertTitle').html("Success");
+            $('#alertSuccessContent').html(succMsg);
+            $('#SuccessAll').modal('toggle');
+        }
+        else if (errMsg != '') {
+            $('#FailedAlert').html(errMsg);
+            $('#Failed').modal('toggle');
+            $('#diveffactive').removeClass('dis-none');
+        }
+        else if (alertMsg != '') {
+ 
+            $('#alert').html(alertMsg);
+            $('#Validation').modal('toggle');
+        }
         applyAutoComplete($('#EmployeeName'), $('#EmployeeId'), '@Url.Action("LoadPIList", "CoreAccounts")', 'GetPIDetails', true);
-
+ 
     });
    function GetPIDetails()
    {
@@ -225,8 +243,8 @@
                 $('#diveffactive').addClass('dis-none');
             }
         });
-        var defaultappstrFromDate = moment(new Date()).toDate();
-        var defaultapptodateDate = moment($('#ToDate').val()).add(-1).toDate();
+        var defaultappstrFromDate = moment($('#FromDate').val()).add(0).toDate();
+        var defaultapptodateDate = moment($('#ToDate').val()).add(0).toDate();
         $('#EffectiveDate').datepicker({
             dateFormat: 'dd-MM-yy',
             changeYear: true

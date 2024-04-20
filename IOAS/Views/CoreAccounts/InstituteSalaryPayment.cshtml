@@ -64,12 +64,10 @@
                                                 @Html.HiddenFor(m => m.HiddenMonthYear, new { @id = "hiddenmonth" })
                                                 @Html.HiddenFor(m => m.InstituteSalaryPaymentId, new { @id = "paymentid" })
                                             </div>
-                                            <div class="col-md-4">
-                                                @Html.DropDownListFor(m => m.ProjectId, new SelectList(ViewBag.DistributionProject, "id", "name"), "Select any", new { @class = "form-control selectpicker", @id = "txtsrchProjectid" })
-                                                @*@Html.ValidationMessageFor(m => m.ProjectNumber)*@
+                                            @*<div class="col-md-4">
+                                            @Html.DropDownListFor(m => m.ProjectId, new SelectList(ViewBag.DistributionProject, "id", "name"), "Select any", new { @class = "form-control selectpicker", @id = "txtsrchProjectid" })
+                                            </div>*@
 
-                                            </div>
-                                            
                                         </div>
                                         <div class="gray-bg br-rd">
                                             <div class="row">
@@ -752,6 +750,7 @@
                 }
             });
             $('#NeedUpdateTransDetail').val('false');
+            UpdateTransactionDetails();
             CalculateDeductionTotal();
 
         },
@@ -805,7 +804,7 @@
                         
                         
                     });
-                    
+                    ProjId = $('#txtsrchProjectid').val() ?? "";
 
                     $('#tbodyExpenseList tr').each(function (idx, trval) {
                         AccHead = ($(this).find('select[name$=".AccountHeadId"]').val());
@@ -826,13 +825,27 @@
                         else if (AccHead == 321) {
                             ($(this).find('input[name$=".Amount"]').val(FellowshipSalary.toFixed(2)));
                         }
-                        else if (AccHead == 387) {
+                        else if (AccHead == 387 && ProjId != "") {
+                            ($(this).find('input[name$=".Amount"]').val(TotalAmount.toFixed(2)));
+                        }
+                        else if (AccountGroupId == 38 && ProjId == "") {
                             ($(this).find('input[name$=".Amount"]').val(TotalAmount.toFixed(2)));
                         }
                         
                         
                     });
-                   
+
+
+                    //$('#tbodyExpenseList tr').each(function (idx, trval) {
+                    //    var Amt = ($(this).find('input[name$=".Amount"]').val());
+                    //    Amt = parseFloat(Amt) || 0;
+
+                    //    if (Amt == 0) {
+                    //        $(this).remove();
+                    //    }
+
+                    //});
+
                      CalculateDeductionTotal();
 
 
