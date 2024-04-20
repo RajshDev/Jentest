@@ -64,7 +64,7 @@
             { type: "number", name: "Consultant_MasterId", title: "Consultant MasterId", editing: false, visible: false },
             { type: "text", name: "Consultant_Name", title: "Name", editing: false },
             { type: "text", name: "ConsultantEmpId", title: "Consultant Id", align: "left", editing: false},                       
-            { type: "text", name: "CountryName", title: "Country Name", editing: false, filtering: false },
+            { type: "text", name: "CountryName", title: "Country Name", editing: false },
             { type: "text", name: "ConsultantCategory", title: "Consultant Category", editing: false, },            
             { type: "text", name: "Status", title: "Status", align: "left", width: 60 },
             {
@@ -594,6 +594,7 @@
         input = {
             INVendorSearchname: null,
             INVendorsearchCode: null,
+            INCountry: null,
             INStatus: null,
             INBankName: null,
             INAccountNumber: null,

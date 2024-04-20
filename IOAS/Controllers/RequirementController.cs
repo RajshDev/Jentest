@@ -10740,6 +10740,12 @@ namespace IOAS.Controllers
             object output = Common.CheckTINNumber(TINno);
             return Json(output, JsonRequestBehavior.AllowGet);
         }
+        [HttpGet]
+        public JsonResult CheckPreviousMasterGSTNumber(string GSTno)
+        {
+            object output = Common.CheckPreviousMasterGSTNumber(GSTno);
+            return Json(output, JsonRequestBehavior.AllowGet);
+        }
 
         #region Release Payment
         public ActionResult RCTConsultantPaymentRelease(int ConsultantMasterId)

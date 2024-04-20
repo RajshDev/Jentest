@@ -487,9 +487,101 @@ namespace IOAS.GenericServices
                 return null;
             }
         }
-        public decimal GetITExemption(string EmpId)        {            try            {                decimal Total = 0;                using (var context = new IOASDBEntities())                {                    var EightyCTotal = (from E in context.tblEmpITDeclaration                                        join IT in context.tblITDeclaration on E.DeclarationID equals IT.DeclarationID                                        where E.EmpId == EmpId && (IT.SectionCode == "80C" || IT.SectionCode == "80CCC")                                        select new                                        {                                            E.EmpNo,                                            E.Amount,                                            E.MaxLimit                                        }).Sum(i => i.Amount);                    var NonEightyCTotal = (from E in context.tblEmpITDeclaration                                           join IT in context.tblITDeclaration on E.DeclarationID equals IT.DeclarationID                                           where E.EmpId == EmpId && (IT.SectionCode != "80C" && IT.SectionCode != "80CCC")                                           select new                                           {                                               E.EmpNo,                                               E.Amount,                                               E.MaxLimit                                           }).Sum(i => i.Amount);                    if (EightyCTotal > 150000)                    {                        Total = 150000 + Convert.ToDecimal(NonEightyCTotal);                    }                    else                    {                        Total = Convert.ToDecimal(EightyCTotal) + Convert.ToDecimal(NonEightyCTotal);                    }                }                Total += Convert.ToDecimal(WebConfigurationManager.AppSettings["Adhoc_Common_Exemption"]);                return Total;            }            catch (Exception ex)            {                Console.WriteLine(ex.ToString());                return 0;            }        }
+        public decimal GetITExemption(string EmpId)
+        {
+            try
+            {
+                decimal Total = 0;
+                using (var context = new IOASDBEntities())
+                {
+                    var EightyCTotal = (from E in context.tblEmpITDeclaration
+                                        join IT in context.tblITDeclaration on E.DeclarationID equals IT.DeclarationID
+                                        where E.EmpId == EmpId && (IT.SectionCode == "80C" || IT.SectionCode == "80CCC")
+                                        select new
+                                        {
+                                            E.EmpNo,
+                                            E.Amount,
+                                            E.MaxLimit
+                                        }).Sum(i => i.Amount);
 
-        public decimal GetITExemptionCurrentFinyear(string EmpId)        {            try            {                decimal Total = 0;                //using (var context = new IOASDBEntities())                //{                //    var EightyCTotal = (from E in context.tblEmpITDeclaration                //                        join IT in context.tblITDeclaration on E.DeclarationID equals IT.DeclarationID                //                        join Fn in context.tblFinYear on E.FinYearId equals Fn.FinYearId                //                        where E.EmpId == EmpId && Fn.CurrentYearFlag == true && (IT.SectionCode == "80C" || IT.SectionCode == "80CCC")                //                        select new                //                        {                //                            E.EmpNo,                //                            E.Amount,                //                            E.MaxLimit                //                        }).Sum(i => i.Amount);                //    var NonEightyCTotal = (from E in context.tblEmpITDeclaration                //                           join IT in context.tblITDeclaration on E.DeclarationID equals IT.DeclarationID                //                           join Fn in context.tblFinYear on E.FinYearId equals Fn.FinYearId                //                           where E.EmpId == EmpId && Fn.CurrentYearFlag == true && (IT.SectionCode != "80C" && IT.SectionCode != "80CCC")                //                           select new                //                           {                //                               E.EmpNo,                //                               E.Amount,                //                               E.MaxLimit                //                           }).Sum(i => i.Amount);                //    if (EightyCTotal > 150000)                //    {                //        Total = 150000 + Convert.ToDecimal(NonEightyCTotal);                //    }                //    else                //    {                //        Total = Convert.ToDecimal(EightyCTotal) + Convert.ToDecimal(NonEightyCTotal);                //    }                //}                Total += Convert.ToDecimal(WebConfigurationManager.AppSettings["Adhoc_Common_Exemption"]);                return Total;            }            catch (Exception ex)            {                Console.WriteLine(ex.ToString());                return 0;            }        }
+
+                    var NonEightyCTotal = (from E in context.tblEmpITDeclaration
+                                           join IT in context.tblITDeclaration on E.DeclarationID equals IT.DeclarationID
+                                           where E.EmpId == EmpId && (IT.SectionCode != "80C" && IT.SectionCode != "80CCC")
+                                           select new
+                                           {
+                                               E.EmpNo,
+                                               E.Amount,
+                                               E.MaxLimit
+                                           }).Sum(i => i.Amount);
+                    if (EightyCTotal > 150000)
+                    {
+                        Total = 150000 + Convert.ToDecimal(NonEightyCTotal);
+                    }
+                    else
+                    {
+                        Total = Convert.ToDecimal(EightyCTotal) + Convert.ToDecimal(NonEightyCTotal);
+                    }
+                }
+                Total += Convert.ToDecimal(WebConfigurationManager.AppSettings["Adhoc_Common_Exemption"]);
+
+                return Total;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+                return 0;
+            }
+        }
+
+        public decimal GetITExemptionCurrentFinyear(string EmpId)
+        {
+            try
+            {
+                decimal Total = 0;
+                //using (var context = new IOASDBEntities())
+                //{
+                //    var EightyCTotal = (from E in context.tblEmpITDeclaration
+                //                        join IT in context.tblITDeclaration on E.DeclarationID equals IT.DeclarationID
+                //                        join Fn in context.tblFinYear on E.FinYearId equals Fn.FinYearId
+                //                        where E.EmpId == EmpId && Fn.CurrentYearFlag == true && (IT.SectionCode == "80C" || IT.SectionCode == "80CCC")
+                //                        select new
+                //                        {
+                //                            E.EmpNo,
+                //                            E.Amount,
+                //                            E.MaxLimit
+                //                        }).Sum(i => i.Amount);
+
+
+                //    var NonEightyCTotal = (from E in context.tblEmpITDeclaration
+                //                           join IT in context.tblITDeclaration on E.DeclarationID equals IT.DeclarationID
+                //                           join Fn in context.tblFinYear on E.FinYearId equals Fn.FinYearId
+                //                           where E.EmpId == EmpId && Fn.CurrentYearFlag == true && (IT.SectionCode != "80C" && IT.SectionCode != "80CCC")
+                //                           select new
+                //                           {
+                //                               E.EmpNo,
+                //                               E.Amount,
+                //                               E.MaxLimit
+                //                           }).Sum(i => i.Amount);
+                //    if (EightyCTotal > 150000)
+                //    {
+                //        Total = 150000 + Convert.ToDecimal(NonEightyCTotal);
+                //    }
+                //    else
+                //    {
+                //        Total = Convert.ToDecimal(EightyCTotal) + Convert.ToDecimal(NonEightyCTotal);
+                //    }
+                //}
+                Total += Convert.ToDecimal(WebConfigurationManager.AppSettings["Adhoc_Common_Exemption"]);
+
+                return Total;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+                return 0;
+            }
+        }
 
         public List<EmpITSOPModel> GetITEmpSOP()
         {
@@ -3700,7 +3792,7 @@ namespace IOAS.GenericServices
             int currmonth = DateTime.Now.Month;
             var ss = currmonth - 1;
 
-            if (currmonth > 3)
+            if (currmonth >= 3)
             {
                 for (int i = currmonth; i <= 12; i++)
                 {
@@ -6226,12 +6318,43 @@ namespace IOAS.GenericServices
                 return group;
             }
         }
-        public string UpdateSalaryPayment(int PaymentHeadId, string currentStatus, string newStatus, int userId)        {            try            {                string msg = "";                using (var context = new IOASDBEntities())                {                    using (var transaction = context.Database.BeginTransaction())                    {                        List<BillCommitmentDetailModel> txList = new List<BillCommitmentDetailModel>();                        bool result = false;                        try                        {                            var payNo = "";                            var pyamentHead = (from PH in context.tblSalaryPaymentHead                                               where PH.PaymentHeadId == PaymentHeadId && PH.Status == currentStatus                                               select PH).SingleOrDefault();                            if (pyamentHead != null)                            {                                pyamentHead.Status = newStatus;                                pyamentHead.UpdatedBy = userId;                                pyamentHead.UpdatedAt = DateTime.Now;                                context.SaveChanges();                                payNo = pyamentHead.PaymentNo;
+        public string UpdateSalaryPayment(int PaymentHeadId, string currentStatus, string newStatus, int userId)
+        {
+            try
+            {
+                string msg = "";
+                using (var context = new IOASDBEntities())
+                {
+
+
+                    using (var transaction = context.Database.BeginTransaction())
+                    {
+                        List<BillCommitmentDetailModel> txList = new List<BillCommitmentDetailModel>();
+                        bool result = false;
+                        try
+                        {
+
+                            var payNo = "";
+                            var pyamentHead = (from PH in context.tblSalaryPaymentHead
+                                               where PH.PaymentHeadId == PaymentHeadId && PH.Status == currentStatus
+                                               select PH).SingleOrDefault();
+                            if (pyamentHead != null)
+                            {
+                                pyamentHead.Status = newStatus;
+                                pyamentHead.UpdatedBy = userId;
+                                pyamentHead.UpdatedAt = DateTime.Now;
+                                context.SaveChanges();
+
+                                payNo = pyamentHead.PaymentNo;
                                 //var Process = ProcessEngineService.GetProcessFlowByName("Salary Approval");
                                 //int processGuideLineId = Process.ProcessGuidelineId;
                                 //var fe = FlowEngine.Init(processGuideLineId, userId, PaymentHeadId, "PaymentHeadId");
                                 //fe.ProcessInit();
-                            }                            if (newStatus == "Approval Pending")                            {
+                            }
+
+
+                            if (newStatus == "Approval Pending")
+                            {
                                 //var query = (from c in context.tblAdhocSalaryCommitmentDetail
                                 // group c by c.CommitmentDetailId into grp
                                 // join det in context.tblCommitmentDetails on grp.FirstOrDefault().CommitmentDetailId equals det.ComitmentDetailId
@@ -6256,7 +6379,49 @@ namespace IOAS.GenericServices
                                 // });
                                 // }
                                 //}
-                                txList = (from c in context.tblAdhocSalaryCommitmentDetail                                          join det in context.tblCommitmentDetails on c.CommitmentDetailId equals det.ComitmentDetailId                                          join com in context.tblCommitment on det.CommitmentId equals com.CommitmentId                                          where c.PaymentHeadId == PaymentHeadId && c.Status == "Active"                                          select new BillCommitmentDetailModel()                                          {                                              CommitmentDetailId = c.CommitmentDetailId,                                              PaymentAmount = c.Amount,                                              CommitmentId = com.CommitmentId,                                              ReversedAmount = c.Amount                                          }).ToList();                                result = coreAccountService.UpdateCommitmentBalance(txList, false, false, userId, PaymentHeadId, "SAL");                                if (!result)                                {                                    transaction.Rollback();                                    return "There is a mismatch between the allocated available value and allocated commitment value.";                                }                                BOAModel model = new BOAModel();                                CoreAccountsService coreAccounts = new CoreAccountsService();                                List<BOATransactionModel> txDet = new List<BOATransactionModel>();                                model.TempVoucherNumber = pyamentHead.PaymentNo;                                model.PostedDate = DateTime.Now;                                model.VoucherType = 3;                                model.VoucherNumber = pyamentHead.PaymentNo;                                model.BOAValue = pyamentHead.Amount;                                model.RefNumber = pyamentHead.PaymentNo;                                model.RefTransactionCode = "SAL";                                model.TransactionTypeCode = "SAL";                                txDet = (from exp in context.tblSalaryTransactionDetail                                         where exp.PaymentHeadId == PaymentHeadId                                         select new BOATransactionModel()                                         {                                             AccountHeadId = exp.AccountHeadId,                                             Amount = exp.Amount,                                             TransactionType = exp.TransactionType                                         }).ToList();                                var bankHeadDet = (from exp in context.tblSalaryTransactionDetail                                                   join h in context.tblAccountHead on exp.AccountHeadId equals h.AccountHeadId                                                   where exp.PaymentHeadId == PaymentHeadId && h.Bank_f == true && exp.Amount > 0                                                   select exp).FirstOrDefault();
+                                txList = (from c in context.tblAdhocSalaryCommitmentDetail
+                                          join det in context.tblCommitmentDetails on c.CommitmentDetailId equals det.ComitmentDetailId
+                                          join com in context.tblCommitment on det.CommitmentId equals com.CommitmentId
+                                          where c.PaymentHeadId == PaymentHeadId && c.Status == "Active"
+                                          select new BillCommitmentDetailModel()
+                                          {
+                                              CommitmentDetailId = c.CommitmentDetailId,
+                                              PaymentAmount = c.Amount,
+                                              CommitmentId = com.CommitmentId,
+                                              ReversedAmount = c.Amount
+                                          }).ToList();
+
+                                result = coreAccountService.UpdateCommitmentBalance(txList, false, false, userId, PaymentHeadId, "SAL");
+                                if (!result)
+                                {
+                                    transaction.Rollback();
+                                    return "There is a mismatch between the allocated available value and allocated commitment value.";
+                                }
+                                BOAModel model = new BOAModel();
+                                CoreAccountsService coreAccounts = new CoreAccountsService();
+                                List<BOATransactionModel> txDet = new List<BOATransactionModel>();
+
+                                model.TempVoucherNumber = pyamentHead.PaymentNo;
+                                model.PostedDate = DateTime.Now;
+                                model.VoucherType = 3;
+                                model.VoucherNumber = pyamentHead.PaymentNo;
+                                model.BOAValue = pyamentHead.Amount;
+                                model.RefNumber = pyamentHead.PaymentNo;
+                                model.RefTransactionCode = "SAL";
+                                model.TransactionTypeCode = "SAL";
+                                txDet = (from exp in context.tblSalaryTransactionDetail
+                                         where exp.PaymentHeadId == PaymentHeadId
+                                         select new BOATransactionModel()
+                                         {
+                                             AccountHeadId = exp.AccountHeadId,
+                                             Amount = exp.Amount,
+                                             TransactionType = exp.TransactionType
+                                         }).ToList();
+
+                                var bankHeadDet = (from exp in context.tblSalaryTransactionDetail
+                                                   join h in context.tblAccountHead on exp.AccountHeadId equals h.AccountHeadId
+                                                   where exp.PaymentHeadId == PaymentHeadId && h.Bank_f == true && exp.Amount > 0
+                                                   select exp).FirstOrDefault();
 
                                 //var paymentQuery = (from sp in context.tblSalaryPayment
                                 // join b in context.vwAdhocBankDetails on sp.EmployeeId equals b.Fileno into g
@@ -6309,12 +6474,68 @@ namespace IOAS.GenericServices
                                 // }
                                 // model.BOAPaymentDetail = BOAPaymentDetail;
                                 //}
-                                BOAPaymentDetail.Add(new BOAPaymentDetailModel()                                {                                    TransactionType = "Credit",                                    BankHeadID = bankHeadDet.AccountHeadId,                                    Amount = bankHeadDet.Amount,                                    ReferenceNumber = payNo,                                    ReferenceDate = DateTime.Now,                                    PaymentMode = 2,                                    PayeeBank = "",                                    StudentRoll = "",                                    Reconciliation_f = false,                                    PayeeName = "Adhoc Salary " + pyamentHead.PaymentMonthYear,                                    PayeeType = "Adhoc Salary"                                });                                model.BOAPaymentDetail = BOAPaymentDetail;                                model.BOATransaction = txDet;                                bool boaTx = coreAccounts.BOATransaction(model);                                if (!boaTx)                                    coreAccountService.UpdateCommitmentBalance(txList, true, false, userId, PaymentHeadId, "SAL");                                if (!result || !boaTx)                                {                                    transaction.Rollback();                                    return msg;                                }                                context.tblCommitmentLog.Where(x => x.TransactionTypeCode == "SAL" && x.RefId == PaymentHeadId)                               .ToList()                               .ForEach(m =>                               {                                   m.CRTD_TS = model.PostedDate;                                   m.Posted_f = true;                               });                                context.SaveChanges();                            }
+                                BOAPaymentDetail.Add(new BOAPaymentDetailModel()
+                                {
+                                    TransactionType = "Credit",
+                                    BankHeadID = bankHeadDet.AccountHeadId,
+                                    Amount = bankHeadDet.Amount,
+                                    ReferenceNumber = payNo,
+                                    ReferenceDate = DateTime.Now,
+                                    PaymentMode = 2,
+                                    PayeeBank = "",
+                                    StudentRoll = "",
+                                    Reconciliation_f = false,
+                                    PayeeName = "Adhoc Salary " + pyamentHead.PaymentMonthYear,
+                                    PayeeType = "Adhoc Salary"
+                                });
+                                model.BOAPaymentDetail = BOAPaymentDetail;
+                                model.BOATransaction = txDet;
+                                bool boaTx = coreAccounts.BOATransaction(model);
+                                if (!boaTx)
+                                    coreAccountService.UpdateCommitmentBalance(txList, true, false, userId, PaymentHeadId, "SAL");
+                                if (!result || !boaTx)
+                                {
+                                    transaction.Rollback();
+                                    return msg;
+                                }
+                                context.tblCommitmentLog.Where(x => x.TransactionTypeCode == "SAL" && x.RefId == PaymentHeadId)
+                               .ToList()
+                               .ForEach(m =>
+                               {
+                                   m.CRTD_TS = model.PostedDate;
+                                   m.Posted_f = true;
+                               });
+                                context.SaveChanges();
+                            }
 
                             //context.Dispose();
-                            msg = "Updated successfully";                            transaction.Commit();                        }                        catch (Exception ex)                        {                            IOASException.Instance.HandleMe(this, ex);                            if (result)                                coreAccountService.UpdateCommitmentBalance(txList, true, false, userId, PaymentHeadId, "SAL");                            transaction.Rollback();                            return ex.ToString();                        }                    }                }                return msg;            }            catch (Exception ex)            {                Console.WriteLine(ex.ToString());
+                            msg = "Updated successfully";
+                            transaction.Commit();
+                        }
+                        catch (Exception ex)
+                        {
+                            IOASException.Instance.HandleMe(this, ex);
+                            if (result)
+                                coreAccountService.UpdateCommitmentBalance(txList, true, false, userId, PaymentHeadId, "SAL");
+
+                            transaction.Rollback();
+                            return ex.ToString();
+                        }
+                    }
+
+
+                }
+
+                return msg;
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
                 //transaction.Rollback();
-                return ex.ToString();            }        }
+                return ex.ToString();
+            }
+        }
 
         public AdhocEmployeeModel GetEmployeeByEmpId(int EmployeeId)
         {
@@ -7053,12 +7274,43 @@ namespace IOAS.GenericServices
 
 
 
-        public bool TestUpdateSalaryPayment(int PaymentHeadId = 147, string currentStatus = "Approval Pending", string newStatus = "Approval Pending", int userId = 55)        {            try            {                string msg = "";                using (var context = new IOASDBEntities())                {                    using (var transaction = context.Database.BeginTransaction())                    {                        List<BillCommitmentDetailModel> txList = new List<BillCommitmentDetailModel>();                        bool result = false;                        try                        {                            var payNo = "";                            var pyamentHead = (from PH in context.tblSalaryPaymentHead                                               where PH.PaymentHeadId == PaymentHeadId && PH.Status == currentStatus                                               select PH).SingleOrDefault();                            if (pyamentHead != null)                            {                                pyamentHead.Status = newStatus;                                pyamentHead.UpdatedBy = userId;                                pyamentHead.UpdatedAt = DateTime.Now;                                context.SaveChanges();                                payNo = pyamentHead.PaymentNo;
+        public bool TestUpdateSalaryPayment(int PaymentHeadId = 147, string currentStatus = "Approval Pending", string newStatus = "Approval Pending", int userId = 55)
+        {
+            try
+            {
+                string msg = "";
+                using (var context = new IOASDBEntities())
+                {
+
+
+                    using (var transaction = context.Database.BeginTransaction())
+                    {
+                        List<BillCommitmentDetailModel> txList = new List<BillCommitmentDetailModel>();
+                        bool result = false;
+                        try
+                        {
+
+                            var payNo = "";
+                            var pyamentHead = (from PH in context.tblSalaryPaymentHead
+                                               where PH.PaymentHeadId == PaymentHeadId && PH.Status == currentStatus
+                                               select PH).SingleOrDefault();
+                            if (pyamentHead != null)
+                            {
+                                pyamentHead.Status = newStatus;
+                                pyamentHead.UpdatedBy = userId;
+                                pyamentHead.UpdatedAt = DateTime.Now;
+                                context.SaveChanges();
+
+                                payNo = pyamentHead.PaymentNo;
                                 //var Process = ProcessEngineService.GetProcessFlowByName("Salary Approval");
                                 //int processGuideLineId = Process.ProcessGuidelineId;
                                 //var fe = FlowEngine.Init(processGuideLineId, userId, PaymentHeadId, "PaymentHeadId");
                                 //fe.ProcessInit();
-                            }                            if (newStatus == "Approval Pending")                            {
+                            }
+
+
+                            if (newStatus == "Approval Pending")
+                            {
                                 //var query = (from c in context.tblAdhocSalaryCommitmentDetail
                                 // group c by c.CommitmentDetailId into grp
                                 // join det in context.tblCommitmentDetails on grp.FirstOrDefault().CommitmentDetailId equals det.ComitmentDetailId
@@ -7083,14 +7335,49 @@ namespace IOAS.GenericServices
                                 // });
                                 // }
                                 //}
-                                txList = (from c in context.tblAdhocSalaryCommitmentDetail                                          join det in context.tblCommitmentDetails on c.CommitmentDetailId equals det.ComitmentDetailId                                          join com in context.tblCommitment on det.CommitmentId equals com.CommitmentId                                          where c.PaymentHeadId == PaymentHeadId && c.Status == "Active"                                          select new BillCommitmentDetailModel()                                          {                                              CommitmentDetailId = c.CommitmentDetailId,                                              PaymentAmount = c.Amount,                                              CommitmentId = com.CommitmentId,                                              ReversedAmount = c.Amount                                          }).ToList();                                result = true;
+                                txList = (from c in context.tblAdhocSalaryCommitmentDetail
+                                          join det in context.tblCommitmentDetails on c.CommitmentDetailId equals det.ComitmentDetailId
+                                          join com in context.tblCommitment on det.CommitmentId equals com.CommitmentId
+                                          where c.PaymentHeadId == PaymentHeadId && c.Status == "Active"
+                                          select new BillCommitmentDetailModel()
+                                          {
+                                              CommitmentDetailId = c.CommitmentDetailId,
+                                              PaymentAmount = c.Amount,
+                                              CommitmentId = com.CommitmentId,
+                                              ReversedAmount = c.Amount
+                                          }).ToList();
+                                result = true;
                                 //result = coreAccountService.UpdateCommitmentBalance(txList, false, false, userId, PaymentHeadId, "SAL");
                                 //if (!result)
                                 //{
                                 //    transaction.Rollback();
                                 //    return false;
                                 //}
-                                BOAModel model = new BOAModel();                                CoreAccountsService coreAccounts = new CoreAccountsService();                                List<BOATransactionModel> txDet = new List<BOATransactionModel>();                                model.TempVoucherNumber = pyamentHead.PaymentNo;                                model.PostedDate = DateTime.Now;                                model.VoucherType = 3;                                model.VoucherNumber = pyamentHead.PaymentNo;                                model.BOAValue = pyamentHead.Amount;                                model.RefNumber = pyamentHead.PaymentNo;                                model.RefTransactionCode = "SAL";                                model.TransactionTypeCode = "SAL";                                txDet = (from exp in context.tblSalaryTransactionDetail                                         where exp.PaymentHeadId == PaymentHeadId                                         select new BOATransactionModel()                                         {                                             AccountHeadId = exp.AccountHeadId,                                             Amount = exp.Amount,                                             TransactionType = exp.TransactionType                                         }).ToList();                                var bankHeadDet = (from exp in context.tblSalaryTransactionDetail                                                   join h in context.tblAccountHead on exp.AccountHeadId equals h.AccountHeadId                                                   where exp.PaymentHeadId == PaymentHeadId && h.Bank_f == true && exp.Amount > 0                                                   select exp).FirstOrDefault();
+                                BOAModel model = new BOAModel();
+                                CoreAccountsService coreAccounts = new CoreAccountsService();
+                                List<BOATransactionModel> txDet = new List<BOATransactionModel>();
+
+                                model.TempVoucherNumber = pyamentHead.PaymentNo;
+                                model.PostedDate = DateTime.Now;
+                                model.VoucherType = 3;
+                                model.VoucherNumber = pyamentHead.PaymentNo;
+                                model.BOAValue = pyamentHead.Amount;
+                                model.RefNumber = pyamentHead.PaymentNo;
+                                model.RefTransactionCode = "SAL";
+                                model.TransactionTypeCode = "SAL";
+                                txDet = (from exp in context.tblSalaryTransactionDetail
+                                         where exp.PaymentHeadId == PaymentHeadId
+                                         select new BOATransactionModel()
+                                         {
+                                             AccountHeadId = exp.AccountHeadId,
+                                             Amount = exp.Amount,
+                                             TransactionType = exp.TransactionType
+                                         }).ToList();
+
+                                var bankHeadDet = (from exp in context.tblSalaryTransactionDetail
+                                                   join h in context.tblAccountHead on exp.AccountHeadId equals h.AccountHeadId
+                                                   where exp.PaymentHeadId == PaymentHeadId && h.Bank_f == true && exp.Amount > 0
+                                                   select exp).FirstOrDefault();
 
                                 //var paymentQuery = (from sp in context.tblSalaryPayment
                                 // join b in context.vwAdhocBankDetails on sp.EmployeeId equals b.Fileno into g
@@ -7143,12 +7430,67 @@ namespace IOAS.GenericServices
                                 // }
                                 // model.BOAPaymentDetail = BOAPaymentDetail;
                                 //}
-                                BOAPaymentDetail.Add(new BOAPaymentDetailModel()                                {                                    TransactionType = "Credit",                                    BankHeadID = bankHeadDet.AccountHeadId,                                    Amount = bankHeadDet.Amount,                                    ReferenceNumber = payNo,                                    ReferenceDate = DateTime.Now,                                    PaymentMode = 2,                                    PayeeBank = "",                                    StudentRoll = "",                                    Reconciliation_f = false,                                    PayeeName = "Adhoc Salary " + pyamentHead.PaymentMonthYear,                                    PayeeType = "Adhoc Salary"                                });                                model.BOAPaymentDetail = BOAPaymentDetail;                                model.BOATransaction = txDet;                                bool boaTx = coreAccounts.BOATransaction(model);                                if (!boaTx)                                    coreAccountService.UpdateCommitmentBalance(txList, true, false, userId, PaymentHeadId, "SAL");                                if (!result || !boaTx)                                {                                    transaction.Rollback();                                    return false;                                }                                context.tblCommitmentLog.Where(x => x.TransactionTypeCode == "SAL" && x.RefId == PaymentHeadId)                               .ToList()                               .ForEach(m =>                               {                                   m.CRTD_TS = model.PostedDate;                                   m.Posted_f = true;                               });                                context.SaveChanges();                            }
+                                BOAPaymentDetail.Add(new BOAPaymentDetailModel()
+                                {
+                                    TransactionType = "Credit",
+                                    BankHeadID = bankHeadDet.AccountHeadId,
+                                    Amount = bankHeadDet.Amount,
+                                    ReferenceNumber = payNo,
+                                    ReferenceDate = DateTime.Now,
+                                    PaymentMode = 2,
+                                    PayeeBank = "",
+                                    StudentRoll = "",
+                                    Reconciliation_f = false,
+                                    PayeeName = "Adhoc Salary " + pyamentHead.PaymentMonthYear,
+                                    PayeeType = "Adhoc Salary"
+                                });
+                                model.BOAPaymentDetail = BOAPaymentDetail;
+                                model.BOATransaction = txDet;
+                                bool boaTx = coreAccounts.BOATransaction(model);
+                                if (!boaTx)
+                                    coreAccountService.UpdateCommitmentBalance(txList, true, false, userId, PaymentHeadId, "SAL");
+                                if (!result || !boaTx)
+                                {
+                                    transaction.Rollback();
+                                    return false;
+                                }
+                                context.tblCommitmentLog.Where(x => x.TransactionTypeCode == "SAL" && x.RefId == PaymentHeadId)
+                               .ToList()
+                               .ForEach(m =>
+                               {
+                                   m.CRTD_TS = model.PostedDate;
+                                   m.Posted_f = true;
+                               });
+                                context.SaveChanges();
+                            }
 
                             //context.Dispose();
-                            msg = "Updated successfully";                            transaction.Commit();                        }                        catch (Exception ex)                        {                            IOASException.Instance.HandleMe(this, ex);                            if (result)                                coreAccountService.UpdateCommitmentBalance(txList, true, false, userId, PaymentHeadId, "SAL");                            transaction.Rollback();                            return false;                        }                    }                }                return true;            }            catch (Exception ex)            {                Console.WriteLine(ex.ToString());
+                            msg = "Updated successfully";
+                            transaction.Commit();
+                        }
+                        catch (Exception ex)
+                        {
+                            IOASException.Instance.HandleMe(this, ex);
+                            if (result)
+                                coreAccountService.UpdateCommitmentBalance(txList, true, false, userId, PaymentHeadId, "SAL");
+                            transaction.Rollback();
+                            return false;
+                        }
+                    }
+
+
+                }
+
+                return true;
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
                 //transaction.Rollback();
-                return false;            }        }
+                return false;
+            }
+        }
 
 
     }

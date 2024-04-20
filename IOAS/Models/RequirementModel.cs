@@ -3246,9 +3246,9 @@ namespace IOAS.Models
         public Nullable<int> Consultant_FIGender { get; set; }
         [Display(Name = "Date of Birth")]
         public Nullable<System.DateTime> Consultant_fi_DOB { get; set; }
-        [MaxLength(10)]
-        [RegularExpression("[0-9]{10}", ErrorMessage = "Invalid Phone Number")]
-        [Display(Name = "Contact Number")]
+        //[MaxLength(10)]
+        //[RegularExpression("[0-9]{10}", ErrorMessage = "Invalid Phone Number")]
+        //[Display(Name = "Contact Number")]
         public string Consultant_FIContactNumber { get; set; }
 
         [EmailAddress(ErrorMessage = "Invalid EMail Address")]
@@ -3283,9 +3283,9 @@ namespace IOAS.Models
 
         public string Consultant_FFName { get; set; }
 
-        [MaxLength(10)]
-        [RegularExpression("[0-9]{10}", ErrorMessage = "Invalid Phone Number")]
-        [Display(Name = "Contact Number")]
+        //[MaxLength(10)]
+        //[RegularExpression("[0-9]{10}", ErrorMessage = "Invalid Phone Number")]
+        //[Display(Name = "Contact Number")]
         public string Consultant_FFContactNumber { get; set; }
 
         [EmailAddress(ErrorMessage = "Invalid EMail Address")]
@@ -3297,9 +3297,9 @@ namespace IOAS.Models
         public Nullable<int> Consultant_FFCountry { get; set; }
 
         public string Consultant_FFCity { get; set; }
-        [MaxLength(6)]
-        [RegularExpression(@"^\d{6}(-\d{4})?$", ErrorMessage = "Invalid Pincode")]
-        [Display(Name = "Pincode")]
+        //[MaxLength(6)]
+        //[RegularExpression(@"^\d{6}(-\d{4})?$", ErrorMessage = "Invalid Pincode")]
+        //[Display(Name = "Pincode")]
         public string Consultant_FFPincode { get; set; }
         public string Consultant_FFServiceAddress { get; set; }
         public bool isSameAsFFAddress { get; set; }
@@ -3369,7 +3369,7 @@ namespace IOAS.Models
         public string INConsultantSearchname { get; set; }
         public string INConsultantsearchID { get; set; }
         public string INStatus { get; set; }
-        public Nullable<int> INCountry { get; set; }
+        public string INCountry { get; set; }
         public int EXCountryName { get; set; }
         public string EXConsultantSearchname { get; set; }
         public string INConsultantCategory { get; set; }
@@ -3382,6 +3382,7 @@ namespace IOAS.Models
     public class ConsultantMasterView
     {
         public int Consultant_MasterId { get; set; }
+        public string Consultant_EmpId { get; set; }
         public string ConsultantName { get; set; }
         public string Nationality { get; set; }
         public string Category { get; set; }
@@ -3413,6 +3414,10 @@ namespace IOAS.Models
         public string IBAN { get; set; }
         public string SWiftCode { get; set; }
         public string BankCountry { get; set; }
+        public string Consultant_DOB { get; set; }
+        public string Consultant_Gender { get; set; }
+        public string Consultant_Qualification { get; set; }
+        public string Consultant_Experience { get; set; }
 
         public List<OtherDocumentModel> TdsDocument { get; set; }
         public List<TaxDocumentModel> TaxDocument { get; set; }
