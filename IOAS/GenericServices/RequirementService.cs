@@ -33570,33 +33570,7 @@ namespace IOAS.GenericServices
                     {
                         model.Fromdate = Convert.ToDateTime(Query.PaymentFromDate.ToString("dd-MMMM-yyyy"));
                         model.ToDate = Convert.ToDateTime(Query.PaymentToDate.ToString("dd-MMMM-yyyy"));
-                        //model.Fromdate = Convert.ToDateTime("31-March-2024");
-                        //model.Fromdate = Query.PaymentFromDate; 
-                        //model.ToDate = Query.PaymentToDate;
-                        //model.ToDate = Convert.ToDateTime("2006-02-01");
                     }
-                    //else
-                    //{
-                    //    model.Fromdate = Convert.ToDateTime("31-March-2024");
-                    //    model.ToDate = Convert.ToDateTime("2006-02-01");
-                    //}
-                    //model.ITTDSValue = (Qry.ce.Consultant_ITTDSPercentage);
-                    //model.GSTValue = (Qry.ce.consultant);
-                    //model.Branch = Qry.Consultant_Branch;
-                    //model.BankEmail = Qry.Consultant_BankEmailId;
-                    //model.BankNature = Qry.Consultant_BankNature;
-                    //model.MICRCode = Qry.Consultant_MICRCode;
-                    //model.ABANumber = Qry.Consultant_ABANumber;
-                    //model.SortCode = Qry.Consultant_SortCode;
-                    //model.IBAN = Qry.Consultant_IBAN;
-                    //model.MICRCode = Qry.Consultant_MICRCode;
-                    //model.SWiftCode = Qry.Consultant_SWIFTorBICCode;
-                    //model.BankCountry = Common.GetVendorbankCountry(Qry.Consultant_BankCountry ?? 0);
-
-
-
-
-
                     return model;
                 }
             }
@@ -33671,18 +33645,6 @@ namespace IOAS.GenericServices
                     {
                         for (int i = 0; i < query.Count; i++)
                         {
-                            //int appid = query[i].ConsultantAppointmentId ?? 0;
-                            //int emailcount = context.tblRCTConsutantAppEmailLog.Where(x => x.IsSend == true && x.TypeofMail == 3 && x.ConsultantAppointmentId == appid).Count();
-                            //bool isCommitmentRejection = false;
-                            //if (query[i].Status == "Open")
-                            //{
-                            //    var Qry = context.tblRCTConsultantAppointment.Where(x => x.ConsultantAppointmentId == appid).FirstOrDefault();
-                            //    isCommitmentRejection = Qry.isCommitmentReject ?? false;
-                            //}
-                            //bool SendOffer_f = context.tblRCTOfferDetails.
-                            //                   Where(x => x.ApplicationId == appid && x.Category == "CON" &&
-                            //                   x.OfferCategory == "OfferLetter" && x.isSend != true).FirstOrDefault() != null ? true : false;
-
                             list.Add(new ConsultantEmployeeEntry()
                             {
                                 SE_SNo = i + 1,
@@ -33695,10 +33657,6 @@ namespace IOAS.GenericServices
                                 Consultant_ProjectPI = query[i].Consultant_ProjectPI,
                                 Consultant_ProjectPIEmail = query[i].Consultant_ProjectPIEmail,
                                 Consultant_Status = query[i].Consultant_Status,
-                                //EmailRemaindarCount = emailcount,
-                                //isCommitmentRejection = isCommitmentRejection,
-                                //SendOffer_f = SendOffer_f,
-                                //Cancel_f = IsCancelAppointment(query[i].Appointmentstartdate, query[i].Status)
                             });
 
                         }
@@ -33957,7 +33915,7 @@ namespace IOAS.GenericServices
                                             var docremarks = model.Consultant_DocumentName[i];
                                             var filepath = model.Consultant_DocumentNameEncrypted[i];
                                             var fileName = filepath.Split('_').Last();
-                                            //string docpath = "";
+
                                             var docquery = (from doc in context.tblRCTConsultantEntryDocs
                                                             where (doc.Consultant_DocumentId == docid && doc.Consultant_AppointmentId == model.Consultant_AppointmentId)
                                                             select doc).FirstOrDefault();
@@ -34019,9 +33977,6 @@ namespace IOAS.GenericServices
                                                      where (s.Consultant_Status == "Awaiting Verification")
                                                      && s.Consultant_AppointmentId == Consultant_AppointmentId
                                                      select new { s, m }).FirstOrDefault();
-                                //var CONquery = (from prj in context.tblRCTConsultantEntry
-                                //                where prj.Consultant_ApplicationNo == model.Consultant_AppNo
-                                //                select prj).FirstOrDefault();
                                 var EMPID = editconsquery.s.Consultant_EmpNo;
                                 var Servicecount = (from prj in context.tblRCTConsultantEntry
                                                     where prj.Consultant_EmpNo == EMPID && prj.Consultant_ServiceNo != null
@@ -34031,7 +33986,6 @@ namespace IOAS.GenericServices
                                 if (model.Consultant_AppStartDt != editconsquery.s.Consultant_AppStartDt)
                                 {
                                     editconsquery.s.Consultant_Status = "Awaiting Verification - Pending commitment update";
-                                    //editconsquery.s.Consultant_Commitvalue = model.Consultant_Commitvalue;
                                     editconsquery.s.Consultant_GSTTDSType = model.Consultant_GSTTDSType;
                                     editconsquery.s.Consultant_Estimatedvalue = model.Consultant_Estimatedvalue;
                                     editconsquery.s.Consultant_ActualAppStartDt = model.Consultant_AppStartDt;
@@ -34074,53 +34028,21 @@ namespace IOAS.GenericServices
                                     editconsquery.s.Consultant_ServiceNo = editconsquery.s.Consultant_EmpNo + "-S" + value;
                                     PostRCTCONSStatusLog(Consultant_AppointmentId, "Awaiting Verification", "Completed", logged_in_userId);
                                 }
-                                //editconsquery.Consultant_MasterId = model.Consultant_MasterId;
-                                //editconsquery.Consultant_EmpNo = model.Consultant_EmpNo;
                                 editconsquery.s.Consultant_ServiceDescription = model.Consultant_ServiceDescription;
-                                //var editconstype = (from s in context.tblRCTConsultantEntry
-                                //                    join m in context.tblRCTConsultantMaster on s.Consultant_MasterId equals m.Consultant_MasterId
-                                //                    where s.Consultant_AppointmentId == Consultant_AppointmentId
-                                //                    select m).FirstOrDefault();
-                                //editconsquery.Consultant_Type = editconstype.Consultant_EmpType;
-                                //editconsquery.Consultant_Code = model.Consultant_CodeId;
-                                //editconsquery.Consultant_Title = model.Consultant_Title;
                                 editconsquery.s.Consultant_AoE = model.Consultant_AoE;
                                 editconsquery.s.Consultant_SoW = model.Consultant_SoW;
-                                //editconsquery.Consultant_GSTStatus = model.Consultant_GSTStatus;
-                                //editconsquery.Consultant_GSTIN = model.Consultant_GSTIN;
-                                //editconsquery.Consultant_GSTINPercentage = model.Consultant_GSTINPercentage;
                                 editconsquery.s.Consultant_TandC = model.Consultant_TandC;
-                                editconsquery.s.Consultant_PaymentTerms = model.Consultant_PaymentTerms;
-                                //editconsquery.Consultant_ProjectId = model.Consultant_ProjectId;
-                                //editconsquery.Consultant_AppStartDt = model.Consultant_AppStartDt;
-                                //editconsquery.Consultant_AppEndDt = model.Consultant_AppEndDt;                                
-                                //editconsquery.Consultant_ActualAppEndDt = model.Consultant_AppEndDt;
-                                //editconsquery.Consultant_CurrType = model.Consultant_CurrType;
-                                //editconsquery.Consultant_CurrValue = model.Consultant_CurrValue;
-                                //editconsquery.Consultant_CurrConvertionRate = model.Consultant_CurrConvertionRate;
-                                //editconsquery.Consultant_CurrFluctuationvalue = model.Consultant_CurrFlutuationvalue;
-                                //editconsquery.Consultant_RetainerFee = model.Consultant_RetainerFee;
-                                //editconsquery.Consultant_GSTvalue = model.Consultant_GSTvalue;
-                                //editconsquery.Consultant_GSTEligibility = model.Consultant_GSTEligibility;                                
+                                editconsquery.s.Consultant_PaymentTerms = model.Consultant_PaymentTerms;                             
                                 editconsquery.s.Consultant_ITTDSType = model.Consultant_ITTDSType;
                                 editconsquery.s.Consultant_ITTDSPercentage = model.Consultant_ITTDSPercentage;
                                 editconsquery.s.Consultant_ITTDSExemptedDate = model.Consultant_ITTDSExemptedDate;
-                                //editconsquery.Consultant_RCMType = model.Consultant_RCMType;
-                                //editconsquery.Consultant_RCMCategory = model.Consultant_RCMCategory;
-                                //editconsquery.Consultant_PayType = model.Consultant_PayType;
                                 editconsquery.s.Consultant_AuditApproval = model.Consultant_AuditApproval;
                                 editconsquery.s.Consultant_WPCategory = model.Consultant_WPCategory;
                                 editconsquery.s.Consultant_WorkPlace = model.Consultant_WorkPlace;
-                                //editconsquery.Consultant_Remarks = null;
-                                //editconsquery.Consultant_ReqReceivedDate = model.Consultant_ReqReceivedDate;
                                 editconsquery.s.Consultant_ReqInitBy = model.Consultant_ReqInitBy;
                                 editconsquery.s.Consultant_UptdTs = DateTime.Now;
                                 editconsquery.s.Consultant_UptdUser = logged_in_userId;
-                                //editconsquery.Consultant_IsDeleted = false;
                                 editconsquery.s.Consultant_DAComments = model.Consultant_DAComments;
-                                //editconsquery.Consultant_FlowApprover = model.Consultant_FlowApprover;
-                                //editconsquery.Consultant_ApplicationNo = model.Consultant_AppNo;                               
-                                //editconsquery.Islegal_f = model.Legal_f;
                                 context.SaveChanges();
                                 var QryConsModeremove = (from q in context.tblRCTConsultantMode
                                                          where q.Consultant_AppointmentId == Consultant_AppointmentId && q.Consultant_CurrentVersion == true
@@ -34167,7 +34089,7 @@ namespace IOAS.GenericServices
                                             var docremarks = model.Consultant_DocumentName[i];
                                             var filepath = model.Consultant_DocumentNameEncrypted[i];
                                             var fileName = filepath.Split('_').Last();
-                                            //string docpath = "";
+
                                             var docquery = (from doc in context.tblRCTConsultantEntryDocs
                                                             where (doc.Consultant_DocumentId == docid && doc.Consultant_AppointmentId == model.Consultant_AppointmentId)
                                                             select doc).FirstOrDefault();
@@ -34340,7 +34262,7 @@ namespace IOAS.GenericServices
                         {
                             model.Consultant_CodeId = QryGetConscode.B.DesignationId;
                         }
-                        //model.Consultant_Code = QryGetConscode.B.DesignationId;
+
                         model.Consultant_Title = QryCons.A.Consultant_Title;
                         model.Consultant_AoE = QryCons.A.Consultant_AoE;
                         model.Consultant_SoW = QryCons.A.Consultant_SoW;
@@ -34362,12 +34284,6 @@ namespace IOAS.GenericServices
                             model.Consultant_AppStartDt = QryCons.A.Consultant_ActualAppStartDt;
                             model.Consultant_AppEndDt = QryCons.A.Consultant_ActualAppEndDt;
                         }
-                        //model.Consultant_ProjectId = QryProjectdet.B.ProjectId;
-                        //model.Consultant_ProjectNumber = QryProjectdet.B.ProjectNumber;
-                        //model.Consultant_AppStartDt = QryCons.A.Consultant_AppStartDt;
-                        //model.Consultant_AppEndDt = QryCons.A.Consultant_AppEndDt;
-                        //model.Consultant_AppStartDt = QryCons.A.Consultant_ActualAppStartDt;
-                        //model.Consultant_AppEndDt = QryCons.A.Consultant_ActualAppEndDt;
                         model.Consultant_CurrType = QryCons.A.Consultant_CurrType;
                         model.Consultant_CurrValue = QryCons.A.Consultant_CurrValue;
                         model.Consultant_CurrConvertionRate = QryCons.A.Consultant_CurrConvertionRate;
@@ -34379,7 +34295,7 @@ namespace IOAS.GenericServices
                         model.Consultant_GSTINPercentage = Convert.ToInt32(GSTPercent);
                         model.Consultant_Commitvalue = QryCons.A.Consultant_Commitvalue;
                         model.Consultant_ITTDSType = QryCons.A.Consultant_ITTDSType;
-                        //var ITTDSPercent = QryCons.A.Consultant_ITTDSPercentage;
+
                         model.Consultant_ITTDSPercentage = QryCons.A.Consultant_ITTDSPercentage;
                         model.Consultant_ITTDSExemptedDate = QryCons.A.Consultant_ITTDSExemptedDate ?? null;
                         model.Consultant_GSTTDSType = QryCons.A.Consultant_GSTTDSType;
@@ -34558,7 +34474,7 @@ namespace IOAS.GenericServices
                     var query = IOAScontext.tblRCTConsultantEntry.FirstOrDefault(m => m.Consultant_AppointmentId == id);
                     if (query != null)
                     {
-                        //string Type = "Outsourcing Flow";
+
                         string Type = "";
                         if (query.Consultant_FlowApprover == "CMAdmin")
                             Type = "CONSAdminFlow";
