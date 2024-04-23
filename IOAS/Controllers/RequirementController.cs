@@ -12095,7 +12095,7 @@ namespace IOAS.Controllers
                 ViewBag.ConsultantPaymentType = Common.GetCodeControlList("ConsultantPaymentType");
                 ViewBag.ConsultantDocType = Common.GetCodeControlList("ConsultantDocType");
                 ConsultantModel.Consultant_Status = string.Empty;
-                //ConsultantModel.Consultant_Code = string.Empty;
+
                 if (ConsultantServiceID > 0)
                 {
                     ConsultantModel = recruitmentService.GetEditConsultant(ConsultantServiceID, file);

@@ -1,15 +1,12 @@
-﻿
-@model IOAS.Models.BillStatusModel
-
+﻿@model IOAS.Models.BillStatusModel
 @{
-    ViewBag.Title = "BillStatusChange";
+    ViewBag.Title = "ImprestMasterDateChange";
     Layout = "~/Views/Shared/_LayoutFluid.cshtml";
 }
 
-
 <div class="row hd-tt-bg">
     <div class="col-md-12">
-        <h4><b>Summer Internship Date Changer</b> </h4>
+        <h4><b>Imprest Master Date Changer</b> </h4>
     </div>
 </div>
 <style>
@@ -44,7 +41,7 @@
         }
 </style>
 
-@using (Html.BeginForm("SMIBillDateChange", "CoreAccounts", FormMethod.Post, new { @class = "", role = "form", @id = "formSMIbillDate", enctype = "multipart/form-data" }))
+@using (Html.BeginForm("ImprestMasterDateChange", "CoreAccounts", FormMethod.Post, new { @class = "", role = "form", @id = "formIMPbillDate", enctype = "multipart/form-data" }))
 {
     <div class="row">
         <div class="white-bg ad-navbar">
@@ -79,10 +76,10 @@
                             </td>
                             <td>
                                 <label>to be updated as :</label>
-                                @Html.TextBoxFor(m => m.BillDate, new { @class = "form-control", @id = "BillDate", @autocomplete = "off", @readonly = true })
+                                @Html.EditorFor(m => m.BillDate, new { @class = "form-control", @id = "BillDate", @autocomplete = "off" })
                             </td>
                         </tr>
-                      
+
                         <tr>
                             <td>
                                 <label>Cash Book Date :</label>
@@ -90,7 +87,7 @@
                             </td>
                             <td>
                                 <label>to be updated as :</label>
-                                @Html.TextBoxFor(m => m.CashDate, new { @class = "form-control", @id = "CashDate", @autocomplete = "off" , @readonly = true})
+                                @Html.EditorFor(m => m.CashDate, new { @class = "form-control", @id = "CashDate", @autocomplete = "off" })
                             </td>
                         </tr>
                         <tr>
@@ -111,9 +108,9 @@
 <script>
     var errMsg = '@TempData["errMsg"]';
     $(document).ready(function () {
-        fincurrent = moment(new Date()).toDate();
-        finyr = new Date('@TempData["Finyear"]');
         finTo = new Date('@TempData["FinTo"]');
+        finyr = new Date('@TempData["Finyear"]');
+        fincurrent = moment(new Date()).toDate();
         console.log(finyr);
         var finyrmax;
         if (fincurrent < finTo) {
@@ -130,31 +127,33 @@
             $("#RefId,#RefNo,#BillDate,#ExpDate,#CashDate,#Remarks").val('');
             $("#CurrDate,#expendituredate,#cashbookdate,#Remarks").text('');
             $('#FailedAlert').html("Something went wrong please contact administrator");
-            $('#BillDate,#ExpDate,#CashDate').removeClass('hasDatepicker');
-
             $('#Failed').modal('toggle');
+
         } if (errMsg == 'Success') {
             $("#RefId,#RefNo,#BillDate,#ExpDate,#CashDate,#Remarks").val('');
             $("#CurrDate,#expendituredate,#cashbookdate,#Remarks").text('');
             $('#alertSuccess').html("It has been updated successfully.");
-            $('#BillDate,#ExpDate,#CashDate').removeClass('hasDatepicker');
             $('#Success').modal('toggle');
         }
     });
-     $('#BillDate,#ExpDate,#CashDate').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true });
+    $('#BillDate,#ExpDate,#CashDate').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true });
     $(document).on('click', '#RefNo', function () {
-        applyAutoComplete($('#RefNo'), $('#RefId'), '@Url.Action("LoadSMIRefernceNumber", "CoreAccounts")', 'BillDate', undefined, undefined);
+
+        applyAutoComplete($('#RefNo'), $('#RefId'), '@Url.Action("LoadIMPRefernceNumber", "CoreAccounts")', 'BillDate', undefined, undefined);
        BillDate();
     });
 
     function GetRefNumber(Refnum) {
+
         var RefNumValidate ='';
         $.ajax({
+
             type: "GET",
             async: false,
-            url: '@Url.Action("GetRefNumberForValidationAVOBill", "CoreAccounts")',
+            url: '@Url.Action("GetRefNumberForValidationIMP", "CoreAccounts")',
             data: {
-                "Refnum": Refnum, "vouchertype":'SummerInternship'
+                "Refnum": Refnum, "vouchertype": 'ImprestMaster'
+
             },
             dataType: "json",
             success: function (result) {
@@ -163,12 +162,17 @@
         });
         return RefNumValidate;
     }
-    $('#btnSubmit').click(function () {
+
+    $('#btnSubmit').click( function () {
         var RefNumber = $("#RefNo").val();
         var BillDate = $("#BillDate").val();
         var ExpDate = $("#ExpDate").val();
         var CashDate = $("#CashDate").val();
         validate(RefNumber);
+
+        //if (RefNumber != "") {
+        //    $('#formAVObillDate').submit();
+        //}
 
     });
     async function validate(RefNumber) {
@@ -176,27 +180,32 @@
         var ValidateRefNumber = await GetRefNumber(RefNumber);
 
         if (RefNumber == ValidateRefNumber && RefNumber != "") {
-            $('#formSMIbillDate').submit();
+
+            $('#formIMPbillDate').submit();
+
         }
         else {
             $('#FailedAlert').html("Invalid Reference Number");
             $('#Failed').modal('show');
         }
     };
-    
-    function BillDate()
-    {
+
+        function BillDate(){
         var RefNumber = $("#RefId").val();
-        if (RefNumber != "") {
-            $.getJSON("@Url.Action("GetSMIBillDate", "CoreAccounts")", { RefNumber: RefNumber },
-        function (result) {
-            $("#cashbookdate").text(result.Item1);
-            $("#billdate").text(result.Item2);
-            $("#expendituredate").text(result.Item3);
-        });
-    }
+            if (RefNumber != "") {
+
+            $.getJSON("@Url.Action("GetIMPBillDate", "CoreAccounts")", { RefNumber: RefNumber },
+                function (result) {
+                    $("#cashbookdate").text(result.Item1);
+                    $("#billdate").text(result.Item2);
+                    $("#expendituredate").text(result.Item3);
+
+                });
+        }
     }
 </script>
+
+
 
 
 

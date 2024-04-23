@@ -8603,7 +8603,9 @@ namespace IOAS.Controllers
         {
             BillStatusModel model = new BillStatusModel();
             DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            DateTime FinTo = (DateTime)Common.GetCurrentFinYearToDate();
             TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
+            TempData["FinTo"] = FinTo.ToString("yyyy-MM-dd");
             return View(model);
         }
         [HttpPost]
@@ -8614,7 +8616,9 @@ namespace IOAS.Controllers
             BillStatusModel data = new BillStatusModel();
             CoreAccountsService pro = new CoreAccountsService();
             DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            DateTime FinTo = (DateTime)Common.GetCurrentFinYearToDate();
             TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
+            TempData["FinTo"] = FinTo.ToString("yyyy-MM-dd");
             TempData["errMsg"] = pro.UpdatePDTBillDate(model, logged_in_user) == true ? "Success" : "Failed";
             return View(model);
         }
@@ -16472,6 +16476,8 @@ namespace IOAS.Controllers
         {
             BillStatusModel model = new BillStatusModel();
             DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            DateTime FinTo = (DateTime)Common.GetCurrentFinYearToDate();
+            TempData["FinTo"] = FinTo.ToString("yyyy-MM-dd");
             TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             return View(model);
         }
@@ -16483,6 +16489,8 @@ namespace IOAS.Controllers
             BillStatusModel data = new BillStatusModel();
             CoreAccountsService pro = new CoreAccountsService();
             DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            DateTime FinTo = (DateTime)Common.GetCurrentFinYearToDate();
+            TempData["FinTo"] = FinTo.ToString("yyyy-MM-dd");
             TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             //model.Message = pro.UpdateBillDate(model, logged_in_user) == true ? "Success" : "Failed";
             TempData["errMsg"] = pro.UpdateBillDate(model, logged_in_user) == true ? "Success" : "Failed";
@@ -16528,6 +16536,8 @@ namespace IOAS.Controllers
         {
             BillStatusModel model = new BillStatusModel();
             DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            DateTime FinTo = (DateTime)Common.GetCurrentFinYearToDate();
+            TempData["FinTo"] = FinTo.ToString("yyyy-MM-dd");
             TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             return View(model);
         }
@@ -16539,6 +16549,8 @@ namespace IOAS.Controllers
             BillStatusModel data = new BillStatusModel();
             CoreAccountsService pro = new CoreAccountsService();
             DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            DateTime FinTo = (DateTime)Common.GetCurrentFinYearToDate();
+            TempData["FinTo"] = FinTo.ToString("yyyy-MM-dd");
             TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             TempData["errMsg"] = pro.UpdateTravelBillDate(model, logged_in_user) == true ? "Success" : "Failed";
             return View(model);
@@ -16583,6 +16595,8 @@ namespace IOAS.Controllers
         {
             BillStatusModel model = new BillStatusModel();
             DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            DateTime FinTo = (DateTime)Common.GetCurrentFinYearToDate();
+            TempData["FinTo"] = FinTo.ToString("yyyy-MM-dd");
             TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             return View(model);
         }
@@ -16594,7 +16608,9 @@ namespace IOAS.Controllers
             BillStatusModel data = new BillStatusModel();
             CoreAccountsService pro = new CoreAccountsService();
             DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            DateTime FinTo = (DateTime)Common.GetCurrentFinYearToDate();
             TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
+            TempData["FinTo"] = FinTo.ToString("yyyy-MM-dd");
             TempData["errMsg"] = pro.UpdateCLPBillDate(model, logged_in_user) == true ? "Success" : "Failed";
             return View(model);
         }
@@ -16638,6 +16654,8 @@ namespace IOAS.Controllers
         {
             BillStatusModel model = new BillStatusModel();
             DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            DateTime FinTo = (DateTime)Common.GetCurrentFinYearToDate();
+            TempData["FinTo"] = FinTo.ToString("yyyy-MM-dd");
             TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             return View(model);
         }
@@ -16684,6 +16702,8 @@ namespace IOAS.Controllers
             BillStatusModel data = new BillStatusModel();
             CoreAccountsService pro = new CoreAccountsService();
             DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            DateTime FinTo = (DateTime)Common.GetCurrentFinYearToDate();
+            TempData["FinTo"] = FinTo.ToString("yyyy-MM-dd");
             TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             TempData["errMsg"] = pro.UpdateLCBillDate(model, logged_in_user) == true ? "Success" : "Failed";
             return View(model);
@@ -16694,6 +16714,8 @@ namespace IOAS.Controllers
         {
             BillStatusModel model = new BillStatusModel();
             DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            DateTime FinTo = (DateTime)Common.GetCurrentFinYearToDate();
+            TempData["FinTo"] = FinTo.ToString("yyyy-MM-dd");
             TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             return View(model);
         }
@@ -16705,6 +16727,8 @@ namespace IOAS.Controllers
             BillStatusModel data = new BillStatusModel();
             CoreAccountsService pro = new CoreAccountsService();
             DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            DateTime FinTo = (DateTime)Common.GetCurrentFinYearToDate();
+            TempData["FinTo"] = FinTo.ToString("yyyy-MM-dd");
             TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             TempData["errMsg"] = pro.UpdateHonorBillDate(model, logged_in_user) == true ? "Success" : "Failed";
             return View(model);
@@ -16749,6 +16773,8 @@ namespace IOAS.Controllers
 
             BillStatusModel model = new BillStatusModel();
             DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            DateTime FinTo = (DateTime)Common.GetCurrentFinYearToDate();
+            TempData["FinTo"] = FinTo.ToString("yyyy-MM-dd");
             TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             return View(model);
         }
@@ -16760,6 +16786,8 @@ namespace IOAS.Controllers
             BillStatusModel data = new BillStatusModel();
             CoreAccountsService pro = new CoreAccountsService();
             DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            DateTime FinTo = (DateTime)Common.GetCurrentFinYearToDate();
+            TempData["FinTo"] = FinTo.ToString("yyyy-MM-dd");
             TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             TempData["errMsg"] = pro.UpdateGVRBillDate(model, logged_in_user) == true ? "Success" : "Failed";
             return View(model);
@@ -16803,6 +16831,8 @@ namespace IOAS.Controllers
         {
             BillStatusModel model = new BillStatusModel();
             DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            DateTime FinTo = (DateTime)Common.GetCurrentFinYearToDate();
+            TempData["FinTo"] = FinTo.ToString("yyyy-MM-dd");
             TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             return View(model);
         }
@@ -16814,6 +16844,8 @@ namespace IOAS.Controllers
             BillStatusModel data = new BillStatusModel();
             CoreAccountsService pro = new CoreAccountsService();
             DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            DateTime FinTo = (DateTime)Common.GetCurrentFinYearToDate();
+            TempData["FinTo"] = FinTo.ToString("yyyy-MM-dd");
             TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             TempData["errMsg"] = pro.UpdateReimbursBillDate(model, logged_in_user) == true ? "Success" : "Failed";
             return View(model);
@@ -16857,6 +16889,8 @@ namespace IOAS.Controllers
         {
             BillStatusModel model = new BillStatusModel();
             DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            DateTime FinTo = (DateTime)Common.GetCurrentFinYearToDate();
+            TempData["FinTo"] = FinTo.ToString("yyyy-MM-dd");
             TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             return View(model);
         }
@@ -16868,6 +16902,8 @@ namespace IOAS.Controllers
             BillStatusModel data = new BillStatusModel();
             CoreAccountsService pro = new CoreAccountsService();
             DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            DateTime FinTo = (DateTime)Common.GetCurrentFinYearToDate();
+            TempData["FinTo"] = FinTo.ToString("yyyy-MM-dd");
             TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             TempData["errMsg"] = pro.UpdateReceiptBillDate(model, logged_in_user) == true ? "Success" : "Failed";
             return View(model);
@@ -19536,6 +19572,8 @@ namespace IOAS.Controllers
         {
             BillStatusModel model = new BillStatusModel();
             DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            DateTime FinTo = (DateTime)Common.GetCurrentFinYearToDate();
+            TempData["FinTo"] = FinTo.ToString("yyyy-MM-dd");
             TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             return View(model);
         }
@@ -19547,6 +19585,8 @@ namespace IOAS.Controllers
             BillStatusModel data = new BillStatusModel();
             CoreAccountsService pro = new CoreAccountsService();
             DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            DateTime FinTo = (DateTime)Common.GetCurrentFinYearToDate();
+            TempData["FinTo"] = FinTo.ToString("yyyy-MM-dd");
             TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             TempData["errMsg"] = pro.UpdatePFTBillDate(model, logged_in_user) == true ? "Success" : "Failed";
             return View(model);
@@ -19595,7 +19635,9 @@ namespace IOAS.Controllers
         {
             BillStatusModel model = new BillStatusModel();
             DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            DateTime FinTo = (DateTime)Common.GetCurrentFinYearToDate();
             TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
+            TempData["FinTo"] = FinTo.ToString("yyyy-MM-dd");
             return View(model);
         }
         [HttpPost]
@@ -19606,7 +19648,9 @@ namespace IOAS.Controllers
             BillStatusModel data = new BillStatusModel();
             CoreAccountsService pro = new CoreAccountsService();
             DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            DateTime FinTo = (DateTime)Common.GetCurrentFinYearToDate();
             TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
+            TempData["FinTo"] = FinTo.ToString("yyyy-MM-dd");
             TempData["errMsg"] = pro.UpdateContraBillDate(model, logged_in_user) == true ? "Success" : "Failed";
             return View(model);
         }
@@ -19645,6 +19689,8 @@ namespace IOAS.Controllers
         {
             BillStatusModel model = new BillStatusModel();
             DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            DateTime FinTo = (DateTime)Common.GetCurrentFinYearToDate();
+            TempData["FinTo"] = FinTo.ToString("yyyy-MM-dd");
             TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             return View(model);
         }
@@ -19656,6 +19702,8 @@ namespace IOAS.Controllers
             BillStatusModel data = new BillStatusModel();
             CoreAccountsService pro = new CoreAccountsService();
             DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            DateTime FinTo = (DateTime)Common.GetCurrentFinYearToDate();
+            TempData["FinTo"] = FinTo.ToString("yyyy-MM-dd");
             TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             TempData["errMsg"] = pro.UpdateImprestBillDate(model, logged_in_user) == true ? "Success" : "Failed";
             return View(model);
@@ -19695,6 +19743,8 @@ namespace IOAS.Controllers
         {
             BillStatusModel model = new BillStatusModel();
             DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            DateTime FinTo = (DateTime)Common.GetCurrentFinYearToDate();
+            TempData["FinTo"] = FinTo.ToString("yyyy-MM-dd");
             TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             return View(model);
         }
@@ -19706,6 +19756,8 @@ namespace IOAS.Controllers
             BillStatusModel data = new BillStatusModel();
             CoreAccountsService pro = new CoreAccountsService();
             DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            DateTime FinTo = (DateTime)Common.GetCurrentFinYearToDate();
+            TempData["FinTo"] = FinTo.ToString("yyyy-MM-dd");
             TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             TempData["errMsg"] = pro.UpdateImprestRecoupBillDate(model, logged_in_user) == true ? "Success" : "Failed";
             return View(model);
@@ -19745,6 +19797,8 @@ namespace IOAS.Controllers
         {
             BillStatusModel model = new BillStatusModel();
             DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            DateTime FinTo = (DateTime)Common.GetCurrentFinYearToDate();
+            TempData["FinTo"] = FinTo.ToString("yyyy-MM-dd");
             TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             return View(model);
         }
@@ -19756,6 +19810,8 @@ namespace IOAS.Controllers
             BillStatusModel data = new BillStatusModel();
             CoreAccountsService pro = new CoreAccountsService();
             DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            DateTime FinTo = (DateTime)Common.GetCurrentFinYearToDate();
+            TempData["FinTo"] = FinTo.ToString("yyyy-MM-dd");
             TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             TempData["errMsg"] = pro.UpdatePTPBillDate(model, logged_in_user) == true ? "Success" : "Failed";
             return View(model);
@@ -19796,6 +19852,8 @@ namespace IOAS.Controllers
         {
             BillStatusModel model = new BillStatusModel();
             DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            DateTime FinTo = (DateTime)Common.GetCurrentFinYearToDate();
+            TempData["FinTo"] = FinTo.ToString("yyyy-MM-dd");
             TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             return View(model);
         }
@@ -19807,6 +19865,8 @@ namespace IOAS.Controllers
             BillStatusModel data = new BillStatusModel();
             CoreAccountsService pro = new CoreAccountsService();
             DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            DateTime FinTo = (DateTime)Common.GetCurrentFinYearToDate();
+            TempData["FinTo"] = FinTo.ToString("yyyy-MM-dd");
             TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             TempData["errMsg"] = pro.UpdateSMIBillDate(model, logged_in_user) == true ? "Success" : "Failed";
             return View(model);
@@ -19847,7 +19907,10 @@ namespace IOAS.Controllers
         {
             BillStatusModel model = new BillStatusModel();
             DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
-TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
+            DateTime FinTo = (DateTime)Common.GetCurrentFinYearToDate();
+            TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
+            TempData["FinTo"] = FinTo.ToString("yyyy-MM-dd");
+
             return View(model);
         }
         [HttpPost]
@@ -19858,7 +19921,9 @@ TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             BillStatusModel data = new BillStatusModel();
             CoreAccountsService pro = new CoreAccountsService();
             DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            DateTime FinTo = (DateTime)Common.GetCurrentFinYearToDate();
             TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
+            TempData["FinTo"] = FinTo.ToString("yyyy-MM-dd");
             TempData["errMsg"] = pro.UpdateDISBillDate(model, logged_in_user) == true ? "Success" : "Failed";
             return View(model);
         }
@@ -19898,6 +19963,8 @@ TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
         {
             BillStatusModel model = new BillStatusModel();
             DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            DateTime FinTo = (DateTime)Common.GetCurrentFinYearToDate();
+            TempData["FinTo"] = FinTo.ToString("yyyy-MM-dd");
             TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             return View(model);
         }
@@ -19909,6 +19976,8 @@ TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             BillStatusModel data = new BillStatusModel();
             CoreAccountsService pro = new CoreAccountsService();
             DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            DateTime FinTo = (DateTime)Common.GetCurrentFinYearToDate();
+            TempData["FinTo"] = FinTo.ToString("yyyy-MM-dd");
             TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             TempData["errMsg"] = pro.UpdateFRMBillDate(model, logged_in_user) == true ? "Success" : "Failed";
             return View(model);
@@ -20824,6 +20893,8 @@ TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
         {
             BillStatusModel model = new BillStatusModel();
             DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            DateTime FinTo = (DateTime)Common.GetCurrentFinYearToDate();
+            TempData["FinTo"] = FinTo.ToString("yyyy-MM-dd");
             TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             return View(model);
         }
@@ -20835,6 +20906,8 @@ TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             BillStatusModel data = new BillStatusModel();
             CoreAccountsService pro = new CoreAccountsService();
             DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            DateTime FinTo = (DateTime)Common.GetCurrentFinYearToDate();
+            TempData["FinTo"] = FinTo.ToString("yyyy-MM-dd");
             TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             TempData["errMsg"] = pro.UpdateDOPBillDate(model, logged_in_user) == true ? "Success" : "Failed";
             return View(model);
@@ -20875,6 +20948,8 @@ TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
         {
             BillStatusModel model = new BillStatusModel();
             DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            DateTime FinTo = (DateTime)Common.GetCurrentFinYearToDate();
+            TempData["FinTo"] = FinTo.ToString("yyyy-MM-dd");
             TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             return View(model);
         }
@@ -20886,6 +20961,8 @@ TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             BillStatusModel data = new BillStatusModel();
             CoreAccountsService pro = new CoreAccountsService();
             DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            DateTime FinTo = (DateTime)Common.GetCurrentFinYearToDate();
+            TempData["FinTo"] = FinTo.ToString("yyyy-MM-dd");
             TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             TempData["errMsg"] = pro.UpdateOHARBillDate(model, logged_in_user) == true ? "Success" : "Failed";
             return View(model);
@@ -20926,6 +21003,8 @@ TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
         {
             BillStatusModel model = new BillStatusModel();
             DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            DateTime FinTo = (DateTime)Common.GetCurrentFinYearToDate();
+            TempData["FinTo"] = FinTo.ToString("yyyy-MM-dd");
             TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             return View(model);
         }
@@ -20937,6 +21016,8 @@ TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             BillStatusModel data = new BillStatusModel();
             CoreAccountsService pro = new CoreAccountsService();
             DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            DateTime FinTo = (DateTime)Common.GetCurrentFinYearToDate();
+            TempData["FinTo"] = FinTo.ToString("yyyy-MM-dd");
             TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             TempData["errMsg"] = pro.UpdateFDCBillDate(model, logged_in_user) == true ? "Success" : "Failed";
             return View(model);
@@ -20976,6 +21057,8 @@ TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
         {
             BillStatusModel model = new BillStatusModel();
             DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            DateTime FinTo = (DateTime)Common.GetCurrentFinYearToDate();
+            TempData["FinTo"] = FinTo.ToString("yyyy-MM-dd");
             TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             return View(model);
         }
@@ -20987,6 +21070,8 @@ TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             BillStatusModel data = new BillStatusModel();
             CoreAccountsService pro = new CoreAccountsService();
             DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            DateTime FinTo = (DateTime)Common.GetCurrentFinYearToDate();
+            TempData["FinTo"] = FinTo.ToString("yyyy-MM-dd");
             TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             TempData["errMsg"] = pro.UpdateFDTBillDate(model, logged_in_user) == true ? "Success" : "Failed";
             return View(model);
@@ -21026,6 +21111,8 @@ TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
         {
             BillStatusModel model = new BillStatusModel();
             DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            DateTime FinTo = (DateTime)Common.GetCurrentFinYearToDate();
+            TempData["FinTo"] = FinTo.ToString("yyyy-MM-dd");
             TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             return View(model);
         }
@@ -21037,6 +21124,8 @@ TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             BillStatusModel data = new BillStatusModel();
             CoreAccountsService pro = new CoreAccountsService();
             DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            DateTime FinTo = (DateTime)Common.GetCurrentFinYearToDate();
+            TempData["FinTo"] = FinTo.ToString("yyyy-MM-dd");
             TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             TempData["errMsg"] = pro.UpdateGstOffsetDate(model, logged_in_user) == true ? "Success" : "Failed";
             return View(model);
@@ -21076,6 +21165,8 @@ TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
         {
             BillStatusModel model = new BillStatusModel();
             DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            DateTime FinTo = (DateTime)Common.GetCurrentFinYearToDate();
+            TempData["FinTo"] = FinTo.ToString("yyyy-MM-dd");
             TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             return View(model);
         }
@@ -21087,6 +21178,8 @@ TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             BillStatusModel data = new BillStatusModel();
             CoreAccountsService pro = new CoreAccountsService();
             DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            DateTime FinTo = (DateTime)Common.GetCurrentFinYearToDate();
+            TempData["FinTo"] = FinTo.ToString("yyyy-MM-dd");
             TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             TempData["errMsg"] = pro.TdsPaymentDate(model, logged_in_user) == true ? "Success" : "Failed";
             return View(model);
@@ -21425,6 +21518,8 @@ TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
         {
             BillStatusModel model = new BillStatusModel();
             DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            DateTime FinTo = (DateTime)Common.GetCurrentFinYearToDate();
+            TempData["FinTo"] = FinTo.ToString("yyyy-MM-dd");
             TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             return View(model);
         }
@@ -21436,6 +21531,8 @@ TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             BillStatusModel data = new BillStatusModel();
             CoreAccountsService pro = new CoreAccountsService();
             DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            DateTime FinTo = (DateTime)Common.GetCurrentFinYearToDate();
+            TempData["FinTo"] = FinTo.ToString("yyyy-MM-dd");
             TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             TempData["errMsg"] = pro.UpdateOHPBillDate(model, logged_in_user) == true ? "Success" : "Failed";
             return View(model);
@@ -21727,7 +21824,9 @@ TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
         {
             BillStatusModel model = new BillStatusModel();
             DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            DateTime FinTo = (DateTime)Common.GetCurrentFinYearToDate();
             TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
+            TempData["FinTo"] = FinTo.ToString("yyyy-MM-dd");
             return View(model);
 
         }
@@ -21753,7 +21852,9 @@ TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             BillStatusModel data = new BillStatusModel();
             CoreAccountsService pro = new CoreAccountsService();
             DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            DateTime FinTo = (DateTime)Common.GetCurrentFinYearToDate();
             TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
+            TempData["FinTo"] = FinTo.ToString("yyyy-MM-dd");
             TempData["errMsg"] = pro.UpdateAVOBillDate(model, logged_in_user) == true ? "Success" : "Failed";
             return View(model);
         }
@@ -21792,6 +21893,8 @@ TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
         {
             BillStatusModel model = new BillStatusModel();
             DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            DateTime FinTo = (DateTime)Common.GetCurrentFinYearToDate();
+            TempData["FinTo"] = FinTo.ToString("yyyy-MM-dd");
             TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             return View(model);
         }
@@ -21803,6 +21906,8 @@ TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             BillStatusModel data = new BillStatusModel();
             CoreAccountsService pro = new CoreAccountsService();
             DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            DateTime FinTo = (DateTime)Common.GetCurrentFinYearToDate();
+            TempData["FinTo"] = FinTo.ToString("yyyy-MM-dd");
             TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             TempData["errMsg"] = pro.UpdateHCRDate(model, logged_in_user) == true ? "Success" : "Failed";
             return View(model);
@@ -22258,6 +22363,8 @@ TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
         {
             BillStatusModel model = new BillStatusModel();
             DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            DateTime FinTo = (DateTime)Common.GetCurrentFinYearToDate();
+            TempData["FinTo"] = FinTo.ToString("yyyy-MM-dd");
             TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             return View(model);
         }
@@ -22269,6 +22376,8 @@ TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             BillStatusModel data = new BillStatusModel();
             CoreAccountsService pro = new CoreAccountsService();
             DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            DateTime FinTo = (DateTime)Common.GetCurrentFinYearToDate();
+            TempData["FinTo"] = FinTo.ToString("yyyy-MM-dd");
             TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
             TempData["errMsg"] = pro.UpdateJournalBillDate(model, logged_in_user) == true ? "Success" : "Failed";
             return View(model);
@@ -22666,5 +22775,216 @@ TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
 
         //}
         #endregion
+
+        //IME 
+        public ActionResult ImprestEnhanceDateChange()
+        {
+            BillStatusModel model = new BillStatusModel();
+            DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            DateTime FinTo = (DateTime)Common.GetCurrentFinYearToDate(); 
+            TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
+            TempData["FinTo"] = FinTo.ToString("yyyy-MM-dd");
+
+            return View(model);
+        }
+        [HttpGet]
+        public JsonResult GetRefNumberForValidationIM(string Refnum, string vouchertype)
+        {
+            try
+            {
+                var data = Common.GetRefNumberForValidation(Refnum, vouchertype);
+                return Json(data, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        [HttpPost]
+        public ActionResult ImprestEnhanceDateChange(BillStatusModel model)
+        {
+            int logged_in_user = Common.GetUserid(User.Identity.Name);
+            var empty = new BillStatusModel();
+            BillStatusModel data = new BillStatusModel();
+            CoreAccountsService pro = new CoreAccountsService();
+            DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            DateTime FinTo = (DateTime)Common.GetCurrentFinYearToDate();
+            TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
+            TempData["FinTo"] = FinTo.ToString("yyyy-MM-dd");
+            TempData["errMsg"] = pro.UpdateIMEBillDate(model, logged_in_user) == true ? "Success" : "Failed";
+            return View(model);
+        }
+
+        [HttpGet]
+        public JsonResult LoadIERefernceNumber(string term)
+        {
+            try
+            {
+                string[] TypeCode = { "IME" };
+                var data = Common.GetAllReferenceNumber(TypeCode, term);
+                return Json(data, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        [HttpGet]
+        public JsonResult GetIMEBillDate(string RefNumber)
+        {
+            try
+            {
+                Common com = new Common();
+                object data = com.GetIMECurrentDate(RefNumber);
+                return Json(data, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        //IMP
+        public ActionResult ImprestMasterDateChange()
+        {
+            BillStatusModel model = new BillStatusModel();
+            DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            DateTime FinTo = (DateTime)Common.GetCurrentFinYearToDate();
+            TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
+            TempData["FinTo"] = FinTo.ToString("yyyy-MM-dd");
+            return View(model);
+        }
+        [HttpGet]
+        public JsonResult GetRefNumberForValidationIMP(string Refnum, string vouchertype)
+        {
+            try
+            {
+                var data = Common.GetRefNumberForValidation(Refnum, vouchertype);
+                return Json(data, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        [HttpPost]
+        public ActionResult ImprestMasterDateChange(BillStatusModel model)
+        {
+            int logged_in_user = Common.GetUserid(User.Identity.Name);
+            var empty = new BillStatusModel();
+            BillStatusModel data = new BillStatusModel();
+            CoreAccountsService pro = new CoreAccountsService();
+            DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            DateTime FinTo = (DateTime)Common.GetCurrentFinYearToDate();
+            TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
+            TempData["FinTo"] = FinTo.ToString("yyyy-MM-dd");
+            TempData["errMsg"] = pro.UpdateIMPBillDate(model, logged_in_user) == true ? "Success" : "Failed";
+            return View(model);
+        }
+
+        [HttpGet]
+        public JsonResult LoadIMPRefernceNumber(string term)
+        {
+            try
+            {
+                string[] TypeCode = { "IMP" };
+                var data = Common.GetAllReferenceNumber(TypeCode, term);
+                return Json(data, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        [HttpGet]
+        public JsonResult GetIMPBillDate(string RefNumber)
+        {
+            try
+            {
+                Common com = new Common();
+                object data = com.GetIMPCurrentDate(RefNumber);
+                return Json(data, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        //END IMP
+
+        //IMC
+        public ActionResult ImprestMasterCloseDateChange()
+        {
+            BillStatusModel model = new BillStatusModel();
+            DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            DateTime FinTo = (DateTime)Common.GetCurrentFinYearToDate();
+            TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
+            TempData["FinTo"] = FinTo.ToString("yyyy-MM-dd");
+            return View(model);
+        }
+        [HttpGet]
+        public JsonResult GetRefNumberForValidationIMC(string Refnum, string vouchertype)
+        {
+            try
+            {
+                var data = Common.GetRefNumberForValidation(Refnum, vouchertype);
+                return Json(data, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        [HttpPost]
+        public ActionResult ImprestMasterCloseDateChange(BillStatusModel model)
+        {
+            int logged_in_user = Common.GetUserid(User.Identity.Name);
+            var empty = new BillStatusModel();
+            BillStatusModel data = new BillStatusModel();
+            CoreAccountsService pro = new CoreAccountsService();
+            DateTime FinFrom = (DateTime)Common.GetCurrentFinYearFromDate();
+            DateTime FinTo = (DateTime)Common.GetCurrentFinYearToDate();
+            TempData["Finyear"] = FinFrom.ToString("yyyy-MM-dd");
+            TempData["FinTo"] = FinTo.ToString("yyyy-MM-dd");
+            TempData["errMsg"] = pro.UpdateIMCBillDate(model, logged_in_user) == true ? "Success" : "Failed";
+            return View(model);
+        }
+
+        [HttpGet]
+        public JsonResult LoadIMCRefernceNumber(string term)
+        {
+            try
+            {
+                string[] TypeCode = { "IMC" };
+                var data = Common.GetAllReferenceNumber(TypeCode, term);
+                return Json(data, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        [HttpGet]
+        public JsonResult GetIMCBillDate(string RefNumber)
+        {
+            try
+            {
+                Common com = new Common();
+                object data = com.GetIMCCurrentDate(RefNumber);
+                return Json(data, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        //END IMC
+
     }
 }
