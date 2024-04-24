@@ -159,14 +159,17 @@ namespace IOAS.Controllers
                     if (AddEntry == 1 && model.TapalId == 0)
                     {
                         TempData["SuccMsg"] = "New entry has been added successfully";
+                        return RedirectToAction("Tapal", "Facility");
                     }
                     else if (AddEntry == 1 && model.TapalId > 0)
                     {
                         TempData["SuccMsg"] = "Inward has been updated successfully";
+                        return RedirectToAction("Tapal", "Facility");
                     }
                     else
                     {
                         TempData["errMsg"] = "Something went wrong please contact administrator";
+                        return RedirectToAction("Tapal", "Facility");
                     }
                 }
                 else
@@ -176,8 +179,9 @@ namespace IOAS.Controllers
                                         .Select(x => x.ErrorMessage));
 
                     TempData["errMsg"] = messages;
+                    return RedirectToAction("Tapal", "Facility");
                 }
-                return RedirectToAction("Tapal");
+                //return RedirectToAction("Tapal");
             }
             catch (Exception ex)
             {
