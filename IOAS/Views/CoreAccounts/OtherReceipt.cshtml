@@ -367,27 +367,28 @@
     var errMsg = '@TempData["errMsg"]';
     var succMsg = '@TempData["succMsg"]';
 
-    $(document).ready(function () {
+        $(document).ready(function () {
+            //$('#Bank').addClass('dis-none');
         $('#SanctionOrderDate').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy', changeYear: true, yearRange: '-30:+0' });
         $('#RefDate').datepicker({ maxDate: 0, dateFormat: 'dd-MM-yy' });
         //  applyAutoComplete($('#Project'), $('#ProjectId'), "@Url.Action("LoadProjectList", "CoreAccounts")");
         applyAutoComplete($('#Project'), $('#ProjectId'), '@Url.Action("LoadProjectNumber","CoreAccounts")', 'ProjectSummary', undefined, undefined);
         if (succMsg != '') {
             $('#alertSuccess').html(succMsg);
-            $('#Success').modal('toggle');
+            $('#Success').modal('toggle'); 
         }
         else if (errMsg != '') {
             $('#FailedAlert').html(errMsg);
-            $('#Failed').modal('toggle');
+            $('#Failed').modal('toggle');          
         }
-
+                      
         resetForm();
         CalculateTxTotal();
         ProjectSummary('update');
 
         var isReceiptReversal = $('#categorydropdown').val();        
         if (isReceiptReversal == 18)
-        {
+        {          
             GetFreezeValueData();
         }
        
@@ -395,7 +396,7 @@
     });
     $('#InvoiceNo').blur(function () {
         if ($(this).val() == '') {
-            $('#InvoiceId,#InvoiceTypeId').val('');
+            $('#InvoiceId,#InvoiceTypeId,#Bank').val('');
         }
     });
     //$('#IsProject').click(function () {
@@ -408,7 +409,7 @@
     //});
 
     function ProjectSummary(mode) {
-        $('.loading-bg').removeClass('dis-none');
+        $('.loading-bg').removeClass('dis-none');        
         var projectId = $("#ProjectId").val();
         if (projectId != "" || projectId != 0) {
             $.getJSON("@Url.Action("LoadProjectDetails", "Account")", { ProjectId: projectId },
@@ -456,6 +457,7 @@
                     $("#alert").text("Overhead not posted against this receipt.");
                     $('#Validation').modal('show');
                     $('.loading-bg').addClass('dis-none');
+                    $('#Bank').addClass('dis-none');
                 } else {
                     var data = result.data;
                     $('#tbodyDeductionList tr td').find('input[name$=".Amount"]').val('');
@@ -650,7 +652,7 @@
                 }
             }
             var code = $('#ModeOfReceipt').val();
-            if (code == 0 || code == null || code == "") {
+            if ((code == 0 || code == null || code == "") && (CategoryVal != 15 && CategoryVal != 18)) {
                 isValid = false;
                 $('#alert').html("Please Enter ModeOfReceipt");
                 $('#Validation').modal('toggle');
@@ -659,7 +661,7 @@
 
             var Proj = $('#Project').val();
 
-            if (Proj == null || Proj == "") {
+            if ((Proj == null || Proj == "") && (CategoryVal != 14 && CategoryVal != 1)) {
                 isValid = false;
                 $('#alert').html("Please Enter Project");
                 $('#Validation').modal('toggle');
