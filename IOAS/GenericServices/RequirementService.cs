@@ -2293,9 +2293,9 @@ namespace IOAS.GenericServices
                         model.ProjectNumber = Common.GetProjectNameandNumber(QrySTE.A.ProjectId ?? 0);
                         model.isHaveGateScore = QrySTE.A.isHaveGateScore == true ? "Yes" : "No";
                         model.GateScore = QrySTE.A.GateScore;
-                        model.CommitteeRemark = QrySTE.A.CommitteeRemarks;
+                        //model.CommitteeRemark = QrySTE.A.CommitteeRemarks;
                         int CommitteApprovalID = QrySTE.A.CommitteeApprovedBy ?? 0;
-                        model.CommitteeApprovedBy = Common.GetPIName(CommitteApprovalID);
+                        //model.CommitteeApprovedBy = Common.GetPIName(CommitteApprovalID);
                         model.isCommiteeRejection = QrySTE.A.Status == "Committee Clarify" ? true : false;
                         //model.CommitteeApprovedBy = QrySTE.A.CommitteeApprovedBy;
                         List<STEEducationModel> EducationList = new List<STEEducationModel>();
@@ -2334,6 +2334,26 @@ namespace IOAS.GenericServices
                                 });
                             }
                         }
+                        model.Qualification = Common.getQualificationWordings(STEID, "STE");
+
+                        //var data = Common.getCommitmentRemarks(OSGID);
+                        // model.CommitteeRemark = data;
+                        //var UserIDList = (from CA in context.tblRCTCommitteeApprovalLog
+                        //                  where CA.ApplicationId == OSGID
+                        //                  select CA).ToList();
+
+                        var UserIDList = (from po in context.tblRCTCommitteeApprovalLog
+                                          join user in context.vwFacultyStaffDetails on po.CRTD_By equals user.UserId
+                                          where po.ApplicationCategory == "OSG" && po.ApplicationId == STEID
+                                          select new CommitteeRemarkModel
+                                          {
+                                              CommitteeApprovedBy = user.FirstName,
+                                              CreatedDate = po.CRTD_TS,
+                                              CommitteeRemark = po.Remarks
+
+                                          }).OrderByDescending(m => m.CreatedDate).ToList();
+
+                        model.remarks = UserIDList;
                         //model.EducationDetail = EducationList;
                         model.EducationDetail = EducationList.Count > 0 ? EducationList : null;
 
@@ -18749,9 +18769,9 @@ namespace IOAS.GenericServices
                         model.isHaveGateScore = QryOSG.A.isHaveGateScore == true ? "Yes" : "No";
                         model.GateScore = QryOSG.A.GateScore ?? 0;
                         model.EmployeeWorkplace = QryOSG.A.EmployeeWorkplace;
-                        model.CommitteeRemark = QryOSG.A.CommitteeRemarks;
+                        //model.CommitteeRemark = QryOSG.A.CommitteeRemarks;
                         int CommitteApprovalID = QryOSG.A.CommitteeApprovedBy ?? 0;
-                        model.CommitteeApprovedBy = Common.GetPIName(CommitteApprovalID);
+                        //model.CommitteeApprovedBy = Common.GetPIName(CommitteApprovalID);
                         model.StatutoryId = Qrysalcalc.StatutoryId;
                         model.RecommendedSalary = Qrysalcalc.RecommendSalary;
                         model.EmpSalutation = Qrysalcalc.Salutation;

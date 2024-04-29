@@ -626,8 +626,8 @@ namespace IOAS.Models
         [Required]
         public Nullable<decimal> CommitmentAmount { get; set; }
         public string Comments { get; set; }
-        public string CommitteeRemark { get; set; }
-        public string CommitteeApprovedBy { get; set; }
+        //public string CommitteeRemark { get; set; }
+        //public string CommitteeApprovedBy { get; set; }
         public string CommiteeMember1 { get; set; }
         public Nullable<int> CommiteeMemberId1 { get; set; }
         public string CommiteeMember2 { get; set; }
@@ -734,8 +734,16 @@ namespace IOAS.Models
         public Nullable<int> SalaryLevelId { get; set; }
         public Nullable<int> WfId { get; set; }
         public string IITMExperience { get; set; }
+        public List<CommitteeRemarkModel> remarks { get; set; }
+        public string Qualification { get; set; }
     }
+    public class CommitteeRemarkModel
+    {
+        public string CommitteeRemark { get; set; }
+        public string CommitteeApprovedBy { get; set; }
+        public Nullable<DateTime> CreatedDate { get; set; }
 
+    }
     public class STEEducationModel
     {
         public Nullable<int> EducationId { get; set; }

@@ -18478,8 +18478,8 @@ namespace IOAS.Infrastructure
                     else
                     {
                         pro = (from C in context.tblBOA
-                               where C.Status == "Posted" && TypeCode.Contains(C.RefTransactionCode ?? "")
-                               && C.RefNumber.Contains(term)
+                               where C.Status == "Posted" && TypeCode.Contains(C.TransactionTypeCode ?? "")
+                                && C.RefNumber.Contains(term)
                                && C.RefNumber.Contains(FinYear)
                                orderby C.BOAId descending
                                select new AutoCompleteModel()
