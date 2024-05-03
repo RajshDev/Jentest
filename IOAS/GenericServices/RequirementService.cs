@@ -2344,7 +2344,7 @@ namespace IOAS.GenericServices
 
                         var UserIDList = (from po in context.tblRCTCommitteeApprovalLog
                                           join user in context.vwFacultyStaffDetails on po.CRTD_By equals user.UserId
-                                          where po.ApplicationCategory == "OSG" && po.ApplicationId == STEID
+                                          where po.ApplicationCategory == "STE" && po.ApplicationId == STEID
                                           select new CommitteeRemarkModel
                                           {
                                               CommitteeApprovedBy = user.FirstName,
@@ -18828,6 +18828,18 @@ namespace IOAS.GenericServices
                                 model.EducationDetail[i].Discipline = Discipline;
                             }
                         }
+                        var UserIDList = (from po in context.tblRCTCommitteeApprovalLog
+                                          join user in context.vwFacultyStaffDetails on po.CRTD_By equals user.UserId
+                                          where po.ApplicationCategory == "OSG" && po.ApplicationId == OSGID
+                                          select new CommitteeRemarkModel
+                                          {
+                                              CommitteeApprovedBy = user.FirstName,
+                                              CreatedDate = po.CRTD_TS,
+                                              CommitteeRemark = po.Remarks
+
+                                          }).OrderByDescending(m => m.CreatedDate).ToList();
+
+                        model.remarks = UserIDList;
                         model.EducationDetail = model.EducationDetail.Count > 0 ? model.EducationDetail : null;
                         //model.ExperienceDetail = (from c in context.tblRCTOSGExperienceDetail
                         //                          from d in context.tblCodeControl
